@@ -23,6 +23,7 @@
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QCheckBox>
 #include <QLabel>
 #include <QPushButton>
 #include <QSettings>
@@ -197,6 +198,9 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   mUnstagedCommitedFiles = new QLabel(kUnstagedFiles);
   hBoxLayout->addWidget(mUnstagedCommitedFiles);
   hBoxLayout->addStretch();
+  mShowAllFiles = new QCheckBox(tr("Show all files"), this);
+  mShowAllFiles->setVisible(false);
+  hBoxLayout->addWidget(mShowAllFiles);
   collapseButtonUnstagedFiles =
       new StatePushButton(kCollapseAll, kExpandAll, this);
   hBoxLayout->addWidget(collapseButtonUnstagedFiles);
@@ -288,6 +292,8 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
           &DoubleTreeWidget::toggleCollapseStagedFiles);
   connect(collapseButtonUnstagedFiles, &StatePushButton::clicked, this,
           &DoubleTreeWidget::toggleCollapseUnstagedFiles);
+  connect(mShowAllFiles, &QCheckBox::toggled, this,
+          [this] { setDiff(mDiff); });
 
   connect(repo.notifier(), &git::RepositoryNotifier::indexChanged, this,
           [this](const QStringList &paths) { mDiffTreeModel->refresh(paths); });
@@ -428,7 +434,6 @@ void DoubleTreeWidget::setDiff(const git::Diff &diff, const QString &file,
   // because of this, the content in the view is shown.
   TreeProxy *proxy = static_cast<TreeProxy *>(unstagedFiles->model());
   DiffTreeModel *model = static_cast<DiffTreeModel *>(proxy->sourceModel());
-  model->setDiff(diff);
 
   // Single tree & list view.
   bool singleTree =
@@ -446,6 +451,12 @@ void DoubleTreeWidget::setDiff(const git::Diff &diff, const QString &file,
   // Widget modifications.
   model->enableListView(listView);
   model->setMultiColumn(multiColumn);
+  const bool commitDiff = diff.isValid() && !diff.isStatusDiff();
+  const bool showAllFiles = commitDiff && mShowAllFiles->isChecked();
+  if (showAllFiles)
+    model->setTree(RepoView::parentView(this)->tree(), diff);
+  else
+    model->setDiff(diff);
   stagedFiles->setRootIsDecorated(!listView);
   unstagedFiles->setRootIsDecorated(!listView);
   // mUnstagedCommitedFiles->setVisible(!singleTree);
@@ -460,6 +471,8 @@ void DoubleTreeWidget::setDiff(const git::Diff &diff, const QString &file,
   // the commited files must be shown
   if (!diff.isValid() || diff.isStatusDiff()) {
     mUnstagedCommitedFiles->setText(singleTree ? kAllFiles : kUnstagedFiles);
+    mUnstagedCommitedFiles->setEnabled(true);
+    mShowAllFiles->setVisible(false);
     if (diff.isValid() && diff.count() < fileCountExpansionThreshold)
       stagedFiles->expandAll();
     else
@@ -469,6 +482,8 @@ void DoubleTreeWidget::setDiff(const git::Diff &diff, const QString &file,
     mStagedWidget->setVisible(!singleTree);
   } else {
     mUnstagedCommitedFiles->setText(kCommitedFiles);
+    mUnstagedCommitedFiles->setEnabled(!showAllFiles);
+    mShowAllFiles->setVisible(true);
     mStagedWidget->setVisible(false);
   }
 
@@ -623,7 +638,7 @@ void DoubleTreeWidget::loadEditorContent(const QModelIndexList &indexes) {
     QList<git::Commit> commits = view->commits();
     commit = !commits.isEmpty() ? commits.first() : git::Commit();
     int idx = mDiff.isValid() ? mDiff.indexOf(name) : -1;
-    blob = idx < 0 ? git::Blob()
+    blob = idx < 0 ? commit.blob(name)
                    : view->repo().lookupBlob(mDiff.id(idx, git::Diff::NewFile));
   }
 

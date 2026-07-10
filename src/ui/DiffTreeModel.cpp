@@ -12,6 +12,7 @@
 #include "conf/Settings.h"
 #include "git/Blob.h"
 #include "git/Diff.h"
+#include "git/Object.h"
 #include "git/RevWalk.h"
 #include "git/Submodule.h"
 #include "git/Patch.h"
@@ -53,19 +54,49 @@ void DiffTreeModel::createDiffTree() {
   for (int patchNum = 0; patchNum < mDiff.count(); ++patchNum) {
     QString path = mDiff.name(patchNum);
     auto pathParts = path.split("/");
-    mRoot->addChild(pathParts, patchNum, 0, mListView);
+    mRoot->addChild(pathParts, patchNum, mListView);
+  }
+}
+
+void DiffTreeModel::addTree(const git::Tree &tree, const QString &prefix) {
+  for (int i = 0; i < tree.count(); ++i) {
+    const QString name = tree.name(i);
+    const QString path = prefix.isEmpty() ? name : prefix % "/" % name;
+    const git::Object object = tree.object(i);
+
+    if (object.type() == GIT_OBJECT_TREE) {
+      addTree(git::Tree(object), path);
+    } else {
+      mRoot->addChild(path.split("/"),
+                      mDiff.isValid() ? mDiff.indexOf(path) : -1, mListView);
+    }
   }
 }
 
 void DiffTreeModel::setDiff(const git::Diff &diff) {
   beginResetModel();
 
+  delete mRoot;
+  mRoot = nullptr;
   if (diff) {
-    delete mRoot;
     mDiff = diff;
     mRoot = new Node(mRepo.workdir().path(), -1);
     createDiffTree();
+  } else {
+    mDiff = git::Diff();
   }
+
+  endResetModel();
+}
+
+void DiffTreeModel::setTree(const git::Tree &tree, const git::Diff &diff) {
+  beginResetModel();
+
+  delete mRoot;
+  mDiff = diff;
+  mRoot = tree.isValid() ? new Node(mRepo.workdir().path(), -1) : nullptr;
+  if (mRoot)
+    addTree(tree);
 
   endResetModel();
 }
@@ -485,6 +516,10 @@ void Node::addChild(const QStringList &pathPart, int patchIndex,
     mChildren.append(node);
 }
 
+void Node::addChild(const QStringList &pathPart, int patchIndex, bool listView) {
+  addChild(pathPart, patchIndex, 0, listView);
+}
+
 git::Index::StagedState
 Node::stageState(const git::Index &idx, ParentStageState searchingState) const {
   git::Index::StagedState childState = idx.isStaged(path(true));
@@ -548,8 +583,8 @@ int Node::fileCount() const {
 
 void Node::patchIndices(QList<int> &list) {
   if (!hasChildren()) {
-    assert(patchIndex() >= 0);
-    list.append(patchIndex());
+    if (patchIndex() >= 0)
+      list.append(patchIndex());
     return;
   }
 

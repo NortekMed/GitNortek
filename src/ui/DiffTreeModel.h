@@ -37,6 +37,7 @@ public:
   QList<Node *> children() const;
   void addChild(const QStringList &pathPart, int patchIndex,
                 int indexFirstDifferent, bool listView);
+  void addChild(const QStringList &pathPart, int patchIndex, bool listView);
   git::Index::StagedState stageState(const git::Index &idx,
                                      ParentStageState searchingState) const;
   void childFiles(QStringList &files);
@@ -98,6 +99,7 @@ public:
   virtual ~DiffTreeModel();
 
   void setDiff(const git::Diff &diff = git::Diff());
+  void setTree(const git::Tree &tree, const git::Diff &diff = git::Diff());
   void refresh(const QStringList &paths);
   void setMultiColumn(bool);
 
@@ -158,6 +160,7 @@ signals:
 
 private:
   void handleDataChanged(const QModelIndex &index, int role);
+  void addTree(const git::Tree &tree, const QString &prefix = QString());
 
 private:
   Node *node(const QModelIndex &index) const;

@@ -373,8 +373,20 @@ bool DiffView::canFetchMore() {
   auto dtw = dynamic_cast<DoubleTreeWidget *>(
       mParent); // for an unknown reason parent() and p are not the same
   assert(dtw);
-  return mDiff.isValid() &&
-         mFiles.size() < mDiffTreeModel->fileCount(dtw->selectedIndex());
+  if (!mDiff.isValid())
+    return false;
+
+  QList<QModelIndex> indexList = dtw->selectedIndices();
+  int fileCount = 0;
+  for (auto index : indexList) {
+    const QList<QModelIndex> modelIndices = mDiffTreeModel->modelIndices(index);
+    for (auto modelIndex : modelIndices) {
+      if (modelIndex.data(DiffTreeModel::PatchIndexRole).toInt() >= 0)
+        ++fileCount;
+    }
+  }
+
+  return mFiles.size() < fileCount;
 }
 
 /*!
@@ -426,7 +438,8 @@ void DiffView::fetchMore(int fetchWidgets) {
     for (auto index : indexList) {
       QList<QModelIndex> addList = mDiffTreeModel->modelIndices(index);
       for (auto add : addList) {
-        if (!indices.contains(add))
+        if (add.data(DiffTreeModel::PatchIndexRole).toInt() >= 0 &&
+            !indices.contains(add))
           indices.append(add);
       }
     }

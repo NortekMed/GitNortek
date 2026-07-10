@@ -22,6 +22,7 @@ class BlameEditor;
 class StatePushButton;
 class DiffView;
 class QLabel;
+class QCheckBox;
 
 // button in treeview:
 // https://stackoverflow.com/questions/40716138/how-to-add-a-button-to-a-qtreeview-row
@@ -79,6 +80,7 @@ private:
   StatePushButton *collapseButtonStagedFiles{nullptr};
   StatePushButton *collapseButtonUnstagedFiles{nullptr};
   QLabel *mUnstagedCommitedFiles{nullptr};
+  QCheckBox *mShowAllFiles{nullptr};
 
   struct SelectedFile {
     QString filename;
