@@ -43,6 +43,7 @@ private:
 
   friend class Index;
   friend class Repository;
+  friend class Submodule;
 };
 
 uint qHash(const Id &key);

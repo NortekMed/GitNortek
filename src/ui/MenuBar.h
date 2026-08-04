@@ -124,6 +124,7 @@ private:
 
   // Submodule
   QAction *mConfigureSubmodules;
+  QAction *mCheckSubmoduleUpdates;
   QAction *mUpdateSubmodules;
   QAction *mInitSubmodules;
   QMenu *mOpenSubmodule;

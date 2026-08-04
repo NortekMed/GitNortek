@@ -10,10 +10,12 @@
 #ifndef SUBMODULE_H
 #define SUBMODULE_H
 
+#include "Id.h"
 #include "Remote.h"
 #include "Result.h"
 #include "git2/submodule.h"
 #include <QSharedPointer>
+#include <QString>
 
 namespace git {
 
@@ -22,6 +24,28 @@ class Repository;
 
 class Submodule {
 public:
+  struct UpdateStatus {
+    enum State {
+      UpToDate,
+      UpdateAvailable,
+      DifferentHistory,
+      NotTracked,
+      Unknown,
+      Error
+    };
+
+    State state = Unknown;
+    QString name;
+    QString path;
+    QString url;
+    QString branch;
+    Id pinnedId;
+    Id targetId;
+    QString message;
+
+    bool canUpdate() const { return state == UpdateAvailable; }
+  };
+
   Submodule();
 
   bool isValid() const { return !d.isNull(); }
@@ -46,6 +70,7 @@ public:
 
   Result update(Remote::Callbacks *callbacks, bool init = false,
                 bool checkout_force = false);
+  UpdateStatus checkForUpdates(Remote::Callbacks *callbacks) const;
 
   Repository open() const;
 

@@ -280,6 +280,7 @@ public:
       const QList<git::Submodule> &submodules = QList<git::Submodule>(),
       bool recursive = true, bool init = false, bool checkout_force = false,
       LogEntry *parent = nullptr, bool restoreSelection = true);
+  void checkSubmoduleUpdates(bool automatic = false);
   bool openSubmodule(const git::Submodule &submodule);
 
   // config
@@ -427,6 +428,8 @@ private:
   QTimer mFetchTimer;
   RemoteCallbacks *mCallbacks = nullptr;
   QFutureWatcher<git::Result> *mWatcher = nullptr;
+  QFutureWatcher<QList<git::Submodule::UpdateStatus>> *mSubmoduleUpdateWatcher =
+      nullptr;
 
   QList<QWidget *> mTrackedWindows;
 

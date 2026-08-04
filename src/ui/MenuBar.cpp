@@ -722,6 +722,12 @@ MenuBar::MenuBar(QWidget *parent) : QMenuBar(parent) {
 
   submodule->addSeparator();
 
+  mCheckSubmoduleUpdates = submodule->addAction(tr("Check for Updates"));
+  connect(mCheckSubmoduleUpdates, &QAction::triggered,
+          [this] { view()->checkSubmoduleUpdates(); });
+
+  submodule->addSeparator();
+
   mUpdateSubmodules = submodule->addAction(tr("Update All"));
   updateSubmodulesHotkey.use(mUpdateSubmodules);
   connect(mUpdateSubmodules, &QAction::triggered,
@@ -1107,6 +1113,7 @@ void MenuBar::updateSubmodules() {
       view ? view->repo().submodules() : QList<git::Submodule>();
 
   mConfigureSubmodules->setEnabled(view);
+  mCheckSubmoduleUpdates->setEnabled(!submodules.isEmpty());
   mUpdateSubmodules->setEnabled(!submodules.isEmpty());
   mInitSubmodules->setEnabled(!submodules.isEmpty());
 

@@ -106,6 +106,8 @@ public:
     mPushCommit = new QCheckBox(tr("Push after each commit"), this);
     mPullUpdate =
         new QCheckBox(tr("Update submodules after pull and clone"), this);
+    mCheckSubmoduleUpdates = new QCheckBox(
+        tr("Check submodules for updates when opening repositories"), this);
     mAutoPrune = new QCheckBox(tr("Prune when fetching"), this);
     mNoTranslation = new QCheckBox(tr("No translation"), this);
     mLanguages = new QComboBox(this);
@@ -133,6 +135,7 @@ public:
     form->addRow(tr("Automatic actions:"), fetchLayout);
     form->addRow(QString(), mPushCommit);
     form->addRow(QString(), mPullUpdate);
+    form->addRow(QString(), mCheckSubmoduleUpdates);
     form->addRow(QString(), mAutoPrune);
     form->addRow(tr("Language:"), mNoTranslation);
     form->addRow(tr("Language:"), mLanguages);
@@ -189,6 +192,11 @@ public:
     connect(mPullUpdate, &QCheckBox::toggled, [](bool checked) {
       Settings::instance()->setValue(
           Setting::Id::UpdateSubmodulesAfterPullAndClone, checked);
+    });
+
+    connect(mCheckSubmoduleUpdates, &QCheckBox::toggled, [](bool checked) {
+      Settings::instance()->setValue(
+          Setting::Id::CheckSubmodulesForUpdatesAutomatically, checked);
     });
 
     connect(mAutoPrune, &QCheckBox::toggled, [](bool checked) {
@@ -249,6 +257,9 @@ public:
     mPullUpdate->setChecked(
         settings->value(Setting::Id::UpdateSubmodulesAfterPullAndClone)
             .toBool());
+    mCheckSubmoduleUpdates->setChecked(
+        settings->value(Setting::Id::CheckSubmodulesForUpdatesAutomatically)
+            .toBool());
     mAutoPrune->setChecked(
         settings->value(Setting::Id::PruneAfterFetch).toBool());
 
@@ -299,6 +310,7 @@ private:
   QSpinBox *mFetchMinutes;
   QCheckBox *mPushCommit;
   QCheckBox *mPullUpdate;
+  QCheckBox *mCheckSubmoduleUpdates;
   QCheckBox *mAutoPrune;
   QCheckBox *mNoTranslation;
   QComboBox *mLanguages;

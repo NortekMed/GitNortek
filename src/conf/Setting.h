@@ -29,6 +29,7 @@ public:
     AutomaticFetchPeriodInMinutes,
     PushAfterEachCommit,
     UpdateSubmodulesAfterPullAndClone,
+    CheckSubmodulesForUpdatesAutomatically,
     PruneAfterFetch,
     FontFamily,
     FontSize,

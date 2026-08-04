@@ -11,10 +11,72 @@
 #include "Config.h"
 #include "Id.h"
 #include "Repository.h"
+#include "git2/buffer.h"
+#include "git2/graph.h"
+#include "git2/remote.h"
+#include "git2/sys/errors.h"
+#include <QObject>
+#include <QRegularExpression>
 
 namespace git {
 
 const QString kUrl = "https://github.com/Murmele/Gittyup";
+const QString kUpdateCheckRemote = "gitnortek-submodule-check";
+
+void configureFetchCallbacks(git_fetch_options &opts,
+                             Remote::Callbacks *callbacks, const QString &url) {
+#ifndef USE_SYSTEM_LIBGIT2
+  opts.callbacks.connected = &Remote::Callbacks::connected;
+  opts.callbacks.about_to_disconnect = &Remote::Callbacks::about_to_disconnect;
+#endif
+  opts.callbacks.sideband_progress = &Remote::Callbacks::sideband;
+  opts.callbacks.credentials = &Remote::Callbacks::credentials;
+  opts.callbacks.certificate_check = &Remote::Callbacks::certificate;
+  opts.callbacks.transfer_progress = &Remote::Callbacks::transfer;
+  opts.callbacks.update_tips = &Remote::Callbacks::update;
+  opts.callbacks.remote_ready = &Remote::Callbacks::remoteReady;
+  opts.callbacks.payload = callbacks;
+}
+
+QString shortBranchName(const QString &name) {
+  if (name.startsWith("refs/heads/"))
+    return name.mid(QString("refs/heads/").size());
+
+  return name;
+}
+
+QString refNameBranch(const QString &branch) {
+  return branch.startsWith("refs/heads/")
+             ? branch
+             : QString("refs/heads/%1").arg(branch);
+}
+
+QString localTargetRef(const QString &branch) {
+  QString name = shortBranchName(branch);
+  name.replace(QRegularExpression("[^A-Za-z0-9._/-]"), "-");
+  return QString("refs/remotes/%1/%2").arg(kUpdateCheckRemote, name);
+}
+
+Submodule::UpdateStatus statusError(const Submodule &submodule,
+                                    const QString &message) {
+  Submodule::UpdateStatus status;
+  status.state = Submodule::UpdateStatus::Error;
+  status.name = submodule.name();
+  status.path = submodule.path();
+  status.url = submodule.url();
+  status.branch = submodule.branch();
+  status.pinnedId = submodule.indexId();
+  status.message = message;
+  return status;
+}
+
+QString lastError(const QString &fallback) {
+  const git_error *error = git_error_last();
+  if (error && error->message)
+    return QString::fromUtf8(error->message);
+
+  return fallback.isEmpty() ? QObject::tr("Unknown error.") : fallback;
+}
 
 Submodule::Submodule() {}
 
@@ -104,6 +166,110 @@ Result Submodule::update(Remote::Callbacks *callbacks, bool init,
   opts.fetch_opts.proxy_opts.url = proxy;
 
   return git_submodule_update(d.data(), init, &opts);
+}
+
+Submodule::UpdateStatus
+Submodule::checkForUpdates(Remote::Callbacks *callbacks) const {
+  UpdateStatus status;
+  status.name = name();
+  status.path = path();
+  status.url = url();
+  status.branch = branch();
+  status.pinnedId = indexId();
+
+  git_buf resolvedUrl = GIT_BUF_INIT;
+  if (!git_submodule_resolve_url(&resolvedUrl, git_submodule_owner(d.data()),
+                                 status.url.toUtf8()))
+    status.url = QString::fromUtf8(resolvedUrl.ptr);
+  git_buf_dispose(&resolvedUrl);
+
+  if (status.pinnedId.isNull()) {
+    status.message = QObject::tr("No pinned submodule commit is recorded.");
+    return status;
+  }
+
+  git_repository *repo = nullptr;
+  int error = git_submodule_open(&repo, d.data());
+  if (error)
+    return statusError(
+        *this,
+        lastError(QObject::tr("The submodule repository is not initialized.")));
+
+  QSharedPointer<git_repository> repoPtr(repo, git_repository_free);
+
+  git_remote *remote = nullptr;
+  error = git_remote_create_anonymous(&remote, repo, status.url.toUtf8());
+  if (error)
+    return statusError(*this,
+                       lastError(QObject::tr("Unable to create remote.")));
+
+  QSharedPointer<git_remote> remotePtr(remote, git_remote_free);
+
+  git_fetch_options opts = GIT_FETCH_OPTIONS_INIT;
+  configureFetchCallbacks(opts, callbacks, status.url);
+  opts.follow_redirects = GIT_REMOTE_REDIRECT_INITIAL;
+
+  QByteArray proxy = Remote::proxyUrl(status.url, opts.proxy_opts.type);
+  opts.proxy_opts.url = proxy;
+
+  if (status.branch.isEmpty()) {
+    status.state = UpdateStatus::NotTracked;
+    status.message = QObject::tr("No submodule branch is configured.");
+    return status;
+  }
+
+  if (status.branch == ".") {
+    status.message = QObject::tr(
+        "The special '.' submodule branch is not supported by this check.");
+    return status;
+  }
+
+  if (status.branch.isEmpty()) {
+    status.message = QObject::tr("No submodule branch could be resolved.");
+    return status;
+  }
+
+  QString source = refNameBranch(status.branch);
+  QString target = localTargetRef(status.branch);
+  QByteArray refspec = QString("+%1:%2").arg(source, target).toUtf8();
+  char *refspecs[] = {refspec.data()};
+  git_strarray array = {refspecs, 1};
+  git_error_clear();
+  error = git_remote_fetch(remote, &array, &opts, "submodule update check");
+  if (error)
+    return statusError(*this, lastError(QObject::tr(
+                                  "Unable to fetch submodule target branch.")));
+
+  git_reference *ref = nullptr;
+  git_error_clear();
+  error = git_reference_lookup(&ref, repo, target.toUtf8());
+  if (error)
+    return statusError(*this, lastError(QObject::tr(
+                                  "Unable to read fetched submodule branch.")));
+
+  QSharedPointer<git_reference> refPtr(ref, git_reference_free);
+  status.targetId = git_reference_target(ref);
+
+  if (status.targetId == status.pinnedId) {
+    status.state = UpdateStatus::UpToDate;
+    return status;
+  }
+
+  int descendant =
+      git_graph_descendant_of(repo, status.targetId, status.pinnedId);
+  if (descendant == 1) {
+    status.state = UpdateStatus::UpdateAvailable;
+  } else if (descendant == 0) {
+    status.state = UpdateStatus::DifferentHistory;
+    status.message =
+        QObject::tr("Remote target is not a descendant of the pinned commit.");
+  } else {
+    status.state = UpdateStatus::Unknown;
+    status.message =
+        lastError(QObject::tr("Unable to compare submodule commits."));
+  }
+
+  return status;
 }
 
 Repository Submodule::open() const {

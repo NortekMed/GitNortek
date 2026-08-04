@@ -5,6 +5,8 @@ void Setting::initialize(QMap<Id, QString> &keys) {
   keys[Id::AutomaticFetchPeriodInMinutes] = "global/autofetch/minutes";
   keys[Id::PushAfterEachCommit] = "global/autopush/enable";
   keys[Id::UpdateSubmodulesAfterPullAndClone] = "global/autoupdate/enable";
+  keys[Id::CheckSubmodulesForUpdatesAutomatically] =
+      "global/submoduleUpdateCheck/enable";
   keys[Id::PruneAfterFetch] = "global/autoprune/enable";
   keys[Id::FontFamily] = "editor/font/family";
   keys[Id::FontSize] = "editor/font/size";

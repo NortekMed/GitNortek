@@ -55,6 +55,7 @@
 #include "watcher/RepositoryWatcher.h"
 #include <QCheckBox>
 #include <QCloseEvent>
+#include <QCoreApplication>
 #include <QDesktopServices>
 #include <QMessageBox>
 #include <QtNetwork>
@@ -80,6 +81,32 @@ const QString kMsgFmt = "%1 - <span style='color: gray'>%2</span>";
 QString msg(const git::Commit &commit) {
   QString summary = commit.summary(git::Commit::SubstituteEmoji);
   return kMsgFmt.arg(commit.link(), summary);
+}
+
+QString submoduleUpdateStateText(git::Submodule::UpdateStatus::State state) {
+  using State = git::Submodule::UpdateStatus::State;
+
+  switch (state) {
+    case State::UpToDate:
+      return QCoreApplication::translate("RepoView", "up-to-date");
+    case State::UpdateAvailable:
+      return QCoreApplication::translate("RepoView", "update available");
+    case State::DifferentHistory:
+      return QCoreApplication::translate("RepoView", "different history");
+    case State::NotTracked:
+      return QCoreApplication::translate("RepoView", "not branch-tracked");
+    case State::Error:
+      return QCoreApplication::translate("RepoView", "error");
+    case State::Unknown:
+      return QCoreApplication::translate("RepoView", "unknown");
+  }
+
+  return QString();
+}
+
+QString shortId(const git::Id &id) {
+  QString text = id.toString();
+  return text.isEmpty() ? QString() : text.left(7);
 }
 
 class CheckoutCallbacks : public QObject,
@@ -551,6 +578,8 @@ void RepoView::cancelRemoteTransfer() {
   QCoreApplication::processEvents();
   if (mWatcher && mWatcher->isRunning())
     mWatcher->waitForFinished();
+  if (mSubmoduleUpdateWatcher && mSubmoduleUpdateWatcher->isRunning())
+    mSubmoduleUpdateWatcher->waitForFinished();
 }
 
 void RepoView::cancelBackgroundTasks() {
@@ -2551,6 +2580,125 @@ void RepoView::updateSubmodulesAsync(const QList<SubmoduleInfo> &submodules,
                                         mCallbacks, init, checkout_force));
 }
 
+void RepoView::checkSubmoduleUpdates(bool automatic) {
+  if (mWatcher || mSubmoduleUpdateWatcher) {
+    if (!automatic)
+      addLogEntry(tr("Another remote operation is already running."),
+                  tr("Submodule Updates"));
+    return;
+  }
+
+  QList<git::Submodule> submodules = mRepo.submodules();
+  if (submodules.isEmpty()) {
+    if (!automatic)
+      addLogEntry(tr("This repository has no submodules."),
+                  tr("Submodule Updates"));
+    return;
+  }
+
+  LogEntry *entry =
+      addLogEntry(tr("Checking %1 submodules").arg(submodules.size()),
+                  tr("Submodule Updates"));
+  entry->setBusy(true);
+
+  mSubmoduleUpdateWatcher =
+      new QFutureWatcher<QList<git::Submodule::UpdateStatus>>(this);
+  mCallbacks = new RemoteCallbacks(RemoteCallbacks::Receive, entry,
+                                   submodules.first().url(), QString(),
+                                   mSubmoduleUpdateWatcher, mRepo);
+
+  connect(
+      mSubmoduleUpdateWatcher,
+      &QFutureWatcher<QList<git::Submodule::UpdateStatus>>::finished,
+      mSubmoduleUpdateWatcher, [this, entry, automatic] {
+        entry->setBusy(false);
+
+        QList<git::Submodule::UpdateStatus> results =
+            mSubmoduleUpdateWatcher->result();
+
+        int updates = 0;
+        int warnings = 0;
+        int checked = 0;
+        for (const git::Submodule::UpdateStatus &status : results) {
+          if (status.state == git::Submodule::UpdateStatus::NotTracked)
+            continue;
+
+          ++checked;
+
+          if (status.state == git::Submodule::UpdateStatus::UpdateAvailable)
+            ++updates;
+          else if (status.state == git::Submodule::UpdateStatus::Error ||
+                   status.state ==
+                       git::Submodule::UpdateStatus::DifferentHistory ||
+                   status.state == git::Submodule::UpdateStatus::Unknown)
+            ++warnings;
+        }
+
+        if (mCallbacks->isCanceled()) {
+          entry->setText(tr("Submodule update check canceled."));
+        } else if (!checked) {
+          entry->setText(tr("No branch-tracked submodules to check."));
+        } else if (updates) {
+          entry->setText(tr("%1 submodules can be updated.").arg(updates));
+        } else if (warnings) {
+          entry->setText(
+              tr("No updates found; %1 submodules need review.").arg(warnings));
+        } else {
+          entry->setText(tr("All submodules are up-to-date."));
+        }
+
+        for (const git::Submodule::UpdateStatus &status : results) {
+          if (status.state == git::Submodule::UpdateStatus::NotTracked)
+            continue;
+
+          if (status.state == git::Submodule::UpdateStatus::UpToDate &&
+              automatic)
+            continue;
+
+          QString text = tr("%1: %2").arg(
+              status.name, submoduleUpdateStateText(status.state));
+          if (!status.branch.isEmpty())
+            text += tr(" on %1").arg(status.branch);
+
+          if (status.targetId.isValid())
+            text +=
+                tr(" (%1 -> %2)")
+                    .arg(shortId(status.pinnedId), shortId(status.targetId));
+
+          if (!status.message.isEmpty())
+            text += tr(" - %1").arg(status.message);
+
+          LogEntry::Kind kind = LogEntry::Entry;
+          if (status.state == git::Submodule::UpdateStatus::Error)
+            kind = LogEntry::Error;
+          else if (status.state ==
+                       git::Submodule::UpdateStatus::DifferentHistory ||
+                   status.state == git::Submodule::UpdateStatus::Unknown)
+            kind = LogEntry::Warning;
+
+          entry->addEntry(kind, text);
+        }
+
+        mCallbacks->storeDeferredCredentials();
+        mSubmoduleUpdateWatcher->deleteLater();
+        mSubmoduleUpdateWatcher = nullptr;
+        mCallbacks = nullptr;
+      });
+
+  RemoteCallbacks *callbacks = mCallbacks;
+  mSubmoduleUpdateWatcher->setFuture(QtConcurrent::run([submodules, callbacks] {
+    QList<git::Submodule::UpdateStatus> results;
+    for (const git::Submodule &submodule : submodules) {
+      if (callbacks->isCanceled())
+        break;
+
+      results.append(submodule.checkForUpdates(callbacks));
+    }
+
+    return results;
+  }));
+}
+
 bool RepoView::openSubmodule(const git::Submodule &submodule) {
   if (!submodule.isValid())
     return false;
@@ -2890,6 +3038,10 @@ void RepoView::showEvent(QShowEvent *event) {
   mShown = true;
   startIndexing();
   startFetchTimer();
+  if (Settings::instance()
+          ->value(Setting::Id::CheckSubmodulesForUpdatesAutomatically)
+          .toBool())
+    QTimer::singleShot(0, this, [this] { checkSubmoduleUpdates(true); });
 }
 
 void RepoView::closeEvent(QCloseEvent *event) {
