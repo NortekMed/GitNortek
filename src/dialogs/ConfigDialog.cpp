@@ -9,6 +9,7 @@
 
 #include "ConfigDialog.h"
 #include "AddRemoteDialog.h"
+#include "AddSubmoduleDialog.h"
 #include "BranchDelegate.h"
 #include "BranchTableModel.h"
 #include "DeleteBranchDialog.h"
@@ -343,7 +344,8 @@ public:
     table->setSelectionMode(QAbstractItemView::ExtendedSelection);
     table->setShowGrid(false);
 
-    table->setModel(new SubmoduleTableModel(view->repo(), this));
+    SubmoduleTableModel *model = new SubmoduleTableModel(view->repo(), this);
+    table->setModel(model);
     table->setItemDelegate(new SubmoduleDelegate(table));
 
     // Set section resize mode after model is set.
@@ -359,8 +361,18 @@ public:
             });
 
     Footer *footer = new Footer(table);
-    footer->setPlusEnabled(false);
+    footer->setPlusEnabled(true);
     footer->setMinusEnabled(false);
+    connect(footer, &Footer::plusClicked, this, [view] {
+      AddSubmoduleDialog *dialog = new AddSubmoduleDialog(view);
+      connect(dialog, &QDialog::accepted, [view, dialog] {
+        view->addSubmodule(dialog->url(), dialog->path(), dialog->branch());
+      });
+      dialog->open();
+    });
+
+    connect(view, &RepoView::submodulesChanged, model,
+            &SubmoduleTableModel::refresh);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setSpacing(0);

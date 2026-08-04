@@ -72,6 +72,9 @@ public:
                 bool checkout_force = false);
   UpdateStatus checkForUpdates(Remote::Callbacks *callbacks) const;
 
+  static Result add(Repository repo, const QString &url, const QString &path,
+                    const QString &branch, Remote::Callbacks *callbacks);
+
   Repository open() const;
 
 private:

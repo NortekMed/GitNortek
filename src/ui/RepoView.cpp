@@ -461,7 +461,8 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
   addWidget(mLogView);
   setCollapsible(0, false);
   setStretchFactor(0, 1);
-  setSizes({1, 0});
+  mIsLogVisible = true;
+  setSizes({1, mLogView->sizeHint().height()});
 
   connect(this, &QSplitter::splitterMoved,
           [this] { mIsLogVisible = (sizes().last() > 0); });
@@ -2581,7 +2582,16 @@ void RepoView::updateSubmodulesAsync(const QList<SubmoduleInfo> &submodules,
 }
 
 void RepoView::checkSubmoduleUpdates(bool automatic) {
-  if (mWatcher || mSubmoduleUpdateWatcher) {
+  if (mSubmoduleUpdateWatcher)
+    return;
+
+  if (mWatcher) {
+    if (automatic) {
+      connect(mWatcher, &QFutureWatcher<git::Result>::finished, this,
+              [this] { checkSubmoduleUpdates(true); });
+      return;
+    }
+
     if (!automatic)
       addLogEntry(tr("Another remote operation is already running."),
                   tr("Submodule Updates"));
@@ -2699,6 +2709,46 @@ void RepoView::checkSubmoduleUpdates(bool automatic) {
   }));
 }
 
+void RepoView::addSubmodule(const QString &url, const QString &path,
+                            const QString &branch) {
+  if (mWatcher || mSubmoduleUpdateWatcher) {
+    addLogEntry(tr("Another remote operation is already running."),
+                tr("Add Submodule"));
+    return;
+  }
+
+  LogEntry *entry = addLogEntry(path, tr("Add Submodule"));
+
+  mWatcher = new QFutureWatcher<git::Result>(this);
+  connect(mWatcher, &QFutureWatcher<git::Result>::finished, mWatcher,
+          [this, entry, path] {
+            entry->setBusy(false);
+
+            git::Result result = mWatcher->result();
+            if (mCallbacks->isCanceled()) {
+              entry->addEntry(LogEntry::Error, tr("Add submodule canceled."));
+            } else if (!result) {
+              error(entry, tr("add submodule"), path, result.errorString());
+            } else {
+              mCallbacks->storeDeferredCredentials();
+              entry->addEntry(tr("Submodule added."));
+              emit submodulesChanged();
+              refresh(true);
+            }
+
+            mWatcher->deleteLater();
+            mWatcher = nullptr;
+            mCallbacks = nullptr;
+          });
+
+  mCallbacks = new RemoteCallbacks(RemoteCallbacks::Receive, entry, url,
+                                   QString(), mWatcher, mRepo);
+
+  entry->setBusy(true);
+  mWatcher->setFuture(QtConcurrent::run(&git::Submodule::add, mRepo, url, path,
+                                        branch, mCallbacks));
+}
+
 bool RepoView::openSubmodule(const git::Submodule &submodule) {
   if (!submodule.isValid())
     return false;
@@ -2802,8 +2852,12 @@ void RepoView::openTerminal() {
 #elif defined(Q_OS_UNIX)
     static QString detectedTerminal = nullptr;
     static const QStringList candidates = {
-        "x-terminal-emulator", "xdg-terminal", "i3-sensible-terminal",
-        "gnome-terminal",      "konsole",      "ptyxis",
+        "x-terminal-emulator",
+        "xdg-terminal",
+        "i3-sensible-terminal",
+        "gnome-terminal",
+        "konsole",
+        "ptyxis",
         "xterm",
     };
 

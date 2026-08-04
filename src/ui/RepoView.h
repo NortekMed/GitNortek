@@ -281,6 +281,8 @@ public:
       bool recursive = true, bool init = false, bool checkout_force = false,
       LogEntry *parent = nullptr, bool restoreSelection = true);
   void checkSubmoduleUpdates(bool automatic = false);
+  void addSubmodule(const QString &url, const QString &path,
+                    const QString &branch = QString());
   bool openSubmodule(const git::Submodule &submodule);
 
   // config
@@ -361,6 +363,7 @@ private slots:
 
 signals:
   void statusChanged(bool dirty);
+  void submodulesChanged();
 
 protected:
   void showEvent(QShowEvent *event) override;

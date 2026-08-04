@@ -272,6 +272,56 @@ Submodule::checkForUpdates(Remote::Callbacks *callbacks) const {
   return status;
 }
 
+Result Submodule::add(Repository repo, const QString &url, const QString &path,
+                      const QString &branch, Remote::Callbacks *callbacks) {
+  git_submodule *submodule = nullptr;
+  int error = git_submodule_add_setup(&submodule, repo.d->repo, url.toUtf8(),
+                                      path.toUtf8(), true);
+  if (error)
+    return error;
+
+  QSharedPointer<git_submodule> submodulePtr(submodule, git_submodule_free);
+
+  if (!branch.isEmpty()) {
+    error = git_submodule_set_branch(
+        repo.d->repo, git_submodule_name(submodule), branch.toUtf8());
+    if (error)
+      return error;
+  }
+
+  git_submodule_update_options opts = GIT_SUBMODULE_UPDATE_OPTIONS_INIT;
+#ifndef USE_SYSTEM_LIBGIT2
+  opts.fetch_opts.callbacks.connected = &Remote::Callbacks::connected;
+  opts.fetch_opts.callbacks.about_to_disconnect =
+      &Remote::Callbacks::about_to_disconnect;
+#endif
+  opts.fetch_opts.callbacks.sideband_progress = &Remote::Callbacks::sideband;
+  opts.fetch_opts.callbacks.credentials = &Remote::Callbacks::credentials;
+  opts.fetch_opts.callbacks.certificate_check = &Remote::Callbacks::certificate;
+  opts.fetch_opts.callbacks.transfer_progress = &Remote::Callbacks::transfer;
+  opts.fetch_opts.callbacks.update_tips = &Remote::Callbacks::update;
+  opts.fetch_opts.callbacks.remote_ready = &Remote::Callbacks::remoteReady;
+  opts.fetch_opts.callbacks.payload = callbacks;
+  opts.fetch_opts.follow_redirects = GIT_REMOTE_REDIRECT_INITIAL;
+
+  QByteArray proxy = Remote::proxyUrl(url, opts.fetch_opts.proxy_opts.type);
+  opts.fetch_opts.proxy_opts.url = proxy;
+
+  git_repository *submoduleRepo = nullptr;
+  error = git_submodule_clone(&submoduleRepo, submodule, &opts);
+  if (error)
+    return error;
+
+  git_repository_free(submoduleRepo);
+
+  error = git_submodule_add_finalize(submodule);
+  if (error)
+    return error;
+
+  repo.invalidateSubmoduleCache();
+  return 0;
+}
+
 Repository Submodule::open() const {
   git_repository *repo = nullptr;
   git_submodule_open(&repo, d.data());

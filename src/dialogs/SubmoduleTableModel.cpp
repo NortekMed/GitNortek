@@ -146,3 +146,10 @@ bool SubmoduleTableModel::setData(const QModelIndex &index,
   emit dataChanged(index, index);
   return true;
 }
+
+void SubmoduleTableModel::refresh() {
+  beginResetModel();
+  mRepo.invalidateSubmoduleCache();
+  mSubmodules = mRepo.submodules();
+  endResetModel();
+}
