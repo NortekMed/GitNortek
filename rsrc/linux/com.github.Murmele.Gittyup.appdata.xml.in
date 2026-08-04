@@ -4,11 +4,12 @@
   <metadata_license>FSFAP</metadata_license>
   <project_license>MIT</project_license>
   <name>GitNortek</name>
-  <summary>Graphical Git client designed to help you understand and manage your source code history</summary>
-  <developer_name>Gittyup Community</developer_name>
+  <summary>NortekMed-maintained fork of Gittyup, a graphical Git client</summary>
+  <developer_name>NortekMed</developer_name>
 
   <description>
-    <p>Graphical Git client designed to help you understand and manage your source code history</p>
+    <p>GitNortek is a NortekMed-maintained fork of Gittyup, a graphical Git client designed to help you understand and manage your source code history.</p>
+    <p>This fork carries NortekMed-specific naming, packaging, and integration changes.</p>
 
     <p>Features:</p>
     <ul>
@@ -27,23 +28,21 @@
   <screenshots>
     <screenshot type="default">
       <caption>The main view</caption>
-        <image>https://raw.githubusercontent.com/Murmele/Gittyup/master/rsrc/screenshots/main_dark_orig.png</image>
+        <image>https://raw.githubusercontent.com/NortekMed/Gittyup/master/rsrc/screenshots/main_dark_orig.png</image>
     </screenshot>
     <screenshot>
       <caption>Staging single lines</caption>
-        <image>https://raw.githubusercontent.com/Murmele/Gittyup/master/rsrc/screenshots/double_treeview_single_line_staging.png</image>
+        <image>https://raw.githubusercontent.com/NortekMed/Gittyup/master/rsrc/screenshots/double_treeview_single_line_staging.png</image>
     </screenshot>
     <screenshot>
       <caption>Tree View</caption>
-        <image>https://raw.githubusercontent.com/Murmele/Gittyup/master/rsrc/screenshots/treeview.png</image>
+        <image>https://raw.githubusercontent.com/NortekMed/Gittyup/master/rsrc/screenshots/treeview.png</image>
     </screenshot>
   </screenshots>
 
-  <url type="homepage">https://murmele.github.io/Gittyup</url>
-  <url type="vcs-browser">https://github.com/Murmele/Gittyup</url>
-  <url type="bugtracker">https://github.com/Murmele/Gittyup/issues</url>
-  <url type="help">https://matrix.to/#/#Gittyup:matrix.org</url>
-  <url type="donation">https://liberapay.com/Gittyup/donate</url>
+  <url type="homepage">https://github.com/NortekMed/Gittyup</url>
+  <url type="vcs-browser">https://github.com/NortekMed/Gittyup</url>
+  <url type="bugtracker">https://github.com/NortekMed/Gittyup/issues</url>
 
   <provides>
     <binary>gitnortek</binary>
