@@ -4,10 +4,10 @@ name: GitNortek Packages
 on:
   push:
     tags:
-    - 'v*.*.*-pre*'
+    - 'v*.*.*'
 
 env:
-  TAG_PATTERN: '^v[0-9]+\.[0-9]+\.[0-9]+-pre\.?[0-9]+$'
+  TAG_PATTERN: '^v[0-9]+\.[0-9]+\.[0-9]+(-pre\.?[0-9]+)?$'
 
 jobs:
   rpm:
@@ -18,19 +18,19 @@ jobs:
     - name: Validate tag
       run: |
         if [[ ! "${GITHUB_REF_NAME}" =~ ${TAG_PATTERN} ]]; then
-          echo "Tag '${GITHUB_REF_NAME}' does not match expected format vX.Y.Z-preN or vX.Y.Z-pre.N."
+          echo "Tag '${GITHUB_REF_NAME}' does not match expected format vX.Y.Z, vX.Y.Z-preN, or vX.Y.Z-pre.N."
           exit 1
         fi
 
     - name: Set package version
       run: |
         version="${GITHUB_REF_NAME#v}"
-        if [[ ! "$version" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-(pre\.?[0-9]+)$ ]]; then
+        if [[ ! "$version" =~ ^([0-9]+\.[0-9]+\.[0-9]+)(-(pre\.?[0-9]+))?$ ]]; then
           echo "Tag '${GITHUB_REF_NAME}' does not match expected package version format."
           exit 1
         fi
         echo "GITTYUP_VERSION_OVERRIDE=${BASH_REMATCH[1]}" >> "$GITHUB_ENV"
-        echo "GITTYUP_PRERELEASE=${BASH_REMATCH[2]}" >> "$GITHUB_ENV"
+        echo "GITTYUP_PRERELEASE=${BASH_REMATCH[3]}" >> "$GITHUB_ENV"
 
     - name: Install build dependencies
       run: |
@@ -77,13 +77,14 @@ jobs:
 
   windows-exe:
     name: Windows EXE
+    if: ${{ !contains(github.ref_name, '-pre') }}
     runs-on: windows-2022
     steps:
     - name: Validate tag
       shell: bash
       run: |
         if [[ ! "${GITHUB_REF_NAME}" =~ ${TAG_PATTERN} ]]; then
-          echo "Tag '${GITHUB_REF_NAME}' does not match expected format vX.Y.Z-preN or vX.Y.Z-pre.N."
+          echo "Tag '${GITHUB_REF_NAME}' does not match expected format vX.Y.Z, vX.Y.Z-preN, or vX.Y.Z-pre.N."
           exit 1
         fi
 
@@ -91,12 +92,12 @@ jobs:
       shell: bash
       run: |
         version="${GITHUB_REF_NAME#v}"
-        if [[ ! "$version" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-(pre\.?[0-9]+)$ ]]; then
+        if [[ ! "$version" =~ ^([0-9]+\.[0-9]+\.[0-9]+)(-(pre\.?[0-9]+))?$ ]]; then
           echo "Tag '${GITHUB_REF_NAME}' does not match expected package version format."
           exit 1
         fi
         echo "GITTYUP_VERSION_OVERRIDE=${BASH_REMATCH[1]}" >> "$GITHUB_ENV"
-        echo "GITTYUP_PRERELEASE=${BASH_REMATCH[2]}" >> "$GITHUB_ENV"
+        echo "GITTYUP_PRERELEASE=${BASH_REMATCH[3]}" >> "$GITHUB_ENV"
 
     - name: Set git name and email
       run: |
@@ -159,9 +160,11 @@ jobs:
       env:
         CMAKE_RC_FLAGS: /C 1252
       run: >
+        Write-Host "GITTYUP_VERSION_OVERRIDE='${env:GITTYUP_VERSION_OVERRIDE}'";
+        Write-Host "GITTYUP_PRERELEASE='${env:GITTYUP_PRERELEASE}'";
         cmake -G Ninja -DCMAKE_BUILD_TYPE=Release
-        -DGITTYUP_VERSION_OVERRIDE=$env:GITTYUP_VERSION_OVERRIDE
-        -DGITTYUP_PRERELEASE=$env:GITTYUP_PRERELEASE
+        -DGITTYUP_VERSION_OVERRIDE="${env:GITTYUP_VERSION_OVERRIDE}"
+        -DGITTYUP_PRERELEASE="${env:GITTYUP_PRERELEASE}"
         -DUSE_SYSTEM_QT=OFF
         -DUSE_SYSTEM_LIBSSH2=OFF
         -DUSE_BUNDLED_ZLIB=1
@@ -184,6 +187,12 @@ jobs:
   release:
     name: GitHub Release
     needs: [rpm, windows-exe]
+    if: >-
+      ${{
+        always() &&
+        needs.rpm.result == 'success' &&
+        (contains(github.ref_name, '-pre') || needs.windows-exe.result == 'success')
+      }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -191,7 +200,7 @@ jobs:
     - name: Validate tag
       run: |
         if [[ ! "${GITHUB_REF_NAME}" =~ ${TAG_PATTERN} ]]; then
-          echo "Tag '${GITHUB_REF_NAME}' does not match expected format vX.Y.Z-preN or vX.Y.Z-pre.N."
+          echo "Tag '${GITHUB_REF_NAME}' does not match expected format vX.Y.Z, vX.Y.Z-preN, or vX.Y.Z-pre.N."
           exit 1
         fi
 
@@ -208,6 +217,13 @@ jobs:
         shopt -s nullglob
 
         tag="${GITHUB_REF_NAME}"
+        release_args=()
+        require_windows=true
+        if [[ "$tag" == *-pre* ]]; then
+          release_args+=(--prerelease)
+          require_windows=false
+        fi
+
         rpms=(artifacts/GitNortek-RPM/*.rpm)
         installers=(artifacts/GitNortek-Windows-Installer/*.exe)
         files=("${rpms[@]}" "${installers[@]}")
@@ -217,7 +233,7 @@ jobs:
           exit 1
         fi
 
-        if [ ${#installers[@]} -eq 0 ]; then
+        if $require_windows && [ ${#installers[@]} -eq 0 ]; then
           echo "No Windows installer asset to upload."
           exit 1
         fi
@@ -225,14 +241,14 @@ jobs:
         if ! gh release view "$tag" --repo "${{ github.repository }}" >/dev/null 2>&1; then
           gh release create "$tag" \
             --repo "${{ github.repository }}" \
-            --prerelease \
+            "${release_args[@]}" \
             --title "GitNortek $tag" \
             --target "${{ github.sha }}" \
             "${files[@]}"
         else
           gh release edit "$tag" \
             --repo "${{ github.repository }}" \
-            --prerelease \
+            "${release_args[@]}" \
             --title "GitNortek $tag"
           gh release upload "$tag" "${files[@]}" \
             --repo "${{ github.repository }}" \
