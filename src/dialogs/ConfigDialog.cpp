@@ -14,6 +14,7 @@
 #include "BranchTableModel.h"
 #include "DeleteBranchDialog.h"
 #include "DiffPanel.h"
+#include "ModifySubmoduleDialog.h"
 #include "NewBranchDialog.h"
 #include "PluginsPanel.h"
 #include "RemoteTableModel.h"
@@ -351,6 +352,8 @@ public:
     // Set section resize mode after model is set.
     table->horizontalHeader()->setSectionResizeMode(
         SubmoduleTableModel::Name, QHeaderView::ResizeToContents);
+    table->horizontalHeader()->setSectionResizeMode(
+        SubmoduleTableModel::Path, QHeaderView::ResizeToContents);
     table->horizontalHeader()->setSectionResizeMode(SubmoduleTableModel::Url,
                                                     QHeaderView::Stretch);
 
@@ -374,10 +377,48 @@ public:
     connect(view, &RepoView::submodulesChanged, model,
             &SubmoduleTableModel::refresh);
 
+    QPushButton *modify = new QPushButton(tr("Modify..."), this);
+    modify->setEnabled(false);
+
+    auto selectedSubmodule = [table]() -> git::Submodule {
+      QModelIndexList rows = table->selectionModel()->selectedRows();
+      if (rows.count() != 1)
+        return git::Submodule();
+
+      QVariant var = rows.first().data(SubmoduleTableModel::SubmoduleRole);
+      return var.value<git::Submodule>();
+    };
+
+    connect(table->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, [table, modify] {
+              modify->setEnabled(
+                  table->selectionModel()->selectedRows().count() == 1);
+            });
+
+    connect(modify, &QPushButton::clicked, this, [view, selectedSubmodule] {
+      git::Submodule submodule = selectedSubmodule();
+      if (!submodule)
+        return;
+
+      ModifySubmoduleDialog *dialog =
+          new ModifySubmoduleDialog(submodule, view);
+      connect(dialog, &QDialog::accepted, [view, dialog, submodule] {
+        view->modifySubmodule(submodule.name(), dialog->name(), dialog->path(),
+                              dialog->url(), dialog->branch());
+      });
+      dialog->open();
+    });
+
+    QHBoxLayout *footerLayout = new QHBoxLayout;
+    footerLayout->setSpacing(6);
+    footerLayout->setContentsMargins(0, 0, 0, 0);
+    footerLayout->addWidget(footer);
+    footerLayout->addWidget(modify);
+
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setSpacing(0);
     layout->addWidget(table);
-    layout->addWidget(footer);
+    layout->addLayout(footerLayout);
   }
 };
 
@@ -745,7 +786,7 @@ public:
 } // namespace
 
 ConfigDialog::ConfigDialog(RepoView *view, Index index) : QDialog(view) {
-  setMinimumWidth(500);
+  setMinimumWidth(1000);
   setAttribute(Qt::WA_DeleteOnClose);
   setContextMenuPolicy(Qt::NoContextMenu);
 

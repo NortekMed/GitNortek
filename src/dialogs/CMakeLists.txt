@@ -19,6 +19,7 @@ add_library(
   HotkeysPanel.cpp
   IconLabel.cpp
   MergeDialog.cpp
+  ModifySubmoduleDialog.cpp
   NewBranchDialog.cpp
   PluginsPanel.cpp
   PullRequestDialog.cpp

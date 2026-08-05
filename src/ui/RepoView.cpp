@@ -2749,6 +2749,23 @@ void RepoView::addSubmodule(const QString &url, const QString &path,
                                         branch, mCallbacks));
 }
 
+bool RepoView::modifySubmodule(const QString &oldName, const QString &newName,
+                               const QString &newPath, const QString &newUrl,
+                               const QString &newBranch) {
+  git::Result result = git::Submodule::modify(mRepo, oldName, newName, newPath,
+                                              newUrl, newBranch);
+  if (!result) {
+    LogEntry *entry = addLogEntry(oldName, tr("Modify Submodule"));
+    error(entry, tr("modify submodule"), oldName, result.errorString());
+    return false;
+  }
+
+  addLogEntry(newName, tr("Submodule Modified"));
+  emit submodulesChanged();
+  refresh(true);
+  return true;
+}
+
 bool RepoView::openSubmodule(const git::Submodule &submodule) {
   if (!submodule.isValid())
     return false;

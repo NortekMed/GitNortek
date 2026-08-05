@@ -283,6 +283,9 @@ public:
   void checkSubmoduleUpdates(bool automatic = false);
   void addSubmodule(const QString &url, const QString &path,
                     const QString &branch = QString());
+  bool modifySubmodule(const QString &oldName, const QString &newName,
+                       const QString &newPath, const QString &newUrl,
+                       const QString &newBranch);
   bool openSubmodule(const git::Submodule &submodule);
 
   // config

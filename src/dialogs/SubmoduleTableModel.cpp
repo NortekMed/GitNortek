@@ -23,7 +23,7 @@ int SubmoduleTableModel::rowCount(const QModelIndex &parent) const {
 }
 
 int SubmoduleTableModel::columnCount(const QModelIndex &parent) const {
-  return 4;
+  return 5;
 }
 
 QVariant SubmoduleTableModel::data(const QModelIndex &index, int role) const {
@@ -34,6 +34,8 @@ QVariant SubmoduleTableModel::data(const QModelIndex &index, int role) const {
       switch (index.column()) {
         case Name:
           return submodule.name();
+        case Path:
+          return submodule.path();
         case Url:
           return submodule.url();
         case Branch:
@@ -63,6 +65,8 @@ QVariant SubmoduleTableModel::headerData(int section,
   switch (section) {
     case Name:
       return tr("Name");
+    case Path:
+      return tr("Path");
     case Url:
       return tr("URL");
     case Branch:
@@ -77,6 +81,7 @@ QVariant SubmoduleTableModel::headerData(int section,
 Qt::ItemFlags SubmoduleTableModel::flags(const QModelIndex &index) const {
   switch (index.column()) {
     case Name:
+    case Path:
       return QAbstractTableModel::flags(index) | Qt::NoItemFlags;
     case Init:
       return QAbstractTableModel::flags(index) | Qt::ItemIsUserCheckable;
@@ -93,6 +98,7 @@ bool SubmoduleTableModel::setData(const QModelIndex &index,
   git::Submodule submodule = mSubmodules.at(index.row());
   switch (index.column()) {
     case Name:
+    case Path:
       return false;
 
     case Url:

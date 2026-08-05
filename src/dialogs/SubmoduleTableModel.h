@@ -23,7 +23,7 @@ class SubmoduleTableModel : public QAbstractTableModel {
 public:
   enum Role { SubmoduleRole = Qt::UserRole };
 
-  enum Column { Name, Url, Branch, Init };
+  enum Column { Name, Path, Url, Branch, Init };
 
   SubmoduleTableModel(const git::Repository &repo, QObject *parent = nullptr);
   int rowCount(const QModelIndex &parent = QModelIndex()) const;

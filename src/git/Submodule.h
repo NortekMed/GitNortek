@@ -74,6 +74,9 @@ public:
 
   static Result add(Repository repo, const QString &url, const QString &path,
                     const QString &branch, Remote::Callbacks *callbacks);
+  static Result modify(Repository repo, const QString &oldName,
+                       const QString &newName, const QString &newPath,
+                       const QString &newUrl, const QString &newBranch);
 
   Repository open() const;
 

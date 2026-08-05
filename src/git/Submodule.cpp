@@ -15,13 +15,91 @@
 #include "git2/graph.h"
 #include "git2/remote.h"
 #include "git2/sys/errors.h"
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
 #include <QObject>
+#include <QPair>
 #include <QRegularExpression>
 
 namespace git {
 
 const QString kUrl = "https://github.com/Murmele/Gittyup";
 const QString kUpdateCheckRemote = "gitnortek-submodule-check";
+
+Result fail(const QString &message) {
+  git_error_set_str(GIT_ERROR_INVALID, message.toUtf8());
+  return -GIT_ERROR_INVALID;
+}
+
+void renameConfigSection(Config config, const QString &oldName,
+                         const QString &newName) {
+  if (!config.isValid() || oldName == newName)
+    return;
+
+  const QString oldPrefix = QString("submodule.%1.").arg(oldName);
+  const QString newPrefix = QString("submodule.%1.").arg(newName);
+  QList<QPair<QString, QString>> entries;
+
+  Config::Iterator it = config.glob(oldPrefix + "*");
+  while (Config::Entry entry = it.next()) {
+    entries.append(
+        {entry.name().mid(oldPrefix.length()), entry.value<QString>()});
+  }
+
+  for (const QPair<QString, QString> &entry : entries) {
+    config.remove(oldPrefix + entry.first);
+    config.setValue(newPrefix + entry.first, entry.second);
+  }
+}
+
+void setOptionalConfigValue(Config config, const QString &key,
+                            const QString &value) {
+  if (value.isEmpty())
+    config.remove(key);
+  else
+    config.setValue(key, value);
+}
+
+Result readSubmoduleGitdirTarget(const QString &oldPath, QString *target) {
+  QFile file(QDir(oldPath).filePath(".git"));
+  if (!file.exists())
+    return 0;
+
+  if (!file.open(QFile::ReadOnly))
+    return fail(QObject::tr("Failed to read moved submodule .git file."));
+
+  QByteArray data = file.readAll();
+  file.close();
+
+  const QByteArray prefix = "gitdir: ";
+  if (!data.startsWith(prefix))
+    return 0;
+
+  QString gitdir = QString::fromUtf8(data.mid(prefix.size())).trimmed();
+  if (QDir::isAbsolutePath(gitdir))
+    return 0;
+
+  *target = QFileInfo(QDir(oldPath).filePath(gitdir)).absoluteFilePath();
+  return 0;
+}
+
+Result updateMovedSubmoduleGitFile(const QString &newPath,
+                                   const QString &absoluteGitdir) {
+  if (absoluteGitdir.isEmpty())
+    return 0;
+
+  QFile file(QDir(newPath).filePath(".git"));
+  QDir newDir(newPath);
+  QString relativeGitdir = newDir.relativeFilePath(absoluteGitdir);
+  const QByteArray prefix = "gitdir: ";
+
+  if (!file.open(QFile::WriteOnly | QFile::Truncate))
+    return fail(QObject::tr("Failed to update moved submodule .git file."));
+
+  file.write(prefix + relativeGitdir.toUtf8() + '\n');
+  return 0;
+}
 
 void configureFetchCallbacks(git_fetch_options &opts,
                              Remote::Callbacks *callbacks, const QString &url) {
@@ -317,6 +395,87 @@ Result Submodule::add(Repository repo, const QString &url, const QString &path,
   error = git_submodule_add_finalize(submodule);
   if (error)
     return error;
+
+  repo.invalidateSubmoduleCache();
+  return 0;
+}
+
+Result Submodule::modify(Repository repo, const QString &oldName,
+                         const QString &newName, const QString &newPath,
+                         const QString &newUrl, const QString &newBranch) {
+  if (newName.isEmpty())
+    return fail(QObject::tr("Submodule name cannot be empty."));
+
+  if (newPath.isEmpty())
+    return fail(QObject::tr("Submodule path cannot be empty."));
+
+  if (newUrl.isEmpty())
+    return fail(QObject::tr("Submodule URL cannot be empty."));
+
+  Submodule submodule = repo.lookupSubmodule(oldName);
+  if (!submodule)
+    return fail(QObject::tr("Submodule '%1' was not found.").arg(oldName));
+
+  const QString oldPath = submodule.path();
+
+  foreach (const Submodule &existing, repo.submodules()) {
+    if (existing.name() != oldName && existing.name() == newName)
+      return fail(
+          QObject::tr("A submodule named '%1' already exists.").arg(newName));
+
+    if (existing.name() != oldName && existing.path() == newPath)
+      return fail(
+          QObject::tr("A submodule already uses path '%1'.").arg(newPath));
+  }
+
+  Config modules = Config::open(repo.workdir().filePath(".gitmodules"));
+  if (!modules.isValid())
+    return fail(QObject::tr("Failed to open .gitmodules."));
+
+  if (oldPath != newPath) {
+    QDir workdir = repo.workdir();
+    QString oldAbsolutePath =
+        QFileInfo(workdir.filePath(oldPath)).absoluteFilePath();
+    QString newAbsolutePath =
+        QFileInfo(workdir.filePath(newPath)).absoluteFilePath();
+
+    if (QFileInfo::exists(newAbsolutePath))
+      return fail(QObject::tr("Path '%1' already exists.").arg(newPath));
+
+    if (QFileInfo::exists(oldAbsolutePath)) {
+      QString gitdirTarget;
+      Result result = readSubmoduleGitdirTarget(oldAbsolutePath, &gitdirTarget);
+      if (!result)
+        return result;
+
+      QDir parent = QFileInfo(newAbsolutePath).absoluteDir();
+      if (!parent.exists() && !QDir().mkpath(parent.absolutePath()))
+        return fail(QObject::tr("Failed to create parent directory for '%1'.")
+                        .arg(newPath));
+
+      if (!QDir().rename(oldAbsolutePath, newAbsolutePath))
+        return fail(QObject::tr("Failed to move submodule folder to '%1'.")
+                        .arg(newPath));
+
+      result = updateMovedSubmoduleGitFile(newAbsolutePath, gitdirTarget);
+      if (!result)
+        return result;
+    }
+  }
+
+  renameConfigSection(modules, oldName, newName);
+  renameConfigSection(repo.gitConfig(), oldName, newName);
+
+  const QString prefix = QString("submodule.%1.").arg(newName);
+  modules.setValue(prefix + "path", newPath);
+  modules.setValue(prefix + "url", newUrl);
+  setOptionalConfigValue(modules, prefix + "branch", newBranch);
+
+  Config local = repo.gitConfig();
+  if (local.isValid()) {
+    local.setValue(prefix + "url", newUrl);
+    setOptionalConfigValue(local, prefix + "branch", newBranch);
+  }
 
   repo.invalidateSubmoduleCache();
   return 0;
