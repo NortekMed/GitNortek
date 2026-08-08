@@ -22,16 +22,6 @@ jobs:
           exit 1
         fi
 
-    - name: Set package version
-      run: |
-        version="${GITHUB_REF_NAME#v}"
-        if [[ ! "$version" =~ ^([0-9]+\.[0-9]+\.[0-9]+)(-(pre\.?[0-9]+))?$ ]]; then
-          echo "Tag '${GITHUB_REF_NAME}' does not match expected package version format."
-          exit 1
-        fi
-        echo "GITTYUP_VERSION_OVERRIDE=${BASH_REMATCH[1]}" >> "$GITHUB_ENV"
-        echo "GITTYUP_PRERELEASE=${BASH_REMATCH[3]}" >> "$GITHUB_ENV"
-
     - name: Install build dependencies
       run: |
         dnf -y update
@@ -58,8 +48,6 @@ jobs:
       run: >
         cmake -G Ninja -DCMAKE_BUILD_TYPE=Release
         -DGITTYUP_LINUX_PACKAGE_GENERATOR=RPM
-        -DGITTYUP_VERSION_OVERRIDE=${GITTYUP_VERSION_OVERRIDE}
-        -DGITTYUP_PRERELEASE=${GITTYUP_PRERELEASE}
         -DGENERATE_APPDATA=ON
         -DCMAKE_INSTALL_PREFIX=/usr
         -DENABLE_UPDATE_OVER_GUI=OFF
@@ -87,17 +75,6 @@ jobs:
           echo "Tag '${GITHUB_REF_NAME}' does not match expected format vX.Y.Z, vX.Y.Z-preN, or vX.Y.Z-pre.N."
           exit 1
         fi
-
-    - name: Set package version
-      shell: bash
-      run: |
-        version="${GITHUB_REF_NAME#v}"
-        if [[ ! "$version" =~ ^([0-9]+\.[0-9]+\.[0-9]+)(-(pre\.?[0-9]+))?$ ]]; then
-          echo "Tag '${GITHUB_REF_NAME}' does not match expected package version format."
-          exit 1
-        fi
-        echo "GITTYUP_VERSION_OVERRIDE=${BASH_REMATCH[1]}" >> "$GITHUB_ENV"
-        echo "GITTYUP_PRERELEASE=${BASH_REMATCH[3]}" >> "$GITHUB_ENV"
 
     - name: Set git name and email
       run: |
@@ -160,11 +137,7 @@ jobs:
       env:
         CMAKE_RC_FLAGS: /C 1252
       run: >
-        Write-Host "GITTYUP_VERSION_OVERRIDE='${env:GITTYUP_VERSION_OVERRIDE}'";
-        Write-Host "GITTYUP_PRERELEASE='${env:GITTYUP_PRERELEASE}'";
         cmake -G Ninja -DCMAKE_BUILD_TYPE=Release
-        -DGITTYUP_VERSION_OVERRIDE="${env:GITTYUP_VERSION_OVERRIDE}"
-        -DGITTYUP_PRERELEASE="${env:GITTYUP_PRERELEASE}"
         -DUSE_SYSTEM_QT=OFF
         -DUSE_SYSTEM_LIBSSH2=OFF
         -DUSE_BUNDLED_ZLIB=1

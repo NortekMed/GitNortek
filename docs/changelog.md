@@ -9,6 +9,9 @@ Bug Fix and Feature release
 #### Changed
 
 * Autohide sidebar when opening repository
+* Derive package versions from Git tags in CMake so local and CI package builds use the same version, including commit SHA and dirty state when needed
+* Encode prerelease, commit SHA, and dirty state in RPM `Version` with underscores to distinguish package identities precisely
+* Use UTC `YYYYMMDD.HHmm` timestamps as RPM package releases
 
 ----
 

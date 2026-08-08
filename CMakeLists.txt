@@ -10,33 +10,81 @@ set(GITTYUP_ORGANIZATION_DOMAIN "nortekmed.com")
 set(GITTYUP_VERSION_MAJOR 2)
 set(GITTYUP_VERSION_MINOR 0)
 set(GITTYUP_VERSION_PATCH 0)
-
-set(GITTYUP_VERSION_OVERRIDE
-    ""
-    CACHE STRING "Override GitNortek version as MAJOR.MINOR.PATCH")
-set(GITTYUP_PRERELEASE
-    ""
-    CACHE STRING "Optional prerelease suffix, e.g. pre0")
-
-if(GITTYUP_VERSION_OVERRIDE)
-  string(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)$"
-               GITTYUP_VERSION_MATCH "${GITTYUP_VERSION_OVERRIDE}")
-  if(NOT GITTYUP_VERSION_MATCH)
-    message(FATAL_ERROR "GITTYUP_VERSION_OVERRIDE must be MAJOR.MINOR.PATCH")
-  endif()
-
-  set(GITTYUP_VERSION_MAJOR ${CMAKE_MATCH_1})
-  set(GITTYUP_VERSION_MINOR ${CMAKE_MATCH_2})
-  set(GITTYUP_VERSION_PATCH ${CMAKE_MATCH_3})
-endif()
-
-if(GITTYUP_PRERELEASE AND NOT GITTYUP_PRERELEASE MATCHES "^pre\\.?[0-9]+$")
-  message(FATAL_ERROR "GITTYUP_PRERELEASE must be preN or pre.N")
-endif()
-
 set(GITTYUP_VERSION
     "${GITTYUP_VERSION_MAJOR}.${GITTYUP_VERSION_MINOR}.${GITTYUP_VERSION_PATCH}"
 )
+
+set(GITTYUP_VERSION_OVERRIDE
+    ""
+    CACHE STRING "Override full GitNortek version, e.g. MAJOR.MINOR.PATCH-pre0-gSHA")
+
+find_package(Git)
+
+if(GITTYUP_VERSION_OVERRIDE)
+  set(GITTYUP_VERSION "${GITTYUP_VERSION_OVERRIDE}")
+  set(GITTYUP_VERSION_SOURCE "override")
+elseif(GIT_FOUND)
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} -C ${CMAKE_SOURCE_DIR} describe --tags --long
+            --dirty --match "v[0-9]*.[0-9]*.[0-9]*"
+    RESULT_VARIABLE GITTYUP_DESCRIBE_RESULT
+    OUTPUT_VARIABLE GITTYUP_DESCRIBE
+    ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+  if(GITTYUP_DESCRIBE_RESULT EQUAL 0)
+    string(
+      REGEX MATCH
+            "^v([0-9]+)\\.([0-9]+)\\.([0-9]+)(-(pre\\.?[0-9]+))?-([0-9]+)-(g[0-9A-Fa-f]+)(-dirty)?$"
+            GITTYUP_DESCRIBE_MATCH "${GITTYUP_DESCRIBE}")
+    if(GITTYUP_DESCRIBE_MATCH)
+      set(GITTYUP_VERSION_MAJOR ${CMAKE_MATCH_1})
+      set(GITTYUP_VERSION_MINOR ${CMAKE_MATCH_2})
+      set(GITTYUP_VERSION_PATCH ${CMAKE_MATCH_3})
+      set(GITTYUP_TAG_SUFFIX "${CMAKE_MATCH_5}")
+      set(GITTYUP_DESCRIBE_DISTANCE "${CMAKE_MATCH_6}")
+      set(GITTYUP_DESCRIBE_SHA "${CMAKE_MATCH_7}")
+      set(GITTYUP_DESCRIBE_DIRTY "${CMAKE_MATCH_8}")
+      set(GITTYUP_VERSION
+          "${GITTYUP_VERSION_MAJOR}.${GITTYUP_VERSION_MINOR}.${GITTYUP_VERSION_PATCH}"
+      )
+
+      if(GITTYUP_TAG_SUFFIX)
+        string(APPEND GITTYUP_VERSION "-${GITTYUP_TAG_SUFFIX}")
+      endif()
+
+      if(NOT GITTYUP_DESCRIBE_DISTANCE STREQUAL "0")
+        set(GITTYUP_COMMIT_SHA "${GITTYUP_DESCRIBE_SHA}")
+        string(APPEND GITTYUP_VERSION "-${GITTYUP_COMMIT_SHA}")
+      endif()
+
+      if(GITTYUP_DESCRIBE_DIRTY)
+        string(APPEND GITTYUP_VERSION "-dirty")
+      endif()
+
+      set(GITTYUP_VERSION_SOURCE "git describe: ${GITTYUP_DESCRIBE}")
+    endif()
+  endif()
+endif()
+
+string(REGEX MATCH
+             "^([0-9]+)\\.([0-9]+)\\.([0-9]+)(-(pre\\.?[0-9]+))?(-(g[0-9A-Fa-f]+))?(-dirty)?$"
+             GITTYUP_VERSION_MATCH "${GITTYUP_VERSION}")
+
+if(NOT GITTYUP_VERSION_MATCH)
+  message(FATAL_ERROR "GitNortek version must match MAJOR.MINOR.PATCH[-preN][-gSHA][-dirty]")
+endif()
+
+set(GITTYUP_VERSION_MAJOR ${CMAKE_MATCH_1})
+set(GITTYUP_VERSION_MINOR ${CMAKE_MATCH_2})
+set(GITTYUP_VERSION_PATCH ${CMAKE_MATCH_3})
+string(REPLACE "-" "_" GITTYUP_RPM_VERSION "${GITTYUP_VERSION}")
+string(TIMESTAMP GITTYUP_RPM_PACKAGE_BUILD_TIME "%Y%m%d.%H%M" UTC)
+if(NOT GITTYUP_VERSION_SOURCE)
+  set(GITTYUP_VERSION_SOURCE "default")
+endif()
+message(STATUS "GitNortek version: ${GITTYUP_VERSION} (${GITTYUP_VERSION_SOURCE})")
+message(STATUS "GitNortek RPM version: ${GITTYUP_RPM_VERSION}")
+message(STATUS "GitNortek RPM package build time: ${GITTYUP_RPM_PACKAGE_BUILD_TIME} UTC")
 
 string(TIMESTAMP CURR_YEAR "%Y")
 add_compile_definitions(CURR_YEAR=${CURR_YEAR})
@@ -62,7 +110,6 @@ endif()
 string(TIMESTAMP GITTYUP_BUILD_DATE)
 
 # Lookup git revision.
-find_package(Git)
 if(GIT_FOUND)
   execute_process(
     COMMAND ${GIT_EXECUTABLE} --git-dir=${CMAKE_SOURCE_DIR}/.git show -s

@@ -1,9 +1,9 @@
 # AGENTS.md
 
 ## Repo Shape
-- Gittyup is a C++17 Qt 6.6+ desktop Git client built with CMake; the main executable is `gittyup` from `src/app/Gittyup.cpp`.
+- GitNortek is a C++17 Qt 6.6+ desktop Git client built with CMake; the main executable is `gitnortek` from `src/app/Gittyup.cpp`.
 - Build outputs belong under ignored `build*` directories; do not edit vendored code under `dep/` unless the task explicitly targets a dependency.
-- `src/app` wires the GUI app, `src/index/Indexer` builds the `gittyup-indexer` helper, and `src/update` builds `gittyup-relauncher`.
+- `src/app` wires the GUI app, `src/index/Indexer` builds the `gitnortek-indexer` helper, and `src/update` builds `gitnortek-relauncher`.
 
 ## Setup And Build
 - Initialize dependencies before configuring: `git submodule update --init --recursive`.
@@ -25,6 +25,14 @@
 - Pre-commit only runs clang-format from `.pre-commit-config.yaml`; install it with `./setup-env.sh install-pre-commit` if needed.
 - CI also checks CMake formatting with `cmake-format --check` while pruning nested dependency directories.
 
+## Documentation And Changelog
+- Keep `docs/changelog.md` updated for user-visible changes and maintainer-facing release/package changes.
+- Add new entries under the top `vX.X.X - ... (DEV)` section, using `#### Added` or `#### Changed` as appropriate.
+- Update the changelog when changing packaging, CI artifacts, package/version naming, installer behavior, update flow, or documented commands.
+- Skip changelog entries for purely internal refactors only when they do not affect users, packages, CI artifacts, or maintainers.
+
 ## Packaging CI
 - `.github/workflows/package.yml` builds release artifacts for the NortekMed fork: Fedora RPM via `-DGITTYUP_LINUX_PACKAGE_GENERATOR=RPM` and Windows NSIS `.exe` via CPack.
 - Linux package generation defaults to `TGZ`; pass `-DGITTYUP_LINUX_PACKAGE_GENERATOR=RPM` when an RPM is required.
+- Package versions are resolved in CMake from Git tags using `git describe`; local and CI builds should not duplicate version parsing.
+- RPM `Version` uses the app version with `-` converted to `_`, and RPM `Release` uses the UTC package build timestamp `YYYYMMDD.HHmm`.
