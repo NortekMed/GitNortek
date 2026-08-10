@@ -1,14 +1,24 @@
-### vX.X.X - 2026-01-07 (DEV)
+### vX.X.X - 2026-08-10 (DEV)
 
 Bug Fix and Feature release
 
 #### Added
 
 * Add more information about the credential stores to give the user the possibility to easily see the tradeoffs of every credential store
+* Add GitNortek package artifact workflows for Linux RPM and Windows installers
+* Add submodule creation, update checks, and modification dialog support
+* Add a toggle for the committed file tree
+* Add Ptyxis terminal auto-detection on Linux
+* Add Tamil translation
 
 #### Changed
 
 * Autohide sidebar when opening repository
+* Brand Linux application and packages as GitNortek
+* Refresh repositories automatically when Git metadata changes
+* Improve diff, blame, commit description, and large binary refresh performance
+* Fix path filtering, detached HEAD selection, merge tool visibility, and macOS Finder integration
+* Improve Windows and macOS build/package compatibility
 * Derive package versions from Git tags in CMake so local and CI package builds use the same version, including commit SHA and dirty state when needed
 * Encode prerelease, commit SHA, and dirty state in RPM `Version` with underscores to distinguish package identities precisely
 * Use UTC `YYYYMMDD.HHmm` timestamps as RPM package releases
