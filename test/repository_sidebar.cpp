@@ -14,6 +14,7 @@
 #include "host/Accounts.h"
 #include "ui/Footer.h"
 #include "ui/MainWindow.h"
+#include "ui/RepositoryNavigator.h"
 #include "ui/RepositoryNavigatorModel.h"
 #include "ui/SideBar.h"
 #include <QAbstractItemModelTester>
@@ -48,6 +49,7 @@ private slots:
   void recentRemoval();
   void accountRows();
   void navigatorModel();
+  void navigatorView();
   void cleanupTestCase();
 
 private:
@@ -242,6 +244,33 @@ void TestRepositorySideBar::navigatorModel() {
   QCOMPARE(model.rowCount(model.sectionIndex(
                RepositoryNavigatorModel::Section::Local)),
            0);
+}
+
+void TestRepositorySideBar::navigatorView() {
+  RepositoryNavigator navigator;
+  QTreeView *view = navigator.view();
+  QVERIFY(view);
+  QCOMPARE(view->objectName(), QString("RepositoryNavigationTree"));
+  QVERIFY(view->focusPolicy() != Qt::NoFocus);
+
+  RepositoryNavigatorModel *model = navigator.model();
+  QModelIndex local =
+      model->sectionIndex(RepositoryNavigatorModel::Section::Local);
+  QModelIndex cloud =
+      model->sectionIndex(RepositoryNavigatorModel::Section::CloudPatches);
+  QVERIFY(view->isExpanded(local));
+  QVERIFY(!view->isExpanded(cloud));
+
+  view->collapse(local);
+  QCoreApplication::processEvents();
+  QCOMPARE(QSettings()
+               .value("sidebar/repositoryNavigator/expanded/Local")
+               .toBool(),
+           false);
+
+  navigator.setRepository(mRepo);
+  local = model->sectionIndex(RepositoryNavigatorModel::Section::Local);
+  QVERIFY(!view->isExpanded(local));
 }
 
 void TestRepositorySideBar::cleanupTestCase() { mWindow->close(); }

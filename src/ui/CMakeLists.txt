@@ -36,6 +36,7 @@ add_library(
   ReferenceView.cpp
   ReferenceModel.cpp
   ReferenceWidget.cpp
+  RepositoryNavigator.cpp
   RepositoryNavigatorModel.cpp
   RepoView.cpp
   RemoteCallbacks.cpp
