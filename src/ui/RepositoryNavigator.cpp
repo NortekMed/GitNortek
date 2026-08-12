@@ -48,6 +48,8 @@ public:
 
     QColor text = selected ? palette.highlightedText().color()
                            : palette.text().color();
+    if (section)
+      text = palette.brightText().color();
     if (!index.data(RepositoryNavigatorModel::AvailableRole).toBool())
       text = palette.color(QPalette::Disabled, QPalette::Text);
 
@@ -55,7 +57,7 @@ public:
     QFont font = option.font;
     if (section) {
       font.setBold(true);
-      font.setCapitalization(QFont::AllUppercase);
+      font.setCapitalization(QFont::SmallCaps);
     }
     painter->setFont(font);
     painter->setPen(text);

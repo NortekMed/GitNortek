@@ -276,6 +276,7 @@ void TestRepositorySideBar::navigatorView() {
   QCOMPARE(view->objectName(), QString("RepositoryNavigationTree"));
   QVERIFY(view->focusPolicy() != Qt::NoFocus);
   QVERIFY(view->itemDelegate());
+  QCOMPARE(navigator.model()->index(0, 0).data().toString(), QString("Local"));
   QCOMPARE(view->itemDelegate()->sizeHint(QStyleOptionViewItem(),
                                           navigator.model()->index(0, 0))
                .height(),
