@@ -148,10 +148,24 @@ TabWidget::TabWidget(QWidget *parent) : QTabWidget(parent) {
   mDefaultWidget = new DefaultWidget(this);
 
   // Handle tab close.
-  connect(this, &TabWidget::tabCloseRequested, [this](int index) {
-    emit tabAboutToBeRemoved();
-    widget(index)->close();
-  });
+  connect(this, &TabWidget::tabCloseRequested, this,
+          QOverload<int>::of(&TabWidget::closeTab));
+}
+
+bool TabWidget::closeTab(int index) {
+  return closeTab(widget(index));
+}
+
+bool TabWidget::closeTab(QWidget *widget) {
+  if (!widget || indexOf(widget) < 0)
+    return false;
+
+  emit tabAboutToBeRemoved();
+  if (widget->close())
+    return true;
+
+  emit tabRemovalCancelled();
+  return false;
 }
 
 void TabWidget::resizeEvent(QResizeEvent *event) {

@@ -102,6 +102,8 @@ public:
             &RepoModel::beginResetModel);
     connect(tabs, &TabWidget::tabAboutToBeRemoved, this,
             &RepoModel::beginResetModel);
+    connect(tabs, &TabWidget::tabRemovalCancelled, this,
+            &RepoModel::endResetModel);
     connect(tabs, QOverload<>::of(&TabWidget::tabInserted), this,
             &RepoModel::endResetModel);
     connect(tabs, QOverload<>::of(&TabWidget::tabRemoved), this,
@@ -602,6 +604,8 @@ SideBar::SideBar(TabWidget *tabs, MainWindow *mainWindow, QWidget *parent)
   setStyleSheet(kStyleSheet);
 
   QTreeView *view = new QTreeView(this);
+  view->setObjectName("RepositoryTree");
+  view->setAccessibleName(tr("Repositories"));
   view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   view->setContextMenuPolicy(Qt::CustomContextMenu);
   view->setFocusPolicy(Qt::NoFocus);
@@ -689,11 +693,12 @@ SideBar::SideBar(TabWidget *tabs, MainWindow *mainWindow, QWidget *parent)
       });
 
   connect(view, &QTreeView::customContextMenuRequested,
-          [this, view](const QPoint &point) {
+          [this, tabs, view](const QPoint &point) {
             QMenu menu;
             QModelIndex index = view->indexAt(point);
             if (RepoView *view = index.data(TabRole).value<RepoView *>()) {
-              menu.addAction(tr("Close"), view, &RepoView::close);
+              menu.addAction(tr("Close"),
+                             [tabs, view] { tabs->closeTab(view); });
             } else if (Account *account =
                            index.data(AccountRole).value<Account *>()) {
               menu.addAction(tr("Remove"), [this, account] {
@@ -710,6 +715,7 @@ SideBar::SideBar(TabWidget *tabs, MainWindow *mainWindow, QWidget *parent)
 
   // footer
   Footer *footer = new Footer(this);
+  footer->setObjectName("RepositoryFooter");
 
   // plus button
   QMenu *plusMenu = new QMenu(this);
@@ -776,10 +782,10 @@ SideBar::SideBar(TabWidget *tabs, MainWindow *mainWindow, QWidget *parent)
     footer->setMinusEnabled(!path.isEmpty() || account);
   });
 
-  connect(footer, &Footer::minusClicked, [this, view, model, sel] {
+  connect(footer, &Footer::minusClicked, [this, tabs, view, model, sel] {
     foreach (const QModelIndex &index, sel->selectedIndexes()) {
       if (RepoView *tab = index.data(TabRole).value<RepoView *>()) {
-        tab->close();
+        tabs->closeTab(tab);
 
       } else if (index.data(RecentRole).value<RecentRepository *>()) {
         RecentRepositories::instance()->remove(index.row());

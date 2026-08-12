@@ -11,13 +11,17 @@
 #include "conf/RecentRepositories.h"
 #include "conf/RecentRepository.h"
 #include "ui/CommitList.h"
+#include "ui/Footer.h"
 #include "ui/MainWindow.h"
 #include "ui/RepoView.h"
 #include "ui/SideBar.h"
+#include "ui/TabWidget.h"
 #include <QMessageBox>
+#include <QPointer>
 #include <QProcess>
 #include <QPushButton>
 #include <QSettings>
+#include <QSignalSpy>
 #include <QTimer>
 #include <QTreeView>
 
@@ -31,6 +35,7 @@ private slots:
   void initTestCase();
   void show();
   void preserveSelectionAfterRemoteUpdate();
+  void closeTabFromSideBar();
   void invalidRecentRepository();
   void cleanupTestCase();
 
@@ -38,6 +43,7 @@ private:
   QTemporaryDir mRemoteDir;
   QTemporaryDir mInvalidRepoDir;
   ScratchRepository mRepo;
+  ScratchRepository mSecondRepo;
   QStringList mRecentRepositories;
   MainWindow *mWindow = nullptr;
 };
@@ -96,6 +102,69 @@ void TestMainWindow::preserveSelectionAfterRemoteUpdate() {
   QCOMPARE(mRepo->lookupRef(remoteName).target().id(), head.target().id());
 
   QCOMPARE(commits->selectedRange(), selected.id().toString());
+}
+
+void TestMainWindow::closeTabFromSideBar() {
+  RepoView *closingView = mWindow->addTab(mSecondRepo);
+  QVERIFY(closingView);
+  QCOMPARE(mWindow->count(), 2);
+
+  TabWidget *tabs = mWindow->tabWidget();
+  SideBar *sideBar = mWindow->findChild<SideBar *>();
+  QVERIFY(sideBar);
+  QTreeView *tree = sideBar->findChild<QTreeView *>("RepositoryTree");
+  QVERIFY(tree);
+  QCOMPARE(tree->accessibleName(), QString("Repositories"));
+
+  QAbstractItemModel *model = tree->model();
+  QCOMPARE(model->rowCount(), 3);
+  QCOMPARE(model->index(0, 0).data().toString(), QString("open"));
+  QCOMPARE(model->index(1, 0).data().toString(), QString("recent"));
+  QCOMPARE(model->index(2, 0).data().toString(), QString("remote"));
+  QModelIndex openRoot = model->index(0, 0);
+  QCOMPARE(model->rowCount(openRoot), 2);
+
+  QModelIndex first = model->index(0, 0, openRoot);
+  QVERIFY(QMetaObject::invokeMethod(tree, "clicked", Q_ARG(QModelIndex, first)));
+  QCOMPARE(tabs->currentIndex(), 0);
+
+  QModelIndex closing = model->index(1, 0, openRoot);
+  QCOMPARE(closing.data(Qt::UserRole).toString(),
+           mSecondRepo->dir(false).path());
+  QVERIFY(QMetaObject::invokeMethod(tree, "clicked",
+                                    Q_ARG(QModelIndex, closing)));
+  QCOMPARE(tabs->currentIndex(), 1);
+
+  Footer *footer = sideBar->findChild<Footer *>("RepositoryFooter");
+  QVERIFY(footer);
+  tree->selectionModel()->setCurrentIndex(
+      closing, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+
+  QSignalSpy aboutToRemove(tabs, &TabWidget::tabAboutToBeRemoved);
+  QSignalSpy removed(tabs, QOverload<>::of(&TabWidget::tabRemoved));
+  QPointer<RepoView> guard(closingView);
+
+  QVERIFY(QMetaObject::invokeMethod(footer, "minusClicked"));
+
+  QTRY_COMPARE(aboutToRemove.count(), 1);
+  QTRY_COMPARE(removed.count(), 1);
+  QTRY_VERIFY(guard.isNull());
+  QCOMPARE(mWindow->count(), 1);
+
+  openRoot = model->index(0, 0);
+  QCOMPARE(model->rowCount(openRoot), 1);
+  QCOMPARE(mWindow->currentView(), mWindow->view(0));
+
+  bool foundRecent = false;
+  QModelIndex recentRoot = model->index(1, 0);
+  for (int row = 0; row < model->rowCount(recentRoot); ++row) {
+    if (model->index(row, 0, recentRoot).data(Qt::UserRole).toString() ==
+        mSecondRepo->dir(false).path()) {
+      foundRecent = true;
+      break;
+    }
+  }
+  QVERIFY(foundRecent);
 }
 
 void TestMainWindow::invalidRecentRepository() {

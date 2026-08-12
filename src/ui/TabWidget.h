@@ -18,9 +18,13 @@ class TabWidget : public QTabWidget {
 public:
   TabWidget(QWidget *parent = nullptr);
 
+  bool closeTab(int index);
+  bool closeTab(QWidget *widget);
+
 signals:
   void tabAboutToBeInserted();
   void tabAboutToBeRemoved();
+  void tabRemovalCancelled();
   void tabInserted();
   void tabRemoved();
 

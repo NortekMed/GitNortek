@@ -334,7 +334,7 @@ Gate:
 
 ### Phase 1 - Existing sidebar regression coverage
 
-Status: Not started
+Status: In progress
 
 1. Add stable object names/test access for the current chooser and footer.
 2. Add focused coverage for current Open, Recent, and hosting-account model
@@ -634,6 +634,7 @@ Update this table throughout implementation. Newest entries go first.
 
 | Date | Phase | State | Changes and validation | Next action |
 | --- | --- | --- | --- | --- |
+| 2026-08-12 | 1 | In progress | Added stable repository tree/footer identifiers and accessible footer button names. Centralized user-requested tab closure in `TabWidget::closeTab()` so tab-bar, menu, context-menu, and footer paths emit balanced model reset signals, including cancellation. Added `main_window` coverage for chooser roots, tab switching, sidebar removal, signal pairing, model refresh, and recent-row preservation. `test_main_window` built and `ctest -R '^main_window$'` passed. | Add focused Recent and hosting-account chooser/action coverage to complete the Phase 1 gate. |
 | 2026-08-12 | 0 | Complete | Created `RepositorySidebarRedesign` from local `master`; added and indexed the blueprint. Baseline local `master` was ahead of `nortekmed/master` by two commits and the worktree was clean. `git diff --check` passed. | Begin Phase 1 by adding baseline regression coverage for the existing repository chooser and tab lifecycle. |
 
 ## Follow-Up Plans

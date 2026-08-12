@@ -325,7 +325,7 @@ MenuBar::MenuBar(QWidget *parent) : QMenuBar(parent) {
 
     if (MainWindow *win = qobject_cast<MainWindow *>(window)) {
       if (win->count() > 0) {
-        win->currentView()->close();
+        win->tabWidget()->closeTab(win->currentView());
         return;
       }
     }

@@ -86,13 +86,19 @@ private:
 
 Footer::Footer(QWidget *parent) : QWidget(parent) {
   mPlus = new FooterButton(FooterButton::Plus, this);
+  mPlus->setObjectName("Add");
+  mPlus->setAccessibleName(tr("Add"));
   connect(mPlus, &FooterButton::clicked, this, &Footer::plusClicked);
 
   mMinus = new FooterButton(FooterButton::Minus, this);
+  mMinus->setObjectName("Remove");
+  mMinus->setAccessibleName(tr("Remove"));
   mMinus->setEnabled(false);
   connect(mMinus, &FooterButton::clicked, this, &Footer::minusClicked);
 
   mGear = new FooterButton(FooterButton::Gear, this);
+  mGear->setObjectName("Options");
+  mGear->setAccessibleName(tr("Options"));
   mGear->setPopupMode(QToolButton::InstantPopup);
   mGear->setVisible(false);
 
