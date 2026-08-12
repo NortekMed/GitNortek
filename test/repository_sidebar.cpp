@@ -8,6 +8,8 @@
 #include "Test.h"
 #include "conf/RecentRepositories.h"
 #include "conf/RecentRepository.h"
+#include "conf/Setting.h"
+#include "conf/Settings.h"
 #include "git/Branch.h"
 #include "git/TagRef.h"
 #include "host/Account.h"
@@ -54,6 +56,8 @@ private slots:
   void navigatorModel();
   void navigatorView();
   void activeRepositoryBinding();
+  void stashInteraction();
+  void submoduleInteraction();
   void cleanupTestCase();
 
 private:
@@ -343,6 +347,97 @@ void TestRepositorySideBar::activeRepositoryBinding() {
   QVERIFY(window.tabWidget()->closeTab(window.currentView()));
   QTRY_COMPARE(window.count(), 0);
   QVERIFY(!navigator->model()->repository().isValid());
+  QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+}
+
+void TestRepositorySideBar::stashInteraction() {
+  Test::ScratchRepository repo;
+  QFile file(repo->workdir().filePath("stash.txt"));
+  QVERIFY(file.open(QIODevice::WriteOnly));
+  file.write("initial\n");
+  file.close();
+
+  QProcess git;
+  git.setWorkingDirectory(repo->workdir().path());
+  git.start(GIT_EXECUTABLE, {"add", "stash.txt"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE, {"commit", "-m", "stash base"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  QVERIFY(file.open(QIODevice::Append));
+  file.write("change\n");
+  file.close();
+  QVERIFY(repo->stash("interaction stash").isValid());
+
+  MainWindow window(repo);
+  RepositoryNavigator *navigator =
+      window.findChild<RepositoryNavigator *>("RepositoryNavigator");
+  QVERIFY(navigator);
+
+  QModelIndex stashes = navigator->model()->sectionIndex(
+      RepositoryNavigatorModel::Section::Stashes);
+  QCOMPARE(navigator->model()->rowCount(stashes), 1);
+  QModelIndex stash = navigator->model()->index(0, 0, stashes);
+  git::Commit expected =
+      stash.data(RepositoryNavigatorModel::CommitRole).value<git::Commit>();
+  QVERIFY(expected.isValid());
+
+  QVERIFY(QMetaObject::invokeMethod(navigator->view(), "clicked",
+                                    Q_ARG(QModelIndex, stash)));
+  QTRY_VERIFY(!window.currentView()->commits().isEmpty());
+  QCOMPARE(window.currentView()->commits().first().id(), expected.id());
+
+  window.currentView()->dropStash(0);
+  QTRY_COMPARE(navigator->model()->rowCount(stashes), 0);
+}
+
+void TestRepositorySideBar::submoduleInteraction() {
+  Test::ScratchRepository child;
+  QFile childFile(child->workdir().filePath("child.txt"));
+  QVERIFY(childFile.open(QIODevice::WriteOnly));
+  childFile.write("child\n");
+  childFile.close();
+
+  QProcess git;
+  git.setWorkingDirectory(child->workdir().path());
+  git.start(GIT_EXECUTABLE, {"add", "child.txt"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE, {"commit", "-m", "child"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+
+  Test::ScratchRepository parent;
+  git.setWorkingDirectory(parent->workdir().path());
+  git.start(GIT_EXECUTABLE,
+            {"-c", "protocol.file.allow=always", "submodule", "add",
+             child->workdir().path(), "child"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE, {"commit", "-m", "add submodule"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+
+  Settings::instance()->setValue(Setting::Id::OpenSubmodulesInTabs, true);
+  MainWindow window(parent);
+  RepositoryNavigator *navigator =
+      window.findChild<RepositoryNavigator *>("RepositoryNavigator");
+  QVERIFY(navigator);
+
+  QModelIndex submodules = navigator->model()->sectionIndex(
+      RepositoryNavigatorModel::Section::Submodules);
+  QCOMPARE(navigator->model()->rowCount(submodules), 1);
+  QModelIndex submodule = navigator->model()->index(0, 0, submodules);
+  QCOMPARE(submodule.data(RepositoryNavigatorModel::PathRole).toString(),
+           QString("child"));
+  QVERIFY(submodule.data(RepositoryNavigatorModel::InitializedRole).toBool());
+
+  QVERIFY(QMetaObject::invokeMethod(navigator->view(), "doubleClicked",
+                                    Q_ARG(QModelIndex, submodule)));
+  QTRY_COMPARE(window.count(), 2);
+  QCOMPARE(window.currentView()->repo().workdir().path(),
+           parent->workdir().filePath("child"));
 }
 
 void TestRepositorySideBar::cleanupTestCase() { mWindow->close(); }

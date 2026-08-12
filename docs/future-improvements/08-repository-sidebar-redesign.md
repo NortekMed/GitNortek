@@ -410,7 +410,7 @@ Gate:
 
 ### Phase 6 - Stash and submodule actions
 
-Status: Not started
+Status: Complete
 
 1. Add a `RepoView` bridge for selecting an individual stash.
 2. Wire apply, pop, and drop to stable stash indexes.
@@ -634,6 +634,7 @@ Update this table throughout implementation. Newest entries go first.
 
 | Date | Phase | State | Changes and validation | Next action |
 | --- | --- | --- | --- | --- |
+| 2026-08-12 | 6 | Complete | Added exact stash selection through `RepoView`, stash Apply/Pop/Drop menu actions bound to guarded repository views, model refresh after stash mutation, typed submodule rows, and double-click submodule opening through existing tab behavior. Local-only tests verify stash commit selection/removal and initialized submodule activation. | Implement the compact section/row delegate and stop for manual visual, theme, scaling, and interaction validation. |
 | 2026-08-12 | 5 | Data complete | Added cached ahead/behind roles for local branches with upstreams. Values are calculated during model rebuild, never from `data()` or delegate painting, and refresh through existing reference notifications. Tests cover no-upstream and up-to-date tracking states. Rendering and large-repository responsiveness require the Phase 7 visual/manual pass. | Complete automated stash/submodule interaction coverage, then implement the presentation delegate. |
 | 2026-08-12 | 4 | In progress | Added `RepoView` reference navigation/selection signals and explicit navigation and stash-selection bridges. The navigator synchronizes reference rows, single-clicks select the reference tip without checkout, double-clicks use existing checkout behavior, stash rows select exact entries and expose Apply/Pop/Drop actions, and submodules open on explicit activation. Automated tests verify single-click selection and local-branch checkout. | Add the remaining local/remote/tag context actions and tracking badges, then complete stash/submodule automated coverage. |
 | 2026-08-12 | 3 | Complete | Mounted the existing chooser and new navigator in a vertical sidebar splitter, bound the navigator to the active `RepoView`, refreshed it for submodule changes, and cleared/rebound it safely on tab closure and empty state. Automated tests cover initial binding, switching, closure, and no-repository state. Layout proportions are provisional until Phase 7 manual validation. | Begin Phase 4 by synchronizing reference selection and adding single-click navigation plus explicit checkout actions. |
