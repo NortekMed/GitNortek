@@ -10,7 +10,9 @@
 #include "RepoView.h"
 #include <QMenu>
 #include <QMetaEnum>
+#include <QPainter>
 #include <QSettings>
+#include <QStyledItemDelegate>
 #include <QTreeView>
 #include <QVBoxLayout>
 
@@ -23,6 +25,80 @@ QString sectionKey(const QModelIndex &index) {
   QMetaEnum meta = QMetaEnum::fromType<RepositoryNavigatorModel::Section>();
   return QString::fromLatin1(meta.valueToKey(section));
 }
+
+class NavigatorDelegate : public QStyledItemDelegate {
+public:
+  NavigatorDelegate(QObject *parent) : QStyledItemDelegate(parent) {}
+
+  QSize sizeHint(const QStyleOptionViewItem &option,
+                 const QModelIndex &index) const override {
+    QSize size = QStyledItemDelegate::sizeHint(option, index);
+    return QSize(size.width(), index.parent().isValid() ? 24 : 28);
+  }
+
+  void paint(QPainter *painter, const QStyleOptionViewItem &option,
+             const QModelIndex &index) const override {
+    painter->save();
+    QPalette palette = option.palette;
+    bool section = !index.parent().isValid();
+    bool selected = option.state & QStyle::State_Selected;
+    QColor background = selected ? palette.highlight().color()
+                                 : palette.base().color();
+    painter->fillRect(option.rect, background);
+
+    QColor text = selected ? palette.highlightedText().color()
+                           : palette.text().color();
+    if (!index.data(RepositoryNavigatorModel::AvailableRole).toBool())
+      text = palette.color(QPalette::Disabled, QPalette::Text);
+
+    QRect content = option.rect.adjusted(section ? 8 : 6, 0, -8, 0);
+    QFont font = option.font;
+    if (section) {
+      font.setBold(true);
+      font.setCapitalization(QFont::AllUppercase);
+    }
+    painter->setFont(font);
+    painter->setPen(text);
+
+    QString prefix;
+    if (!section &&
+        index.data(RepositoryNavigatorModel::CurrentRole).toBool())
+      prefix = QString::fromUtf8("✓  ");
+    QString label = prefix + index.data().toString();
+
+    QString trailing;
+    if (section) {
+      trailing = QString::number(
+          index.data(RepositoryNavigatorModel::CountRole).toInt());
+    } else {
+      QVariant ahead = index.data(RepositoryNavigatorModel::AheadRole);
+      QVariant behind = index.data(RepositoryNavigatorModel::BehindRole);
+      if (ahead.isValid() && ahead.toInt() > 0)
+        trailing += tr("%1↑").arg(ahead.toInt());
+      if (behind.isValid() && behind.toInt() > 0) {
+        if (!trailing.isEmpty())
+          trailing += " ";
+        trailing += tr("%1↓").arg(behind.toInt());
+      }
+    }
+
+    int trailingWidth = trailing.isEmpty()
+                            ? 0
+                            : painter->fontMetrics().horizontalAdvance(trailing);
+    QRect textRect = content.adjusted(0, 0, -trailingWidth - 8, 0);
+    painter->drawText(textRect, Qt::AlignVCenter | Qt::AlignLeft,
+                      painter->fontMetrics().elidedText(
+                          label, Qt::ElideRight, textRect.width()));
+    if (!trailing.isEmpty())
+      painter->drawText(content, Qt::AlignVCenter | Qt::AlignRight, trailing);
+
+    if (section) {
+      painter->setPen(palette.mid().color());
+      painter->drawLine(option.rect.bottomLeft(), option.rect.bottomRight());
+    }
+    painter->restore();
+  }
+};
 
 } // namespace
 
@@ -38,6 +114,9 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent) : QWidget(parent) {
   mView->setRootIsDecorated(true);
   mView->setItemsExpandable(true);
   mView->setExpandsOnDoubleClick(false);
+  mView->setIndentation(14);
+  mView->setUniformRowHeights(true);
+  mView->setItemDelegate(new NavigatorDelegate(mView));
 
   mModel = new RepositoryNavigatorModel(mView);
   mView->setModel(mModel);

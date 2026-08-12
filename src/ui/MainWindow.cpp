@@ -45,6 +45,7 @@ const QString kIndexKey = "index";
 const QString kStateKey = "state";
 const QString kActiveKey = "active";
 const QString kSidebarKey = "sidebar";
+const QString kSidebarWidthKey = "sidebar/repositoryNavigator/width";
 const QString kGeometryKey = "geometry";
 const QString kWindowsGroup = "windows";
 
@@ -129,6 +130,8 @@ MainWindow::MainWindow(const git::Repository &repo, QWidget *parent,
   connect(splitter, &QSplitter::splitterMoved, [this] {
     QSplitter *splitter = static_cast<QSplitter *>(centralWidget());
     mIsSideBarVisible = (splitter->sizes().first() > 0);
+    if (mIsSideBarVisible)
+      QSettings().setValue(kSidebarWidthKey, splitter->sizes().first());
   });
 
   // Create tab container.
@@ -192,7 +195,10 @@ void MainWindow::setSideBarVisible(bool visible) {
   // Animate sidebar sliding in or out.
   QSplitter *splitter = static_cast<QSplitter *>(centralWidget());
   QWidget *sidebar = splitter->widget(0);
-  int pos = visible ? sidebar->sizeHint().width() : splitter->sizes().first();
+  int storedWidth = QSettings().value(kSidebarWidthKey,
+                                      sidebar->sizeHint().width()).toInt();
+  int pos = visible ? qBound(220, storedWidth, 520)
+                    : splitter->sizes().first();
 
   QTimeLine *timeline = new QTimeLine(250, this);
   timeline->setDirection(visible ? QTimeLine::Forward : QTimeLine::Backward);

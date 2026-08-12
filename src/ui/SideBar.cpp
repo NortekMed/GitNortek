@@ -897,7 +897,7 @@ SideBar::SideBar(TabWidget *tabs, MainWindow *mainWindow, QWidget *parent)
   footer->setMinimumWidth(footer->sizeHint().width());
 }
 
-QSize SideBar::sizeHint() const { return QSize(192, 0); }
+QSize SideBar::sizeHint() const { return QSize(280, 0); }
 
 QSize SideBar::minimumSizeHint() const { return QSize(0, 0); }
 
