@@ -7,6 +7,7 @@
 
 #include "RepositoryNavigator.h"
 #include "RepositoryNavigatorModel.h"
+#include "RepoView.h"
 #include <QMetaEnum>
 #include <QSettings>
 #include <QTreeView>
@@ -57,6 +58,16 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent) : QWidget(parent) {
 
 void RepositoryNavigator::setRepository(const git::Repository &repo) {
   mModel->setRepository(repo);
+}
+
+void RepositoryNavigator::setRepoView(RepoView *view) {
+  disconnect(mSubmodulesConnection);
+  setRepository(view ? view->repo() : git::Repository());
+  if (view) {
+    mSubmodulesConnection =
+        connect(view, &RepoView::submodulesChanged, mModel,
+                &RepositoryNavigatorModel::refresh);
+  }
 }
 
 RepositoryNavigatorModel *RepositoryNavigator::model() const { return mModel; }

@@ -16,12 +16,15 @@
 #include "ui/MainWindow.h"
 #include "ui/RepositoryNavigator.h"
 #include "ui/RepositoryNavigatorModel.h"
+#include "ui/RepoView.h"
 #include "ui/SideBar.h"
+#include "ui/TabWidget.h"
 #include <QAbstractItemModelTester>
 #include <QFile>
 #include <QProcess>
 #include <QSettings>
 #include <QSignalSpy>
+#include <QSplitter>
 #include <QTemporaryDir>
 #include <QToolButton>
 #include <QTreeView>
@@ -50,6 +53,7 @@ private slots:
   void accountRows();
   void navigatorModel();
   void navigatorView();
+  void activeRepositoryBinding();
   void cleanupTestCase();
 
 private:
@@ -271,6 +275,35 @@ void TestRepositorySideBar::navigatorView() {
   navigator.setRepository(mRepo);
   local = model->sectionIndex(RepositoryNavigatorModel::Section::Local);
   QVERIFY(!view->isExpanded(local));
+}
+
+void TestRepositorySideBar::activeRepositoryBinding() {
+  MainWindow window(mRepo);
+  SideBar *sideBar = window.findChild<SideBar *>();
+  RepositoryNavigator *navigator =
+      sideBar->findChild<RepositoryNavigator *>("RepositoryNavigator");
+  QSplitter *content =
+      sideBar->findChild<QSplitter *>("RepositorySidebarContent");
+  QVERIFY(navigator);
+  QVERIFY(content);
+  QCOMPARE(content->count(), 2);
+  QCOMPARE(navigator->model()->repository().dir(false).path(),
+           mRepo->dir(false).path());
+
+  Test::ScratchRepository second;
+  RepoView *secondView = window.addTab(second);
+  QVERIFY(secondView);
+  QCOMPARE(navigator->model()->repository().dir(false).path(),
+           second->dir(false).path());
+
+  QVERIFY(window.tabWidget()->closeTab(secondView));
+  QTRY_COMPARE(window.count(), 1);
+  QCOMPARE(navigator->model()->repository().dir(false).path(),
+           mRepo->dir(false).path());
+
+  QVERIFY(window.tabWidget()->closeTab(window.currentView()));
+  QTRY_COMPARE(window.count(), 0);
+  QVERIFY(!navigator->model()->repository().isValid());
 }
 
 void TestRepositorySideBar::cleanupTestCase() { mWindow->close(); }

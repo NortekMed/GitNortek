@@ -13,6 +13,7 @@
 
 class QTreeView;
 class RepositoryNavigatorModel;
+class RepoView;
 
 class RepositoryNavigator : public QWidget {
   Q_OBJECT
@@ -21,6 +22,7 @@ public:
   explicit RepositoryNavigator(QWidget *parent = nullptr);
 
   void setRepository(const git::Repository &repo);
+  void setRepoView(RepoView *view);
   RepositoryNavigatorModel *model() const;
   QTreeView *view() const;
 
@@ -30,6 +32,7 @@ private:
 
   QTreeView *mView;
   RepositoryNavigatorModel *mModel;
+  QMetaObject::Connection mSubmodulesConnection;
 };
 
 #endif

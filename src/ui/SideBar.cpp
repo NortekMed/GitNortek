@@ -11,6 +11,7 @@
 #include "Footer.h"
 #include "MainWindow.h"
 #include "ProgressIndicator.h"
+#include "RepositoryNavigator.h"
 #include "RepoView.h"
 #include "TabWidget.h"
 #include "app/Application.h"
@@ -25,6 +26,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QSettings>
+#include <QSplitter>
 #include <QStyledItemDelegate>
 #include <QTreeView>
 #include <QVBoxLayout>
@@ -618,6 +620,18 @@ SideBar::SideBar(TabWidget *tabs, MainWindow *mainWindow, QWidget *parent)
   RepoModel *model = new RepoModel(tabs, view);
   view->setModel(model);
 
+  RepositoryNavigator *navigator = new RepositoryNavigator(this);
+  auto bindNavigator = [tabs, navigator](int index) {
+    navigator->setRepoView(qobject_cast<RepoView *>(tabs->widget(index)));
+  };
+  connect(tabs, &TabWidget::currentChanged, navigator, bindNavigator);
+  connect(tabs, QOverload<>::of(&TabWidget::tabRemoved), navigator,
+          [tabs, navigator] {
+            navigator->setRepoView(
+                qobject_cast<RepoView *>(tabs->currentWidget()));
+          });
+  bindNavigator(tabs->currentIndex());
+
   // Restore selection and expansion state after model reset.
   connect(model, &RepoModel::modelReset, view, [view, model] {
     view->setCurrentIndex(model->currentIndex());
@@ -864,10 +878,19 @@ SideBar::SideBar(TabWidget *tabs, MainWindow *mainWindow, QWidget *parent)
   });
 
   // Create layout.
+  QSplitter *content = new QSplitter(Qt::Vertical, this);
+  content->setObjectName("RepositorySidebarContent");
+  content->setChildrenCollapsible(false);
+  content->addWidget(view);
+  content->addWidget(navigator);
+  content->setStretchFactor(0, 0);
+  content->setStretchFactor(1, 1);
+  content->setSizes({160, 480});
+
   QVBoxLayout *layout = new QVBoxLayout(this);
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
-  layout->addWidget(view);
+  layout->addWidget(content);
   layout->addWidget(footer);
 
   // Disable footer resize.

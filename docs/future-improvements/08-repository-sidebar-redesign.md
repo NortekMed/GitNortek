@@ -364,7 +364,7 @@ Gate:
 
 ### Phase 3 - Combined sidebar layout
 
-Status: Not started
+Status: Complete, pending visual tuning in Phase 7
 
 1. Split `SideBar` into a compact chooser area, primary navigator area, and
    existing footer.
@@ -634,6 +634,7 @@ Update this table throughout implementation. Newest entries go first.
 
 | Date | Phase | State | Changes and validation | Next action |
 | --- | --- | --- | --- | --- |
+| 2026-08-12 | 3 | Complete | Mounted the existing chooser and new navigator in a vertical sidebar splitter, bound the navigator to the active `RepoView`, refreshed it for submodule changes, and cleared/rebound it safely on tab closure and empty state. Automated tests cover initial binding, switching, closure, and no-repository state. Layout proportions are provisional until Phase 7 manual validation. | Begin Phase 4 by synchronizing reference selection and adding single-click navigation plus explicit checkout actions. |
 | 2026-08-12 | 3 | In progress | Added standalone `RepositoryNavigator` with a keyboard-focusable tree, stable accessibility/test names, functional-section default expansion, disabled-section collapse, and persisted expansion restoration after model resets. `repository_sidebar` verifies defaults and persistence. The widget is not yet mounted in `SideBar`. | Bind the widget to the active `RepoView` and integrate the combined chooser/navigator layout. |
 | 2026-08-12 | 2 | Complete | Added `RepositoryNavigatorModel` with typed Local, Remote, Stashes, Cloud Patches, Pull Requests, GitHub Issues, Teams, Tags, and Submodules sections; value-based reference/commit/submodule roles; disabled service placeholders; current-branch state; and notifier-driven refresh. There is no Worktrees model value. Extended `repository_sidebar` with Qt model invariant, order, placeholder, branch, remote, notifier, stash, tag, clear, and typed-role coverage. | Add the collapsible repository navigator view and expansion persistence without binding it to the global sidebar yet. |
 | 2026-08-12 | 1 | Complete | Added an isolated `repository_sidebar` test covering empty Open/Recent rows, all hosting-provider placeholders, Recent removal through the footer, and offline account add/remove model updates without touching user settings or the network. `ctest -R '^(main_window|repository_sidebar)$'` passed. | Begin Phase 2 with the typed repository navigator model and model-focused tests. |
