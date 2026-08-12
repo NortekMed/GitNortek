@@ -307,8 +307,10 @@ MenuBar::MenuBar(QWidget *parent) : QMenuBar(parent) {
     for (int i = 0; i < repos->count(); ++i) {
       RecentRepository *repo = repos->repository(i);
       QAction *action = openRecent->addAction(repo->name());
-      connect(action, &QAction::triggered,
-              [repo] { MainWindow::open(repo->gitpath()); });
+      QString path = repo->gitpath();
+      connect(action, &QAction::triggered, [path] {
+        MainWindow::open(path, true, MainWindow::OpenSource::RecentRepository);
+      });
     }
   });
 

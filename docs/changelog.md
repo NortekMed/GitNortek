@@ -24,6 +24,7 @@ Bug Fix and Feature release
 * Use UTC `YYYYMMDD.HHmm` timestamps as RPM package releases
 * Avoid hangs and excessive memory use when displaying very large text diffs
 * Preserve the selected commit when push or fetch updates remote references
+* Offer to remove recent repositories that can no longer be opened
 
 ----
 

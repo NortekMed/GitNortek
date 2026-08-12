@@ -650,8 +650,12 @@ SideBar::SideBar(TabWidget *tabs, MainWindow *mainWindow, QWidget *parent)
         // Open existing path.
         QString path = index.data(PathRole).toString();
         if (!path.isEmpty()) {
-          MainWindow::open(path);
-          mainWindow->setSideBarVisible(false);
+          MainWindow::OpenSource source =
+              index.data(RecentRole).value<RecentRepository *>()
+                  ? MainWindow::OpenSource::RecentRepository
+                  : MainWindow::OpenSource::Other;
+          if (MainWindow::open(path, true, source))
+            mainWindow->setSideBarVisible(false);
           return;
         }
 

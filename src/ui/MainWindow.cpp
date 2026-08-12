@@ -29,6 +29,7 @@
 #include <QCryptographicHash>
 #include <QMessageBox>
 #include <QMimeData>
+#include <QPushButton>
 #include <QSettings>
 #include <QTimeLine>
 #include <QToolButton>
@@ -214,7 +215,7 @@ TabWidget *MainWindow::tabWidget() const {
   return static_cast<TabWidget *>(splitter->widget(1));
 }
 
-RepoView *MainWindow::addTab(const QString &path) {
+RepoView *MainWindow::addTab(const QString &path, OpenSource source) {
   if (path.isEmpty())
     return nullptr;
 
@@ -229,7 +230,10 @@ RepoView *MainWindow::addTab(const QString &path) {
 
   git::Repository repo = git::Repository::open(path, true);
   if (!repo.isValid()) {
-    warnInvalidRepo(path);
+    if (source == OpenSource::RecentRepository)
+      warnInvalidRecentRepo(path);
+    else
+      warnInvalidRepo(path);
     return nullptr;
   }
 
@@ -359,15 +363,20 @@ bool MainWindow::restoreWindows() {
   return !windows.isEmpty();
 }
 
-MainWindow *MainWindow::open(const QString &path, bool warnOnInvalid) {
+MainWindow *MainWindow::open(const QString &path, bool warnOnInvalid,
+                             OpenSource source) {
   DebugRefresh("Open project: " << path);
   if (path.isEmpty())
     return nullptr;
 
   git::Repository repo = git::Repository::open(path, true);
   if (!repo.isValid()) {
-    if (warnOnInvalid)
-      warnInvalidRepo(path);
+    if (warnOnInvalid) {
+      if (source == OpenSource::RecentRepository)
+        warnInvalidRecentRepo(path);
+      else
+        warnInvalidRepo(path);
+    }
     return nullptr;
   }
 
@@ -473,6 +482,25 @@ void MainWindow::warnInvalidRepo(const QString &path) {
   QString title = tr("Invalid Git Repository");
   QString text = tr("%1 does not contain a valid git repository.");
   QMessageBox::warning(nullptr, title, text.arg(path));
+}
+
+void MainWindow::warnInvalidRecentRepo(const QString &path) {
+  QString title = tr("Recent Repository Unavailable");
+  QString text = tr("The recent repository '%1' could not be opened.");
+  QString info = tr("It may no longer be a valid Git repository or may be "
+                    "inaccessible. Do you want to remove it from the recent "
+                    "repository list?");
+  QMessageBox dialog(QMessageBox::Warning, title, text.arg(path),
+                     QMessageBox::NoButton);
+  dialog.setInformativeText(info);
+  QPushButton *remove =
+      dialog.addButton(tr("Remove From Recent"), QMessageBox::AcceptRole);
+  QPushButton *keep = dialog.addButton(tr("Keep"), QMessageBox::RejectRole);
+  dialog.setDefaultButton(keep);
+  dialog.exec();
+
+  if (dialog.clickedButton() == remove)
+    RecentRepositories::instance()->remove(path);
 }
 
 void MainWindow::updateTabNames() {

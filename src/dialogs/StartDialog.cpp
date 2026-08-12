@@ -607,9 +607,10 @@ void StartDialog::accept() {
   QModelIndexList repoIndexes = mRepoList->selectionModel()->selectedIndexes();
   QModelIndexList hostIndexes = mHostTree->selectionModel()->selectedIndexes();
 
-  QStringList paths;
+  QList<QPair<QString, MainWindow::OpenSource>> paths;
   foreach (const QModelIndex &index, repoIndexes)
-    paths.append(index.data(Qt::UserRole).toString());
+    paths.append({index.data(Qt::UserRole).toString(),
+                  MainWindow::OpenSource::RecentRepository});
 
   QModelIndexList uncloned;
   foreach (const QModelIndex &index, hostIndexes) {
@@ -620,7 +621,7 @@ void StartDialog::accept() {
       if (path.isEmpty()) {
         uncloned.append(index);
       } else {
-        paths.append(path);
+        paths.append({path, MainWindow::OpenSource::Other});
       }
     }
   }
@@ -638,16 +639,19 @@ void StartDialog::accept() {
     return;
 
   // Open a new window for the first valid repo.
-  MainWindow *window = MainWindow::open(paths.takeFirst());
-  while (!window && !paths.isEmpty())
-    window = MainWindow::open(paths.takeFirst());
+  auto request = paths.takeFirst();
+  MainWindow *window = MainWindow::open(request.first, true, request.second);
+  while (!window && !paths.isEmpty()) {
+    request = paths.takeFirst();
+    window = MainWindow::open(request.first, true, request.second);
+  }
 
   if (!window)
     return;
 
   // Add the remainder as tabs.
-  foreach (const QString &path, paths)
-    window->addTab(path);
+  foreach (const auto &request, paths)
+    window->addTab(request.first, request.second);
 }
 
 StartDialog *StartDialog::openSharedInstance() {

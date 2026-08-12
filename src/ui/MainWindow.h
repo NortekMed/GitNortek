@@ -26,6 +26,8 @@ class MainWindow : public QMainWindow {
   Q_OBJECT
 
 public:
+  enum class OpenSource { Other, RecentRepository };
+
   MainWindow(const git::Repository &repo, QWidget *parent = nullptr,
              Qt::WindowFlags flags = Qt::WindowFlags());
 
@@ -35,7 +37,8 @@ public:
   void setSideBarVisible(bool visible);
 
   TabWidget *tabWidget() const;
-  RepoView *addTab(const QString &path);
+  RepoView *addTab(const QString &path,
+                   OpenSource source = OpenSource::Other);
   RepoView *addTab(const git::Repository &repo);
 
   int count() const;
@@ -51,7 +54,8 @@ public:
   static bool restoreWindows();
 
   // Open a new window.
-  static MainWindow *open(const QString &path, bool warnOnInvalid = true);
+  static MainWindow *open(const QString &path, bool warnOnInvalid = true,
+                          OpenSource source = OpenSource::Other);
   static MainWindow *open(const git::Repository &repo = git::Repository());
 
   // Save window settings on close.
@@ -69,6 +73,7 @@ private:
   void updateWindowTitle(int ahead = -1, int behind = -1);
 
   static void warnInvalidRepo(const QString &path);
+  static void warnInvalidRecentRepo(const QString &path);
 
   QStringList paths() const;
   QString windowGroup() const;

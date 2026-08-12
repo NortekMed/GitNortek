@@ -50,6 +50,21 @@ void RecentRepositories::remove(int index) {
   emit repositoryRemoved();
 }
 
+void RecentRepositories::remove(const QString &path) {
+  for (int i = 0; i < mRepos.size(); ++i) {
+#ifdef Q_OS_WIN
+    bool matches =
+        mRepos.at(i)->gitpath().compare(path, Qt::CaseInsensitive) == 0;
+#else
+    bool matches = mRepos.at(i)->gitpath() == path;
+#endif
+    if (matches) {
+      remove(i);
+      return;
+    }
+  }
+}
+
 /*!
  * gitpath: path to the git repository, does not neccesarly need to be the
  * workdir
