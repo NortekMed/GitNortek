@@ -349,7 +349,7 @@ Gate:
 
 ### Phase 2 - Repository navigator model
 
-Status: Not started
+Status: Complete
 
 1. Add explicit section and row types.
 2. Populate Local, Remote, Tags, and Submodules.
@@ -634,6 +634,7 @@ Update this table throughout implementation. Newest entries go first.
 
 | Date | Phase | State | Changes and validation | Next action |
 | --- | --- | --- | --- | --- |
+| 2026-08-12 | 2 | Complete | Added `RepositoryNavigatorModel` with typed Local, Remote, Stashes, Cloud Patches, Pull Requests, GitHub Issues, Teams, Tags, and Submodules sections; value-based reference/commit/submodule roles; disabled service placeholders; current-branch state; and notifier-driven refresh. There is no Worktrees model value. Extended `repository_sidebar` with Qt model invariant, order, placeholder, branch, remote, notifier, stash, tag, clear, and typed-role coverage. | Add the collapsible repository navigator view and expansion persistence without binding it to the global sidebar yet. |
 | 2026-08-12 | 1 | Complete | Added an isolated `repository_sidebar` test covering empty Open/Recent rows, all hosting-provider placeholders, Recent removal through the footer, and offline account add/remove model updates without touching user settings or the network. `ctest -R '^(main_window|repository_sidebar)$'` passed. | Begin Phase 2 with the typed repository navigator model and model-focused tests. |
 | 2026-08-12 | 1 | In progress | Added stable repository tree/footer identifiers and accessible footer button names. Centralized user-requested tab closure in `TabWidget::closeTab()` so tab-bar, menu, context-menu, and footer paths emit balanced model reset signals, including cancellation. Added `main_window` coverage for chooser roots, tab switching, sidebar removal, signal pairing, model refresh, and recent-row preservation. `test_main_window` built and `ctest -R '^main_window$'` passed. | Add focused Recent and hosting-account chooser/action coverage to complete the Phase 1 gate. |
 | 2026-08-12 | 0 | Complete | Created `RepositorySidebarRedesign` from local `master`; added and indexed the blueprint. Baseline local `master` was ahead of `nortekmed/master` by two commits and the worktree was clean. `git diff --check` passed. | Begin Phase 1 by adding baseline regression coverage for the existing repository chooser and tab lifecycle. |

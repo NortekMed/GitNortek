@@ -8,11 +8,17 @@
 #include "Test.h"
 #include "conf/RecentRepositories.h"
 #include "conf/RecentRepository.h"
+#include "git/Branch.h"
+#include "git/TagRef.h"
 #include "host/Account.h"
 #include "host/Accounts.h"
 #include "ui/Footer.h"
 #include "ui/MainWindow.h"
+#include "ui/RepositoryNavigatorModel.h"
 #include "ui/SideBar.h"
+#include <QAbstractItemModelTester>
+#include <QFile>
+#include <QProcess>
 #include <QSettings>
 #include <QSignalSpy>
 #include <QTemporaryDir>
@@ -41,12 +47,14 @@ private slots:
   void chooserModel();
   void recentRemoval();
   void accountRows();
+  void navigatorModel();
   void cleanupTestCase();
 
 private:
   MainWindow *mWindow = nullptr;
   QTreeView *mTree = nullptr;
   Footer *mFooter = nullptr;
+  Test::ScratchRepository mRepo;
 };
 
 void TestRepositorySideBar::initTestCase() {
@@ -137,6 +145,103 @@ void TestRepositorySideBar::accountRows() {
   QCOMPARE(accounts->count(), 0);
   remote = model->index(2, 0);
   QCOMPARE(model->rowCount(remote), Account::NUM_KINDS);
+}
+
+void TestRepositorySideBar::navigatorModel() {
+  QFile file(mRepo->workdir().filePath("tracked.txt"));
+  QVERIFY(file.open(QIODevice::WriteOnly));
+  QCOMPARE(file.write("initial\n"), qint64(8));
+  file.close();
+
+  QProcess git;
+  git.setWorkingDirectory(mRepo->workdir().path());
+  git.start(GIT_EXECUTABLE, {"add", "tracked.txt"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE, {"commit", "-m", "initial"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE,
+            {"update-ref", "refs/remotes/origin/main", "HEAD"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+
+  git::Commit head = mRepo->head().target();
+  QVERIFY(head.isValid());
+  QVERIFY(mRepo->createBranch("feature", head).isValid());
+  QVERIFY(mRepo->createTag(head, "v1").isValid());
+
+  QVERIFY(file.open(QIODevice::Append));
+  QCOMPARE(file.write("change\n"), qint64(7));
+  file.close();
+  QVERIFY(mRepo->stash("sidebar stash").isValid());
+
+  RepositoryNavigatorModel model;
+  QAbstractItemModelTester tester(
+      &model, QAbstractItemModelTester::FailureReportingMode::QtTest);
+  model.setRepository(mRepo);
+
+  QCOMPARE(model.rowCount(),
+           static_cast<int>(RepositoryNavigatorModel::Section::Count));
+  const QStringList sections = {"Local",         "Remote", "Stashes",
+                                "Cloud Patches", "Pull Requests",
+                                "GitHub Issues", "Teams",  "Tags",
+                                "Submodules"};
+  for (int row = 0; row < sections.size(); ++row)
+    QCOMPARE(model.index(row, 0).data().toString(), sections.at(row));
+
+  for (RepositoryNavigatorModel::Section section :
+       {RepositoryNavigatorModel::Section::CloudPatches,
+        RepositoryNavigatorModel::Section::PullRequests,
+        RepositoryNavigatorModel::Section::GitHubIssues,
+        RepositoryNavigatorModel::Section::Teams}) {
+    QModelIndex index = model.sectionIndex(section);
+    QCOMPARE(index.data(RepositoryNavigatorModel::CountRole).toInt(), 0);
+    QVERIFY(!index.data(RepositoryNavigatorModel::AvailableRole).toBool());
+    QVERIFY(!(model.flags(index) & Qt::ItemIsEnabled));
+  }
+
+  QModelIndex local =
+      model.sectionIndex(RepositoryNavigatorModel::Section::Local);
+  QCOMPARE(model.rowCount(local), 2);
+  int current = 0;
+  for (int row = 0; row < model.rowCount(local); ++row) {
+    QModelIndex branch = model.index(row, 0, local);
+    QVERIFY(branch.data(RepositoryNavigatorModel::ReferenceRole)
+                .value<git::Reference>()
+                .isValid());
+    current += branch.data(RepositoryNavigatorModel::CurrentRole).toBool();
+  }
+  QCOMPARE(current, 1);
+
+  QModelIndex remotes =
+      model.sectionIndex(RepositoryNavigatorModel::Section::Remote);
+  QCOMPARE(model.rowCount(remotes), 1);
+  QCOMPARE(model.index(0, 0, remotes).data().toString(),
+           QString("origin/main"));
+
+  QVERIFY(mRepo->createBranch("notified", head).isValid());
+  QTRY_COMPARE(model.rowCount(local), 3);
+
+  QModelIndex stashes =
+      model.sectionIndex(RepositoryNavigatorModel::Section::Stashes);
+  QCOMPARE(model.rowCount(stashes), 1);
+  QModelIndex stash = model.index(0, 0, stashes);
+  QCOMPARE(stash.data(RepositoryNavigatorModel::StashIndexRole).toInt(), 0);
+  QVERIFY(stash.data(RepositoryNavigatorModel::CommitRole)
+              .value<git::Commit>()
+              .isValid());
+
+  QModelIndex tags =
+      model.sectionIndex(RepositoryNavigatorModel::Section::Tags);
+  QCOMPARE(model.rowCount(tags), 1);
+  QCOMPARE(model.index(0, 0, tags).data().toString(), QString("v1"));
+
+  model.clear();
+  QCOMPARE(model.rowCount(), sections.size());
+  QCOMPARE(model.rowCount(model.sectionIndex(
+               RepositoryNavigatorModel::Section::Local)),
+           0);
 }
 
 void TestRepositorySideBar::cleanupTestCase() { mWindow->close(); }
