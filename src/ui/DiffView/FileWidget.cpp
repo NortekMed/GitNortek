@@ -22,6 +22,7 @@
 
 #include <QCheckBox>
 #include <QContextMenuEvent>
+#include <QLabel>
 #include <QVBoxLayout>
 #include <QMessageBox>
 #include <QPushButton>
@@ -29,6 +30,7 @@
 
 namespace {
 bool disclosure = false;
+constexpr int kMaxDisplayedChangedLines = 5000;
 }
 
 _FileWidget::Header::Header(const git::Diff &diff, const git::Patch &patch,
@@ -413,6 +415,20 @@ FileWidget::FileWidget(DiffView *view, const git::Diff &diff,
     return;
   }
 
+  const git::Patch::LineStats stats = patch.lineStats();
+  const int changedLines = stats.additions + stats.deletions;
+  if (changedLines > kMaxDisplayedChangedLines) {
+    mDiffSuppressed = true;
+    QLabel *message = new QLabel(
+        tr("Diff not shown because it contains %1 changed lines.")
+            .arg(changedLines),
+        this);
+    message->setContentsMargins(8, 8, 8, 8);
+    message->setWordWrap(true);
+    layout->addWidget(message);
+    return;
+  }
+
   mHunkLayout = new QVBoxLayout();
   layout->addLayout(mHunkLayout);
   layout->addSpacerItem(new QSpacerItem(
@@ -510,7 +526,9 @@ void FileWidget::updateHunks(git::Patch stagedPatch) {
     hunk->load(stagedPatch, true);
 }
 
-bool FileWidget::isEmpty() { return (mHunks.isEmpty() && mImages.isEmpty()); }
+bool FileWidget::isEmpty() {
+  return !mDiffSuppressed && mHunks.isEmpty() && mImages.isEmpty();
+}
 
 void FileWidget::setStageState(git::Index::StagedState state) {
   mHeader->setStageState(state);
@@ -730,7 +748,7 @@ void FileWidget::discardHunk() {
 }
 
 bool FileWidget::canFetchMore() const {
-  return mHunks.count() < mPatch.count();
+  return !mDiffSuppressed && mHunks.count() < mPatch.count();
 }
 
 /*!
@@ -739,6 +757,9 @@ bool FileWidget::canFetchMore() const {
  * use a while loop with canFetchMore() to get all
  */
 int FileWidget::fetchMore(int count) {
+  if (mDiffSuppressed)
+    return 0;
+
   int counter = 0;
   RepoView *view = RepoView::parentView(this);
   git::Repository repo = view->repo();

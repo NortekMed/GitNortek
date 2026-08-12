@@ -151,6 +151,7 @@ private:
   QList<QWidget *> mImages;
   QList<HunkWidget *> mHunks;
   QVBoxLayout *mHunkLayout{nullptr};
+  bool mDiffSuppressed{false};
   bool mSuppressUpdate{false};
   bool mSupressStaging{false};
 };
