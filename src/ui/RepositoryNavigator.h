@@ -9,6 +9,7 @@
 #define REPOSITORYNAVIGATOR_H
 
 #include "git/Repository.h"
+#include <QPointer>
 #include <QWidget>
 
 class QTreeView;
@@ -29,10 +30,15 @@ public:
 private:
   void restoreExpansion();
   void storeExpansion(const QModelIndex &index, bool expanded);
+  void selectReference(const git::Reference &ref);
+  void activate(const QModelIndex &index, bool checkout);
 
   QTreeView *mView;
   RepositoryNavigatorModel *mModel;
+  QPointer<RepoView> mRepoView;
   QMetaObject::Connection mSubmodulesConnection;
+  QMetaObject::Connection mReferenceConnection;
+  QMetaObject::Connection mReferenceSelectedConnection;
 };
 
 #endif

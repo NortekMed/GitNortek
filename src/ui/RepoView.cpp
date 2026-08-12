@@ -297,6 +297,10 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
           &CommitList::resetSettings);
   connect(mRefs, &ReferenceWidget::referenceChanged, mCommits,
           &CommitList::setReference);
+  connect(mRefs, &ReferenceWidget::referenceChanged, this,
+          &RepoView::referenceChanged);
+  connect(mRefs, &ReferenceWidget::referenceSelected, this,
+          &RepoView::referenceSelected);
   connect(mRefs, &ReferenceWidget::referenceSelected, mCommits,
           &CommitList::selectReference);
   connect(mCommits, &CommitList::statusChanged, this, &RepoView::statusChanged);
@@ -554,6 +558,20 @@ git::Reference RepoView::reference() const { return mRefs->currentReference(); }
 
 void RepoView::selectReference(const git::Reference &ref) {
   mRefs->select(ref);
+}
+
+void RepoView::navigateToReference(const git::Reference &ref) {
+  mRefs->select(ref);
+  mCommits->selectReference(ref);
+  emit referenceSelected(ref);
+}
+
+void RepoView::selectStash(int index) {
+  QList<git::Commit> stashes = mRepo.stashes();
+  if (index < 0 || index >= stashes.size())
+    return;
+  mRefs->select(mRepo.stashRef());
+  mCommits->selectRange(stashes.at(index).id().toString());
 }
 
 QList<git::Commit> RepoView::commits() const {

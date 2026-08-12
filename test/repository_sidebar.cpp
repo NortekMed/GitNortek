@@ -301,6 +301,30 @@ void TestRepositorySideBar::activeRepositoryBinding() {
   QCOMPARE(navigator->model()->repository().dir(false).path(),
            mRepo->dir(false).path());
 
+  RepoView *view = window.currentView();
+  QModelIndex local = navigator->model()->sectionIndex(
+      RepositoryNavigatorModel::Section::Local);
+  QModelIndex feature;
+  for (int row = 0; row < navigator->model()->rowCount(local); ++row) {
+    QModelIndex candidate = navigator->model()->index(row, 0, local);
+    if (candidate.data().toString() == "feature") {
+      feature = candidate;
+      break;
+    }
+  }
+  QVERIFY(feature.isValid());
+
+  QSignalSpy referenceSelected(view, &RepoView::referenceSelected);
+  QVERIFY(QMetaObject::invokeMethod(navigator->view(), "clicked",
+                                    Q_ARG(QModelIndex, feature)));
+  QTRY_COMPARE(referenceSelected.count(), 1);
+  QCOMPARE(referenceSelected.first().first().value<git::Reference>().name(),
+           QString("feature"));
+
+  QVERIFY(QMetaObject::invokeMethod(navigator->view(), "doubleClicked",
+                                    Q_ARG(QModelIndex, feature)));
+  QTRY_COMPARE(mRepo->head().name(), QString("feature"));
+
   QVERIFY(window.tabWidget()->closeTab(window.currentView()));
   QTRY_COMPARE(window.count(), 0);
   QVERIFY(!navigator->model()->repository().isValid());

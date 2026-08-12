@@ -110,6 +110,8 @@ public:
   // current reference
   git::Reference reference() const;
   void selectReference(const git::Reference &ref);
+  void navigateToReference(const git::Reference &ref);
+  void selectStash(int index);
 
   // current selection
   QList<git::Commit> commits() const;
@@ -366,6 +368,8 @@ private slots:
 
 signals:
   void statusChanged(bool dirty);
+  void referenceChanged(const git::Reference &ref);
+  void referenceSelected(const git::Reference &ref);
   void submodulesChanged();
 
 protected:
