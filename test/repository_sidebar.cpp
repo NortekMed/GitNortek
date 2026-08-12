@@ -182,6 +182,11 @@ void TestRepositorySideBar::navigatorModel() {
   file.close();
   QVERIFY(mRepo->stash("sidebar stash").isValid());
 
+  git::Branch main = mRepo->head();
+  git::Branch upstream = mRepo->lookupBranch("origin/main", GIT_BRANCH_REMOTE);
+  QVERIFY(upstream.isValid());
+  main.setUpstream(upstream);
+
   RepositoryNavigatorModel model;
   QAbstractItemModelTester tester(
       &model, QAbstractItemModelTester::FailureReportingMode::QtTest);
@@ -211,14 +216,24 @@ void TestRepositorySideBar::navigatorModel() {
       model.sectionIndex(RepositoryNavigatorModel::Section::Local);
   QCOMPARE(model.rowCount(local), 2);
   int current = 0;
+  bool foundTracking = false;
   for (int row = 0; row < model.rowCount(local); ++row) {
     QModelIndex branch = model.index(row, 0, local);
     QVERIFY(branch.data(RepositoryNavigatorModel::ReferenceRole)
                 .value<git::Reference>()
                 .isValid());
     current += branch.data(RepositoryNavigatorModel::CurrentRole).toBool();
+    if (branch.data().toString() == main.name()) {
+      QCOMPARE(branch.data(RepositoryNavigatorModel::AheadRole).toInt(), 0);
+      QCOMPARE(branch.data(RepositoryNavigatorModel::BehindRole).toInt(), 0);
+      foundTracking = true;
+    } else {
+      QVERIFY(!branch.data(RepositoryNavigatorModel::AheadRole).isValid());
+      QVERIFY(!branch.data(RepositoryNavigatorModel::BehindRole).isValid());
+    }
   }
   QCOMPARE(current, 1);
+  QVERIFY(foundTracking);
 
   QModelIndex remotes =
       model.sectionIndex(RepositoryNavigatorModel::Section::Remote);

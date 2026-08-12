@@ -396,7 +396,7 @@ Gate:
 
 ### Phase 5 - Tracking badges
 
-Status: Not started
+Status: Data complete; rendering pending Phase 7
 
 1. Add a cache for local branch ahead/behind values.
 2. Calculate values outside painting and model data access.
@@ -634,6 +634,7 @@ Update this table throughout implementation. Newest entries go first.
 
 | Date | Phase | State | Changes and validation | Next action |
 | --- | --- | --- | --- | --- |
+| 2026-08-12 | 5 | Data complete | Added cached ahead/behind roles for local branches with upstreams. Values are calculated during model rebuild, never from `data()` or delegate painting, and refresh through existing reference notifications. Tests cover no-upstream and up-to-date tracking states. Rendering and large-repository responsiveness require the Phase 7 visual/manual pass. | Complete automated stash/submodule interaction coverage, then implement the presentation delegate. |
 | 2026-08-12 | 4 | In progress | Added `RepoView` reference navigation/selection signals and explicit navigation and stash-selection bridges. The navigator synchronizes reference rows, single-clicks select the reference tip without checkout, double-clicks use existing checkout behavior, stash rows select exact entries and expose Apply/Pop/Drop actions, and submodules open on explicit activation. Automated tests verify single-click selection and local-branch checkout. | Add the remaining local/remote/tag context actions and tracking badges, then complete stash/submodule automated coverage. |
 | 2026-08-12 | 3 | Complete | Mounted the existing chooser and new navigator in a vertical sidebar splitter, bound the navigator to the active `RepoView`, refreshed it for submodule changes, and cleared/rebound it safely on tab closure and empty state. Automated tests cover initial binding, switching, closure, and no-repository state. Layout proportions are provisional until Phase 7 manual validation. | Begin Phase 4 by synchronizing reference selection and adding single-click navigation plus explicit checkout actions. |
 | 2026-08-12 | 3 | In progress | Added standalone `RepositoryNavigator` with a keyboard-focusable tree, stable accessibility/test names, functional-section default expansion, disabled-section collapse, and persisted expansion restoration after model resets. `repository_sidebar` verifies defaults and persistence. The widget is not yet mounted in `SideBar`. | Bind the widget to the active `RepoView` and integrate the combined chooser/navigator layout. |

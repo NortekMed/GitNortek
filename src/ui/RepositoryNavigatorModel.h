@@ -41,6 +41,8 @@ public:
     CountRole,
     AvailableRole,
     CurrentRole,
+    AheadRole,
+    BehindRole,
     ReferenceRole,
     CommitRole,
     StashIndexRole,
@@ -85,6 +87,8 @@ private:
     QString branch;
     bool initialized = false;
     bool current = false;
+    int ahead = -1;
+    int behind = -1;
   };
 
   struct SectionData {

@@ -113,6 +113,10 @@ QVariant RepositoryNavigatorModel::data(const QModelIndex &index,
       return true;
     case CurrentRole:
       return row->current;
+    case AheadRole:
+      return row->ahead >= 0 ? QVariant(row->ahead) : QVariant();
+    case BehindRole:
+      return row->behind >= 0 ? QVariant(row->behind) : QVariant();
     case ReferenceRole:
       return row->reference.isValid() ? QVariant::fromValue(row->reference)
                                       : QVariant();
@@ -228,6 +232,11 @@ void RepositoryNavigatorModel::rebuild() {
     row.display = branch.name();
     row.tooltip = branch.qualifiedName();
     row.current = branch.isHead();
+    git::Branch upstream = branch.upstream();
+    if (upstream.isValid()) {
+      row.ahead = branch.difference(upstream);
+      row.behind = upstream.difference(branch);
+    }
     local.rows.append(row);
   }
   std::sort(local.rows.begin(), local.rows.end(), lessThan);
