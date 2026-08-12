@@ -1783,6 +1783,7 @@ void CommitList::restoreSelection() {
   }
 
   mSelectedRange = QString();
+  mRestoreSelection = true;
 }
 
 void CommitList::updateModel() {

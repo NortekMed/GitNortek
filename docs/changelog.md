@@ -23,6 +23,7 @@ Bug Fix and Feature release
 * Encode prerelease, commit SHA, and dirty state in RPM `Version` with underscores to distinguish package identities precisely
 * Use UTC `YYYYMMDD.HHmm` timestamps as RPM package releases
 * Avoid hangs and excessive memory use when displaying very large text diffs
+* Preserve the selected commit when push or fetch updates remote references
 
 ----
 

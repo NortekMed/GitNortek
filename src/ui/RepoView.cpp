@@ -3135,7 +3135,7 @@ ToolBar *RepoView::toolBar() const {
 CommitList *RepoView::commitList() const { return mCommits; }
 
 void RepoView::notifyReferenceUpdated(const QString &name) {
-  emit mRepo.notifier()->referenceUpdated(mRepo.lookupRef(name));
+  emit mRepo.notifier()->referenceUpdated(mRepo.lookupRef(name), true);
 }
 
 void RepoView::startLogTimer() {
