@@ -113,6 +113,7 @@ test(NAME SshConfig)
 test(NAME store)
 test(NAME fileContextMenu NO_WIN32_OFFSCREEN)
 test(NAME Setting)
+test(NAME Id)
 test(NAME commitMessageTemplate)
 test(NAME commitEditor)
 

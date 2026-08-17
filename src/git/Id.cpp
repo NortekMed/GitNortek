@@ -50,6 +50,10 @@ bool Id::isValid() const { return isNull() == false; }
 
 QString Id::toString() const { return toByteArray().toHex(); }
 
+QString Id::shortId() const {
+  return isValid() ? toString().left(8) : QString();
+}
+
 QByteArray Id::toByteArray() const {
   const char *data = reinterpret_cast<const char *>(d.id);
   return QByteArray::fromRawData(data, getSize());

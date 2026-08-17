@@ -30,7 +30,7 @@ QString Object::shortId() const {
   git_object_short_id(&buf, d.data());
   QByteArray result(buf.ptr, buf.size);
   git_buf_dispose(&buf);
-  return result;
+  return result.isEmpty() || result.size() >= 8 ? result : id().shortId();
 }
 
 QString Object::link() const {

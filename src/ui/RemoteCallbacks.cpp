@@ -70,7 +70,7 @@ QString range(const QString &name, const QString &a, const QString &b) {
   query.addQueryItem("ref", name);
   url.setQuery(query);
 
-  return kLinkFmt.arg(url.toString(), kRangeFmt.arg(a.left(7), b.left(7)));
+  return kLinkFmt.arg(url.toString(), kRangeFmt.arg(a.left(8), b.left(8)));
 }
 
 void setText(const QString &text, LogEntry *log, LogEntry *&entry) {
