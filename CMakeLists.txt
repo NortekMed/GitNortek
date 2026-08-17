@@ -16,7 +16,7 @@ set(GITTYUP_VERSION
 
 set(GITTYUP_VERSION_OVERRIDE
     ""
-    CACHE STRING "Override full GitNortek version, e.g. MAJOR.MINOR.PATCH-pre0-gSHA")
+    CACHE STRING "Override full GitNortek version, e.g. MAJOR.MINOR.PATCH-pre0-SHA")
 
 find_package(Git)
 
@@ -26,7 +26,7 @@ if(GITTYUP_VERSION_OVERRIDE)
 elseif(GIT_FOUND)
   execute_process(
     COMMAND ${GIT_EXECUTABLE} -C ${CMAKE_SOURCE_DIR} describe --tags --long
-            --dirty --match "v[0-9]*.[0-9]*.[0-9]*"
+            --abbrev=8 --dirty --match "v[0-9]*.[0-9]*.[0-9]*"
     RESULT_VARIABLE GITTYUP_DESCRIBE_RESULT
     OUTPUT_VARIABLE GITTYUP_DESCRIBE
     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -34,7 +34,7 @@ elseif(GIT_FOUND)
   if(GITTYUP_DESCRIBE_RESULT EQUAL 0)
     string(
       REGEX MATCH
-            "^v([0-9]+)\\.([0-9]+)\\.([0-9]+)(-(pre\\.?[0-9]+))?-([0-9]+)-(g[0-9A-Fa-f]+)(-dirty)?$"
+            "^v([0-9]+)\\.([0-9]+)\\.([0-9]+)(-(pre\\.?[0-9]+))?-([0-9]+)-g([0-9A-Fa-f]+)(-dirty)?$"
             GITTYUP_DESCRIBE_MATCH "${GITTYUP_DESCRIBE}")
     if(GITTYUP_DESCRIBE_MATCH)
       set(GITTYUP_VERSION_MAJOR ${CMAKE_MATCH_1})
@@ -67,11 +67,11 @@ elseif(GIT_FOUND)
 endif()
 
 string(REGEX MATCH
-             "^([0-9]+)\\.([0-9]+)\\.([0-9]+)(-(pre\\.?[0-9]+))?(-(g[0-9A-Fa-f]+))?(-dirty)?$"
+             "^([0-9]+)\\.([0-9]+)\\.([0-9]+)(-(pre\\.?[0-9]+))?(-([0-9A-Fa-f]+))?(-dirty)?$"
              GITTYUP_VERSION_MATCH "${GITTYUP_VERSION}")
 
 if(NOT GITTYUP_VERSION_MATCH)
-  message(FATAL_ERROR "GitNortek version must match MAJOR.MINOR.PATCH[-preN][-gSHA][-dirty]")
+  message(FATAL_ERROR "GitNortek version must match MAJOR.MINOR.PATCH[-preN][-SHA][-dirty]")
 endif()
 
 set(GITTYUP_VERSION_MAJOR ${CMAKE_MATCH_1})

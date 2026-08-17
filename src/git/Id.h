@@ -27,6 +27,7 @@ public:
   bool isValid() const;
 
   QString toString() const;
+  QString shortId() const;
   QByteArray toByteArray() const;
 
   bool operator<(const Id &rhs) const;

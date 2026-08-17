@@ -105,8 +105,7 @@ QString submoduleUpdateStateText(git::Submodule::UpdateStatus::State state) {
 }
 
 QString shortId(const git::Id &id) {
-  QString text = id.toString();
-  return text.isEmpty() ? QString() : text.left(7);
+  return id.isValid() ? id.shortId() : QString();
 }
 
 class CheckoutCallbacks : public QObject,
