@@ -14,7 +14,6 @@
 #include "BranchTableModel.h"
 #include "DeleteBranchDialog.h"
 #include "DiffPanel.h"
-#include "ModifySubmoduleDialog.h"
 #include "NewBranchDialog.h"
 #include "PluginsPanel.h"
 #include "RemoteTableModel.h"
@@ -396,17 +395,7 @@ public:
             });
 
     connect(modify, &QPushButton::clicked, this, [view, selectedSubmodule] {
-      git::Submodule submodule = selectedSubmodule();
-      if (!submodule)
-        return;
-
-      ModifySubmoduleDialog *dialog =
-          new ModifySubmoduleDialog(submodule, view);
-      connect(dialog, &QDialog::accepted, [view, dialog, submodule] {
-        view->modifySubmodule(submodule.name(), dialog->name(), dialog->path(),
-                              dialog->url(), dialog->branch());
-      });
-      dialog->open();
+      view->promptToModifySubmodule(selectedSubmodule());
     });
 
     QHBoxLayout *footerLayout = new QHBoxLayout;

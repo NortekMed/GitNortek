@@ -26,6 +26,24 @@ QString sectionKey(const QModelIndex &index) {
   return QString::fromLatin1(meta.valueToKey(section));
 }
 
+QString comparisonBadge(const QString &label, const QVariant &ahead,
+                        const QVariant &behind) {
+  if (!ahead.isValid() || !behind.isValid())
+    return label + " ?";
+
+  int aheadCount = ahead.toInt();
+  int behindCount = behind.toInt();
+  if (!aheadCount && !behindCount)
+    return label + QString::fromUtf8(" ✓");
+
+  QString badge = label + " ";
+  if (aheadCount)
+    badge += QObject::tr("%1↑").arg(aheadCount);
+  if (behindCount)
+    badge += QObject::tr("%1↓").arg(behindCount);
+  return badge;
+}
+
 class NavigatorDelegate : public QStyledItemDelegate {
 public:
   NavigatorDelegate(QObject *parent) : QStyledItemDelegate(parent) {}
@@ -73,14 +91,37 @@ public:
       trailing = QString::number(
           index.data(RepositoryNavigatorModel::CountRole).toInt());
     } else {
-      QVariant ahead = index.data(RepositoryNavigatorModel::AheadRole);
-      QVariant behind = index.data(RepositoryNavigatorModel::BehindRole);
-      if (ahead.isValid() && ahead.toInt() > 0)
-        trailing += tr("%1↑").arg(ahead.toInt());
-      if (behind.isValid() && behind.toInt() > 0) {
-        if (!trailing.isEmpty())
-          trailing += " ";
-        trailing += tr("%1↓").arg(behind.toInt());
+      auto kind = static_cast<RepositoryNavigatorModel::ItemKind>(
+          index.data(RepositoryNavigatorModel::ItemKindRole).toInt());
+      if (kind == RepositoryNavigatorModel::ItemKind::Submodule) {
+        trailing = comparisonBadge(
+            RepositoryNavigator::tr("Pin"),
+            index.data(RepositoryNavigatorModel::PinnedAheadRole),
+            index.data(RepositoryNavigatorModel::PinnedBehindRole));
+        auto state = index.data(RepositoryNavigatorModel::OriginStateRole)
+                         .value<RepositoryNavigatorModel::OriginState>();
+        QString origin;
+        if (state == RepositoryNavigatorModel::OriginState::Pending)
+          origin = RepositoryNavigator::tr("Origin …");
+        else if (state == RepositoryNavigatorModel::OriginState::Failed)
+          origin = RepositoryNavigator::tr("Origin !");
+        else if (state == RepositoryNavigatorModel::OriginState::Ready)
+          origin = comparisonBadge(
+              RepositoryNavigator::tr("Origin"),
+              index.data(RepositoryNavigatorModel::OriginAheadRole),
+              index.data(RepositoryNavigatorModel::OriginBehindRole));
+        if (!origin.isEmpty())
+          trailing += " " + origin;
+      } else {
+        QVariant ahead = index.data(RepositoryNavigatorModel::AheadRole);
+        QVariant behind = index.data(RepositoryNavigatorModel::BehindRole);
+        if (ahead.isValid() && ahead.toInt() > 0)
+          trailing += RepositoryNavigator::tr("%1↑").arg(ahead.toInt());
+        if (behind.isValid() && behind.toInt() > 0) {
+          if (!trailing.isEmpty())
+            trailing += " ";
+          trailing += RepositoryNavigator::tr("%1↓").arg(behind.toInt());
+        }
       }
     }
 
@@ -136,32 +177,7 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent) : QWidget(parent) {
 
   mView->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(mView, &QTreeView::customContextMenuRequested, this,
-          [this](const QPoint &point) {
-            if (!mRepoView)
-              return;
-            QModelIndex index = mView->indexAt(point);
-            int stash = index.data(RepositoryNavigatorModel::StashIndexRole)
-                            .toInt();
-            if (!index.data(RepositoryNavigatorModel::StashIndexRole).isValid())
-              return;
-            QMenu menu;
-            menu.addAction(tr("Apply Stash"), mRepoView,
-                           [view = mRepoView, stash] {
-                             if (view)
-                               view->applyStash(stash);
-                           });
-            menu.addAction(tr("Pop Stash"), mRepoView,
-                           [view = mRepoView, stash] {
-                             if (view)
-                               view->popStash(stash);
-                           });
-            menu.addAction(tr("Drop Stash"), mRepoView,
-                           [view = mRepoView, stash] {
-                             if (view)
-                               view->dropStash(stash);
-                           });
-            menu.exec(mView->viewport()->mapToGlobal(point));
-          });
+          &RepositoryNavigator::showContextMenu);
 
   QVBoxLayout *layout = new QVBoxLayout(this);
   layout->setContentsMargins(0, 0, 0, 0);
@@ -177,14 +193,19 @@ void RepositoryNavigator::setRepository(const git::Repository &repo) {
 
 void RepositoryNavigator::setRepoView(RepoView *view) {
   disconnect(mSubmodulesConnection);
+  disconnect(mSubmoduleStatusesConnection);
   disconnect(mReferenceConnection);
   disconnect(mReferenceSelectedConnection);
   mRepoView = view;
   setRepository(view ? view->repo() : git::Repository());
   if (view) {
+    mModel->setSubmoduleUpdateStatuses(view->submoduleUpdateStatuses());
     mSubmodulesConnection =
         connect(view, &RepoView::submodulesChanged, mModel,
                 &RepositoryNavigatorModel::refresh);
+    mSubmoduleStatusesConnection = connect(
+        view, &RepoView::submoduleUpdateStatusesChanged, mModel,
+        &RepositoryNavigatorModel::setSubmoduleUpdateStatuses);
     mReferenceConnection = connect(view, &RepoView::referenceChanged, this,
                                    &RepositoryNavigator::selectReference);
     mReferenceSelectedConnection =
@@ -219,6 +240,84 @@ void RepositoryNavigator::storeExpansion(const QModelIndex &index,
   settings.beginGroup(kExpandedGroup);
   settings.setValue(sectionKey(index), expanded);
   settings.endGroup();
+}
+
+void RepositoryNavigator::showContextMenu(const QPoint &point) {
+  if (!mRepoView)
+    return;
+
+  QModelIndex index = mView->indexAt(point);
+  if (!index.isValid() || !index.parent().isValid())
+    return;
+
+  QMenu menu;
+  git::Reference ref =
+      index.data(RepositoryNavigatorModel::ReferenceRole).value<git::Reference>();
+  if (ref.isValid()) {
+    mRepoView->populateReferenceContextMenu(&menu, ref);
+  } else {
+    git::Submodule submodule =
+        index.data(RepositoryNavigatorModel::SubmoduleRole)
+            .value<git::Submodule>();
+    if (submodule.isValid()) {
+      bool initialized =
+          index.data(RepositoryNavigatorModel::InitializedRole).toBool();
+      QAction *open = menu.addAction(tr("Open"), mRepoView,
+                                     [view = mRepoView, submodule] {
+                                       if (view)
+                                         view->openSubmodule(submodule);
+                                     });
+      open->setEnabled(initialized && submodule.open().isValid());
+      if (initialized) {
+        menu.addAction(tr("Update"), mRepoView,
+                       [view = mRepoView, submodule] {
+                         if (view)
+                           view->updateSubmodules({submodule});
+                       });
+      } else {
+        menu.addAction(tr("Initialize and Update"), mRepoView,
+                       [view = mRepoView, submodule] {
+                         if (view)
+                           view->updateSubmodules({submodule}, true, true);
+                       });
+      }
+      menu.addSeparator();
+      menu.addAction(tr("Modify..."), mRepoView,
+                     [view = mRepoView, submodule] {
+                       if (view)
+                         view->promptToModifySubmodule(submodule);
+                     });
+      menu.addAction(tr("Delete Submodule..."), mRepoView,
+                     [view = mRepoView, submodule] {
+                       if (view)
+                         view->promptToDeleteSubmodule(submodule);
+                     });
+    } else {
+      QVariant stash =
+          index.data(RepositoryNavigatorModel::StashIndexRole);
+      if (stash.isValid()) {
+        int stashIndex = stash.toInt();
+        menu.addAction(tr("Apply Stash"), mRepoView,
+                       [view = mRepoView, stashIndex] {
+                         if (view)
+                           view->applyStash(stashIndex);
+                       });
+        menu.addAction(tr("Pop Stash"), mRepoView,
+                       [view = mRepoView, stashIndex] {
+                         if (view)
+                           view->popStash(stashIndex);
+                       });
+        menu.addAction(tr("Drop Stash"), mRepoView,
+                       [view = mRepoView, stashIndex] {
+                         if (view)
+                           view->dropStash(stashIndex);
+                       });
+      }
+    }
+  }
+
+  if (!menu.isEmpty())
+    menu.exec(mView->viewport()->mapToGlobal(point));
 }
 
 void RepositoryNavigator::selectReference(const git::Reference &ref) {

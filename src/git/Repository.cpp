@@ -704,8 +704,16 @@ QList<Submodule> Repository::submodules() const {
 
   QList<Submodule> submodules;
   foreach (const QString &name, d->submodules) {
-    if (Submodule submodule = lookupSubmodule(name))
-      submodules.append(submodule);
+    int status = submoduleStatus(name);
+    bool present = status >= 0 &&
+                   (status & (GIT_SUBMODULE_STATUS_IN_CONFIG |
+                              GIT_SUBMODULE_STATUS_IN_INDEX |
+                              GIT_SUBMODULE_STATUS_IN_WD));
+    if (present) {
+      Submodule submodule = lookupSubmodule(name);
+      if (submodule)
+        submodules.append(submodule);
+    }
   }
 
   return submodules;

@@ -13,6 +13,7 @@
 #include "git/Repository.h"
 #include "git/Submodule.h"
 #include <QAbstractItemModel>
+#include <QHash>
 
 class RepositoryNavigatorModel : public QAbstractItemModel {
   Q_OBJECT
@@ -35,6 +36,9 @@ public:
   enum class ItemKind { Section, Reference, Stash, Submodule };
   Q_ENUM(ItemKind)
 
+  enum class OriginState { Hidden, Pending, Failed, Ready };
+  Q_ENUM(OriginState)
+
   enum Role {
     SectionRole = Qt::UserRole + 1,
     ItemKindRole,
@@ -50,7 +54,12 @@ public:
     PathRole,
     UrlRole,
     BranchRole,
-    InitializedRole
+    InitializedRole,
+    PinnedAheadRole,
+    PinnedBehindRole,
+    OriginAheadRole,
+    OriginBehindRole,
+    OriginStateRole
   };
 
   explicit RepositoryNavigatorModel(QObject *parent = nullptr);
@@ -58,6 +67,8 @@ public:
   void setRepository(const git::Repository &repo);
   void clear();
   git::Repository repository() const;
+  void setSubmoduleUpdateStatuses(
+      const QList<git::Submodule::UpdateStatus> &statuses);
 
   QModelIndex sectionIndex(Section section) const;
 
@@ -89,6 +100,11 @@ private:
     bool current = false;
     int ahead = -1;
     int behind = -1;
+    int pinnedAhead = -1;
+    int pinnedBehind = -1;
+    int originAhead = -1;
+    int originBehind = -1;
+    OriginState originState = OriginState::Hidden;
   };
 
   struct SectionData {
@@ -109,6 +125,7 @@ private:
   void rebuild();
 
   git::Repository mRepo;
+  QHash<QString, git::Submodule::UpdateStatus> mSubmoduleUpdateStatuses;
   QList<SectionData> mSections;
   QList<QMetaObject::Connection> mConnections;
 };

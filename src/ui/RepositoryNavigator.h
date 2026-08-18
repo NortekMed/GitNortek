@@ -32,11 +32,13 @@ private:
   void storeExpansion(const QModelIndex &index, bool expanded);
   void selectReference(const git::Reference &ref);
   void activate(const QModelIndex &index, bool checkout);
+  void showContextMenu(const QPoint &point);
 
   QTreeView *mView;
   RepositoryNavigatorModel *mModel;
   QPointer<RepoView> mRepoView;
   QMetaObject::Connection mSubmodulesConnection;
+  QMetaObject::Connection mSubmoduleStatusesConnection;
   QMetaObject::Connection mReferenceConnection;
   QMetaObject::Connection mReferenceSelectedConnection;
 };

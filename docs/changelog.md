@@ -10,6 +10,8 @@ Bug Fix and Feature release
 * Add a toggle for the committed file tree
 * Add Ptyxis terminal auto-detection on Linux
 * Add Tamil translation
+* Add repository navigator context actions for branches and submodules, including permanent submodule removal
+* Show compact pinned-commit and origin ahead/behind status for submodules in the repository navigator
 
 #### Changed
 

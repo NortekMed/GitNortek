@@ -15,6 +15,7 @@
 #include "ui/RepoView.h"
 #include "ui/RepoView.h"
 #include "conf/Settings.h"
+#include "git/Config.h"
 #include "git/Submodule.h"
 #include "ui/DoubleTreeWidget.h"
 #include "ui/TreeView.h"
@@ -47,6 +48,8 @@ private slots:
   void updateSubmoduleClone();
   void noUpdateSubmoduleClone();
   void discardFile();
+  void removeSubmodule();
+  void refuseRemovalWithGitmodulesChanges();
 
 private:
 };
@@ -197,6 +200,96 @@ void TestSubmodule::discardFile() {
   QFile file(repo.workdir().filePath("GittyupTestRepo/README.md"));
   QVERIFY(file.open(QFile::ReadOnly));
   QCOMPARE(file.readAll(), "Changing content of submodule readme\n");
+}
+
+void TestSubmodule::removeSubmodule() {
+  ScratchRepository child;
+  QFile childFile(child->workdir().filePath("child.txt"));
+  QVERIFY(childFile.open(QIODevice::WriteOnly));
+  childFile.write("child\n");
+  childFile.close();
+
+  QProcess git;
+  git.setWorkingDirectory(child->workdir().path());
+  git.start(GIT_EXECUTABLE, {"add", "child.txt"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE, {"commit", "-m", "child"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+
+  ScratchRepository parent;
+  git.setWorkingDirectory(parent->workdir().path());
+  git.start(GIT_EXECUTABLE,
+            {"-c", "protocol.file.allow=always", "submodule", "add",
+             child->workdir().path(), "child"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE, {"commit", "-m", "add submodule"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+
+  git::Submodule submodule = parent->submodules().first();
+  QVERIFY(submodule.isValid());
+  const QString worktree = parent->workdir().filePath("child");
+  const QString cache = parent->dir().filePath("modules/child");
+  QVERIFY(QFileInfo::exists(worktree));
+  QVERIFY(QFileInfo::exists(cache));
+
+  git::Result result = git::Submodule::remove(parent, submodule);
+  QVERIFY2(result, qPrintable(result.errorString()));
+  QVERIFY(!QFileInfo::exists(worktree));
+  QVERIFY(!QFileInfo::exists(cache));
+  QCOMPARE(parent->submodules().count(), 0);
+  QVERIFY(parent->gitConfig().value<QString>("submodule.child.url").isEmpty());
+
+  git.start(GIT_EXECUTABLE, {"diff", "--cached", "--name-status"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  const QByteArray staged = git.readAllStandardOutput();
+  QVERIFY(staged.contains("M\t.gitmodules"));
+  QVERIFY(staged.contains("D\tchild"));
+}
+
+void TestSubmodule::refuseRemovalWithGitmodulesChanges() {
+  ScratchRepository child;
+  QFile childFile(child->workdir().filePath("child.txt"));
+  QVERIFY(childFile.open(QIODevice::WriteOnly));
+  childFile.write("child\n");
+  childFile.close();
+
+  QProcess git;
+  git.setWorkingDirectory(child->workdir().path());
+  git.start(GIT_EXECUTABLE, {"add", "child.txt"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE, {"commit", "-m", "child"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+
+  ScratchRepository parent;
+  git.setWorkingDirectory(parent->workdir().path());
+  git.start(GIT_EXECUTABLE,
+            {"-c", "protocol.file.allow=always", "submodule", "add",
+             child->workdir().path(), "child"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE, {"commit", "-m", "add submodule"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+
+  QFile modules(parent->workdir().filePath(".gitmodules"));
+  QVERIFY(modules.open(QIODevice::Append));
+  modules.write("# keep this change\n");
+  modules.close();
+
+  git::Submodule submodule = parent->submodules().first();
+  git::Result result = git::Submodule::remove(parent, submodule);
+  QVERIFY(!result);
+  QVERIFY(result.errorString().contains("existing changes"));
+  QVERIFY(QFileInfo::exists(parent->workdir().filePath("child")));
+  QVERIFY(QFileInfo::exists(parent->dir().filePath("modules/child")));
+  QCOMPARE(parent->submodules().count(), 1);
 }
 
 TEST_MAIN(TestSubmodule)

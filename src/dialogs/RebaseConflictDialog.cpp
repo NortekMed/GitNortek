@@ -32,7 +32,7 @@ RebaseConflictDialog::RebaseConflictDialog(QWidget *parent) : QDialog(parent) {
 
   QFormLayout *layout = new QFormLayout(this);
   layout->addRow(
-      new QLabel(tr("The rebase caused a merge conflict. \n"
+      new QLabel(tr("The rebase caused a merge conflict.\n"
                     "Would you like to fix the merge conflict and continue?"),
                  this));
   layout->addRow(buttons);

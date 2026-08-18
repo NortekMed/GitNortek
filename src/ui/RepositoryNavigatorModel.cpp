@@ -10,6 +10,48 @@
 #include "git/TagRef.h"
 #include <algorithm>
 
+namespace {
+
+bool compareCommits(const git::Repository &repo, const git::Id &checkoutId,
+                    const git::Id &referenceId, int &ahead, int &behind) {
+  git::Commit checkout = repo.lookupCommit(checkoutId);
+  git::Commit reference = repo.lookupCommit(referenceId);
+  if (!checkout.isValid() || !reference.isValid())
+    return false;
+
+  ahead = checkout.difference(reference);
+  behind = reference.difference(checkout);
+  return true;
+}
+
+QString commitCount(int count) {
+  return count == 1
+             ? RepositoryNavigatorModel::tr("1 commit")
+             : RepositoryNavigatorModel::tr("%1 commits").arg(count);
+}
+
+QString comparisonText(const QString &reference, int ahead, int behind) {
+  if (ahead < 0 || behind < 0)
+    return RepositoryNavigatorModel::tr("Comparison is unavailable.");
+  if (!ahead && !behind)
+    return RepositoryNavigatorModel::tr("The local checkout matches %1.")
+        .arg(reference);
+  if (ahead && behind)
+    return RepositoryNavigatorModel::tr(
+               "The local checkout and %1 have diverged (%2 ahead, %3 "
+               "behind).")
+        .arg(reference, commitCount(ahead), commitCount(behind));
+  if (ahead)
+    return RepositoryNavigatorModel::tr(
+               "The local checkout is %1 ahead of %2.")
+        .arg(commitCount(ahead), reference);
+  return RepositoryNavigatorModel::tr(
+             "The local checkout is %1 behind %2.")
+      .arg(commitCount(behind), reference);
+}
+
+} // namespace
+
 bool RepositoryNavigatorModel::lessThan(
     const RepositoryNavigatorModel::Row &lhs,
     const RepositoryNavigatorModel::Row &rhs) {
@@ -25,6 +67,7 @@ void RepositoryNavigatorModel::setRepository(const git::Repository &repo) {
   disconnectRepository();
   beginResetModel();
   mRepo = repo;
+  mSubmoduleUpdateStatuses.clear();
   rebuild();
   endResetModel();
   connectRepository();
@@ -33,6 +76,16 @@ void RepositoryNavigatorModel::setRepository(const git::Repository &repo) {
 void RepositoryNavigatorModel::clear() { setRepository(git::Repository()); }
 
 git::Repository RepositoryNavigatorModel::repository() const { return mRepo; }
+
+void RepositoryNavigatorModel::setSubmoduleUpdateStatuses(
+    const QList<git::Submodule::UpdateStatus> &statuses) {
+  beginResetModel();
+  mSubmoduleUpdateStatuses.clear();
+  for (const git::Submodule::UpdateStatus &status : statuses)
+    mSubmoduleUpdateStatuses.insert(status.name, status);
+  rebuild();
+  endResetModel();
+}
 
 QModelIndex RepositoryNavigatorModel::sectionIndex(
     RepositoryNavigatorModel::Section section) const {
@@ -137,6 +190,18 @@ QVariant RepositoryNavigatorModel::data(const QModelIndex &index,
     case InitializedRole:
       return row->kind == ItemKind::Submodule ? QVariant(row->initialized)
                                               : QVariant();
+    case PinnedAheadRole:
+      return row->pinnedAhead >= 0 ? QVariant(row->pinnedAhead) : QVariant();
+    case PinnedBehindRole:
+      return row->pinnedBehind >= 0 ? QVariant(row->pinnedBehind) : QVariant();
+    case OriginAheadRole:
+      return row->originAhead >= 0 ? QVariant(row->originAhead) : QVariant();
+    case OriginBehindRole:
+      return row->originBehind >= 0 ? QVariant(row->originBehind) : QVariant();
+    case OriginStateRole:
+      return row->kind == ItemKind::Submodule
+                 ? QVariant::fromValue(row->originState)
+                 : QVariant();
     default:
       return QVariant();
   }
@@ -286,7 +351,84 @@ void RepositoryNavigatorModel::rebuild() {
     row.url = submodule.url();
     row.branch = submodule.branch();
     row.initialized = submodule.isInitialized();
-    row.tooltip = row.path;
+    QStringList tooltip{tr("Path: %1").arg(row.path)};
+    auto status = mSubmoduleUpdateStatuses.constFind(row.display);
+    bool matchingStatus = status != mSubmoduleUpdateStatuses.cend() &&
+                          status->branch == row.branch;
+    if (!row.branch.isEmpty()) {
+      row.originState = matchingStatus ? OriginState::Failed
+                                       : OriginState::Pending;
+    }
+    if (row.initialized) {
+      git::Repository repo = submodule.open();
+      git::Id checkoutId = submodule.workdirId();
+      git::Id pinnedId = submodule.indexId();
+      if (repo.isValid() && checkoutId.isValid()) {
+        tooltip.append(
+            tr("Local checkout: %1").arg(checkoutId.shortId()));
+        if (pinnedId.isValid()) {
+          compareCommits(repo, checkoutId, pinnedId, row.pinnedAhead,
+                         row.pinnedBehind);
+          QString reference =
+              tr("the commit recorded by the parent repository");
+          QString text =
+              tr("Pin %1: %2")
+                  .arg(pinnedId.shortId(),
+                       comparisonText(reference, row.pinnedAhead,
+                                      row.pinnedBehind));
+          tooltip.append(text);
+        } else {
+          tooltip.append(tr("Pin: The parent repository does not record a "
+                            "submodule commit."));
+        }
+
+        if (matchingStatus && status->targetId.isValid()) {
+          if (compareCommits(repo, checkoutId, status->targetId,
+                             row.originAhead, row.originBehind)) {
+            row.originState = OriginState::Ready;
+            QString reference =
+                tr("the latest fetched commit on origin/%1").arg(row.branch);
+            QString text =
+                tr("Origin %1 (%2): %3")
+                    .arg(row.branch, status->targetId.shortId(),
+                         comparisonText(reference, row.originAhead,
+                                        row.originBehind));
+            tooltip.append(text);
+          }
+        }
+      } else {
+        tooltip.append(tr("Local checkout: unavailable because the submodule "
+                          "repository could not be read."));
+      }
+    } else {
+      tooltip.append(tr("Local checkout: unavailable because the submodule is "
+                        "not initialized."));
+    }
+
+    if (row.branch.isEmpty()) {
+      tooltip.append(
+          tr("Origin: Not shown because no remote branch is configured. "
+             "Configure a branch in the submodule settings to enable this "
+             "comparison."));
+    } else if (row.originState == OriginState::Pending) {
+      tooltip.append(
+          tr("Origin %1: Waiting for a submodule update check.")
+              .arg(row.branch));
+    } else if (row.originState == OriginState::Failed) {
+      QString reason =
+          matchingStatus ? status->message : QString();
+      tooltip.append(
+          reason.isEmpty()
+              ? tr("Origin %1: The comparison failed.").arg(row.branch)
+              : tr("Origin %1: The comparison failed - %2")
+                    .arg(row.branch, reason));
+    }
+
+    if (row.pinnedAhead >= 0 || row.originState == OriginState::Ready) {
+      tooltip.append(
+          tr("↑ means local-only commits; ↓ means commits missing locally."));
+    }
+    row.tooltip = tooltip.join('\n');
     submodules.rows.append(row);
   }
   std::sort(submodules.rows.begin(), submodules.rows.end(), lessThan);

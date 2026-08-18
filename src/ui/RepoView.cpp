@@ -31,6 +31,8 @@
 #include "dialogs/CommitDialog.h"
 #include "dialogs/DeleteBranchDialog.h"
 #include "dialogs/DeleteTagDialog.h"
+#include "dialogs/MergeDialog.h"
+#include "dialogs/ModifySubmoduleDialog.h"
 #include "dialogs/NewBranchDialog.h"
 #include "dialogs/RebaseConflictDialog.h"
 #include "dialogs/RemoteDialog.h"
@@ -58,6 +60,7 @@
 #include <QCoreApplication>
 #include <QDesktopServices>
 #include <QMessageBox>
+#include <QMenu>
 #include <QtNetwork>
 #include <QPushButton>
 #include <QSettings>
@@ -2119,6 +2122,66 @@ void RepoView::promptToRenameBranch(const git::Branch &branch) {
   dialog->open();
 }
 
+void RepoView::populateReferenceContextMenu(QMenu *menu,
+                                            const git::Reference &ref) {
+  if (!menu || !ref.isValid())
+    return;
+
+  QAction *checkout =
+      menu->addAction(tr("Checkout"), this,
+                      [this, ref] { this->checkout(ref); });
+  checkout->setEnabled(!ref.isHead() && !mRepo.isBare());
+  menu->addSeparator();
+
+  if (ref.isLocalBranch()) {
+    QAction *rename = menu->addAction(tr("Rename"), this, [this, ref] {
+      promptToRenameBranch(git::Branch(ref));
+    });
+    rename->setEnabled(!ref.isHead());
+  }
+
+  if (ref.isTag() || ref.isLocalBranch()) {
+    QAction *remove = menu->addAction(tr("Delete"), this, [this, ref] {
+      if (ref.isTag())
+        promptToDeleteTag(ref);
+      else
+        promptToDeleteBranch(ref);
+    });
+    remove->setEnabled(ref.isTag() || !ref.isHead());
+  }
+
+  if (ref.isTag()) {
+    git::Remote remote = ref.repo().defaultRemote();
+    if (remote.isValid()) {
+      menu->addAction(tr("Push Tag to %1").arg(remote.name()), this,
+                      [this, ref, remote] { push(remote, ref); });
+    }
+  }
+
+  if (ref.isRemoteBranch()) {
+    menu->addAction(tr("New Local Branch"), this, [this, ref] {
+      QString local = ref.name().section('/', 1);
+      createBranch(local, ref.target(), git::Branch(ref), true);
+    });
+  }
+
+  menu->addSeparator();
+  const auto addMergeAction = [this, menu, ref](const QString &text,
+                                                 MergeFlags flags) {
+    QAction *action = menu->addAction(text, this, [this, ref, flags] {
+      MergeDialog *dialog = new MergeDialog(flags, mRepo, this);
+      connect(dialog, &QDialog::accepted, this,
+              [this, dialog] { merge(dialog->flags(), dialog->reference()); });
+      dialog->setReference(ref);
+      dialog->open();
+    });
+    action->setEnabled(!ref.isStash());
+  };
+  addMergeAction(tr("Merge..."), Merge);
+  addMergeAction(tr("Rebase..."), Rebase);
+  addMergeAction(tr("Squash..."), Squash);
+}
+
 void RepoView::promptToStash() {
   // Prompt to edit stash commit message.
   if (!Settings::instance()->prompt(Prompt::Kind::Stash)) {
@@ -2542,6 +2605,7 @@ void RepoView::updateSubmodulesAsync(const QList<SubmoduleInfo> &submodules,
                                      bool checkout_force,
                                      bool restoreSelection) {
   if (submodules.isEmpty()) {
+    emit submodulesChanged();
     refresh(restoreSelection);
     return;
   }
@@ -2617,6 +2681,7 @@ void RepoView::checkSubmoduleUpdates(bool automatic) {
 
   QList<git::Submodule> submodules = mRepo.submodules();
   if (submodules.isEmpty()) {
+    clearSubmoduleUpdateStatuses();
     if (!automatic)
       addLogEntry(tr("This repository has no submodules."),
                   tr("Submodule Updates"));
@@ -2642,6 +2707,8 @@ void RepoView::checkSubmoduleUpdates(bool automatic) {
 
         QList<git::Submodule::UpdateStatus> results =
             mSubmoduleUpdateWatcher->result();
+        mSubmoduleUpdateStatuses = results;
+        emit submoduleUpdateStatusesChanged(mSubmoduleUpdateStatuses);
 
         int updates = 0;
         int warnings = 0;
@@ -2726,6 +2793,14 @@ void RepoView::checkSubmoduleUpdates(bool automatic) {
   }));
 }
 
+void RepoView::clearSubmoduleUpdateStatuses() {
+  if (mSubmoduleUpdateStatuses.isEmpty())
+    return;
+
+  mSubmoduleUpdateStatuses.clear();
+  emit submoduleUpdateStatusesChanged(mSubmoduleUpdateStatuses);
+}
+
 void RepoView::addSubmodule(const QString &url, const QString &path,
                             const QString &branch) {
   if (mWatcher || mSubmoduleUpdateWatcher) {
@@ -2749,6 +2824,7 @@ void RepoView::addSubmodule(const QString &url, const QString &path,
             } else {
               mCallbacks->storeDeferredCredentials();
               entry->addEntry(tr("Submodule added."));
+              clearSubmoduleUpdateStatuses();
               emit submodulesChanged();
               refresh(true);
             }
@@ -2778,9 +2854,63 @@ bool RepoView::modifySubmodule(const QString &oldName, const QString &newName,
   }
 
   addLogEntry(newName, tr("Submodule Modified"));
+  clearSubmoduleUpdateStatuses();
   emit submodulesChanged();
   refresh(true);
   return true;
+}
+
+void RepoView::promptToModifySubmodule(const git::Submodule &submodule) {
+  if (!submodule.isValid())
+    return;
+
+  ModifySubmoduleDialog *dialog = new ModifySubmoduleDialog(submodule, this);
+  connect(dialog, &QDialog::accepted, this, [this, dialog, submodule] {
+    modifySubmodule(submodule.name(), dialog->name(), dialog->path(),
+                    dialog->url(), dialog->branch());
+  });
+  dialog->open();
+}
+
+void RepoView::promptToDeleteSubmodule(const git::Submodule &submodule) {
+  if (!submodule.isValid())
+    return;
+
+  QString text =
+      tr("Delete submodule '%1' at '%2'?\n\nThe submodule will be removed "
+         "from this project. Its working files and cached local repository "
+         "will be permanently deleted. Any unpublished commits will be lost.")
+          .arg(submodule.name(), submodule.path());
+  QMessageBox *message =
+      new QMessageBox(QMessageBox::Warning, tr("Delete Submodule?"), text,
+                      QMessageBox::Cancel, this);
+  message->setAttribute(Qt::WA_DeleteOnClose);
+
+  if (GIT_SUBMODULE_STATUS_IS_WD_DIRTY(
+          mRepo.submoduleStatus(submodule.name()))) {
+    message->setInformativeText(
+        tr("The submodule working directory contains uncommitted changes "
+           "that will be permanently lost."));
+  }
+
+  QPushButton *remove =
+      message->addButton(tr("Delete Submodule"), QMessageBox::DestructiveRole);
+  message->setDefaultButton(QMessageBox::Cancel);
+  message->setEscapeButton(QMessageBox::Cancel);
+  connect(remove, &QPushButton::clicked, this, [this, submodule] {
+    const QString name = submodule.name();
+    LogEntry *entry = addLogEntry(name, tr("Delete Submodule"));
+    git::Result result = git::Submodule::remove(mRepo, submodule);
+    if (!result)
+      error(entry, tr("delete submodule"), name, result.errorString());
+    else {
+      entry->addEntry(tr("Submodule deleted."));
+      clearSubmoduleUpdateStatuses();
+    }
+    emit submodulesChanged();
+    refresh(true);
+  });
+  message->open();
 }
 
 bool RepoView::openSubmodule(const git::Submodule &submodule) {

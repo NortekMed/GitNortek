@@ -13,7 +13,9 @@
 #include "Repository.h"
 #include "git2/buffer.h"
 #include "git2/graph.h"
+#include "git2/index.h"
 #include "git2/remote.h"
+#include "git2/status.h"
 #include "git2/sys/errors.h"
 #include <QDir>
 #include <QFile>
@@ -61,6 +63,40 @@ void setOptionalConfigValue(Config config, const QString &key,
     config.setValue(key, value);
 }
 
+bool removeConfigSection(Config config, const QString &name) {
+  if (!config.isValid())
+    return false;
+
+  QStringList entries;
+  Config::Iterator it =
+      config.glob(QString("submodule\\.%1\\..*")
+                      .arg(QRegularExpression::escape(name)));
+  while (Config::Entry entry = it.next())
+    entries.append(entry.name());
+
+  bool removed = false;
+  for (const QString &entry : entries)
+    removed |= config.remove(entry);
+  return removed;
+}
+
+QString canonicalOrAbsolutePath(const QString &path) {
+  QFileInfo info(path);
+  QString canonical = info.canonicalFilePath();
+  return QDir::cleanPath(canonical.isEmpty() ? info.absoluteFilePath()
+                                             : canonical);
+}
+
+bool isPathInside(const QString &parent, const QString &child) {
+  const QString base = canonicalOrAbsolutePath(parent);
+  const QString path = canonicalOrAbsolutePath(child);
+#ifdef Q_OS_WIN
+  return path.startsWith(base + QDir::separator(), Qt::CaseInsensitive);
+#else
+  return path.startsWith(base + QDir::separator());
+#endif
+}
+
 Result readSubmoduleGitdirTarget(const QString &oldPath, QString *target) {
   QFile file(QDir(oldPath).filePath(".git"));
   if (!file.exists())
@@ -77,8 +113,10 @@ Result readSubmoduleGitdirTarget(const QString &oldPath, QString *target) {
     return 0;
 
   QString gitdir = QString::fromUtf8(data.mid(prefix.size())).trimmed();
-  if (QDir::isAbsolutePath(gitdir))
+  if (QDir::isAbsolutePath(gitdir)) {
+    *target = QDir::cleanPath(gitdir);
     return 0;
+  }
 
   *target = QFileInfo(QDir(oldPath).filePath(gitdir)).absoluteFilePath();
   return 0;
@@ -478,6 +516,91 @@ Result Submodule::modify(Repository repo, const QString &oldName,
   }
 
   repo.invalidateSubmoduleCache();
+  return 0;
+}
+
+Result Submodule::remove(Repository repo, const Submodule &submodule) {
+  if (!repo.isValid() || !submodule.isValid())
+    return fail(QObject::tr("Invalid submodule."));
+
+  const QString name = submodule.name();
+  const QString path = submodule.path();
+  if (!repo.lookupSubmodule(name).isValid())
+    return fail(QObject::tr("Submodule '%1' was not found.").arg(name));
+
+  const QString worktree = repo.workdir().absolutePath();
+  const QString submoduleWorktree = repo.workdir().absoluteFilePath(path);
+  if (!isPathInside(worktree, submoduleWorktree))
+    return fail(QObject::tr("Submodule path '%1' is outside the repository.")
+                    .arg(path));
+
+  const QString modulesFile = repo.workdir().filePath(".gitmodules");
+  QFile originalModules(modulesFile);
+  if (!originalModules.open(QFile::ReadOnly))
+    return fail(QObject::tr("Failed to read .gitmodules."));
+  const QByteArray originalModulesData = originalModules.readAll();
+  originalModules.close();
+
+  unsigned int modulesStatus = GIT_STATUS_CURRENT;
+  int error = git_status_file(&modulesStatus, repo.d->repo, ".gitmodules");
+  if (error)
+    return error;
+  if (modulesStatus != GIT_STATUS_CURRENT)
+    return fail(QObject::tr(
+        ".gitmodules has existing changes. Commit or discard them first."));
+
+  QString cachePath;
+  Result result = readSubmoduleGitdirTarget(submoduleWorktree, &cachePath);
+  if (!result)
+    return result;
+  if (cachePath.isEmpty()) {
+    Repository submoduleRepo = submodule.open();
+    if (submoduleRepo.isValid())
+      cachePath = submoduleRepo.dir().absolutePath();
+  }
+
+  if (!cachePath.isEmpty()) {
+    const QString modulesRoot = repo.dir().absoluteFilePath("modules");
+    if (!isPathInside(modulesRoot, cachePath))
+      return fail(QObject::tr("Submodule cache path is outside .git/modules."));
+  }
+
+  Config modules = Config::open(modulesFile);
+  if (!modules.isValid() || !removeConfigSection(modules, name))
+    return fail(QObject::tr("Failed to remove submodule from .gitmodules."));
+
+  git_index *index = nullptr;
+  error = git_repository_index(&index, repo.d->repo);
+  if (!error)
+    error = git_index_remove_bypath(index, path.toUtf8());
+  if (!error)
+    error = git_index_add_bypath(index, ".gitmodules");
+  if (!error)
+    error = git_index_write(index);
+  git_index_free(index);
+
+  if (error) {
+    QFile restore(modulesFile);
+    if (restore.open(QFile::WriteOnly | QFile::Truncate))
+      restore.write(originalModulesData);
+    return error;
+  }
+
+  removeConfigSection(repo.gitConfig(), name);
+  repo.invalidateSubmoduleCache();
+  emit repo.notifier()->indexChanged({".gitmodules", path});
+
+  QFileInfo worktreeInfo(submoduleWorktree);
+  if (worktreeInfo.exists() && !QDir(submoduleWorktree).removeRecursively())
+    return fail(QObject::tr("Submodule was removed from the project, but its "
+                            "working directory could not be deleted."));
+
+  QFileInfo cacheInfo(cachePath);
+  if (!cachePath.isEmpty() && cacheInfo.exists() &&
+      !QDir(cachePath).removeRecursively())
+    return fail(QObject::tr("Submodule was removed from the project, but its "
+                            "cached repository could not be deleted."));
+
   return 0;
 }
 

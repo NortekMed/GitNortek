@@ -77,6 +77,7 @@ public:
   static Result modify(Repository repo, const QString &oldName,
                        const QString &newName, const QString &newPath,
                        const QString &newUrl, const QString &newBranch);
+  static Result remove(Repository repo, const Submodule &submodule);
 
   Repository open() const;
 

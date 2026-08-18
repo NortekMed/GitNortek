@@ -23,11 +23,15 @@
 #include "ui/TabWidget.h"
 #include <QAbstractItemModelTester>
 #include <QFile>
+#include <QMenu>
+#include <QMessageBox>
 #include <QProcess>
+#include <QPushButton>
 #include <QSettings>
 #include <QSignalSpy>
 #include <QSplitter>
 #include <QTemporaryDir>
+#include <QTimer>
 #include <QToolButton>
 #include <QTreeView>
 
@@ -42,6 +46,33 @@ enum SideBarRole {
   AccountRole,
   AccountKindRole
 };
+
+QList<QPair<QString, bool>> contextMenuItems(QTreeView *view,
+                                             const QModelIndex &index) {
+  QList<QPair<QString, bool>> items;
+  view->scrollTo(index);
+  QPoint point = view->visualRect(index).center();
+  QTimer::singleShot(0, [&items] {
+    QMenu *menu = qobject_cast<QMenu *>(QApplication::activePopupWidget());
+    if (!menu)
+      return;
+    for (QAction *action : menu->actions()) {
+      if (!action->isSeparator())
+        items.append({action->text(), action->isEnabled()});
+    }
+    menu->close();
+  });
+  QMetaObject::invokeMethod(view, "customContextMenuRequested",
+                            Qt::DirectConnection, Q_ARG(QPoint, point));
+  return items;
+}
+
+QStringList menuTexts(const QList<QPair<QString, bool>> &items) {
+  QStringList texts;
+  for (const auto &item : items)
+    texts.append(item.first);
+  return texts;
+}
 
 } // namespace
 
@@ -304,6 +335,8 @@ void TestRepositorySideBar::navigatorView() {
 
 void TestRepositorySideBar::activeRepositoryBinding() {
   MainWindow window(mRepo);
+  window.show();
+  QVERIFY(qWaitForWindowExposed(&window));
   SideBar *sideBar = window.findChild<SideBar *>();
   RepositoryNavigator *navigator =
       sideBar->findChild<RepositoryNavigator *>("RepositoryNavigator");
@@ -314,6 +347,50 @@ void TestRepositorySideBar::activeRepositoryBinding() {
   QCOMPARE(content->count(), 2);
   QCOMPARE(navigator->model()->repository().dir(false).path(),
            mRepo->dir(false).path());
+
+  RepositoryNavigatorModel *model = navigator->model();
+  QModelIndex local =
+      model->sectionIndex(RepositoryNavigatorModel::Section::Local);
+  navigator->view()->setExpanded(local, true);
+  QModelIndex current;
+  QModelIndex other;
+  for (int row = 0; row < model->rowCount(local); ++row) {
+    QModelIndex index = model->index(row, 0, local);
+    if (index.data(RepositoryNavigatorModel::CurrentRole).toBool())
+      current = index;
+    else
+      other = index;
+  }
+  QVERIFY(current.isValid());
+  QVERIFY(other.isValid());
+
+  QList<QPair<QString, bool>> currentItems =
+      contextMenuItems(navigator->view(), current);
+  QCOMPARE(menuTexts(currentItems),
+           QStringList({"Checkout", "Rename", "Delete", "Merge...",
+                        "Rebase...", "Squash..."}));
+  QCOMPARE(currentItems.at(0).second, false);
+  QCOMPARE(currentItems.at(1).second, false);
+  QCOMPARE(currentItems.at(2).second, false);
+
+  QList<QPair<QString, bool>> otherItems =
+      contextMenuItems(navigator->view(), other);
+  QCOMPARE(menuTexts(otherItems), menuTexts(currentItems));
+  QVERIFY(otherItems.at(0).second);
+  QVERIFY(otherItems.at(1).second);
+  QVERIFY(otherItems.at(2).second);
+
+  QModelIndex remotes =
+      model->sectionIndex(RepositoryNavigatorModel::Section::Remote);
+  navigator->view()->setExpanded(remotes, true);
+  QModelIndex remote = model->index(0, 0, remotes);
+  QList<QPair<QString, bool>> remoteItems =
+      contextMenuItems(navigator->view(), remote);
+  QCOMPARE(menuTexts(remoteItems),
+           QStringList({"Checkout", "New Local Branch", "Merge...",
+                        "Rebase...", "Squash..."}));
+  for (const auto &item : remoteItems)
+    QVERIFY(item.second);
 
   Test::ScratchRepository second;
   RepoView *secondView = window.addTab(second);
@@ -327,7 +404,7 @@ void TestRepositorySideBar::activeRepositoryBinding() {
            mRepo->dir(false).path());
 
   RepoView *view = window.currentView();
-  QModelIndex local = navigator->model()->sectionIndex(
+  local = navigator->model()->sectionIndex(
       RepositoryNavigatorModel::Section::Local);
   QModelIndex feature;
   for (int row = 0; row < navigator->model()->rowCount(local); ++row) {
@@ -421,7 +498,23 @@ void TestRepositorySideBar::submoduleInteraction() {
              child->workdir().path(), "child"});
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
+  QString childBranch = child->head().name();
+  git.start(GIT_EXECUTABLE,
+            {"submodule", "set-branch", "--branch", childBranch, "child"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE, {"add", ".gitmodules"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
   git.start(GIT_EXECUTABLE, {"commit", "-m", "add submodule"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+
+  QVERIFY(childFile.open(QIODevice::Append));
+  childFile.write("origin change\n");
+  childFile.close();
+  git.setWorkingDirectory(child->workdir().path());
+  git.start(GIT_EXECUTABLE, {"commit", "-am", "origin change"});
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
 
@@ -433,11 +526,157 @@ void TestRepositorySideBar::submoduleInteraction() {
 
   QModelIndex submodules = navigator->model()->sectionIndex(
       RepositoryNavigatorModel::Section::Submodules);
+  navigator->view()->setExpanded(submodules, true);
   QCOMPARE(navigator->model()->rowCount(submodules), 1);
   QModelIndex submodule = navigator->model()->index(0, 0, submodules);
   QCOMPARE(submodule.data(RepositoryNavigatorModel::PathRole).toString(),
            QString("child"));
   QVERIFY(submodule.data(RepositoryNavigatorModel::InitializedRole).toBool());
+  QCOMPARE(submodule.data(RepositoryNavigatorModel::PinnedAheadRole).toInt(),
+           0);
+  QCOMPARE(submodule.data(RepositoryNavigatorModel::PinnedBehindRole).toInt(),
+           0);
+  QVERIFY(!submodule.data(RepositoryNavigatorModel::OriginAheadRole).isValid());
+  QVERIFY(
+      !submodule.data(RepositoryNavigatorModel::OriginBehindRole).isValid());
+  QCOMPARE(submodule.data(RepositoryNavigatorModel::OriginStateRole)
+               .value<RepositoryNavigatorModel::OriginState>(),
+           RepositoryNavigatorModel::OriginState::Pending);
+  QVERIFY(submodule.data(Qt::ToolTipRole).toString().contains(
+      "matches the commit recorded by the parent repository"));
+  QVERIFY(submodule.data(Qt::ToolTipRole).toString().contains(
+      "Waiting for a submodule update check"));
+
+  git::Submodule selected =
+      submodule.data(RepositoryNavigatorModel::SubmoduleRole)
+          .value<git::Submodule>();
+  git::Submodule::UpdateStatus synchronized;
+  synchronized.name = "child";
+  synchronized.branch = childBranch;
+  synchronized.targetId = selected.workdirId();
+  navigator->model()->setSubmoduleUpdateStatuses({synchronized});
+  submodules = navigator->model()->sectionIndex(
+      RepositoryNavigatorModel::Section::Submodules);
+  submodule = navigator->model()->index(0, 0, submodules);
+  QCOMPARE(submodule.data(RepositoryNavigatorModel::OriginStateRole)
+               .value<RepositoryNavigatorModel::OriginState>(),
+           RepositoryNavigatorModel::OriginState::Ready);
+  QCOMPARE(submodule.data(RepositoryNavigatorModel::OriginAheadRole).toInt(),
+           0);
+  QCOMPARE(submodule.data(RepositoryNavigatorModel::OriginBehindRole).toInt(),
+           0);
+  navigator->model()->setSubmoduleUpdateStatuses({});
+
+  RepoView *parentView = window.currentView();
+  bool statusesChanged = false;
+  connect(parentView, &RepoView::submoduleUpdateStatusesChanged,
+          [&statusesChanged] { statusesChanged = true; });
+  parentView->checkSubmoduleUpdates();
+  QTRY_VERIFY(statusesChanged);
+  submodules = navigator->model()->sectionIndex(
+      RepositoryNavigatorModel::Section::Submodules);
+  submodule = navigator->model()->index(0, 0, submodules);
+  QCOMPARE(submodule.data(RepositoryNavigatorModel::OriginAheadRole).toInt(),
+           0);
+  QCOMPARE(submodule.data(RepositoryNavigatorModel::OriginBehindRole).toInt(),
+           1);
+  QCOMPARE(submodule.data(RepositoryNavigatorModel::OriginStateRole)
+               .value<RepositoryNavigatorModel::OriginState>(),
+           RepositoryNavigatorModel::OriginState::Ready);
+
+  git::Submodule::UpdateStatus failed;
+  failed.name = "child";
+  failed.branch = childBranch;
+  failed.state = git::Submodule::UpdateStatus::Error;
+  failed.message = "test failure";
+  navigator->model()->setSubmoduleUpdateStatuses({failed});
+  submodules = navigator->model()->sectionIndex(
+      RepositoryNavigatorModel::Section::Submodules);
+  submodule = navigator->model()->index(0, 0, submodules);
+  QCOMPARE(submodule.data(RepositoryNavigatorModel::OriginStateRole)
+               .value<RepositoryNavigatorModel::OriginState>(),
+           RepositoryNavigatorModel::OriginState::Failed);
+  QVERIFY(submodule.data(Qt::ToolTipRole).toString().contains(
+      "comparison failed - test failure"));
+  navigator->model()->setSubmoduleUpdateStatuses(
+      parentView->submoduleUpdateStatuses());
+
+  QFile localFile(parent->workdir().filePath("child/local.txt"));
+  QVERIFY(localFile.open(QIODevice::WriteOnly));
+  localFile.write("local change\n");
+  localFile.close();
+  git.setWorkingDirectory(parent->workdir().filePath("child"));
+  git.start(GIT_EXECUTABLE, {"add", "local.txt"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE, {"commit", "-m", "local change"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  parent->invalidateSubmoduleCache();
+  navigator->model()->refresh();
+  submodules = navigator->model()->sectionIndex(
+      RepositoryNavigatorModel::Section::Submodules);
+  submodule = navigator->model()->index(0, 0, submodules);
+  QCOMPARE(submodule.data(RepositoryNavigatorModel::PinnedAheadRole).toInt(),
+           1);
+  QCOMPARE(submodule.data(RepositoryNavigatorModel::PinnedBehindRole).toInt(),
+           0);
+  QCOMPARE(submodule.data(RepositoryNavigatorModel::OriginAheadRole).toInt(),
+           1);
+  QCOMPARE(submodule.data(RepositoryNavigatorModel::OriginBehindRole).toInt(),
+           1);
+  QVERIFY(submodule.data(Qt::ToolTipRole).toString().contains(
+      "have diverged (1 commit ahead, 1 commit behind)"));
+
+  git.setWorkingDirectory(parent->workdir().path());
+  git.start(GIT_EXECUTABLE,
+            {"submodule", "set-branch", "--default", "child"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  parent->invalidateSubmoduleCache();
+  navigator->model()->refresh();
+  submodules = navigator->model()->sectionIndex(
+      RepositoryNavigatorModel::Section::Submodules);
+  submodule = navigator->model()->index(0, 0, submodules);
+  QCOMPARE(submodule.data(RepositoryNavigatorModel::OriginStateRole)
+               .value<RepositoryNavigatorModel::OriginState>(),
+           RepositoryNavigatorModel::OriginState::Hidden);
+  QVERIFY(!submodule.data(RepositoryNavigatorModel::OriginAheadRole).isValid());
+  QVERIFY(submodule.data(Qt::ToolTipRole).toString().contains(
+      "Not shown because no remote branch is configured"));
+
+  QList<QPair<QString, bool>> menu =
+      contextMenuItems(navigator->view(), submodule);
+  QCOMPARE(menuTexts(menu),
+           QStringList({"Open", "Update", "Modify...",
+                        "Delete Submodule..."}));
+  for (const auto &item : menu)
+    QVERIFY(item.second);
+
+  selected = submodule.data(RepositoryNavigatorModel::SubmoduleRole)
+                 .value<git::Submodule>();
+  parentView->promptToDeleteSubmodule(selected);
+  QTRY_VERIFY(QApplication::activeModalWidget());
+  QMessageBox *confirmation =
+      qobject_cast<QMessageBox *>(QApplication::activeModalWidget());
+  QVERIFY(confirmation);
+  QCOMPARE(confirmation->windowTitle(), QString("Delete Submodule?"));
+  QVERIFY(confirmation->defaultButton() ==
+          confirmation->button(QMessageBox::Cancel));
+  confirmation->button(QMessageBox::Cancel)->click();
+  QVERIFY(QFileInfo::exists(parent->workdir().filePath("child")));
+
+  QFile dirty(parent->workdir().filePath("child/child.txt"));
+  QVERIFY(dirty.open(QIODevice::Append));
+  dirty.write("dirty\n");
+  dirty.close();
+  parentView->promptToDeleteSubmodule(selected);
+  QTRY_VERIFY(QApplication::activeModalWidget());
+  confirmation =
+      qobject_cast<QMessageBox *>(QApplication::activeModalWidget());
+  QVERIFY(confirmation);
+  QVERIFY(confirmation->informativeText().contains("uncommitted changes"));
+  confirmation->button(QMessageBox::Cancel)->click();
 
   QVERIFY(QMetaObject::invokeMethod(navigator->view(), "doubleClicked",
                                     Q_ARG(QModelIndex, submodule)));

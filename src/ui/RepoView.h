@@ -37,6 +37,7 @@ class Location;
 class LogEntry;
 class LogView;
 class MainWindow;
+class QMenu;
 class PathspecWidget;
 class ReferenceWidget;
 class RemoteCallbacks;
@@ -254,6 +255,7 @@ public:
                            bool checkout = false, bool force = false);
   void promptToDeleteBranch(const git::Reference &ref);
   void promptToRenameBranch(const git::Branch &branch);
+  void populateReferenceContextMenu(QMenu *menu, const git::Reference &ref);
 
   // stash
   void promptToStash();
@@ -283,11 +285,16 @@ public:
       bool recursive = true, bool init = false, bool checkout_force = false,
       LogEntry *parent = nullptr, bool restoreSelection = true);
   void checkSubmoduleUpdates(bool automatic = false);
+  const QList<git::Submodule::UpdateStatus> &submoduleUpdateStatuses() const {
+    return mSubmoduleUpdateStatuses;
+  }
   void addSubmodule(const QString &url, const QString &path,
                     const QString &branch = QString());
   bool modifySubmodule(const QString &oldName, const QString &newName,
                        const QString &newPath, const QString &newUrl,
                        const QString &newBranch);
+  void promptToModifySubmodule(const git::Submodule &submodule);
+  void promptToDeleteSubmodule(const git::Submodule &submodule);
   bool openSubmodule(const git::Submodule &submodule);
 
   // config
@@ -371,6 +378,8 @@ signals:
   void referenceChanged(const git::Reference &ref);
   void referenceSelected(const git::Reference &ref);
   void submodulesChanged();
+  void submoduleUpdateStatusesChanged(
+      const QList<git::Submodule::UpdateStatus> &statuses);
 
 protected:
   void showEvent(QShowEvent *event) override;
@@ -400,6 +409,7 @@ private:
                              bool recursive = true, bool init = false,
                              bool checkout_force = false,
                              bool restoreSelection = true);
+  void clearSubmoduleUpdateStatuses();
 
   QList<SubmoduleInfo>
   submoduleResetInfoList(const git::Repository &repo,
@@ -440,6 +450,7 @@ private:
   QFutureWatcher<git::Result> *mWatcher = nullptr;
   QFutureWatcher<QList<git::Submodule::UpdateStatus>> *mSubmoduleUpdateWatcher =
       nullptr;
+  QList<git::Submodule::UpdateStatus> mSubmoduleUpdateStatuses;
 
   QList<QWidget *> mTrackedWindows;
 
