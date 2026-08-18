@@ -29,6 +29,7 @@
 #include <functional>
 
 class CommitList;
+class CommitAvatarProvider;
 class DetailView;
 class EditorWindow;
 class History;
@@ -425,6 +426,7 @@ private:
   git::Repository mRepo;
 
   Index *mIndex;
+  CommitAvatarProvider *mAvatarProvider;
   QProcess mIndexer;
   bool mRestartIndexer = false;
 

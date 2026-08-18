@@ -12,11 +12,17 @@
 
 #include "Account.h"
 #include <QJsonDocument>
+#include <QMap>
+#include <QUrl>
+#include <functional>
 
 class GitHub : public Account {
   Q_OBJECT
 
 public:
+  using AvatarCallback =
+      std::function<void(const QMap<QString, QUrl> &avatars)>;
+
   GitHub(const QString &username);
 
   Kind kind() const override;
@@ -31,6 +37,8 @@ public:
                                  bool canModify) override;
 
   void requestComments(Repository *repo, const QString &oid) override;
+  void requestCommitAvatars(Repository *repo, const QStringList &oids,
+                            int size, const AvatarCallback &callback);
 
   void authorize() override;
   bool isAuthorizeSupported() override;

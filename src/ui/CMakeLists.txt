@@ -5,6 +5,7 @@ add_library(
   BlameEditor.cpp
   BlameMargin.cpp
   ColumnView.cpp
+  CommitAvatarProvider.cpp
   CommitList.cpp
   CommitToolBar.cpp
   CommitEditor.cpp

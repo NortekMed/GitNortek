@@ -14,6 +14,7 @@
 #include <QListView>
 
 class Index;
+class CommitAvatarProvider;
 
 namespace git {
 class Commit;
@@ -42,7 +43,8 @@ public:
     SelectedRefIgnoreMerge,
   };
 
-  CommitList(Index *index, QWidget *parent = nullptr);
+  CommitList(Index *index, CommitAvatarProvider *avatars,
+             QWidget *parent = nullptr);
 
   // Get the status diff item.
   git::Diff status() const;

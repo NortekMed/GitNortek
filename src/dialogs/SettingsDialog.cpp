@@ -593,6 +593,9 @@ public:
       Settings::instance()->setValue(Setting::Id::HideMenuBar, checked);
     });
     QCheckBox *showAvatars = new QCheckBox(tr("Show Avatars"));
+    showAvatars->setToolTip(tr(
+        "Download commit-author avatars from matching configured GitHub "
+        "accounts. Images are cached in memory for this session only."));
     showAvatars->setChecked(settings->value(Setting::Id::ShowAvatars).toBool());
     connect(showAvatars, &QCheckBox::toggled, [](bool checked) {
       Settings::instance()->setValue(Setting::Id::ShowAvatars, checked);

@@ -8,6 +8,7 @@
 //
 
 #include "CommitList.h"
+#include "CommitAvatarProvider.h"
 #include "Badge.h"
 #include "Location.h"
 #include "MainWindow.h"
@@ -689,8 +690,9 @@ private:
 
 class CommitDelegate : public QStyledItemDelegate {
 public:
-  CommitDelegate(const git::Repository &repo, QObject *parent = nullptr)
-      : QStyledItemDelegate(parent), mRepo(repo) {
+  CommitDelegate(const git::Repository &repo, CommitAvatarProvider *avatars,
+                 QObject *parent = nullptr)
+      : QStyledItemDelegate(parent), mRepo(repo), mAvatars(avatars) {
     updateRefs();
 
     git::RepositoryNotifier *notifier = repo.notifier();
@@ -758,6 +760,21 @@ public:
 
     int totalWidth = rect.width();
 
+    git::Commit commit =
+        index.data(CommitList::Role::CommitRole).value<git::Commit>();
+    bool stashNode = index.data(CommitList::Role::GraphNodeRole)
+                         .value<CommitList::GraphNode>() ==
+                     CommitList::GraphNode::Stash;
+    bool avatarNodes =
+        Settings::instance()->value(Setting::Id::ShowAvatars).toBool() &&
+        mAvatars && mAvatars->isAvailable();
+    const int avatarSize = 16;
+    QPixmap avatar;
+    if (avatarNodes && commit.isValid() && !stashNode)
+      avatar = mAvatars->avatar(commit, avatarSize,
+                                opt.widget ? opt.widget->devicePixelRatioF()
+                                           : qApp->devicePixelRatio());
+
     // Draw graph.
     painter->save();
     QVariantList columns = index.data(CommitList::Role::GraphRole).toList();
@@ -765,19 +782,17 @@ public:
         index.data(CommitList::Role::GraphColorRole).toList();
     QVariantList styleColumns =
         index.data(CommitList::Role::GraphStyleRole).toList();
-    bool stashNode = index.data(CommitList::Role::GraphNodeRole)
-                         .value<CommitList::GraphNode>() ==
-                     CommitList::GraphNode::Stash;
     for (int i = 0; i < columns.size(); ++i) {
       int x = rect.x();
       int y = rect.y();
-      int w = opt.fontMetrics.ascent();
+      int w = avatarNodes ? qMax(opt.fontMetrics.ascent(), avatarSize + 4)
+                          : opt.fontMetrics.ascent();
       int h = opt.rect.height();
       int h_2 = h / 2;
       int h_4 = h / 4;
 
       // radius
-      int r = w / 3;
+      int r = avatarNodes ? avatarSize / 2 : w / 3;
 
       // xs
       int x1 = x + (w / 2);
@@ -811,6 +826,12 @@ public:
               pen.setStyle(Qt::SolidLine);
               painter->setPen(pen);
               painter->drawRect(QRect(x1 - r, y2 - r, 2 * r, 2 * r));
+            } else if (!avatar.isNull()) {
+              QRect avatarRect(x1 - r, y2 - r, 2 * r, 2 * r);
+              painter->drawPixmap(avatarRect, avatar);
+              pen.setStyle(Qt::SolidLine);
+              painter->setPen(pen);
+              painter->drawEllipse(avatarRect);
             } else {
               painter->setPen(dot);
               painter->drawEllipse(QPoint(x1, y2), r, r);
@@ -870,7 +891,7 @@ public:
       rect.setX(x + w);
 
       // Finish early if the graph exceeds one third of the available space.
-      if (rect.x() > opt.rect.width() / 3)
+      if (rect.x() - opt.rect.x() > opt.rect.width() / 3)
         break;
     }
 
@@ -885,8 +906,6 @@ public:
       rect.setWidth(rect.width() - constants.hMargin);
 
     // Draw content.
-    git::Commit commit =
-        index.data(CommitList::Role::CommitRole).value<git::Commit>();
     if (!commit.isValid()) {
       // special case for uncommitted changes
       QString message = index.model()->data(index).toString();
@@ -1244,6 +1263,7 @@ private:
   }
 
   git::Repository mRepo;
+  CommitAvatarProvider *mAvatars;
   QMap<git::Id, QList<Badge::Label>> mRefs;
 
   mutable int mMaxShortIdWidth = -1;
@@ -1274,7 +1294,8 @@ static Hotkey selectCommitDownHotKey = HotkeyManager::registerHotkey(
 static Hotkey selectCommitUpHotKey = HotkeyManager::registerHotkey(
     "k", "commitList/selectCommitUp", "CommitList/Select Next Commit Up");
 
-CommitList::CommitList(Index *index, QWidget *parent)
+CommitList::CommitList(Index *index, CommitAvatarProvider *avatars,
+                       QWidget *parent)
     : QListView(parent), mIndex(index) {
   Theme *theme = Application::theme();
   setPalette(theme->commitList());
@@ -1289,7 +1310,13 @@ CommitList::CommitList(Index *index, QWidget *parent)
   setSelectionMode(QAbstractItemView::ExtendedSelection);
 
   setModel(mModel);
-  setItemDelegate(new CommitDelegate(repo, this));
+  setItemDelegate(new CommitDelegate(repo, avatars, this));
+  if (avatars) {
+    connect(avatars, &CommitAvatarProvider::avatarReady, viewport(),
+            qOverload<>(&QWidget::update));
+    connect(avatars, &CommitAvatarProvider::avatarsChanged, viewport(),
+            qOverload<>(&QWidget::update));
+  }
 
   connect(mModel, &QAbstractItemModel::modelAboutToBeReset, this,
           &CommitList::storeSelection);

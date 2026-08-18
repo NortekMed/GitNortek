@@ -35,6 +35,12 @@ const QString kAccessUrl =
     QStringLiteral("https://github.com/login/oauth/access_token");
 const QString kGraphQlUrl = QStringLiteral("https://api.github.com/graphql");
 
+QString graphqlString(QString value) {
+  value.replace('\\', "\\\\");
+  value.replace('"', "\\\"");
+  return value;
+}
+
 } // namespace
 
 GitHub::GitHub(const QString &username) : Account(username) {
@@ -246,6 +252,51 @@ void GitHub::requestComments(Repository *repo, const QString &oid) {
   });
 }
 
+void GitHub::requestCommitAvatars(Repository *repo, const QStringList &oids,
+                                  int size,
+                                  const AvatarCallback &callback) {
+  if (!repo || oids.isEmpty()) {
+    callback({});
+    return;
+  }
+
+  QStringList objects;
+  for (int i = 0; i < oids.size(); ++i) {
+    objects.append(
+        QString("c%1: object(oid: \"%2\") {"
+                "  ... on Commit {"
+                "    author { user { avatarUrl(size: %3) } }"
+                "  }"
+                "}")
+            .arg(i)
+            .arg(graphqlString(oids.at(i)))
+            .arg(size));
+  }
+
+  QString query =
+      QString("query {"
+              "  repository(owner: \"%1\", name: \"%2\") { %3 }"
+              "}")
+          .arg(graphqlString(repo->owner()), graphqlString(repo->name()),
+               objects.join(' '));
+  graphql(query, [oids, callback](const QJsonObject &data) {
+    QMap<QString, QUrl> avatars;
+    QJsonObject repository = data.value("repository").toObject();
+    for (int i = 0; i < oids.size(); ++i) {
+      QJsonObject user = repository.value(QString("c%1").arg(i))
+                             .toObject()
+                             .value("author")
+                             .toObject()
+                             .value("user")
+                             .toObject();
+      QUrl url(user.value("avatarUrl").toString());
+      if (url.isValid() && url.scheme() == "https")
+        avatars.insert(oids.at(i), url);
+    }
+    callback(avatars);
+  });
+}
+
 void GitHub::authorize() {
   mState = QString();
   for (int i = 0; i < 32; i++) {
@@ -277,16 +328,22 @@ QString GitHub::defaultUrl() {
 }
 
 void GitHub::graphql(const QString &query, const Callback &callback) {
-  if (mAccessToken.isEmpty())
+  QString token = !mAccessToken.isEmpty() ? mAccessToken : password();
+  if (token.isEmpty()) {
+    callback({});
     return;
+  }
 
   QJsonDocument doc;
   doc.setObject({{"query", query}});
 
-  QNetworkRequest request(kGraphQlUrl);
+  QUrl endpoint = hasCustomUrl() ? QUrl(url() + "/api/graphql")
+                                 : QUrl(kGraphQlUrl);
+  QNetworkRequest request(endpoint);
   request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+  request.setTransferTimeout(10000);
   request.setRawHeader("Authorization",
-                       QString("bearer %1").arg(mAccessToken).toUtf8());
+                       QString("bearer %1").arg(token).toUtf8());
 
   QNetworkReply *reply = mMgr->post(request, doc.toJson());
   QObject::connect(reply, &QNetworkReply::finished, [reply, callback] {

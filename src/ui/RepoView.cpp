@@ -10,6 +10,7 @@
 #include "RepoView.h"
 #include "BlameEditor.h"
 #include "CommitList.h"
+#include "CommitAvatarProvider.h"
 #include "CommitToolBar.h"
 #include "DetailView.h"
 #include "EditorWindow.h"
@@ -291,8 +292,10 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
   mPathspec = new PathspecWidget(repo, header);
   headerLayout->addWidget(mPathspec);
 
+  mAvatarProvider = new CommitAvatarProvider(repo, this);
+
   // Create commit list.
-  mCommits = new CommitList(mIndex, mSideBar);
+  mCommits = new CommitList(mIndex, mAvatarProvider, mSideBar);
   sidebarLayout->addWidget(mCommits);
 
   connect(commitToolBar, &CommitToolBar::settingsChanged, mCommits,
@@ -321,7 +324,7 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
   connect(mIndex, &Index::indexReset, this,
           [this, searchField] { mCommits->setFilter(searchField->text()); });
 
-  mDetails = new DetailView(repo, this);
+  mDetails = new DetailView(repo, mAvatarProvider, this);
 
   // Respond to diff/tree mode change.
   connect(mDetails, &DetailView::viewModeChanged, this,
