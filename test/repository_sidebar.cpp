@@ -11,9 +11,12 @@
 #include "conf/Setting.h"
 #include "conf/Settings.h"
 #include "git/Branch.h"
+#include "git/Config.h"
 #include "git/TagRef.h"
 #include "host/Account.h"
 #include "host/Accounts.h"
+#include "ui/CommitList.h"
+#include "ui/ConfigKeys.h"
 #include "ui/Footer.h"
 #include "ui/MainWindow.h"
 #include "ui/RepositoryNavigator.h"
@@ -22,11 +25,13 @@
 #include "ui/SideBar.h"
 #include "ui/TabWidget.h"
 #include <QAbstractItemModelTester>
+#include <QContextMenuEvent>
 #include <QFile>
 #include <QMenu>
 #include <QMessageBox>
 #include <QProcess>
 #include <QPushButton>
+#include <QSet>
 #include <QSettings>
 #include <QSignalSpy>
 #include <QSplitter>
@@ -72,6 +77,26 @@ QStringList menuTexts(const QList<QPair<QString, bool>> &items) {
   for (const auto &item : items)
     texts.append(item.first);
   return texts;
+}
+
+QStringList contextMenuItems(CommitList *view, const QModelIndex &index) {
+  QStringList items;
+  view->scrollTo(index);
+  QPoint viewportPoint = view->visualRect(index).center();
+  QPoint globalPoint = view->viewport()->mapToGlobal(viewportPoint);
+  QTimer::singleShot(0, [&items] {
+    QMenu *menu = qobject_cast<QMenu *>(QApplication::activePopupWidget());
+    if (!menu)
+      return;
+    for (QAction *action : menu->actions()) {
+      if (!action->isSeparator())
+        items.append(action->text());
+    }
+    menu->close();
+  });
+  QContextMenuEvent event(QContextMenuEvent::Mouse, viewportPoint, globalPoint);
+  QApplication::sendEvent(view->viewport(), &event);
+  return items;
 }
 
 } // namespace
@@ -448,19 +473,116 @@ void TestRepositorySideBar::stashInteraction() {
   git.start(GIT_EXECUTABLE, {"commit", "-m", "stash base"});
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE,
+            {"commit", "--allow-empty", "-m", "stash tip"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
   QVERIFY(file.open(QIODevice::Append));
   file.write("change\n");
   file.close();
   QVERIFY(repo->stash("interaction stash").isValid());
+  QVERIFY(file.open(QIODevice::Append));
+  file.write("second change\n");
+  file.close();
+  QVERIFY(repo->stash("second interaction stash").isValid());
+
+  git::Config config = repo->appConfig();
+  config.setValue(ConfigKeys::kRefsKey,
+                  static_cast<int>(CommitList::RefsFilter::AllRefs));
+  config.setValue(ConfigKeys::kStatusKey, false);
 
   MainWindow window(repo);
+  window.show();
+  QVERIFY(qWaitForWindowExposed(&window));
   RepositoryNavigator *navigator =
       window.findChild<RepositoryNavigator *>("RepositoryNavigator");
   QVERIFY(navigator);
 
+  CommitList *commitList = window.currentView()->findChild<CommitList *>();
+  QVERIFY(commitList);
+  QAbstractItemModel *graphModel = commitList->model();
+  auto graphStashes = [graphModel] {
+    while (graphModel->canFetchMore(QModelIndex()))
+      graphModel->fetchMore(QModelIndex());
+
+    QModelIndexList result;
+    for (int row = 0; row < graphModel->rowCount(); ++row) {
+      QModelIndex index = graphModel->index(row, 0);
+      if (index.data(CommitList::StashIndexRole).isValid())
+        result.append(index);
+    }
+    return result;
+  };
+  QTRY_COMPARE(graphStashes().size(), 2);
+
+  const QList<git::Commit> expectedStashes = repo->stashes();
+  QSet<git::Id> auxiliaryCommits;
+  for (const git::Commit &expected : expectedStashes) {
+    const QList<git::Commit> parents = expected.parents();
+    for (int i = 1; i < parents.size(); ++i)
+      auxiliaryCommits.insert(parents.at(i).id());
+  }
+
+  for (const QModelIndex &index : graphStashes()) {
+    int stashIndex = index.data(CommitList::StashIndexRole).toInt();
+    git::Commit commit = index.data(CommitList::CommitRole).value<git::Commit>();
+    QCOMPARE(commit.id(), expectedStashes.at(stashIndex).id());
+    QCOMPARE(index.data(CommitList::GraphNodeRole)
+                 .value<CommitList::GraphNode>(),
+             CommitList::GraphNode::Stash);
+
+    bool dotted = false;
+    const QVariantList columns =
+        index.data(CommitList::GraphStyleRole).toList();
+    for (const QVariant &column : columns) {
+      for (const QVariant &style : column.toList())
+        dotted |= style.toInt() == Qt::DotLine;
+    }
+    QVERIFY(dotted);
+  }
+
+  for (int row = 0; row < graphModel->rowCount(); ++row) {
+    git::Commit commit = graphModel->index(row, 0)
+                             .data(CommitList::CommitRole)
+                             .value<git::Commit>();
+    QVERIFY(!commit.isValid() || !auxiliaryCommits.contains(commit.id()));
+  }
+
+  git::Id stashBase = expectedStashes.first().parents().first().id();
+  QModelIndex baseIndex;
+  for (int row = 0; row < graphModel->rowCount(); ++row) {
+    QModelIndex index = graphModel->index(row, 0);
+    git::Commit commit = index.data(CommitList::CommitRole).value<git::Commit>();
+    if (commit.isValid() && commit.id() == stashBase) {
+      baseIndex = index;
+      break;
+    }
+  }
+  QVERIFY(baseIndex.isValid());
+  QSet<int> baseStyles;
+  for (const QVariant &column :
+       baseIndex.data(CommitList::GraphStyleRole).toList()) {
+    for (const QVariant &style : column.toList())
+      baseStyles.insert(style.toInt());
+  }
+  QVERIFY(baseStyles.contains(Qt::DotLine));
+  QVERIFY(baseStyles.contains(Qt::SolidLine));
+
+  QCOMPARE(contextMenuItems(commitList, graphStashes().first()),
+           QStringList({"Apply", "Pop", "Drop"}));
+
+  config.setValue(ConfigKeys::kRefsKey,
+                  static_cast<int>(CommitList::RefsFilter::SelectedRef));
+  commitList->resetSettings();
+  QTRY_COMPARE(graphStashes().size(), 0);
+  config.setValue(ConfigKeys::kRefsKey,
+                  static_cast<int>(CommitList::RefsFilter::AllRefs));
+  commitList->resetSettings();
+  QTRY_COMPARE(graphStashes().size(), 2);
+
   QModelIndex stashes = navigator->model()->sectionIndex(
       RepositoryNavigatorModel::Section::Stashes);
-  QCOMPARE(navigator->model()->rowCount(stashes), 1);
+  QCOMPARE(navigator->model()->rowCount(stashes), 2);
   QModelIndex stash = navigator->model()->index(0, 0, stashes);
   git::Commit expected =
       stash.data(RepositoryNavigatorModel::CommitRole).value<git::Commit>();
@@ -472,7 +594,8 @@ void TestRepositorySideBar::stashInteraction() {
   QCOMPARE(window.currentView()->commits().first().id(), expected.id());
 
   window.currentView()->dropStash(0);
-  QTRY_COMPARE(navigator->model()->rowCount(stashes), 0);
+  QTRY_COMPARE(navigator->model()->rowCount(stashes), 1);
+  QTRY_COMPARE(graphStashes().size(), 1);
 }
 
 void TestRepositorySideBar::submoduleInteraction() {

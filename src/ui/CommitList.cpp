@@ -36,6 +36,7 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QPushButton>
+#include <QSet>
 #include <QStyledItemDelegate>
 #include <QTextLayout>
 #include <QtConcurrent>
@@ -185,6 +186,8 @@ public:
     // Reset state.
     mParents.clear();
     mRows.clear();
+    mStashIndexes.clear();
+    mStashAuxiliaryCommits.clear();
     DebugRefresh("");
 
     // Update status row.
@@ -230,6 +233,20 @@ public:
           if (!ref.isStash())
             mWalker.push(ref);
         }
+
+        const QList<git::Commit> stashes = mRepo.stashes();
+        for (int i = 0; i < stashes.size(); ++i) {
+          const git::Commit &stash = stashes.at(i);
+          mStashIndexes.insert(stash.id(), i);
+          mWalker.push(stash);
+
+          // A stash is a merge commit whose additional parents represent the
+          // index and untracked state. They are implementation details, not
+          // branches in the repository topology.
+          const QList<git::Commit> parents = stash.parents();
+          for (int j = 1; j < parents.size(); ++j)
+            mStashAuxiliaryCommits.insert(parents.at(j).id());
+        }
       }
     }
 
@@ -259,13 +276,14 @@ public:
     // Load commits.
     int i = 0;
     QList<Row> rows;
-    git::Commit commit = mWalker.next(mPathspec);
+    git::Commit commit = nextCommit();
     while (commit.isValid()) {
       // Add root commits.
       bool root = false;
       if (indexOf(commit) < 0) {
         root = true;
-        mParents.append(Parent(commit, nextColor()));
+        Qt::PenStyle style = isStash(commit) ? Qt::DotLine : Qt::SolidLine;
+        mParents.append(Parent(commit, nextColor(), false, style));
       }
 
       // Calculate graph columns.
@@ -274,7 +292,7 @@ public:
 
       // Replace commit with its parents.
       QList<git::Commit> replacements;
-      foreach (const git::Commit &parent, commit.parents()) {
+      foreach (const git::Commit &parent, graphParents(commit)) {
         // FIXME: Mark commits that point to existing parent?
         if (indexOf(parent) < 0 && !contains(parent, rows))
           replacements.append(parent);
@@ -289,7 +307,10 @@ public:
         Parent parent = mParents.takeAt(index);
         if (!replacements.isEmpty()) {
           git::Commit replacement = replacements.takeFirst();
-          mParents.insert(index, Parent(replacement, parent.color));
+          Qt::PenStyle style =
+              isStash(commit) ? parent.style : Qt::SolidLine;
+          mParents.insert(index, Parent(replacement, parent.color,
+                                        parent.tainted, style));
           foreach (const git::Commit &replacement, replacements)
             mParents.append(Parent(replacement, nextColor()));
         }
@@ -307,7 +328,7 @@ public:
       if (i++ >= 64)
         break;
 
-      commit = mWalker.next(mPathspec);
+      commit = nextCommit();
     }
 
     // Update the model.
@@ -398,6 +419,28 @@ public:
 
         return columns;
       }
+
+      case CommitList::Role::GraphStyleRole: {
+        QVariantList columns;
+        foreach (const Column &column, row.columns) {
+          QVariantList segments;
+          foreach (const Segment &segment, column)
+            segments.append(static_cast<int>(segment.style));
+          columns.append(QVariant(segments));
+        }
+
+        return columns;
+      }
+
+      case CommitList::Role::GraphNodeRole:
+        return QVariant::fromValue(isStash(row.commit)
+                                       ? CommitList::GraphNode::Stash
+                                       : CommitList::GraphNode::Commit);
+
+      case CommitList::Role::StashIndexRole: {
+        auto stash = mStashIndexes.constFind(row.commit.id());
+        return stash == mStashIndexes.cend() ? QVariant() : QVariant(*stash);
+      }
     }
 
     return QVariant();
@@ -408,8 +451,9 @@ signals:
 
 private:
   struct Parent {
-    Parent(const git::Commit &commit, const QColor &color, bool tainted = false)
-        : commit(commit), color(color), tainted(tainted) {}
+    Parent(const git::Commit &commit, const QColor &color, bool tainted = false,
+           Qt::PenStyle style = Qt::SolidLine)
+        : commit(commit), color(color), tainted(tainted), style(style) {}
 
     QColor taintedColor(const git::Commit &commit = git::Commit()) const {
       return (tainted && this->commit != commit) ? kTaintedColor : color;
@@ -418,14 +462,17 @@ private:
     git::Commit commit;
     QColor color;
     bool tainted;
+    Qt::PenStyle style;
   };
 
   struct Segment {
-    Segment(GraphSegment segment, QColor color)
-        : segment(segment), color(color) {}
+    Segment(GraphSegment segment, QColor color,
+            Qt::PenStyle style = Qt::SolidLine)
+        : segment(segment), color(color), style(style) {}
 
     GraphSegment segment;
     QColor color;
+    Qt::PenStyle style;
   };
 
   using Column = QList<Segment>;
@@ -462,6 +509,26 @@ private:
     return false;
   }
 
+  bool isStash(const git::Commit &commit) const {
+    return commit.isValid() && mStashIndexes.contains(commit.id());
+  }
+
+  QList<git::Commit> graphParents(const git::Commit &commit) const {
+    QList<git::Commit> parents = commit.parents();
+    if (isStash(commit) && !parents.isEmpty())
+      return {parents.first()};
+    return parents;
+  }
+
+  git::Commit nextCommit() {
+    git::Commit commit;
+    do {
+      commit = mWalker.next(mPathspec);
+    } while (commit.isValid() &&
+             mStashAuxiliaryCommits.contains(commit.id()));
+    return commit;
+  }
+
   // The commit and parents parameters represent the current row.
   // The mParents member represents the next row after this one.
   QVector<Column> columns(const git::Commit &commit,
@@ -472,7 +539,8 @@ private:
     // Add incoming paths.
     int incoming = root ? count - 1 : count;
     for (int i = 0; i < incoming; ++i)
-      columns[i] << Segment(Top, parents.at(i).taintedColor());
+      columns[i] << Segment(Top, parents.at(i).taintedColor(),
+                            parents.at(i).style);
 
     // Add outgoing paths.
     for (int i = 0; i < count; ++i) {
@@ -480,7 +548,7 @@ private:
       QList<git::Commit> successors;
       const Parent &parent = parents.at(i);
       if (parent.commit == commit) {
-        successors = parent.commit.parents();
+        successors = graphParents(parent.commit);
       } else {
         successors.append(parent.commit);
       }
@@ -496,26 +564,29 @@ private:
         bool single = (successors.size() == 1);
         const QColor &color =
             single ? parent.taintedColor(commit) : mParents.at(index).color;
+        Qt::PenStyle style =
+            parent.commit == commit && !isStash(commit) ? Qt::SolidLine
+                                                        : parent.style;
 
         if (index < i) {
           // out to the left
-          columns[index] << Segment(RightIn, color);
+          columns[index] << Segment(RightIn, color, style);
           for (int j = index + 1; j < i; ++j)
-            columns[j] << Segment(Cross, color);
-          columns[i] << Segment(LeftOut, color);
+            columns[j] << Segment(Cross, color, style);
+          columns[i] << Segment(LeftOut, color, style);
 
         } else if (index > i) {
           // out to the right
-          columns[i] << Segment(RightOut, color);
+          columns[i] << Segment(RightOut, color, style);
           for (int j = i + 1; j < index; ++j)
-            columns[j] << Segment(Cross, color);
+            columns[j] << Segment(Cross, color, style);
           if (index == columns.size())
             columns.append(Column());
-          columns[index] << Segment(LeftIn, color);
+          columns[index] << Segment(LeftIn, color, style);
 
         } else { // index == i
           // out the bottom
-          columns[index] << Segment(Bottom, color);
+          columns[index] << Segment(Bottom, color, style);
         }
       }
     }
@@ -524,7 +595,8 @@ private:
     for (int i = 0; i < count; ++i) {
       const Parent &parent = parents.at(i);
       bool dot = (parent.commit == commit);
-      columns[i] << Segment(dot ? Dot : Middle, parent.taintedColor());
+      columns[i] << Segment(dot ? Dot : Middle, parent.taintedColor(),
+                            parent.style);
     }
 
     return columns;
@@ -564,6 +636,8 @@ private:
 
   QList<Row> mRows;
   QList<Parent> mParents;
+  QMap<git::Id, int> mStashIndexes;
+  QSet<git::Id> mStashAuxiliaryCommits;
 
   // walker settings
   bool mSuppressResetWalker{false};
@@ -689,6 +763,11 @@ public:
     QVariantList columns = index.data(CommitList::Role::GraphRole).toList();
     QVariantList colorColumns =
         index.data(CommitList::Role::GraphColorRole).toList();
+    QVariantList styleColumns =
+        index.data(CommitList::Role::GraphStyleRole).toList();
+    bool stashNode = index.data(CommitList::Role::GraphNodeRole)
+                         .value<CommitList::GraphNode>() ==
+                     CommitList::GraphNode::Stash;
     for (int i = 0; i < columns.size(); ++i) {
       int x = rect.x();
       int y = rect.y();
@@ -713,9 +792,13 @@ public:
 
       QVariantList segments = columns.at(i).toList();
       QVariantList colors = colorColumns.at(i).toList();
+      QVariantList styles = styleColumns.at(i).toList();
       for (int j = 0; j < segments.size(); ++j) {
         QColor color = colors.at(j).value<QColor>();
         QPen pen(color, 2);
+        pen.setStyle(static_cast<Qt::PenStyle>(styles.at(j).toInt()));
+        if (pen.style() == Qt::DotLine)
+          pen.setCapStyle(Qt::RoundCap);
         if (color == kTaintedColor) {
           pen.setStyle(Qt::DashLine);
           pen.setDashPattern({2, 2});
@@ -724,8 +807,14 @@ public:
         painter->setPen(pen);
         switch (segments.at(j).toInt()) {
           case Dot:
-            painter->setPen(dot);
-            painter->drawEllipse(QPoint(x1, y2), r, r);
+            if (stashNode) {
+              pen.setStyle(Qt::SolidLine);
+              painter->setPen(pen);
+              painter->drawRect(QRect(x1 - r, y2 - r, 2 * r, 2 * r));
+            } else {
+              painter->setPen(dot);
+              painter->drawEllipse(QPoint(x1, y2), r, r);
+            }
             break;
 
           case Top:
@@ -1537,13 +1626,18 @@ void CommitList::contextMenuEvent(QContextMenuEvent *event) {
 
   // stash
   git::Reference ref = static_cast<CommitModel *>(mModel)->reference();
-  if (ref.isValid() && ref.isStash()) {
+  QVariant integratedStash = index.data(StashIndexRole);
+  if (integratedStash.isValid() || (ref.isValid() && ref.isStash())) {
+    int stashIndex =
+        integratedStash.isValid() ? integratedStash.toInt() : index.row();
     menu.addAction(tr("Apply"),
-                   [view, index] { view->applyStash(index.row()); });
+                   [view, stashIndex] { view->applyStash(stashIndex); });
 
-    menu.addAction(tr("Pop"), [view, index] { view->popStash(index.row()); });
+    menu.addAction(tr("Pop"),
+                   [view, stashIndex] { view->popStash(stashIndex); });
 
-    menu.addAction(tr("Drop"), [view, index] { view->dropStash(index.row()); });
+    menu.addAction(tr("Drop"),
+                   [view, stashIndex] { view->dropStash(stashIndex); });
 
   } else {
     // multiple selection

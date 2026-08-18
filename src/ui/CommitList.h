@@ -24,7 +24,18 @@ class CommitList : public QListView {
   Q_OBJECT
 
 public:
-  enum Role { DiffRole = Qt::UserRole, CommitRole, GraphRole, GraphColorRole };
+  enum Role {
+    DiffRole = Qt::UserRole,
+    CommitRole,
+    GraphRole,
+    GraphColorRole,
+    GraphStyleRole,
+    GraphNodeRole,
+    StashIndexRole
+  };
+  enum class GraphNode { Commit, Stash };
+  Q_ENUM(GraphNode)
+
   enum class RefsFilter {
     AllRefs,
     SelectedRef,
