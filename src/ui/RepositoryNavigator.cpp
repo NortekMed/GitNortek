@@ -11,6 +11,7 @@
 #include <QMenu>
 #include <QMetaEnum>
 #include <QPainter>
+#include <QPainterPath>
 #include <QSettings>
 #include <QStyledItemDelegate>
 #include <QTreeView>
@@ -47,6 +48,11 @@ struct SubmoduleVisual {
   QString indicator;
   QColor color;
   QString trailing;
+};
+
+struct TrailingPart {
+  QString text;
+  QColor color;
 };
 
 SubmoduleVisual submoduleVisual(const QModelIndex &index,
@@ -122,6 +128,37 @@ public:
     painter->setFont(font);
     painter->setPen(text);
 
+    const QColor green("#36c96b");
+    bool localBranch =
+        !section &&
+        index.data(RepositoryNavigatorModel::SectionRole).toInt() ==
+            static_cast<int>(RepositoryNavigatorModel::Section::Local);
+    bool current =
+        !section && index.data(RepositoryNavigatorModel::CurrentRole).toBool();
+    if (localBranch) {
+      if (current) {
+        QRect marker(0, 0, 12, 12);
+        marker.moveCenter(QPoint(content.x() + 7, content.center().y()));
+        painter->setRenderHint(QPainter::Antialiasing);
+        painter->setPen(Qt::NoPen);
+        painter->setBrush(green);
+        painter->drawRoundedRect(marker, 1, 1);
+
+        QPen check(Qt::white, 1.5);
+        check.setCapStyle(Qt::RoundCap);
+        check.setJoinStyle(Qt::RoundJoin);
+        painter->setPen(check);
+        QPainterPath path;
+        path.moveTo(marker.left() + 3, marker.center().y());
+        path.lineTo(marker.left() + 5, marker.bottom() - 3);
+        path.lineTo(marker.right() - 2, marker.top() + 3);
+        painter->drawPath(path);
+      }
+      content.adjust(18, 0, 0, 0);
+      painter->setBrush(Qt::NoBrush);
+      painter->setPen(text);
+    }
+
     bool submodule =
         !section &&
         static_cast<RepositoryNavigatorModel::ItemKind>(
@@ -142,45 +179,51 @@ public:
       painter->setPen(text);
     }
 
-    QString prefix;
-    if (!section &&
-        index.data(RepositoryNavigatorModel::CurrentRole).toBool())
-      prefix = QString::fromUtf8("✓  ");
-    QString label = prefix + index.data().toString();
+    QString label = index.data().toString();
 
-    QString trailing;
+    QList<TrailingPart> trailing;
     if (section) {
-      trailing = QString::number(
-          index.data(RepositoryNavigatorModel::CountRole).toInt());
+      trailing.append({QString::number(
+                           index.data(RepositoryNavigatorModel::CountRole)
+                               .toInt()),
+                       text});
     } else {
       auto kind = static_cast<RepositoryNavigatorModel::ItemKind>(
           index.data(RepositoryNavigatorModel::ItemKindRole).toInt());
       if (kind == RepositoryNavigatorModel::ItemKind::Submodule) {
-        trailing = visual.trailing;
+        if (!visual.trailing.isEmpty())
+          trailing.append({visual.trailing, visual.color});
       } else {
         QVariant ahead = index.data(RepositoryNavigatorModel::AheadRole);
         QVariant behind = index.data(RepositoryNavigatorModel::BehindRole);
         if (ahead.isValid() && ahead.toInt() > 0)
-          trailing += RepositoryNavigator::tr("%1↑").arg(ahead.toInt());
-        if (behind.isValid() && behind.toInt() > 0) {
-          if (!trailing.isEmpty())
-            trailing += " ";
-          trailing += RepositoryNavigator::tr("%1↓").arg(behind.toInt());
-        }
+          trailing.append(
+              {RepositoryNavigator::tr("%1↑").arg(ahead.toInt()),
+               QColor("#4aa3ff")});
+        if (behind.isValid() && behind.toInt() > 0)
+          trailing.append(
+              {RepositoryNavigator::tr("%1↓").arg(behind.toInt()),
+               QColor("#f0a020")});
       }
     }
 
-    int trailingWidth = trailing.isEmpty()
-                            ? 0
-                            : painter->fontMetrics().horizontalAdvance(trailing);
+    int trailingWidth = 0;
+    for (const TrailingPart &part : trailing) {
+      if (trailingWidth)
+        trailingWidth += 6;
+      trailingWidth += painter->fontMetrics().horizontalAdvance(part.text);
+    }
     QRect textRect = content.adjusted(0, 0, -trailingWidth - 8, 0);
     painter->drawText(textRect, Qt::AlignVCenter | Qt::AlignLeft,
                       painter->fontMetrics().elidedText(
                           label, Qt::ElideRight, textRect.width()));
-    if (!trailing.isEmpty()) {
-      if (submodule)
-        painter->setPen(visual.color);
-      painter->drawText(content, Qt::AlignVCenter | Qt::AlignRight, trailing);
+    int right = content.right();
+    for (auto i = trailing.crbegin(); i != trailing.crend(); ++i) {
+      int width = painter->fontMetrics().horizontalAdvance(i->text);
+      QRect partRect(right - width + 1, content.y(), width, content.height());
+      painter->setPen(i->color);
+      painter->drawText(partRect, Qt::AlignVCenter | Qt::AlignRight, i->text);
+      right = partRect.left() - 6;
     }
 
     if (section) {
