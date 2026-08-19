@@ -45,15 +45,21 @@ QString comparisonDelta(const QVariant &ahead, const QVariant &behind) {
 }
 
 struct SubmoduleVisual {
-  QString indicator;
-  QColor color;
-  QString trailing;
+  QString pinIndicator;
+  QColor pinColor;
+  QString pinDelta;
+  QColor originColor;
+  QString originDelta;
 };
 
 struct TrailingPart {
   QString text;
   QColor color;
+  int width = 0;
+  Qt::Alignment alignment = Qt::AlignRight;
 };
+
+constexpr int kSubmoduleStatusWidth = 44;
 
 SubmoduleVisual submoduleVisual(const QModelIndex &index,
                                 const QPalette &palette) {
@@ -62,34 +68,42 @@ SubmoduleVisual submoduleVisual(const QModelIndex &index,
   const QColor red("#e25555");
   const QColor gray = palette.color(QPalette::Disabled, QPalette::Text);
 
-  if (!index.data(RepositoryNavigatorModel::InitializedRole).toBool())
-    return {QString::fromUtf8("○"), gray, QString()};
-
-  QVariant pinnedAhead = index.data(RepositoryNavigatorModel::PinnedAheadRole);
-  QVariant pinnedBehind =
-      index.data(RepositoryNavigatorModel::PinnedBehindRole);
-  if (!pinnedAhead.isValid() || !pinnedBehind.isValid())
-    return {"?", gray, QString()};
-
-  QString pinDelta = comparisonDelta(pinnedAhead, pinnedBehind);
-  if (!pinDelta.isEmpty())
-    return {QString::fromUtf8("↕"), amber, pinDelta};
+  SubmoduleVisual visual;
+  if (!index.data(RepositoryNavigatorModel::InitializedRole).toBool()) {
+    visual.pinIndicator = QString::fromUtf8("○");
+    visual.pinColor = gray;
+  } else {
+    QVariant pinnedAhead =
+        index.data(RepositoryNavigatorModel::PinnedAheadRole);
+    QVariant pinnedBehind =
+        index.data(RepositoryNavigatorModel::PinnedBehindRole);
+    if (!pinnedAhead.isValid() || !pinnedBehind.isValid()) {
+      visual.pinIndicator = "?";
+      visual.pinColor = gray;
+    } else {
+      visual.pinDelta = comparisonDelta(pinnedAhead, pinnedBehind);
+      visual.pinIndicator = visual.pinDelta.isEmpty() ? QString::fromUtf8("✓")
+                                                      : QString::fromUtf8("↕");
+      visual.pinColor = visual.pinDelta.isEmpty() ? green : amber;
+    }
+  }
 
   auto originState = index.data(RepositoryNavigatorModel::OriginStateRole)
                          .value<RepositoryNavigatorModel::OriginState>();
-  if (originState == RepositoryNavigatorModel::OriginState::Pending)
-    return {QString::fromUtf8("…"), gray, QString()};
-  if (originState == RepositoryNavigatorModel::OriginState::Failed)
-    return {"!", red, QString()};
-  if (originState == RepositoryNavigatorModel::OriginState::Ready) {
-    QString originDelta =
+  if (originState == RepositoryNavigatorModel::OriginState::Hidden) {
+    visual.originColor = gray;
+  } else if (originState == RepositoryNavigatorModel::OriginState::Pending) {
+    visual.originColor = gray;
+  } else if (originState == RepositoryNavigatorModel::OriginState::Failed) {
+    visual.originColor = red;
+  } else if (originState == RepositoryNavigatorModel::OriginState::Ready) {
+    visual.originDelta =
         comparisonDelta(index.data(RepositoryNavigatorModel::OriginAheadRole),
                         index.data(RepositoryNavigatorModel::OriginBehindRole));
-    if (!originDelta.isEmpty())
-      return {QString::fromUtf8("↻"), amber, originDelta};
+    visual.originColor = visual.originDelta.isEmpty() ? green : amber;
   }
 
-  return {QString::fromUtf8("✓"), green, QString()};
+  return visual;
 }
 
 class NavigatorDelegate : public QStyledItemDelegate {
@@ -172,8 +186,8 @@ public:
       QFont indicatorFont = font;
       indicatorFont.setBold(true);
       painter->setFont(indicatorFont);
-      painter->setPen(visual.color);
-      painter->drawText(indicatorRect, Qt::AlignCenter, visual.indicator);
+      painter->setPen(visual.pinColor);
+      painter->drawText(indicatorRect, Qt::AlignCenter, visual.pinIndicator);
       content.adjust(18, 0, 0, 0);
       painter->setFont(font);
       painter->setPen(text);
@@ -191,8 +205,17 @@ public:
       auto kind = static_cast<RepositoryNavigatorModel::ItemKind>(
           index.data(RepositoryNavigatorModel::ItemKindRole).toInt());
       if (kind == RepositoryNavigatorModel::ItemKind::Submodule) {
-        if (!visual.trailing.isEmpty())
-          trailing.append({visual.trailing, visual.color});
+        QString pin = "P";
+        if (!visual.pinDelta.isEmpty())
+          pin += " " + visual.pinDelta;
+        trailing.append(
+            {pin, visual.pinColor, kSubmoduleStatusWidth, Qt::AlignLeft});
+
+        QString origin = "O";
+        if (!visual.originDelta.isEmpty())
+          origin += " " + visual.originDelta;
+        trailing.append(
+            {origin, visual.originColor, kSubmoduleStatusWidth, Qt::AlignLeft});
       } else {
         QVariant ahead = index.data(RepositoryNavigatorModel::AheadRole);
         QVariant behind = index.data(RepositoryNavigatorModel::BehindRole);
@@ -211,19 +234,23 @@ public:
     for (const TrailingPart &part : trailing) {
       if (trailingWidth)
         trailingWidth += 6;
-      trailingWidth += painter->fontMetrics().horizontalAdvance(part.text);
+      trailingWidth += part.width > 0
+                           ? part.width
+                           : painter->fontMetrics().horizontalAdvance(part.text);
     }
     QRect textRect = content.adjusted(0, 0, -trailingWidth - 8, 0);
     painter->drawText(textRect, Qt::AlignVCenter | Qt::AlignLeft,
                       painter->fontMetrics().elidedText(
                           label, Qt::ElideRight, textRect.width()));
-    int right = content.right();
-    for (auto i = trailing.crbegin(); i != trailing.crend(); ++i) {
-      int width = painter->fontMetrics().horizontalAdvance(i->text);
-      QRect partRect(right - width + 1, content.y(), width, content.height());
-      painter->setPen(i->color);
-      painter->drawText(partRect, Qt::AlignVCenter | Qt::AlignRight, i->text);
-      right = partRect.left() - 6;
+    int left = content.right() - trailingWidth + 1;
+    for (const TrailingPart &part : trailing) {
+      int width = part.width > 0
+                      ? part.width
+                      : painter->fontMetrics().horizontalAdvance(part.text);
+      QRect partRect(left, content.y(), width, content.height());
+      painter->setPen(part.color);
+      painter->drawText(partRect, Qt::AlignVCenter | part.alignment, part.text);
+      left = partRect.right() + 7;
     }
 
     if (section) {

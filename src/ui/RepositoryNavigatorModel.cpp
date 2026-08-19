@@ -50,6 +50,11 @@ QString comparisonText(const QString &reference, int ahead, int behind) {
       .arg(commitCount(behind), reference);
 }
 
+QString coloredText(const QString &text, const QString &color) {
+  return QString("<span style=\"color:%1; font-weight:600\">%2</span>")
+      .arg(color, text.toHtmlEscaped());
+}
+
 } // namespace
 
 bool RepositoryNavigatorModel::lessThan(
@@ -428,7 +433,36 @@ void RepositoryNavigatorModel::rebuild() {
       tooltip.append(
           tr("↑ means local-only commits; ↓ means commits missing locally."));
     }
-    row.tooltip = tooltip.join('\n');
+    QString details = tooltip.join('\n').toHtmlEscaped();
+    details.replace('\n', "<br>");
+    QStringList legend;
+    legend.append(QString("<b>%1</b>").arg(tr("Indicators:").toHtmlEscaped()));
+    legend.append(
+        tr("%1 Left icon: Pin summary.")
+            .arg(coloredText(QString::fromUtf8("✓"), "#36c96b")));
+    legend.append(
+        tr("%1 matches; %2 differs; %3 unavailable; %4 uninitialized.")
+            .arg(coloredText(QString::fromUtf8("✓"), "#36c96b"),
+                 coloredText(QString::fromUtf8("↕"), "#f0a020"),
+                 coloredText("?", "#8c8c8c"),
+                 coloredText(QString::fromUtf8("○"), "#8c8c8c")));
+    legend.append(
+        tr("%1 = Pin delta; %2 = Origin delta.")
+            .arg(coloredText(QString::fromUtf8("P 1↓"), "#f0a020"),
+                 coloredText(QString::fromUtf8("O 1↓"), "#f0a020")));
+    legend.append(
+        tr("An empty delta means no difference when comparison is available."));
+    legend.append(
+        tr("%1 synchronized; %2 difference; %3 unavailable, pending, or not "
+           "configured; %4 failed.")
+            .arg(coloredText("P", "#36c96b"),
+                 coloredText(QString::fromUtf8("P 1↓"), "#f0a020"),
+                 coloredText("O", "#8c8c8c"), coloredText("O", "#e25555")));
+    legend.append(tr("%1 local-only; %2 missing locally.")
+                      .arg(coloredText(QString::fromUtf8("↑"), "#4aa3ff"),
+                           coloredText(QString::fromUtf8("↓"), "#f0a020")));
+    row.tooltip = QString("<qt>%1<br><br>%2</qt>")
+                      .arg(details, legend.join("<br>"));
     submodules.rows.append(row);
   }
   std::sort(submodules.rows.begin(), submodules.rows.end(), lessThan);

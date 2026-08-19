@@ -11,7 +11,7 @@ Bug Fix and Feature release
 * Add Ptyxis terminal auto-detection on Linux
 * Add Tamil translation
 * Add repository navigator context actions for branches and submodules, including permanent submodule removal
-* Show colored submodule health indicators on the left and compact pin or origin deltas in the repository navigator
+* Show colored Pin summaries on the left and aligned P and O delta columns for submodules in the repository navigator
 * Mark the checked-out local branch with a green checkbox and color ahead and behind indicators
 * Display stashes as square nodes with dotted topology and stash actions in the combined commit graph
 * Display GitHub or Gravatar author avatars inside larger commit graph nodes and commit details when avatars are enabled

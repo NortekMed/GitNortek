@@ -967,12 +967,12 @@
 <context>
     <name>CommitModel</name>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="363"/>
+        <location filename="../src/ui/CommitList.cpp" line="364"/>
         <source>Uncommitted changes</source>
         <translation>Alterações não submetidas</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="364"/>
+        <location filename="../src/ui/CommitList.cpp" line="365"/>
         <source>Checking for uncommitted changes</source>
         <translation>A procurar alterações não submetidas</translation>
     </message>
@@ -1479,57 +1479,57 @@ These settings will not be saved permanently</source>
 <context>
     <name>EditorPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="699"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="700"/>
         <source>Show whitespace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="708"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="709"/>
         <source>Tabs</source>
         <translation>Tabulações</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="709"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="710"/>
         <source>Spaces</source>
         <translation>Espaços</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="730"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="731"/>
         <source>Show heat map</source>
         <translation>Mostrar mapa de calor</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="739"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="740"/>
         <source>Font:</source>
         <translation>Letra:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="740"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="741"/>
         <source>Font size:</source>
         <translation>Tamanho da letra:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="741"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="742"/>
         <source>Whitespace:</source>
         <translation type="unfinished">Espaço:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="742"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="743"/>
         <source>Indent using:</source>
         <translation>Avançar com:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="743"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="744"/>
         <source>Indent width:</source>
         <translation>Largura do avanço:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="744"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="745"/>
         <source>Tab width:</source>
         <translation>Largura de tabulação:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="745"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="746"/>
         <source>Blame margin:</source>
         <translation>Margem de culpa:</translation>
     </message>
@@ -3362,12 +3362,12 @@ Exemplos
 <context>
     <name>MiscPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="811"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="812"/>
         <source>Path to SSH config file:</source>
         <translation>Caminho para ficheiro de configuração SSH:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="812"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="813"/>
         <source>Path to default / fallback SSH key file:</source>
         <translation>Caminho predefinido/omissão de ficheiro-chave SSH:</translation>
     </message>
@@ -3780,12 +3780,12 @@ Exemplos
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="41"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="38"/>
         <source>%1↑</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="43"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="42"/>
         <source>%1↓</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5432,82 +5432,62 @@ The submodule will be removed from this project. Its working files and cached lo
 <context>
     <name>RepositoryNavigator</name>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="98"/>
-        <source>Pin</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="105"/>
-        <source>Origin …</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="107"/>
-        <source>Origin !</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="110"/>
-        <source>Origin</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="119"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="224"/>
         <source>%1↑</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="123"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="228"/>
         <source>%1↓</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="150"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="268"/>
         <source>Repository navigation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="154"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="272"/>
         <source>Repository references</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="265"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="383"/>
         <source>Open</source>
         <translation type="unfinished">Abrir</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="272"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="390"/>
         <source>Update</source>
         <translation type="unfinished">Actualizar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="278"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="396"/>
         <source>Initialize and Update</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="285"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="403"/>
         <source>Modify...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="290"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="408"/>
         <source>Delete Submodule...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="300"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="418"/>
         <source>Apply Stash</source>
         <translation type="unfinished">Aplicar oculto</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="305"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="423"/>
         <source>Pop Stash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="310"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="428"/>
         <source>Drop Stash</source>
         <translation type="unfinished">Largar oculto</translation>
     </message>
@@ -5550,143 +5530,178 @@ The submodule will be removed from this project. Its working files and cached lo
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="276"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="281"/>
         <source>Local</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="277"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="282"/>
         <source>Remote</source>
         <translation type="unfinished">Remoto</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="278"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="283"/>
         <source>Stashes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="279"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="284"/>
         <source>Cloud Patches</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="280"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="285"/>
         <source>Cloud Patches are not available.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="281"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="286"/>
         <source>Pull Requests</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="282"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="287"/>
         <source>Pull Request listing is not available.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="283"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="288"/>
         <source>GitHub Issues</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="284"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="289"/>
         <source>GitHub Issue listing is not available.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="285"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="290"/>
         <source>Teams</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="285"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="290"/>
         <source>Team integration is not available.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="287"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="292"/>
         <source>Tags</source>
         <translation type="unfinished">Etiquetas</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="288"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="293"/>
         <source>Submodules</source>
         <translation type="unfinished">Sub-módulos</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="329"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="334"/>
         <source>stash@{%1}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="354"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="359"/>
         <source>Path: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="368"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="373"/>
         <source>Local checkout: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="373"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="378"/>
         <source>the commit recorded by the parent repository</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="375"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="380"/>
         <source>Pin %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="381"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="386"/>
         <source>Pin: The parent repository does not record a submodule commit.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="390"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="395"/>
         <source>the latest fetched commit on origin/%1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="392"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="397"/>
         <source>Origin %1 (%2): %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="400"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="405"/>
         <source>Local checkout: unavailable because the submodule repository could not be read.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="404"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="409"/>
         <source>Local checkout: unavailable because the submodule is not initialized.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="410"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="415"/>
         <source>Origin: Not shown because no remote branch is configured. Configure a branch in the submodule settings to enable this comparison.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="415"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="420"/>
         <source>Origin %1: Waiting for a submodule update check.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="422"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="427"/>
         <source>Origin %1: The comparison failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="423"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="428"/>
         <source>Origin %1: The comparison failed - %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="429"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="434"/>
         <source>↑ means local-only commits; ↓ means commits missing locally.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="439"/>
+        <source>Indicators:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="441"/>
+        <source>%1 Left icon: Pin summary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="444"/>
+        <source>%1 matches; %2 differs; %3 unavailable; %4 uninitialized.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="450"/>
+        <source>%1 = Pin delta; %2 = Origin delta.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="454"/>
+        <source>An empty delta means no difference when comparison is available.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="456"/>
+        <source>%1 synchronized; %2 difference; %3 unavailable, pending, or not configured; %4 failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="461"/>
+        <source>%1 local-only; %2 missing locally.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5767,67 +5782,67 @@ The submodule will be removed from this project. Its working files and cached lo
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="882"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="883"/>
         <source>Esc</source>
         <translation>Esc</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="897"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="898"/>
         <source>Global git settings can be overridden for each repository in the corresponding repository configuration page.</source>
         <translation>As definições globais do git podem ser sobrepostas para cada repositório na correspondente página de configuração do repositório.</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="914"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="915"/>
         <source>Edit Config File...</source>
         <translation>Editar ficheiro de configuração...</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="943"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="944"/>
         <source>General</source>
         <translation>Geral</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="951"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="952"/>
         <source>Diff</source>
         <translation>Comparação</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="959"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="960"/>
         <source>Tools</source>
         <translation>Ferramentas</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="969"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="970"/>
         <source>Window</source>
         <translation>Janela</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="977"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="978"/>
         <source>Editor</source>
         <translation>Editor</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="985"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="986"/>
         <source>Update</source>
         <translation>Actualizar</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="993"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="994"/>
         <source>Plugins</source>
         <translation>Extensões</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="1001"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="1002"/>
         <source>Misc</source>
         <translation>Misto</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="1009"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="1010"/>
         <source>Hotkeys</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="1019"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="1020"/>
         <source>Terminal</source>
         <translation>Terminal</translation>
     </message>
@@ -6233,23 +6248,23 @@ x (number) determines the number of maximum files shown</source>
 <context>
     <name>TerminalPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="839"/>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="863"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="840"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="864"/>
         <source>Install</source>
         <translation>Instalar</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="852"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="853"/>
         <source>Name:</source>
         <translation>Nome:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="853"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="854"/>
         <source>Location:</source>
         <translation>Localização:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="863"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="864"/>
         <source>Uninstall</source>
         <translation>Desinstalar</translation>
     </message>
@@ -6620,22 +6635,22 @@ x (number) determines the number of maximum files shown</source>
 <context>
     <name>UpdatePanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="756"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="757"/>
         <source>Check for updates automatically</source>
         <translation>Procurar actualizações automaticamente</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="768"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="769"/>
         <source>Automatically download and install updates</source>
         <translation>Transferir e instalar actualizações automaticamente</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="778"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="779"/>
         <source>Check Now</source>
         <translation>Procurar agora</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="783"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="784"/>
         <source>Software Update:</source>
         <translation>Actualização do programa:</translation>
     </message>
@@ -6816,37 +6831,37 @@ x (number) determines the number of maximum files shown</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="604"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="605"/>
         <source>Show Window Maximized when opened</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="657"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="658"/>
         <source>Theme:</source>
         <translation>Tema:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="658"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="659"/>
         <source>Title:</source>
         <translation>Título:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="659"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="660"/>
         <source>Log:</source>
         <translation>Diário:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="660"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="661"/>
         <source>Tabs:</source>
         <translation>Separadores:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="662"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="663"/>
         <source>View:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="665"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="666"/>
         <source>Prompt:</source>
         <translation>Pedir:</translation>
     </message>

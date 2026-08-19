@@ -687,6 +687,12 @@ void TestRepositorySideBar::submoduleInteraction() {
       "matches the commit recorded by the parent repository"));
   QVERIFY(submodule.data(Qt::ToolTipRole).toString().contains(
       "Waiting for a submodule update check"));
+  QString tooltip = submodule.data(Qt::ToolTipRole).toString();
+  QVERIFY(tooltip.startsWith("<qt>"));
+  QVERIFY(tooltip.contains("color:#36c96b"));
+  QVERIFY(tooltip.contains("Left icon: Pin summary."));
+  QVERIFY(tooltip.contains("Pin delta"));
+  QVERIFY(tooltip.contains("Origin delta"));
 
   git::Submodule selected =
       submodule.data(RepositoryNavigatorModel::SubmoduleRole)
