@@ -10,6 +10,7 @@
 #include "CommitList.h"
 #include "CommitAvatarProvider.h"
 #include "Badge.h"
+#include "ContextMenuButton.h"
 #include "Location.h"
 #include "MainWindow.h"
 #include "ProgressIndicator.h"
@@ -33,18 +34,37 @@
 #include "ui/HotkeyManager.h"
 #include <QAbstractListModel>
 #include <QApplication>
+#include <QHeaderView>
+#include <QHelpEvent>
 #include <QMenu>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPushButton>
+#include <QScrollBar>
 #include <QSet>
+#include <QShowEvent>
+#include <QSettings>
+#include <QStandardItemModel>
 #include <QStyledItemDelegate>
 #include <QTextLayout>
+#include <QTimer>
+#include <QToolTip>
 #include <QtConcurrent>
 
 namespace {
 
 constexpr int kGraphNodeSize = 16;
+constexpr int kCommitHeaderHeight = 24;
+constexpr int kCommitHeaderInset = 8;
+constexpr int kCommitHeaderOptionsWidth = 28;
+constexpr int kCompactColumnPadding = 8;
+constexpr int kShortIdMargin = 8;
+constexpr int kReferencesMinimumWidth = 55;
+constexpr int kGraphMinimumWidth = 50;
+constexpr int kSummaryMinimumWidth = 24;
+constexpr int kAuthorMinimumWidth = 70;
+constexpr int kDateMinimumWidth = 100;
+const char kCommitHeaderStateKey[] = "commit/columns/headerStateV10";
 
 // FIXME: Factor out into theme?
 const QColor kTaintedColor = Qt::gray;
@@ -54,6 +74,34 @@ const QString kPathspecFmt = "pathspec:%1";
 // Use fixed short id size in compact mode.
 // FIXME: Use 'core.abbrev' config instead?
 const int kShortIdSize = 7;
+
+QFont compactFont(QFont font) {
+  if (font.pointSizeF() > 1.0) {
+    font.setPointSizeF(font.pointSizeF() - 1.0);
+  } else if (font.pixelSize() > 1) {
+    font.setPixelSize(font.pixelSize() - 1);
+  }
+  return font;
+}
+
+int shortIdTextWidth(const QFont &font, const QPaintDevice *device) {
+  QFontMetrics fm(font, device);
+  const QString chars = "0123456789abcdef";
+  int maxCharacter = 0;
+  int maxPairAdjustment = 0;
+  for (QChar first : chars) {
+    int firstWidth = fm.horizontalAdvance(first);
+    maxCharacter = qMax(maxCharacter, firstWidth);
+    for (QChar second : chars) {
+      int pairWidth = fm.horizontalAdvance(QString(first) + second);
+      int secondWidth = fm.horizontalAdvance(second);
+      maxPairAdjustment =
+          qMax(maxPairAdjustment, pairWidth - firstWidth - secondWidth);
+    }
+  }
+  return kShortIdSize * maxCharacter +
+         (kShortIdSize - 1) * maxPairAdjustment;
+}
 
 enum GraphSegment {
   Dot,
@@ -690,10 +738,21 @@ private:
 };
 
 class CommitDelegate : public QStyledItemDelegate {
+  struct CompactLayout {
+    QRect refs;
+    QRect graph;
+    QRect summary;
+    QRect author;
+    QRect timestamp;
+    QRect id;
+    QRect star;
+  };
+
 public:
   CommitDelegate(const git::Repository &repo, CommitAvatarProvider *avatars,
-                 QObject *parent = nullptr)
-      : QStyledItemDelegate(parent), mRepo(repo), mAvatars(avatars) {
+                 QHeaderView *header, QObject *parent = nullptr)
+      : QStyledItemDelegate(parent), mRepo(repo), mAvatars(avatars),
+        mHeader(header) {
     updateRefs();
 
     git::RepositoryNotifier *notifier = repo.notifier();
@@ -713,6 +772,10 @@ public:
     bool compact = Settings::instance()
                        ->value(Setting::Id::ShowCommitsInCompactMode)
                        .toBool();
+    if (compact) {
+      opt.font = compactFont(opt.font);
+      opt.fontMetrics = QFontMetrics(opt.font, opt.widget);
+    }
     bool showAuthor = Settings::instance()
                           ->value(Setting::Id::ShowCommitsAuthor, true)
                           .toBool();
@@ -735,6 +798,7 @@ public:
 
     painter->save();
     painter->setRenderHints(QPainter::Antialiasing);
+    painter->setFont(opt.font);
 
     // Draw background.
     if (selected) {
@@ -759,8 +823,6 @@ public:
     QRect rect = opt.rect;
     rect.setX(rect.x() + 2);
 
-    int totalWidth = rect.width();
-
     git::Commit commit =
         index.data(CommitList::Role::CommitRole).value<git::Commit>();
     bool stashNode = index.data(CommitList::Role::GraphNodeRole)
@@ -775,8 +837,31 @@ public:
                                 opt.widget ? opt.widget->devicePixelRatioF()
                                            : qApp->devicePixelRatio());
 
+    QDateTime date;
+    QString timestamp;
+    if (commit.isValid()) {
+      date = commit.committer().date().toLocalTime();
+      if (compact) {
+        timestamp =
+            QString("%1 @ %2")
+                .arg(QLocale().toString(date.date(), QLocale::ShortFormat),
+                     QLocale().toString(date.time(), QLocale::ShortFormat));
+      } else {
+        timestamp = (date.date() == QDate::currentDate())
+                        ? QLocale().toString(date.time(), QLocale::ShortFormat)
+                        : QLocale().toString(date.date(), QLocale::ShortFormat);
+      }
+    }
+    CompactLayout compactColumns;
+    if (compact) {
+      compactColumns = compactLayout(opt.rect);
+      rect = compactColumns.graph;
+    }
+
     // Draw graph.
     painter->save();
+    if (compact)
+      painter->setClipRect(compactColumns.graph);
     QVariantList columns = index.data(CommitList::Role::GraphRole).toList();
     QVariantList colorColumns =
         index.data(CommitList::Role::GraphColorRole).toList();
@@ -808,12 +893,16 @@ public:
       QVariantList segments = columns.at(i).toList();
       QVariantList colors = colorColumns.at(i).toList();
       QVariantList styles = styleColumns.at(i).toList();
+      bool hasNode = segments.contains(static_cast<int>(Dot));
       for (int j = 0; j < segments.size(); ++j) {
         QColor color = colors.at(j).value<QColor>();
         QPen pen(color, 2);
         pen.setStyle(static_cast<Qt::PenStyle>(styles.at(j).toInt()));
-        if (pen.style() == Qt::DotLine)
+        if (pen.style() == Qt::DotLine) {
           pen.setCapStyle(Qt::RoundCap);
+        } else {
+          pen.setCapStyle(Qt::FlatCap);
+        }
         if (color == kTaintedColor) {
           pen.setStyle(Qt::DashLine);
           pen.setDashPattern({2, 2});
@@ -856,16 +945,26 @@ public:
 
           case RightOut: {
             QPainterPath path;
-            path.moveTo(x1, y3);
-            path.quadTo(x1, y4, x2, y4);
+            if (hasNode) {
+              path.moveTo(x1 + r, y2);
+              path.cubicTo(x2, y2, x1 + r, y4, x2, y4);
+            } else {
+              path.moveTo(x1, y3);
+              path.quadTo(x1, y4, x2, y4);
+            }
             painter->drawPath(path);
             break;
           }
 
           case LeftOut: {
             QPainterPath path;
-            path.moveTo(x1, y3);
-            path.quadTo(x1, y4, x, y4);
+            if (hasNode) {
+              path.moveTo(x1 - r, y2);
+              path.cubicTo(x, y2, x1 - r, y4, x, y4);
+            } else {
+              path.moveTo(x1, y3);
+              path.quadTo(x1, y4, x, y4);
+            }
             painter->drawPath(path);
             break;
           }
@@ -890,16 +989,21 @@ public:
 
       rect.setX(x + w);
 
-      // Finish early if the graph exceeds one third of the available space.
-      if (rect.x() - opt.rect.x() > opt.rect.width() / 3)
+      // Finish early if the graph exceeds its available column.
+      if ((compact && rect.x() >= compactColumns.graph.right()) ||
+          (!compact && rect.x() - opt.rect.x() > opt.rect.width() / 3))
         break;
     }
 
     painter->restore();
 
     // Adjust margins.
-    rect.setY(rect.y() + constants.vMargin);
-    rect.setX(rect.x() + constants.hMargin);
+    if (compact) {
+      rect = compactColumns.summary;
+    } else {
+      rect.setY(rect.y() + constants.vMargin);
+      rect.setX(rect.x() + constants.hMargin);
+    }
 
     // Star has enough padding in compact mode.
     if (!compact)
@@ -912,92 +1016,60 @@ public:
       painter->save();
       QFont italic = opt.font;
       italic.setItalic(true);
+      if (compact) {
+        message = QFontMetrics(italic, opt.widget).elidedText(
+            message, Qt::ElideRight, compactColumns.summary.width());
+      }
       painter->setFont(italic);
-      painter->drawText(opt.rect, Qt::AlignCenter, message);
+      painter->drawText(compact ? compactColumns.summary : opt.rect,
+                        compact ? Qt::AlignVCenter | Qt::AlignLeft
+                                : Qt::AlignCenter,
+                        message);
       painter->restore();
     } else {
       const QFontMetrics &fm = opt.fontMetrics;
       QRect star = rect;
-
-      QDateTime date = commit.committer().date().toLocalTime();
-      QString timestamp =
-          (date.date() == QDate::currentDate())
-              ? QLocale().toString(date.time(), QLocale::ShortFormat)
-              : QLocale().toString(date.date(), QLocale::ShortFormat);
       int timestampWidth = fm.horizontalAdvance(timestamp);
 
       if (compact) {
-        int maxWidthRefs = rect.width() * 0.5; // Max 50%
-        const int minWidthRefs = 50;           // At least display the ellipsis
-        const int minWidthDesc = 100;
-        int minDisplayWidthDate = 350;
+        star = compactColumns.star;
 
-        // Star always takes up its height on the right side.
-        star.setX(star.x() + star.width() - star.height());
-        star.setY(star.y() - constants.vMargin);
-        rect.setWidth(rect.width() - star.width());
-
-        // Draw commit id.
-        if (showId) {
-          QString id = commit.id().toString().left(kShortIdSize);
-          int idWidth = maxShortIdWidth(fm);
-
-          QRect commitRect = rect;
-          commitRect.setX(commitRect.x() + commitRect.width() - idWidth);
-          painter->save();
-          painter->drawText(commitRect, Qt::AlignLeft, id);
-          painter->restore();
-          rect.setWidth(rect.width() - idWidth - constants.hMargin);
-        }
-
-        // Draw date. Only if it is not the same as previous?
-        if (showDate && rect.width() > minWidthDesc + timestampWidth + 8 &&
-            totalWidth > minDisplayWidthDate) {
-          painter->save();
-          painter->setPen(bright);
-          painter->drawText(rect, Qt::AlignRight, timestamp);
-          painter->restore();
-          rect.setWidth(rect.width() - timestampWidth - constants.hMargin);
-        }
-
-        // Draw Name.
-        if (showAuthor) {
-          QString name = commit.author().name() + "  ";
-          painter->save();
-          QFont bold = opt.font;
-          bold.setBold(true);
-          painter->setFont(bold);
-          painter->drawText(rect, Qt::AlignRight, name);
-          painter->restore();
-          const QFontMetrics boldFm(bold);
-          rect.setWidth(rect.width() - boldFm.horizontalAdvance(name) -
-                        constants.hMargin);
-        }
-
-        // Calculate remaining width for the references.
-        QRect ref = rect;
-        int refsWidth = ref.width() - minWidthDesc;
-        if (maxWidthRefs <= minWidthRefs)
-          maxWidthRefs = minWidthRefs;
-        if (refsWidth < minWidthRefs)
-          refsWidth = minWidthRefs;
-        if (refsWidth > maxWidthRefs)
-          refsWidth = maxWidthRefs;
-        ref.setWidth(refsWidth);
-
-        // Draw references.
-        int badgesWidth = rect.x();
+        // Draw references before the graph.
         QList<Badge::Label> refs = mRefs.value(commit.id());
         if (!refs.isEmpty())
-          badgesWidth = Badge::paint(painter, refs, ref, &opt, Qt::AlignLeft);
-        rect.setX(badgesWidth); // Comes right after the badges
+          Badge::paint(painter, refs, compactColumns.refs, &opt, Qt::AlignLeft);
 
         // Draw message.
         painter->save();
         painter->setPen(bright);
         QString msg = commit.summary(git::Commit::SubstituteEmoji);
-        QString elidedText = fm.elidedText(msg, Qt::ElideRight, rect.width());
-        painter->drawText(rect, Qt::ElideRight, elidedText);
+        QString elidedText =
+            fm.elidedText(msg, Qt::ElideRight, compactColumns.summary.width());
+        painter->drawText(compactColumns.summary,
+                          Qt::AlignVCenter | Qt::AlignLeft, elidedText);
+        painter->restore();
+
+        // Draw aligned metadata columns in a muted color.
+        painter->save();
+        painter->setPen(text);
+        if (compactColumns.author.isValid()) {
+          QString author = fm.elidedText(commit.author().name(), Qt::ElideRight,
+                                         compactColumns.author.width());
+          painter->drawText(compactColumns.author,
+                            Qt::AlignVCenter | Qt::AlignLeft, author);
+        }
+        if (compactColumns.timestamp.isValid()) {
+          QString elidedTimestamp = fm.elidedText(
+              timestamp, Qt::ElideRight, compactColumns.timestamp.width());
+          painter->drawText(compactColumns.timestamp,
+                            Qt::AlignVCenter | Qt::AlignLeft, elidedTimestamp);
+        }
+        if (compactColumns.id.isValid()) {
+          QString id = commit.id().toString().left(kShortIdSize);
+          id = fm.elidedText(id, Qt::ElideRight, compactColumns.id.width());
+          painter->drawText(compactColumns.id, Qt::AlignVCenter | Qt::AlignLeft,
+                            id);
+        }
         painter->restore();
 
       } else {
@@ -1181,7 +1253,35 @@ public:
     LayoutConstants constants = layoutConstants(compact);
 
     int lineHeight = constants.lineSpacing + constants.vMargin;
-    return QSize(0, lineHeight * (compact ? 1 : 4));
+    int width = compact && mHeader
+                    ? kCommitHeaderInset + mHeader->length() +
+                          kCommitHeaderOptionsWidth
+                    : 0;
+    return QSize(width, lineHeight * (compact ? 1 : 4));
+  }
+
+  bool helpEvent(QHelpEvent *event, QAbstractItemView *view,
+                 const QStyleOptionViewItem &option,
+                 const QModelIndex &index) override {
+    bool compact = Settings::instance()
+                       ->value(Setting::Id::ShowCommitsInCompactMode)
+                       .toBool();
+    git::Commit commit =
+        index.data(CommitList::Role::CommitRole).value<git::Commit>();
+    QRect refsRect = compactLayout(option.rect).refs;
+    QList<Badge::Label> refs = mRefs.value(commit.id());
+    if (compact && commit.isValid() && refsRect.contains(event->pos()) &&
+        !refs.isEmpty() &&
+        Badge::size(compactFont(option.font), refs).width() >
+            refsRect.width()) {
+      QStringList names;
+      for (const Badge::Label &ref : refs)
+        names.append(ref.text.toHtmlEscaped());
+      QToolTip::showText(event->globalPos(),
+                         QString("<qt>%1</qt>").arg(names.join("<br>")), view);
+      return true;
+    }
+    return QStyledItemDelegate::helpEvent(event, view, option, index);
   }
 
   QRect decorationRect(const QStyleOptionViewItem &option,
@@ -1199,6 +1299,9 @@ public:
     bool compact = Settings::instance()
                        ->value(Setting::Id::ShowCommitsInCompactMode)
                        .toBool();
+    if (compact)
+      return compactLayout(option.rect).star;
+
     LayoutConstants constants = layoutConstants(compact);
 
     QRect rect = option.rect;
@@ -1230,6 +1333,34 @@ private:
     return {compact ? 7 : 8, compact ? 23 : 16, compact ? 5 : 2, 4};
   }
 
+  QRect compactColumn(const QRect &row, int column) const {
+    if (!mHeader || mHeader->isSectionHidden(column))
+      return QRect();
+    int x = row.x() + kCommitHeaderInset +
+            mHeader->sectionPosition(column);
+    return QRect(x, row.y(), mHeader->sectionSize(column), row.height());
+  }
+
+  CompactLayout compactLayout(const QRect &row) const {
+    CompactLayout layout;
+    layout.refs = compactColumn(row, CommitList::ReferencesColumn);
+    layout.graph = compactColumn(row, CommitList::GraphColumn);
+    layout.summary = compactColumn(row, CommitList::SummaryColumn);
+    layout.author = compactColumn(row, CommitList::AuthorColumn);
+    layout.timestamp = compactColumn(row, CommitList::DateColumn);
+    layout.id = compactColumn(row, CommitList::IdColumn);
+    layout.star = QRect(row.right() - row.height() + 1, row.y(), row.height(),
+                        row.height());
+
+    int top = layoutConstants(true).vMargin;
+    for (QRect *rect : {&layout.refs, &layout.summary, &layout.author,
+                        &layout.timestamp, &layout.id}) {
+      if (rect->isValid())
+        rect->adjust(4, top, -4, -top);
+    }
+    return layout;
+  }
+
   void updateRefs() {
     mRefs.clear();
 
@@ -1246,27 +1377,11 @@ private:
     }
   }
 
-  int maxShortIdWidth(const QFontMetrics &fm) const {
-    if (mMaxShortIdWidth < 0) {
-      for (char ch = 'a'; ch <= 'f'; ++ch) {
-        int width = fm.boundingRect(QString(kShortIdSize, ch)).width();
-        mMaxShortIdWidth = qMax(mMaxShortIdWidth, width);
-      }
-
-      for (char ch = '0'; ch <= '9'; ++ch) {
-        int width = fm.boundingRect(QString(kShortIdSize, ch)).width();
-        mMaxShortIdWidth = qMax(mMaxShortIdWidth, width);
-      }
-    }
-
-    return mMaxShortIdWidth;
-  }
-
   git::Repository mRepo;
   CommitAvatarProvider *mAvatars;
+  QHeaderView *mHeader;
   QMap<git::Id, QList<Badge::Label>> mRefs;
 
-  mutable int mMaxShortIdWidth = -1;
 };
 
 class SelectionModel : public QItemSelectionModel {
@@ -1300,17 +1415,28 @@ CommitList::CommitList(Index *index, CommitAvatarProvider *avatars,
   Theme *theme = Application::theme();
   setPalette(theme->commitList());
 
+#ifdef Q_OS_MAC
+  QFont font = this->font();
+  font.setPointSize(13);
+  setFont(font);
+#endif
+
   git::Repository repo = index->repo();
   mList = new ListModel(this);
   mModel = new CommitModel(repo, this);
+  setupHeader();
+  viewport()->installEventFilter(this);
+  connect(Settings::instance(), &Settings::settingsChanged, this,
+          [this] { updateHeader(false); });
 
   setMouseTracking(true);
   setUniformItemSizes(true);
   setAttribute(Qt::WA_MacShowFocusRect, false);
   setSelectionMode(QAbstractItemView::ExtendedSelection);
+  setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
 
   setModel(mModel);
-  setItemDelegate(new CommitDelegate(repo, avatars, this));
+  setItemDelegate(new CommitDelegate(repo, avatars, mHeader, this));
   if (avatars) {
     connect(avatars, &CommitAvatarProvider::avatarReady, viewport(),
             qOverload<>(&QWidget::update));
@@ -1321,11 +1447,22 @@ CommitList::CommitList(Index *index, CommitAvatarProvider *avatars,
   connect(mModel, &QAbstractItemModel::modelAboutToBeReset, this,
           &CommitList::storeSelection);
   connect(mModel, &QAbstractItemModel::modelReset, this,
-          &CommitList::restoreSelection);
+           &CommitList::restoreSelection);
   connect(mList, &QAbstractItemModel::modelAboutToBeReset, this,
           &CommitList::storeSelection);
   connect(mList, &QAbstractItemModel::modelReset, this,
-          &CommitList::restoreSelection);
+           &CommitList::restoreSelection);
+  for (QAbstractItemModel *model : {mModel, mList}) {
+    connect(model, &QAbstractItemModel::rowsInserted, this,
+            [this] { updateGraphColumnWidth(); });
+    connect(model, &QAbstractItemModel::modelReset, this,
+            &CommitList::updateGraphColumnWidth);
+  }
+  connect(horizontalScrollBar(), &QScrollBar::valueChanged, this,
+          [this](int value) {
+            mHeader->setOffset(value);
+            viewport()->update();
+          });
 
   CommitModel *model = static_cast<CommitModel *>(mModel);
   connect(model, &CommitModel::statusFinished, [this, model](bool visible) {
@@ -1369,11 +1506,286 @@ CommitList::CommitList(Index *index, CommitAvatarProvider *avatars,
   connect(shortcut, &QShortcut::activated,
           [this] { selectCommitRelative(-1); });
 
-#ifdef Q_OS_MAC
-  QFont font = this->font();
-  font.setPointSize(13);
-  setFont(font);
-#endif
+}
+
+void CommitList::setupHeader() {
+  mHeaderModel = new QStandardItemModel(0, ColumnCount, this);
+  mHeaderModel->setHeaderData(ReferencesColumn, Qt::Horizontal,
+                              tr("Branch / Tag"));
+  mHeaderModel->setHeaderData(GraphColumn, Qt::Horizontal, tr("Graph"));
+  mHeaderModel->setHeaderData(SummaryColumn, Qt::Horizontal,
+                              tr("Commit Message"));
+  mHeaderModel->setHeaderData(AuthorColumn, Qt::Horizontal, tr("Author"));
+  mHeaderModel->setHeaderData(DateColumn, Qt::Horizontal, tr("Date / Time"));
+  mHeaderModel->setHeaderData(IdColumn, Qt::Horizontal, tr("SHA"));
+
+  mHeader = new QHeaderView(Qt::Horizontal, this);
+  mHeader->installEventFilter(this);
+  mHeader->setModel(mHeaderModel);
+  mHeader->setSectionsMovable(true);
+  mHeader->setSectionsClickable(false);
+  mHeader->setHighlightSections(false);
+  mHeader->setMinimumSectionSize(kSummaryMinimumWidth);
+  mHeader->setDefaultAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+  mHeader->setFixedHeight(kCommitHeaderHeight);
+  mHeader->setFont(compactFont(mHeader->font()));
+  for (int column = 0; column < ColumnCount; ++column)
+    mHeader->setSectionResizeMode(column, QHeaderView::Interactive);
+
+  mHeaderOptions = new ContextMenuButton(this);
+  mHeaderOptions->setAccessibleName(tr("Configure commit columns"));
+  QMenu *menu = new QMenu(mHeaderOptions);
+  mHeaderOptions->setMenu(menu);
+  for (int column = 0; column < ColumnCount; ++column) {
+    QAction *action = menu->addAction(
+        mHeaderModel->headerData(column, Qt::Horizontal).toString());
+    action->setCheckable(true);
+    action->setData(column);
+    connect(action, &QAction::triggered, this, [this, column](bool visible) {
+      mUpdatingHeader = true;
+      mHeader->setSectionHidden(column, !visible);
+      mUpdatingHeader = false;
+      if (column == AuthorColumn)
+        Settings::instance()->setValue(Setting::Id::ShowCommitsAuthor, visible);
+      else if (column == DateColumn)
+        Settings::instance()->setValue(Setting::Id::ShowCommitsDate, visible);
+      else if (column == IdColumn)
+        Settings::instance()->setValue(Setting::Id::ShowCommitsId, visible);
+      resizeEvent(nullptr);
+      saveHeaderState();
+      doItemsLayout();
+      viewport()->update();
+    });
+  }
+  menu->addSeparator();
+  menu->addAction(tr("Reset columns"), this, [this] {
+    Settings::instance()->setValue(Setting::Id::ShowCommitsAuthor, true);
+    Settings::instance()->setValue(Setting::Id::ShowCommitsDate, true);
+    Settings::instance()->setValue(Setting::Id::ShowCommitsId, true);
+    resetHeader();
+  });
+  connect(menu, &QMenu::aboutToShow, this, [this, menu] {
+    for (QAction *action : menu->actions()) {
+      if (action->isCheckable()) {
+        int column = action->data().toInt();
+        action->setChecked(!mHeader->isSectionHidden(column));
+      }
+    }
+  });
+
+  connect(mHeader, &QHeaderView::sectionResized, this,
+          [this](int column, int, int size) {
+            if (mUpdatingHeader)
+              return;
+            if (column == GraphColumn && mHeaderInteraction)
+              mGraphPreferredWidth = size;
+            resizeHeaderToFit(column);
+            if (mHeaderInteraction)
+              saveHeaderState();
+            doItemsLayout();
+            viewport()->update();
+          });
+  connect(mHeader, &QHeaderView::sectionMoved, this, [this] {
+    saveHeaderState();
+    doItemsLayout();
+    viewport()->update();
+  });
+
+  QByteArray state = QSettings().value(kCommitHeaderStateKey).toByteArray();
+  resetHeader(false);
+  mPendingHeaderState = state;
+  mResetHeaderOnShow = true;
+  updateHeader(false);
+}
+
+void CommitList::resetHeader(bool saveState) {
+  if (!mHeader)
+    return;
+  mUpdatingHeader = true;
+  for (int column = 0; column < ColumnCount; ++column) {
+    int visual = mHeader->visualIndex(column);
+    if (visual != column)
+      mHeader->moveSection(visual, column);
+    mHeader->showSection(column);
+  }
+
+  int width = qMax(240, viewport()->width() - kCommitHeaderInset -
+                            kCommitHeaderOptionsWidth);
+  int refs = qBound(kReferencesMinimumWidth, width * 19 / 100, 360);
+  int graph = qBound(kGraphMinimumWidth, width * 7 / 100, 160);
+  int author = qBound(kAuthorMinimumWidth, width * 7 / 100, 120);
+  int date = qBound(kDateMinimumWidth, width * 11 / 100, 160);
+  int id = minimumColumnWidth(IdColumn);
+  int summary = qMax(60, width - refs - graph - author - date - id);
+  const int sizes[] = {refs, graph, summary, author, date, id};
+  for (int column = 0; column < ColumnCount; ++column)
+    mHeader->resizeSection(column, sizes[column]);
+  mGraphPreferredWidth = graph;
+  mUpdatingHeader = false;
+  if (saveState)
+    saveHeaderState();
+  updateHeader(saveState);
+}
+
+void CommitList::saveHeaderState() {
+  if (!mHeaderStateReady || mUpdatingHeader || !mHeader)
+    return;
+
+  int graphWidth = mHeader->sectionSize(GraphColumn);
+  if (mGraphPreferredWidth > 0 && graphWidth != mGraphPreferredWidth) {
+    mUpdatingHeader = true;
+    mHeader->resizeSection(GraphColumn, mGraphPreferredWidth);
+    QByteArray state = mHeader->saveState();
+    mHeader->resizeSection(GraphColumn, graphWidth);
+    mUpdatingHeader = false;
+    QSettings().setValue(kCommitHeaderStateKey, state);
+  } else {
+    QSettings().setValue(kCommitHeaderStateKey, mHeader->saveState());
+  }
+}
+
+int CommitList::minimumColumnWidth(int column) const {
+  switch (column) {
+    case ReferencesColumn:
+      return kReferencesMinimumWidth;
+    case GraphColumn:
+      return qMax(kGraphMinimumWidth, mGraphMinimumWidth);
+    case SummaryColumn:
+      return kSummaryMinimumWidth;
+    case AuthorColumn:
+      return kAuthorMinimumWidth;
+    case DateColumn:
+      return kDateMinimumWidth;
+    case IdColumn:
+      return shortIdTextWidth(compactFont(font()), this) +
+             kCompactColumnPadding + kShortIdMargin;
+    default:
+      return mHeader->minimumSectionSize();
+  }
+}
+
+void CommitList::updateGraphColumnWidth() {
+  QAbstractItemModel *graphModel = model();
+  if (!graphModel)
+    return;
+
+  int laneWidth = qMax(QFontMetrics(compactFont(font()), this).ascent(),
+                       kGraphNodeSize + 4);
+  int minimum = kGraphMinimumWidth;
+  for (int row = 0; row < graphModel->rowCount(); ++row) {
+    int lanes = graphModel->index(row, 0).data(GraphRole).toList().size();
+    minimum = qMax(minimum, lanes * laneWidth);
+  }
+
+  mGraphMinimumWidth = minimum;
+  if (!mHeader || mHeader->isSectionHidden(GraphColumn))
+    return;
+
+  int current = mHeader->sectionSize(GraphColumn);
+  int target = qMax(mGraphPreferredWidth, minimum);
+  if (current == target)
+    return;
+
+  mUpdatingHeader = true;
+  mHeader->resizeSection(GraphColumn, target);
+  mUpdatingHeader = false;
+  resizeHeaderToFit(GraphColumn);
+  doItemsLayout();
+  viewport()->update();
+}
+
+void CommitList::resizeHeaderToFit(int protectedColumn) {
+  if (!mHeader || mHeader->width() <= 0)
+    return;
+
+  auto updateScrollPolicy = [this] {
+    setHorizontalScrollBarPolicy(mHeader->length() > mHeader->width()
+                                     ? Qt::ScrollBarAsNeeded
+                                     : Qt::ScrollBarAlwaysOff);
+  };
+
+  bool updating = mUpdatingHeader;
+  mUpdatingHeader = true;
+  for (int column = 0; column < ColumnCount; ++column) {
+    if (!mHeader->isSectionHidden(column) &&
+        mHeader->sectionSize(column) < minimumColumnWidth(column)) {
+      mHeader->resizeSection(column, minimumColumnWidth(column));
+    }
+  }
+
+  int delta = mHeader->width() - mHeader->length();
+  if (delta == 0) {
+    updateScrollPolicy();
+    mUpdatingHeader = updating;
+    return;
+  }
+
+  QList<int> columns;
+  if (SummaryColumn != protectedColumn &&
+      !mHeader->isSectionHidden(SummaryColumn))
+    columns.append(SummaryColumn);
+  for (int column = 0; column < ColumnCount; ++column) {
+    if (column != protectedColumn && column != SummaryColumn &&
+        !mHeader->isSectionHidden(column))
+      columns.append(column);
+  }
+  if (protectedColumn >= 0 && !mHeader->isSectionHidden(protectedColumn))
+    columns.append(protectedColumn);
+  if (columns.isEmpty()) {
+    updateScrollPolicy();
+    mUpdatingHeader = updating;
+    return;
+  }
+
+  if (delta > 0) {
+    int column = columns.constFirst();
+    mHeader->resizeSection(column, mHeader->sectionSize(column) + delta);
+  } else {
+    int remaining = -delta;
+    for (int column : columns) {
+      int available =
+          mHeader->sectionSize(column) - minimumColumnWidth(column);
+      int shrink = qMin(remaining, qMax(0, available));
+      if (shrink > 0)
+        mHeader->resizeSection(column, mHeader->sectionSize(column) - shrink);
+      remaining -= shrink;
+      if (remaining == 0)
+        break;
+    }
+  }
+  updateScrollPolicy();
+  mUpdatingHeader = updating;
+}
+
+void CommitList::updateHeader(bool saveState) {
+  if (!mHeader)
+    return;
+  bool updating = mUpdatingHeader;
+  mUpdatingHeader = true;
+  bool compact = Settings::instance()
+                     ->value(Setting::Id::ShowCommitsInCompactMode)
+                     .toBool();
+  setViewportMargins(0, compact ? kCommitHeaderHeight : 0, 0, 0);
+  mHeader->setVisible(compact);
+  mHeaderOptions->setVisible(compact);
+  if (compact) {
+    mHeader->setSectionHidden(
+        AuthorColumn,
+        !Settings::instance()->value(Setting::Id::ShowCommitsAuthor, true).toBool());
+    mHeader->setSectionHidden(
+        DateColumn,
+        !Settings::instance()->value(Setting::Id::ShowCommitsDate, true).toBool());
+    mHeader->setSectionHidden(
+        IdColumn,
+        !Settings::instance()->value(Setting::Id::ShowCommitsId, true).toBool());
+  }
+  resizeEvent(nullptr);
+  resizeHeaderToFit();
+  mUpdatingHeader = updating;
+  if (saveState)
+    saveHeaderState();
+  doItemsLayout();
+  viewport()->update();
 }
 
 git::Diff CommitList::status() const {
@@ -1565,6 +1977,7 @@ bool CommitList::isResetWalkerSuppressed() {
 }
 
 void CommitList::resetSettings() {
+  updateHeader();
   static_cast<CommitModel *>(mModel)->resetSettings(true);
 }
 
@@ -1578,6 +1991,7 @@ void CommitList::setModel(QAbstractItemModel *model) {
   delete selectionModel();
 
   QListView::setModel(model);
+  updateGraphColumnWidth();
 
   // Destroy the selection model created by Qt.
   delete selectionModel();
@@ -1885,6 +2299,63 @@ void CommitList::mouseReleaseEvent(QMouseEvent *event) {
 void CommitList::leaveEvent(QEvent *event) {
   viewport()->update();
   QListView::leaveEvent(event);
+}
+
+void CommitList::resizeEvent(QResizeEvent *event) {
+  if (event)
+    QListView::resizeEvent(event);
+  if (!mHeader)
+    return;
+
+  int frame = frameWidth();
+  int available = qMax(1, viewport()->width() - kCommitHeaderInset -
+                               kCommitHeaderOptionsWidth);
+  int headerX = frame + kCommitHeaderInset;
+  mHeader->setGeometry(headerX, frame, available, kCommitHeaderHeight);
+  mHeader->setOffset(horizontalScrollBar()->value());
+  mHeaderOptions->setGeometry(headerX + available, frame,
+                              kCommitHeaderOptionsWidth,
+                              kCommitHeaderHeight);
+
+  if (!mUpdatingHeader) {
+    resizeHeaderToFit();
+  }
+}
+
+void CommitList::showEvent(QShowEvent *event) {
+  QListView::showEvent(event);
+  if (!mResetHeaderOnShow)
+    return;
+
+  mResetHeaderOnShow = false;
+  QTimer::singleShot(100, this, [this] {
+    mHeaderStateReady = true;
+    if (mPendingHeaderState.isEmpty()) {
+      resetHeader();
+      return;
+    }
+
+    mUpdatingHeader = true;
+    mHeader->restoreState(mPendingHeaderState);
+    mUpdatingHeader = false;
+    mPendingHeaderState.clear();
+    mGraphPreferredWidth = mHeader->sectionSize(GraphColumn);
+    updateHeader(false);
+  });
+}
+
+bool CommitList::eventFilter(QObject *watched, QEvent *event) {
+  if (watched == mHeader) {
+    if (event->type() == QEvent::MouseButtonPress) {
+      mHeaderInteraction = true;
+    } else if (event->type() == QEvent::MouseButtonRelease) {
+      mHeaderInteraction = false;
+      saveHeaderState();
+    }
+  }
+  if (watched == viewport() && event->type() == QEvent::Resize && mHeader)
+    resizeEvent(nullptr);
+  return QListView::eventFilter(watched, event);
 }
 
 void CommitList::storeSelection() {

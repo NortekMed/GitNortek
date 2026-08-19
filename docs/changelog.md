@@ -13,6 +13,7 @@ Bug Fix and Feature release
 * Add repository navigator context actions for branches and submodules, including permanent submodule removal
 * Show colored Pin summaries on the left and aligned P and O delta columns for submodules in the repository navigator
 * Mark the checked-out local branch with a green checkbox and color ahead and behind indicators
+* Align Compact Mode into configurable columns with denser text, content-aware widths, and graph lines connected to distinct node edges
 * Display stashes as square nodes with dotted topology and stash actions in the combined commit graph
 * Display GitHub or Gravatar author avatars inside larger commit graph nodes and commit details when avatars are enabled
 

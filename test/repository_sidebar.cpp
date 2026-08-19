@@ -27,14 +27,19 @@
 #include <QAbstractItemModelTester>
 #include <QContextMenuEvent>
 #include <QFile>
+#include <QFontMetrics>
+#include <QHeaderView>
 #include <QMenu>
 #include <QMessageBox>
 #include <QProcess>
 #include <QPushButton>
+#include <QScopeGuard>
+#include <QScrollBar>
 #include <QSet>
 #include <QSettings>
 #include <QSignalSpy>
 #include <QSplitter>
+#include <QStandardItemModel>
 #include <QTemporaryDir>
 #include <QTimer>
 #include <QToolButton>
@@ -459,6 +464,20 @@ void TestRepositorySideBar::activeRepositoryBinding() {
 }
 
 void TestRepositorySideBar::stashInteraction() {
+  const QString headerStateKey = "commit/columns/headerStateV10";
+  QSettings columnSettings;
+  bool hadHeaderState = columnSettings.contains(headerStateKey);
+  QByteArray headerState = columnSettings.value(headerStateKey).toByteArray();
+  auto restoreHeaderState = qScopeGuard([hadHeaderState, headerStateKey,
+                                         headerState] {
+    QSettings settings;
+    if (hadHeaderState)
+      settings.setValue(headerStateKey, headerState);
+    else
+      settings.remove(headerStateKey);
+  });
+  columnSettings.remove(headerStateKey);
+
   Test::ScratchRepository repo;
   QFile file(repo->workdir().filePath("stash.txt"));
   QVERIFY(file.open(QIODevice::WriteOnly));
@@ -492,15 +511,127 @@ void TestRepositorySideBar::stashInteraction() {
   config.setValue(ConfigKeys::kStatusKey, false);
 
   MainWindow window(repo);
+  CommitList *commitList = window.currentView()->findChild<CommitList *>();
+  QVERIFY(commitList);
+  commitList->setMinimumWidth(900);
+  window.resize(1600, 900);
   window.show();
   QVERIFY(qWaitForWindowExposed(&window));
   RepositoryNavigator *navigator =
       window.findChild<RepositoryNavigator *>("RepositoryNavigator");
   QVERIFY(navigator);
 
-  CommitList *commitList = window.currentView()->findChild<CommitList *>();
-  QVERIFY(commitList);
   QAbstractItemModel *graphModel = commitList->model();
+
+  bool compact = Settings::instance()
+                     ->value(Setting::Id::ShowCommitsInCompactMode)
+                     .toBool();
+  auto restoreCompactMode = qScopeGuard([compact] {
+    Settings::instance()->setValue(Setting::Id::ShowCommitsInCompactMode,
+                                   compact);
+  });
+  Settings::instance()->setValue(Setting::Id::ShowCommitsInCompactMode, true);
+  commitList->resetSettings();
+  QCoreApplication::processEvents();
+  QCOMPARE(commitList->sizeHintForRow(0), 28);
+
+  QHeaderView *header = commitList->findChild<QHeaderView *>();
+  QVERIFY(header);
+  QVERIFY(header->isVisible());
+  QVERIFY(header->sectionsMovable());
+  QCOMPARE(header->count(), 6);
+  QCOMPARE(header->length(), header->width());
+  QTRY_COMPARE(header->sectionSize(0),
+               qBound(55, header->width() * 19 / 100, 360));
+  QFont compactFont = commitList->font();
+  if (compactFont.pointSizeF() > 1.0)
+    compactFont.setPointSizeF(compactFont.pointSizeF() - 1.0);
+  else if (compactFont.pixelSize() > 1)
+    compactFont.setPixelSize(compactFont.pixelSize() - 1);
+  QCOMPARE(header->font().pointSizeF(), compactFont.pointSizeF());
+  QCOMPARE(header->font().pixelSize(), compactFont.pixelSize());
+
+  QFontMetrics compactMetrics(compactFont, commitList);
+  const QString shaCharacters = "0123456789abcdef";
+  int maxCharacter = 0;
+  int maxPairAdjustment = 0;
+  for (QChar first : shaCharacters) {
+    int firstWidth = compactMetrics.horizontalAdvance(first);
+    maxCharacter = qMax(maxCharacter, firstWidth);
+    for (QChar second : shaCharacters) {
+      int pairWidth =
+          compactMetrics.horizontalAdvance(QString(first) + second);
+      int secondWidth = compactMetrics.horizontalAdvance(second);
+      maxPairAdjustment = qMax(
+          maxPairAdjustment, pairWidth - firstWidth - secondWidth);
+    }
+  }
+  int shaMinimum = 7 * maxCharacter + 6 * maxPairAdjustment + 16;
+  QCOMPARE(header->sectionSize(5), shaMinimum);
+  header->resizeSection(5, shaMinimum - 10);
+  QCOMPARE(header->sectionSize(5), shaMinimum);
+  QCOMPARE(header->length(), header->width());
+
+  int referencesWidth = header->sectionSize(0);
+  int summaryWidth = header->sectionSize(2);
+  header->resizeSection(0, referencesWidth + 20);
+  QCOMPARE(header->sectionSize(0), referencesWidth + 20);
+  QCOMPARE(header->sectionSize(2), summaryWidth - 20);
+  QCOMPARE(header->length(), header->width());
+
+  QToolButton *columnOptions = nullptr;
+  for (QToolButton *button :
+       commitList->findChildren<QToolButton *>(QString(),
+                                                Qt::FindDirectChildrenOnly)) {
+    if (button->menu()) {
+      columnOptions = button;
+      break;
+    }
+  }
+  QVERIFY(columnOptions);
+  QAction *referencesAction = columnOptions->menu()->actions().constFirst();
+  referencesAction->setChecked(true);
+  referencesAction->trigger();
+  QVERIFY(header->isSectionHidden(0));
+  referencesAction->trigger();
+  QVERIFY(!header->isSectionHidden(0));
+
+  while (graphModel->canFetchMore(QModelIndex()))
+    graphModel->fetchMore(QModelIndex());
+  int laneWidth = qMax(compactMetrics.ascent(), 20);
+  int graphMinimum = 50;
+  for (int row = 0; row < graphModel->rowCount(); ++row) {
+    int lanes = graphModel->index(row, 0)
+                    .data(CommitList::GraphRole)
+                    .toList()
+                    .size();
+    graphMinimum = qMax(graphMinimum, lanes * laneWidth);
+  }
+  QVERIFY(header->sectionSize(1) >= graphMinimum);
+  header->resizeSection(1, graphMinimum - 10);
+  QCOMPARE(header->sectionSize(1), graphMinimum);
+
+  QStandardItemModel wideGraph(1, 1);
+  QVariantList wideColumns;
+  for (int lane = 0; lane < 60; ++lane)
+    wideColumns.append(QVariant(QVariantList()));
+  QModelIndex wideIndex = wideGraph.index(0, 0);
+  wideGraph.setData(wideIndex, wideColumns, CommitList::GraphRole);
+  wideGraph.setData(wideIndex, wideColumns, CommitList::GraphColorRole);
+  wideGraph.setData(wideIndex, wideColumns, CommitList::GraphStyleRole);
+  commitList->setModel(&wideGraph);
+  QCoreApplication::processEvents();
+  QVERIFY(commitList->horizontalScrollBar()->maximum() > 0);
+  commitList->horizontalScrollBar()->setValue(
+      commitList->horizontalScrollBar()->maximum());
+  QCOMPARE(header->offset(), commitList->horizontalScrollBar()->value());
+  commitList->setModel(graphModel);
+  QCoreApplication::processEvents();
+  QCOMPARE(commitList->horizontalScrollBar()->maximum(), 0);
+
+  Settings::instance()->setValue(Setting::Id::ShowCommitsInCompactMode, compact);
+  commitList->resetSettings();
+
   auto graphStashes = [graphModel] {
     while (graphModel->canFetchMore(QModelIndex()))
       graphModel->fetchMore(QModelIndex());
