@@ -26,22 +26,64 @@ QString sectionKey(const QModelIndex &index) {
   return QString::fromLatin1(meta.valueToKey(section));
 }
 
-QString comparisonBadge(const QString &label, const QVariant &ahead,
-                        const QVariant &behind) {
+QString comparisonDelta(const QVariant &ahead, const QVariant &behind) {
   if (!ahead.isValid() || !behind.isValid())
-    return label + " ?";
+    return QString();
 
   int aheadCount = ahead.toInt();
   int behindCount = behind.toInt();
-  if (!aheadCount && !behindCount)
-    return label + QString::fromUtf8(" ✓");
-
-  QString badge = label + " ";
+  QString badge;
   if (aheadCount)
     badge += QObject::tr("%1↑").arg(aheadCount);
-  if (behindCount)
+  if (behindCount) {
+    if (!badge.isEmpty())
+      badge += " ";
     badge += QObject::tr("%1↓").arg(behindCount);
+  }
   return badge;
+}
+
+struct SubmoduleVisual {
+  QString indicator;
+  QColor color;
+  QString trailing;
+};
+
+SubmoduleVisual submoduleVisual(const QModelIndex &index,
+                                const QPalette &palette) {
+  const QColor green("#36c96b");
+  const QColor amber("#f0a020");
+  const QColor red("#e25555");
+  const QColor gray = palette.color(QPalette::Disabled, QPalette::Text);
+
+  if (!index.data(RepositoryNavigatorModel::InitializedRole).toBool())
+    return {QString::fromUtf8("○"), gray, QString()};
+
+  QVariant pinnedAhead = index.data(RepositoryNavigatorModel::PinnedAheadRole);
+  QVariant pinnedBehind =
+      index.data(RepositoryNavigatorModel::PinnedBehindRole);
+  if (!pinnedAhead.isValid() || !pinnedBehind.isValid())
+    return {"?", gray, QString()};
+
+  QString pinDelta = comparisonDelta(pinnedAhead, pinnedBehind);
+  if (!pinDelta.isEmpty())
+    return {QString::fromUtf8("↕"), amber, pinDelta};
+
+  auto originState = index.data(RepositoryNavigatorModel::OriginStateRole)
+                         .value<RepositoryNavigatorModel::OriginState>();
+  if (originState == RepositoryNavigatorModel::OriginState::Pending)
+    return {QString::fromUtf8("…"), gray, QString()};
+  if (originState == RepositoryNavigatorModel::OriginState::Failed)
+    return {"!", red, QString()};
+  if (originState == RepositoryNavigatorModel::OriginState::Ready) {
+    QString originDelta =
+        comparisonDelta(index.data(RepositoryNavigatorModel::OriginAheadRole),
+                        index.data(RepositoryNavigatorModel::OriginBehindRole));
+    if (!originDelta.isEmpty())
+      return {QString::fromUtf8("↻"), amber, originDelta};
+  }
+
+  return {QString::fromUtf8("✓"), green, QString()};
 }
 
 class NavigatorDelegate : public QStyledItemDelegate {
@@ -80,6 +122,26 @@ public:
     painter->setFont(font);
     painter->setPen(text);
 
+    bool submodule =
+        !section &&
+        static_cast<RepositoryNavigatorModel::ItemKind>(
+            index.data(RepositoryNavigatorModel::ItemKindRole).toInt()) ==
+            RepositoryNavigatorModel::ItemKind::Submodule;
+    SubmoduleVisual visual;
+    if (submodule) {
+      visual = submoduleVisual(index, palette);
+      QRect indicatorRect = content;
+      indicatorRect.setWidth(14);
+      QFont indicatorFont = font;
+      indicatorFont.setBold(true);
+      painter->setFont(indicatorFont);
+      painter->setPen(visual.color);
+      painter->drawText(indicatorRect, Qt::AlignCenter, visual.indicator);
+      content.adjust(18, 0, 0, 0);
+      painter->setFont(font);
+      painter->setPen(text);
+    }
+
     QString prefix;
     if (!section &&
         index.data(RepositoryNavigatorModel::CurrentRole).toBool())
@@ -94,24 +156,7 @@ public:
       auto kind = static_cast<RepositoryNavigatorModel::ItemKind>(
           index.data(RepositoryNavigatorModel::ItemKindRole).toInt());
       if (kind == RepositoryNavigatorModel::ItemKind::Submodule) {
-        trailing = comparisonBadge(
-            RepositoryNavigator::tr("Pin"),
-            index.data(RepositoryNavigatorModel::PinnedAheadRole),
-            index.data(RepositoryNavigatorModel::PinnedBehindRole));
-        auto state = index.data(RepositoryNavigatorModel::OriginStateRole)
-                         .value<RepositoryNavigatorModel::OriginState>();
-        QString origin;
-        if (state == RepositoryNavigatorModel::OriginState::Pending)
-          origin = RepositoryNavigator::tr("Origin …");
-        else if (state == RepositoryNavigatorModel::OriginState::Failed)
-          origin = RepositoryNavigator::tr("Origin !");
-        else if (state == RepositoryNavigatorModel::OriginState::Ready)
-          origin = comparisonBadge(
-              RepositoryNavigator::tr("Origin"),
-              index.data(RepositoryNavigatorModel::OriginAheadRole),
-              index.data(RepositoryNavigatorModel::OriginBehindRole));
-        if (!origin.isEmpty())
-          trailing += " " + origin;
+        trailing = visual.trailing;
       } else {
         QVariant ahead = index.data(RepositoryNavigatorModel::AheadRole);
         QVariant behind = index.data(RepositoryNavigatorModel::BehindRole);
@@ -132,8 +177,11 @@ public:
     painter->drawText(textRect, Qt::AlignVCenter | Qt::AlignLeft,
                       painter->fontMetrics().elidedText(
                           label, Qt::ElideRight, textRect.width()));
-    if (!trailing.isEmpty())
+    if (!trailing.isEmpty()) {
+      if (submodule)
+        painter->setPen(visual.color);
       painter->drawText(content, Qt::AlignVCenter | Qt::AlignRight, trailing);
+    }
 
     if (section) {
       painter->setPen(palette.mid().color());
