@@ -9,6 +9,7 @@
 #include "conf/Setting.h"
 #include "conf/Settings.h"
 #include "git/Reference.h"
+#include "git/Signature.h"
 #include "ui/CommitAvatarProvider.h"
 #include <QBuffer>
 #include <QImage>
@@ -39,6 +40,7 @@ class TestCommitAvatarProvider : public QObject {
 private slots:
   void batchingAndCache();
   void disabledAndUnavailable();
+  void gravatarFallback();
   void missingAvatar();
 };
 
@@ -66,7 +68,7 @@ void TestCommitAvatarProvider::batchingAndCache() {
         CommitAvatarProvider::AvatarMap avatars;
         for (const QString &oid : oids)
           avatars.insert(oid, imageUrl());
-        done(avatars);
+        done(true, avatars);
       });
   Settings::instance()->setValue(Setting::Id::ShowAvatars, true);
 
@@ -108,8 +110,40 @@ void TestCommitAvatarProvider::disabledAndUnavailable() {
   qWait(30);
   QCOMPARE(calls, 0);
 
-  CommitAvatarProvider unavailable(repo);
+  CommitAvatarProvider unavailable(repo, CommitAvatarProvider::Lookup(),
+                                   CommitAvatarProvider::Fallback());
   QVERIFY(!unavailable.isAvailable());
+}
+
+void TestCommitAvatarProvider::gravatarFallback() {
+  Test::ScratchRepository repo;
+  QProcess git;
+  git.setWorkingDirectory(repo->workdir().path());
+  git.start(GIT_EXECUTABLE, {"commit", "--allow-empty", "-m", "fallback"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git::Commit commit = repo->head().target();
+
+  int lookups = 0;
+  QString email;
+  CommitAvatarProvider provider(
+      repo,
+      [&lookups](const QStringList &, int,
+                 const CommitAvatarProvider::LookupCallback &done) {
+        ++lookups;
+        done(false, {});
+      },
+      [&email](const QString &authorEmail, int) {
+        email = authorEmail;
+        return imageUrl();
+      });
+  Settings::instance()->setValue(Setting::Id::ShowAvatars, true);
+  QSignalSpy ready(&provider, &CommitAvatarProvider::avatarReady);
+  QVERIFY(provider.avatar(commit, 16, 1.0).isNull());
+  QTRY_COMPARE(ready.count(), 1);
+  QCOMPARE(lookups, 1);
+  QCOMPARE(email, commit.author().email());
+  QVERIFY(!provider.avatar(commit, 16, 1.0).isNull());
 }
 
 void TestCommitAvatarProvider::missingAvatar() {
@@ -126,7 +160,7 @@ void TestCommitAvatarProvider::missingAvatar() {
       repo, [&calls](const QStringList &, int,
                      const CommitAvatarProvider::LookupCallback &done) {
         ++calls;
-        done({});
+        done(true, {});
       });
   Settings::instance()->setValue(Setting::Id::ShowAvatars, true);
   QSignalSpy ready(&provider, &CommitAvatarProvider::avatarReady);

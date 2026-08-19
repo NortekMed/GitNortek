@@ -7337,7 +7337,7 @@ x (number) determines the number of maximum files shown</source>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="596"/>
-        <source>Download commit-author avatars from matching configured GitHub accounts. Images are cached in memory for this session only.</source>
+        <source>Download commit-author avatars from GitHub when an account is configured, with Gravatar as a fallback. Images are cached in memory for this session only.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

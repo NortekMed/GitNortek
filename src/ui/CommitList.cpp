@@ -44,6 +44,8 @@
 
 namespace {
 
+constexpr int kGraphNodeSize = 16;
+
 // FIXME: Factor out into theme?
 const QColor kTaintedColor = Qt::gray;
 
@@ -308,10 +310,9 @@ public:
         Parent parent = mParents.takeAt(index);
         if (!replacements.isEmpty()) {
           git::Commit replacement = replacements.takeFirst();
-          Qt::PenStyle style =
-              isStash(commit) ? parent.style : Qt::SolidLine;
-          mParents.insert(index, Parent(replacement, parent.color,
-                                        parent.tainted, style));
+          Qt::PenStyle style = isStash(commit) ? parent.style : Qt::SolidLine;
+          mParents.insert(index,
+                          Parent(replacement, parent.color, false, style));
           foreach (const git::Commit &replacement, replacements)
             mParents.append(Parent(replacement, nextColor()));
         }
@@ -765,13 +766,12 @@ public:
     bool stashNode = index.data(CommitList::Role::GraphNodeRole)
                          .value<CommitList::GraphNode>() ==
                      CommitList::GraphNode::Stash;
-    bool avatarNodes =
+    bool avatarsEnabled =
         Settings::instance()->value(Setting::Id::ShowAvatars).toBool() &&
         mAvatars && mAvatars->isAvailable();
-    const int avatarSize = 16;
     QPixmap avatar;
-    if (avatarNodes && commit.isValid() && !stashNode)
-      avatar = mAvatars->avatar(commit, avatarSize,
+    if (avatarsEnabled && commit.isValid() && !stashNode)
+      avatar = mAvatars->avatar(commit, kGraphNodeSize,
                                 opt.widget ? opt.widget->devicePixelRatioF()
                                            : qApp->devicePixelRatio());
 
@@ -785,14 +785,14 @@ public:
     for (int i = 0; i < columns.size(); ++i) {
       int x = rect.x();
       int y = rect.y();
-      int w = avatarNodes ? qMax(opt.fontMetrics.ascent(), avatarSize + 4)
-                          : opt.fontMetrics.ascent();
+      int w = qMax(opt.fontMetrics.ascent(), kGraphNodeSize + 4);
       int h = opt.rect.height();
       int h_2 = h / 2;
       int h_4 = h / 4;
 
       // radius
-      int r = avatarNodes ? avatarSize / 2 : w / 3;
+      int r =
+          commit.isValid() ? kGraphNodeSize / 2 : opt.fontMetrics.ascent() / 3;
 
       // xs
       int x1 = x + (w / 2);

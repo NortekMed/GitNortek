@@ -10,15 +10,18 @@
 #include "conf/Settings.h"
 #include "git/Commit.h"
 #include "git/Remote.h"
+#include "git/Signature.h"
 #include "host/Accounts.h"
 #include "host/GitHub.h"
 #include "host/Repository.h"
 #include <QBuffer>
+#include <QCryptographicHash>
 #include <QImageReader>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QPainter>
 #include <QPainterPath>
+#include <QRegularExpression>
 #include <QVariant>
 #include <QtMath>
 #include <climits>
@@ -30,6 +33,21 @@ const int kMaximumResponseSize = 2 * 1024 * 1024;
 const int kMaximumDecodedSize = 2048;
 const int kBatchSize = 24;
 const int kMaximumDownloads = 6;
+const int kMissingRetryMinutes = 5;
+
+bool githubRepository(const QString &url, QString &owner, QString &name) {
+  static const QRegularExpression expression(
+      R"((?:^|[@/:])github\.com[:/]([^/]+)/([^/#]+?)(?:\.git)?/?$)",
+      QRegularExpression::CaseInsensitiveOption);
+  QRegularExpressionMatch match = expression.match(url.trimmed());
+  if (!match.hasMatch())
+    return false;
+  owner = match.captured(1);
+  name = match.captured(2);
+  if (name.endsWith(".git", Qt::CaseInsensitive))
+    name.chop(4);
+  return !owner.isEmpty() && !name.isEmpty();
+}
 
 } // namespace
 
@@ -37,32 +55,32 @@ CommitAvatarProvider::CommitAvatarProvider(const git::Repository &repo,
                                            QObject *parent)
     : QObject(parent), mRepo(repo), mImages(32 * 1024 * 1024),
       mPixmaps(16 * 1024 * 1024) {
-  git::Remote remote = mRepo.defaultRemote();
-  Repository *remoteRepo =
-      remote ? Accounts::instance()->lookup(remote.url()) : nullptr;
-  GitHub *github =
-      remoteRepo && remoteRepo->account()->kind() == Account::GitHub
-          ? qobject_cast<GitHub *>(remoteRepo->account())
-          : nullptr;
-  if (github) {
-    QPointer<GitHub> account(github);
-    QPointer<Repository> repository(remoteRepo);
-    mLookup = [account, repository](const QStringList &oids, int size,
-                                    const LookupCallback &callback) {
-      if (account && repository)
-        account->requestCommitAvatars(repository, oids, size, callback);
-      else
-        callback({});
-    };
-  }
+  mFallback = [](const QString &email, int size) {
+    QByteArray normalized = email.trimmed().toLower().toUtf8();
+    if (normalized.isEmpty())
+      return QUrl();
+    QByteArray hash =
+        QCryptographicHash::hash(normalized, QCryptographicHash::Md5).toHex();
+    return QUrl(QString("https://www.gravatar.com/avatar/%1?s=%2&d=404")
+                    .arg(QString::fromLatin1(hash))
+                    .arg(size));
+  };
+  resolveGitHub();
   initialize();
+
+  Accounts *accounts = Accounts::instance();
+  connect(accounts, &Accounts::accountAdded, this,
+          &CommitAvatarProvider::resolveGitHub);
+  connect(accounts, &Accounts::repositoryAdded, this,
+          [this](int) { resolveGitHub(); });
 }
 
 CommitAvatarProvider::CommitAvatarProvider(const git::Repository &repo,
                                            const Lookup &lookup,
+                                           const Fallback &fallback,
                                            QObject *parent)
-    : QObject(parent), mRepo(repo), mLookup(lookup), mImages(32 * 1024 * 1024),
-      mPixmaps(16 * 1024 * 1024) {
+    : QObject(parent), mRepo(repo), mLookup(lookup), mFallback(fallback),
+      mImages(32 * 1024 * 1024), mPixmaps(16 * 1024 * 1024) {
   initialize();
 }
 
@@ -71,12 +89,67 @@ void CommitAvatarProvider::initialize() {
   mBatchTimer.setInterval(20);
   connect(&mBatchTimer, &QTimer::timeout, this,
           &CommitAvatarProvider::requestBatch);
-  connect(Settings::instance(), &Settings::settingsChanged, this,
-          &CommitAvatarProvider::avatarsChanged);
+  connect(Settings::instance(), &Settings::settingsChanged, this, [this] {
+    mMissing.clear();
+    emit avatarsChanged();
+  });
 }
 
 bool CommitAvatarProvider::isAvailable() const {
-  return static_cast<bool>(mLookup);
+  return static_cast<bool>(mLookup) || static_cast<bool>(mFallback);
+}
+
+void CommitAvatarProvider::resolveGitHub() {
+  QString owner;
+  QString name;
+  QList<git::Remote> remotes;
+  if (git::Remote remote = mRepo.defaultRemote())
+    remotes.append(remote);
+  for (const git::Remote &remote : mRepo.remotes()) {
+    bool duplicate = false;
+    for (const git::Remote &candidate : remotes)
+      duplicate |= candidate.name() == remote.name();
+    if (!duplicate)
+      remotes.append(remote);
+  }
+  GitHub *github = nullptr;
+  Accounts *accounts = Accounts::instance();
+  for (const git::Remote &remote : remotes) {
+    Repository *repository = accounts->lookup(remote.url());
+    if (repository && repository->account()->kind() == Account::GitHub &&
+        githubRepository(remote.url(), owner, name)) {
+      github = qobject_cast<GitHub *>(repository->account());
+      break;
+    }
+  }
+  for (const git::Remote &remote : remotes) {
+    if (owner.isEmpty() && githubRepository(remote.url(), owner, name))
+      break;
+  }
+  if (owner.isEmpty())
+    return;
+  mHasGitHubRemote = true;
+
+  for (int i = 0; i < accounts->count(); ++i) {
+    Account *account = accounts->account(i);
+    if (!github && account->kind() == Account::GitHub) {
+      github = qobject_cast<GitHub *>(account);
+      break;
+    }
+  }
+  if (!github)
+    return;
+
+  QPointer<GitHub> account(github);
+  mLookup = [account, owner, name](const QStringList &oids, int size,
+                                   const LookupCallback &callback) {
+    if (account)
+      account->requestCommitAvatars(owner, name, oids, size, callback);
+    else
+      callback(false, {});
+  };
+  mMissing.clear();
+  emit avatarsChanged();
 }
 
 QPixmap CommitAvatarProvider::avatar(const git::Commit &commit, int logicalSize,
@@ -88,8 +161,14 @@ QPixmap CommitAvatarProvider::avatar(const git::Commit &commit, int logicalSize,
   }
 
   QString oid = commit.id().toString();
-  if (mMissing.contains(oid))
-    return QPixmap();
+  mEmails.insert(oid, commit.author().email());
+  mNames.insert(oid, commit.author().name());
+  auto missing = mMissing.constFind(oid);
+  if (missing != mMissing.cend()) {
+    if (*missing > QDateTime::currentDateTimeUtc())
+      return QPixmap();
+    mMissing.erase(missing);
+  }
 
   auto url = mAvatarUrls.constFind(oid);
   if (url != mAvatarUrls.cend()) {
@@ -126,17 +205,24 @@ void CommitAvatarProvider::requestBatch() {
   if (!mQueued.isEmpty())
     mBatchTimer.start();
 
+  if (!mLookup) {
+    for (const QString &oid : oids) {
+      mLookups.remove(oid);
+      resolveFallback(oid);
+    }
+    return;
+  }
+
   QPointer<CommitAvatarProvider> guard(this);
   mLookup(oids, kAvatarSourceSize,
-          [guard, oids](const QMap<QString, QUrl> &avatars) {
+          [guard, oids](bool, const QMap<QString, QUrl> &avatars) {
             if (!guard)
               return;
             for (const QString &oid : oids) {
               guard->mLookups.remove(oid);
               auto avatar = avatars.constFind(oid);
               if (avatar == avatars.cend()) {
-                guard->mMissing.insert(oid);
-                emit guard->avatarReady(oid);
+                guard->resolveFallback(oid);
                 continue;
               }
               guard->mAvatarUrls.insert(oid, *avatar);
@@ -145,9 +231,40 @@ void CommitAvatarProvider::requestBatch() {
           });
 }
 
+void CommitAvatarProvider::resolveFallback(const QString &oid) {
+  QUrl url =
+      mFallback ? mFallback(mEmails.value(oid), kAvatarSourceSize) : QUrl();
+  if (!url.isValid()) {
+    mMissing.insert(oid, QDateTime::currentDateTimeUtc().addSecs(
+                             kMissingRetryMinutes * 60));
+    emit avatarReady(oid);
+    return;
+  }
+  mAvatarUrls.insert(oid, url);
+  requestImage(oid, url);
+}
+
+void CommitAvatarProvider::resolveProfile(const QString &oid) {
+  static const QRegularExpression username("^[A-Za-z0-9-]{1,39}$");
+  QString name = mNames.value(oid).trimmed();
+  if (!mHasGitHubRemote || !username.match(name).hasMatch()) {
+    mMissing.insert(oid, QDateTime::currentDateTimeUtc().addSecs(
+                             kMissingRetryMinutes * 60));
+    emit avatarReady(oid);
+    return;
+  }
+
+  QUrl url(QString("https://github.com/%1.png?size=%2")
+               .arg(name)
+               .arg(kAvatarSourceSize));
+  mAvatarUrls.insert(oid, url);
+  requestImage(oid, url);
+}
+
 void CommitAvatarProvider::requestImage(const QString &oid, const QUrl &url) {
   if (url.scheme() != "https" && url.scheme() != "data") {
-    mMissing.insert(oid);
+    mMissing.insert(oid, QDateTime::currentDateTimeUtc().addSecs(
+                             kMissingRetryMinutes * 60));
     emit avatarReady(oid);
     return;
   }
@@ -205,8 +322,22 @@ void CommitAvatarProvider::startDownloads() {
       mDownloads.remove(key);
       --mActiveDownloads;
       for (const QString &oid : waiters) {
-        if (!success)
-          mMissing.insert(oid);
+        if (!success) {
+          QUrl failed = mAvatarUrls.value(oid);
+          if (failed.host().contains("gravatar.com")) {
+            mAvatarUrls.remove(oid);
+            resolveProfile(oid);
+            continue;
+          }
+          if (failed.host() == "github.com") {
+            mMissing.insert(oid, QDateTime::currentDateTimeUtc().addSecs(
+                                     kMissingRetryMinutes * 60));
+          } else {
+            mAvatarUrls.remove(oid);
+            resolveFallback(oid);
+            continue;
+          }
+        }
         emit avatarReady(oid);
       }
       reply->deleteLater();

@@ -568,6 +568,24 @@ void TestRepositorySideBar::stashInteraction() {
   QVERIFY(baseStyles.contains(Qt::DotLine));
   QVERIFY(baseStyles.contains(Qt::SolidLine));
 
+  bool passedHead = false;
+  git::Id head = repo->head().target().id();
+  for (int row = 0; row < graphModel->rowCount(); ++row) {
+    QModelIndex index = graphModel->index(row, 0);
+    git::Commit commit =
+        index.data(CommitList::CommitRole).value<git::Commit>();
+    if (passedHead) {
+      for (const QVariant &column :
+           index.data(CommitList::GraphColorRole).toList()) {
+        for (const QVariant &color : column.toList())
+          QVERIFY(color.value<QColor>() != QColor(Qt::gray));
+      }
+    }
+    if (commit.isValid() && commit.id() == head)
+      passedHead = true;
+  }
+  QVERIFY(passedHead);
+
   QCOMPARE(contextMenuItems(commitList, graphStashes().first()),
            QStringList({"Apply", "Pop", "Drop"}));
 

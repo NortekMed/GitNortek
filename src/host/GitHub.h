@@ -21,7 +21,7 @@ class GitHub : public Account {
 
 public:
   using AvatarCallback =
-      std::function<void(const QMap<QString, QUrl> &avatars)>;
+      std::function<void(bool success, const QMap<QString, QUrl> &avatars)>;
 
   GitHub(const QString &username);
 
@@ -37,8 +37,9 @@ public:
                                  bool canModify) override;
 
   void requestComments(Repository *repo, const QString &oid) override;
-  void requestCommitAvatars(Repository *repo, const QStringList &oids,
-                            int size, const AvatarCallback &callback);
+  void requestCommitAvatars(const QString &owner, const QString &name,
+                            const QStringList &oids, int size,
+                            const AvatarCallback &callback);
 
   void authorize() override;
   bool isAuthorizeSupported() override;
@@ -47,8 +48,10 @@ public:
 
 private:
   using Callback = std::function<void(const QJsonObject &)>;
+  using ResultCallback = std::function<void(bool, const QJsonObject &)>;
 
   void graphql(const QString &query, const Callback &callback);
+  void graphqlResult(const QString &query, const ResultCallback &callback);
 
   void rest(const QUrl &url, const QJsonDocument &doc = QJsonDocument(),
             const Callback &callback = Callback());

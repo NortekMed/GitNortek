@@ -13,7 +13,7 @@ Bug Fix and Feature release
 * Add repository navigator context actions for branches and submodules, including permanent submodule removal
 * Show compact pinned-commit and origin ahead/behind status for submodules in the repository navigator
 * Display stashes as square nodes with dotted topology and stash actions in the combined commit graph
-* Display GitHub author avatars inside commit graph nodes and commit details when avatars are enabled
+* Display GitHub or Gravatar author avatars inside larger commit graph nodes and commit details when avatars are enabled
 
 #### Changed
 
