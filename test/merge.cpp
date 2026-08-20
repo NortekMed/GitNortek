@@ -193,8 +193,9 @@ void TestMerge::resolve() {
   while (model->rowCount() < 1)
     qWait(300);
 
-  files->selectionModel()->select(files->model()->index(0, 0),
-                                  QItemSelectionModel::Select);
+  QModelIndex file = files->model()->index(0, 0);
+  files->selectionModel()->select(file, QItemSelectionModel::Select);
+  QVERIFY(QMetaObject::invokeMethod(files, "fileSelectionRequested"));
 
   QToolButton *theirs = diffView->findChild<QToolButton *>("ConflictTheirs");
   QVERIFY(theirs);

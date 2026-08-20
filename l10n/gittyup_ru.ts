@@ -1462,7 +1462,17 @@ These settings will not be saved permanently</source>
         <translation type="unfinished">Показать просмотрщик диффов</translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="201"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="103"/>
+        <source>Close Blame and Diff</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="104"/>
+        <source>Close</source>
+        <translation type="unfinished">Закрыть</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="214"/>
         <source>Show all files</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4134,12 +4144,12 @@ Would you like to fix the merge conflict and continue?</source>
 <context>
     <name>RepoView</name>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="212"/>
+        <location filename="../src/ui/RepoView.cpp" line="213"/>
         <source>Indexing...</source>
         <translation>Индексируется...</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="220"/>
+        <location filename="../src/ui/RepoView.cpp" line="221"/>
         <source>Search</source>
         <translation>Поиск</translation>
     </message>
@@ -4148,128 +4158,128 @@ Would you like to fix the merge conflict and continue?</source>
         <translation type="vanished">Процесс-работник индексатора упал. Если проблема постоянна, пожалуйста, свяжитесь с нами на через support@gitahead.com.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="226"/>
+        <location filename="../src/ui/RepoView.cpp" line="227"/>
         <source>Indexer Crashed</source>
         <translation>Индексатор упал</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="355"/>
+        <location filename="../src/ui/RepoView.cpp" line="369"/>
         <source>Stage Directory?</source>
         <translation>Добавить директорию?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="356"/>
+        <location filename="../src/ui/RepoView.cpp" line="370"/>
         <source>Are you sure you want to stage &apos;%1&apos;?</source>
         <translation>Вы уверенны, что хотите добавить &apos;%1&apos;?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="357"/>
+        <location filename="../src/ui/RepoView.cpp" line="371"/>
         <source>This will result in the addition of %1 files.</source>
         <translation>Это приведёт к добавлению %1 файлов.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="359"/>
+        <location filename="../src/ui/RepoView.cpp" line="373"/>
         <source>more than 100</source>
         <translation>больше 100</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="363"/>
+        <location filename="../src/ui/RepoView.cpp" line="377"/>
         <source>Stage Directory</source>
         <translation>Добавить директорию</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="366"/>
+        <location filename="../src/ui/RepoView.cpp" line="380"/>
         <source>Stop prompting to stage directories</source>
         <translation>Перестать подтверждать добавление директорий</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="382"/>
+        <location filename="../src/ui/RepoView.cpp" line="396"/>
         <source>Stage Large File?</source>
         <translation>Добавить большой файл?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="384"/>
+        <location filename="../src/ui/RepoView.cpp" line="398"/>
         <source>Are you sure you want to stage &apos;%1&apos; with a size of %2?</source>
         <translation>Вы уверены, что хотите добавить &apos;%1&apos; с размером %2?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="389"/>
+        <location filename="../src/ui/RepoView.cpp" line="403"/>
         <source>Stage</source>
         <translation>Добавить</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="393"/>
+        <location filename="../src/ui/RepoView.cpp" line="407"/>
         <source>Track with LFS</source>
         <translation>Отслеживать с помощью LFS</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="396"/>
+        <location filename="../src/ui/RepoView.cpp" line="410"/>
         <source>This repository has LFS enabled. Do you want to track the file with LFS instead?</source>
         <translation>В этом репозитории включено LFS. Желаете отслеживать файл через LFS?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="400"/>
+        <location filename="../src/ui/RepoView.cpp" line="414"/>
         <source>Stop prompting to stage large files</source>
         <translation>Перестать подтверждать добавление больших файлов</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="445"/>
+        <location filename="../src/ui/RepoView.cpp" line="459"/>
         <source>Esc</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="451"/>
+        <location filename="../src/ui/RepoView.cpp" line="465"/>
         <source>stage</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="456"/>
+        <location filename="../src/ui/RepoView.cpp" line="470"/>
         <source>Git LFS was not found on the PATH. &lt;a href=&apos;https://git-lfs.github.com&apos;&gt;Install Git LFS&lt;/a&gt; to use LFS integration.</source>
         <translation>Git LFS не найден в PATH. &lt;a href=&apos;https://git-lfs.github.com&apos;&gt;Установите Git LFS&lt;/a&gt; для использовани интеграции с LFS.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="504"/>
+        <location filename="../src/ui/RepoView.cpp" line="518"/>
         <source>untracked file</source>
         <translation>неотслеживаемый файл</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="505"/>
+        <location filename="../src/ui/RepoView.cpp" line="519"/>
         <source>untracked files</source>
         <translation>неотслеживаемые файлы</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="508"/>
+        <location filename="../src/ui/RepoView.cpp" line="522"/>
         <source>Remove Untracked Files</source>
         <translation>Удалить неотслеживаемые файлы</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="509"/>
+        <location filename="../src/ui/RepoView.cpp" line="523"/>
         <source>Remove %1 %2?</source>
         <translation>Удалить %1 %2?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="512"/>
+        <location filename="../src/ui/RepoView.cpp" line="526"/>
         <source>This action cannot be undone.</source>
         <translation>Это дествие не может быть отменено.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="515"/>
+        <location filename="../src/ui/RepoView.cpp" line="529"/>
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="758"/>
-        <location filename="../src/ui/RepoView.cpp" line="774"/>
+        <location filename="../src/ui/RepoView.cpp" line="799"/>
+        <location filename="../src/ui/RepoView.cpp" line="815"/>
         <source>Certificate Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="759"/>
+        <location filename="../src/ui/RepoView.cpp" line="800"/>
         <source>SSL verification disabled for this repository</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="761"/>
+        <location filename="../src/ui/RepoView.cpp" line="802"/>
         <source>[http]
   sslVerify = false
 
@@ -4277,12 +4287,12 @@ was added to %1/config</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="775"/>
+        <location filename="../src/ui/RepoView.cpp" line="816"/>
         <source>SSL verification disabled for all git repositories</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="777"/>
+        <location filename="../src/ui/RepoView.cpp" line="818"/>
         <source>[http]
   sslVerify = false
 
@@ -4290,303 +4300,303 @@ was added to %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="801"/>
+        <location filename="../src/ui/RepoView.cpp" line="842"/>
         <source>Pull Request</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="801"/>
+        <location filename="../src/ui/RepoView.cpp" line="842"/>
         <source>Create</source>
         <translation>Создать</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="802"/>
+        <location filename="../src/ui/RepoView.cpp" line="843"/>
         <source>create pull request</source>
         <translation>создать pull request</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="816"/>
-        <location filename="../src/ui/RepoView.cpp" line="826"/>
-        <location filename="../src/ui/RepoView.cpp" line="849"/>
+        <location filename="../src/ui/RepoView.cpp" line="857"/>
+        <location filename="../src/ui/RepoView.cpp" line="867"/>
+        <location filename="../src/ui/RepoView.cpp" line="890"/>
         <source>Git LFS</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="816"/>
+        <location filename="../src/ui/RepoView.cpp" line="857"/>
         <source>Initialize</source>
         <translation>Инициализировать</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="818"/>
+        <location filename="../src/ui/RepoView.cpp" line="859"/>
         <source>initialize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="822"/>
+        <location filename="../src/ui/RepoView.cpp" line="863"/>
         <source>Git LFS initialized.</source>
         <translation>Git LFS инициализирована.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="826"/>
+        <location filename="../src/ui/RepoView.cpp" line="867"/>
         <source>Deinitialize</source>
         <translation>Деинициализировать</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="828"/>
+        <location filename="../src/ui/RepoView.cpp" line="869"/>
         <source>deinitialize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="832"/>
+        <location filename="../src/ui/RepoView.cpp" line="873"/>
         <source>Git LFS Deinitialized.</source>
         <translation>Git LFS деинициализирован.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="837"/>
+        <location filename="../src/ui/RepoView.cpp" line="878"/>
         <source>Lock</source>
         <translation>Заблокировать</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="837"/>
+        <location filename="../src/ui/RepoView.cpp" line="878"/>
         <source>Unlock</source>
         <translation>Разблокировать</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="842"/>
-        <location filename="../src/ui/RepoView.cpp" line="965"/>
+        <location filename="../src/ui/RepoView.cpp" line="883"/>
+        <location filename="../src/ui/RepoView.cpp" line="1006"/>
         <source>Unable to %1 &apos;%2&apos; - %3</source>
         <translation>Не смог %1 &apos;%2&apos; - %3</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="964"/>
+        <location filename="../src/ui/RepoView.cpp" line="1005"/>
         <source>Unable to %1 - %2</source>
         <translation>Не смог %1 - %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1009"/>
+        <location filename="../src/ui/RepoView.cpp" line="1050"/>
         <source>%1 remotes</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1010"/>
+        <location filename="../src/ui/RepoView.cpp" line="1051"/>
         <source>Fetch All</source>
         <translation>Забрать всё</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1038"/>
+        <location filename="../src/ui/RepoView.cpp" line="1079"/>
         <source>Fetch</source>
         <translation>Забрать</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1040"/>
-        <location filename="../src/ui/RepoView.cpp" line="1136"/>
-        <location filename="../src/ui/RepoView.cpp" line="1724"/>
+        <location filename="../src/ui/RepoView.cpp" line="1081"/>
+        <location filename="../src/ui/RepoView.cpp" line="1177"/>
+        <location filename="../src/ui/RepoView.cpp" line="1765"/>
         <source>&lt;i&gt;no remote&lt;/i&gt;</source>
         <translation>&lt;i&gt;нет remote&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1047"/>
+        <location filename="../src/ui/RepoView.cpp" line="1088"/>
         <source>Unable to fetch. No upstream is configured for the current branch, and there isn&apos;t a remote called &apos;origin&apos;.</source>
         <translation>Не могу забрать. Upstream не сконфигурирован для текущей ветки, и remote &apos;origin&apos; не существует.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1061"/>
-        <location filename="../src/ui/RepoView.cpp" line="2630"/>
+        <location filename="../src/ui/RepoView.cpp" line="1102"/>
+        <location filename="../src/ui/RepoView.cpp" line="2671"/>
         <source>Fetch canceled.</source>
         <translation>Забор отменён.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1063"/>
+        <location filename="../src/ui/RepoView.cpp" line="1104"/>
         <source>fetch from</source>
         <translation>забрать из</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1070"/>
+        <location filename="../src/ui/RepoView.cpp" line="1111"/>
         <source>You may disable ssl verification &lt;a href=&apos;action:sslverifyrepo&apos;&gt;for this repository&lt;/a&gt; or overall disable ssl verification &lt;a href=&apos;action:sslverifygit&apos;&gt;for all repositories&lt;/a&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1080"/>
-        <location filename="../src/ui/RepoView.cpp" line="1792"/>
-        <location filename="../src/ui/RepoView.cpp" line="1842"/>
+        <location filename="../src/ui/RepoView.cpp" line="1121"/>
+        <location filename="../src/ui/RepoView.cpp" line="1833"/>
+        <location filename="../src/ui/RepoView.cpp" line="1883"/>
         <source>Everything up-to-date.</source>
         <translation>Всё - новейшее.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1135"/>
-        <location filename="../src/ui/RepoView.cpp" line="1240"/>
-        <location filename="../src/ui/RepoView.cpp" line="2343"/>
+        <location filename="../src/ui/RepoView.cpp" line="1176"/>
+        <location filename="../src/ui/RepoView.cpp" line="1281"/>
+        <location filename="../src/ui/RepoView.cpp" line="2384"/>
         <source>&lt;i&gt;no branch&lt;/i&gt;</source>
         <translation>&lt;i&gt;нет ветки&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1137"/>
+        <location filename="../src/ui/RepoView.cpp" line="1178"/>
         <source>%1 from %2</source>
         <translation>%1 из %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1138"/>
+        <location filename="../src/ui/RepoView.cpp" line="1179"/>
         <source>Pull</source>
         <translation>Утянуть</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1207"/>
+        <location filename="../src/ui/RepoView.cpp" line="1248"/>
         <source>&lt;i&gt;no upstream&lt;/i&gt;</source>
         <translation>&lt;i&gt;нет upstream&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1230"/>
+        <location filename="../src/ui/RepoView.cpp" line="1271"/>
         <source>Merge</source>
         <translation>Слить</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1231"/>
+        <location filename="../src/ui/RepoView.cpp" line="1272"/>
         <source>%1 into %2</source>
         <translation>%1 в %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1233"/>
+        <location filename="../src/ui/RepoView.cpp" line="1274"/>
         <source>Fast-forward</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1234"/>
+        <location filename="../src/ui/RepoView.cpp" line="1275"/>
         <source>%2 to %1</source>
         <translation>%2 на %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1236"/>
-        <location filename="../src/ui/RepoView.cpp" line="1556"/>
+        <location filename="../src/ui/RepoView.cpp" line="1277"/>
+        <location filename="../src/ui/RepoView.cpp" line="1597"/>
         <source>Rebase</source>
         <translation>Перебазировать</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1237"/>
+        <location filename="../src/ui/RepoView.cpp" line="1278"/>
         <source>%2 on %1</source>
         <translation>%2 на %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1246"/>
+        <location filename="../src/ui/RepoView.cpp" line="1287"/>
         <source>The repository is empty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1254"/>
-        <location filename="../src/ui/RepoView.cpp" line="1776"/>
+        <location filename="../src/ui/RepoView.cpp" line="1295"/>
+        <location filename="../src/ui/RepoView.cpp" line="1817"/>
         <source>The current branch &apos;%1&apos; has no upstream branch.</source>
         <translation>Текущая ветка &apos;%1&apos; не имеет upstream-ветки.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1260"/>
-        <location filename="../src/ui/RepoView.cpp" line="2598"/>
+        <location filename="../src/ui/RepoView.cpp" line="1301"/>
+        <location filename="../src/ui/RepoView.cpp" line="2639"/>
         <source>Already up-to-date.</source>
         <translation>Уже самое новое.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1265"/>
+        <location filename="../src/ui/RepoView.cpp" line="1306"/>
         <source>Unable to fast-forward.</source>
         <translation>Не могу fast-forward.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1301"/>
+        <location filename="../src/ui/RepoView.cpp" line="1342"/>
         <source>fast-forward</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1314"/>
+        <location filename="../src/ui/RepoView.cpp" line="1355"/>
         <source>You may be able to reconcile your changes with the conflicting files by &lt;a href=&apos;action:stash&apos;&gt;stashing&lt;/a&gt; before you &lt;a href=&apos;%1&apos;&gt;fast-forward&lt;/a&gt;. Then &lt;a href=&apos;action:unstash&apos;&gt;unstash&lt;/a&gt; to restore your changes.</source>
         <translation>Вы могли бы согласовать ваши изменения с конфликтующими файлами путём &lt;a href=&apos;action:stash&apos;&gt;схоронения&lt;/a&gt; перед тем как вы &lt;a href=&apos;%1&apos;&gt;fast-forwardните&lt;/a&gt;. Потом &lt;a href=&apos;action:unstash&apos;&gt;вытащите из схрона&lt;/a&gt; для возвращения ваших изменений.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1326"/>
+        <location filename="../src/ui/RepoView.cpp" line="1367"/>
         <source>If you want to create a new merge commit instead of fast-forwarding, you can &lt;a href=&apos;%1&apos;&gt;merge without fast-forwarding &lt;/a&gt; instead.</source>
         <translation>Если вы хотите создать новый коммит слияния вместо fast-forwardа, вы можете &lt;a href=&apos;%1&apos;&gt;слить без  fast-forwardа&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1346"/>
-        <location filename="../src/ui/RepoView.cpp" line="1363"/>
-        <location filename="../src/ui/RepoView.cpp" line="1428"/>
-        <location filename="../src/ui/RepoView.cpp" line="1440"/>
+        <location filename="../src/ui/RepoView.cpp" line="1387"/>
+        <location filename="../src/ui/RepoView.cpp" line="1404"/>
+        <location filename="../src/ui/RepoView.cpp" line="1469"/>
+        <location filename="../src/ui/RepoView.cpp" line="1481"/>
         <source>merge</source>
         <translation>слить</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1353"/>
-        <location filename="../src/ui/RepoView.cpp" line="1573"/>
+        <location filename="../src/ui/RepoView.cpp" line="1394"/>
+        <location filename="../src/ui/RepoView.cpp" line="1614"/>
         <source>You may be able to rebase by &lt;a href=&apos;action:stash&apos;&gt;stashing&lt;/a&gt; before trying to &lt;a href=&apos;action:merge&apos;&gt;merge&lt;/a&gt;. Then &lt;a href=&apos;action:unstash&apos;&gt;unstash&lt;/a&gt; to restore your changes.</source>
         <translation>Вы могли бы перебазировать путём &lt;a href=&apos;action:stash&apos;&gt;схоронения&lt;/a&gt; перед попыткой &lt;a href=&apos;action:merge&apos;&gt;слить&lt;/a&gt;. Затем &lt;a href=&apos;action:unstash&apos;&gt;вытащите из схрона&lt;/a&gt; для восстановления ваших изменений.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1428"/>
-        <location filename="../src/ui/RepoView.cpp" line="1459"/>
-        <location filename="../src/ui/RepoView.cpp" line="1482"/>
+        <location filename="../src/ui/RepoView.cpp" line="1469"/>
+        <location filename="../src/ui/RepoView.cpp" line="1500"/>
+        <location filename="../src/ui/RepoView.cpp" line="1523"/>
         <source>Abort</source>
         <translation>Прервать</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1429"/>
+        <location filename="../src/ui/RepoView.cpp" line="1470"/>
         <source>Some merged files have unstaged changes</source>
         <translation>В некоторых слитых файлах есть недобавленные изменения</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1430"/>
+        <location filename="../src/ui/RepoView.cpp" line="1471"/>
         <source>abort merge</source>
         <translation>прервать слияние</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1444"/>
-        <location filename="../src/ui/RepoView.cpp" line="1598"/>
-        <location filename="../src/ui/RepoView.cpp" line="1603"/>
+        <location filename="../src/ui/RepoView.cpp" line="1485"/>
+        <location filename="../src/ui/RepoView.cpp" line="1639"/>
+        <location filename="../src/ui/RepoView.cpp" line="1644"/>
         <source>revert</source>
         <translation>откатить</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1449"/>
-        <location filename="../src/ui/RepoView.cpp" line="1648"/>
-        <location filename="../src/ui/RepoView.cpp" line="1653"/>
+        <location filename="../src/ui/RepoView.cpp" line="1490"/>
+        <location filename="../src/ui/RepoView.cpp" line="1689"/>
+        <location filename="../src/ui/RepoView.cpp" line="1694"/>
         <source>cherry-pick</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1455"/>
-        <location filename="../src/ui/RepoView.cpp" line="1494"/>
-        <location filename="../src/ui/RepoView.cpp" line="1510"/>
+        <location filename="../src/ui/RepoView.cpp" line="1496"/>
+        <location filename="../src/ui/RepoView.cpp" line="1535"/>
+        <location filename="../src/ui/RepoView.cpp" line="1551"/>
         <source>rebase</source>
         <translation>перебазировать</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1474"/>
+        <location filename="../src/ui/RepoView.cpp" line="1515"/>
         <source>Continue ongoing rebase</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1474"/>
+        <location filename="../src/ui/RepoView.cpp" line="1515"/>
         <source></source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1482"/>
+        <location filename="../src/ui/RepoView.cpp" line="1523"/>
         <source>Invalid head.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1500"/>
+        <location filename="../src/ui/RepoView.cpp" line="1541"/>
         <source>You may be able to rebase by &lt;a href=&apos;action:stash&apos;&gt;stashing&lt;/a&gt; before trying to &lt;a href=&apos;action:rebase&apos;&gt;rebase&lt;/a&gt;. Then &lt;a href=&apos;action:unstash&apos;&gt;unstash&lt;/a&gt; to restore your changes.</source>
         <translation>Вы могли бы перебазировать путём &lt;a href=&apos;action:stash&apos;&gt;схоронения&lt;/a&gt; перед попыткой &lt;a href=&apos;action:merge&apos;&gt;перебазировать&lt;/a&gt;. Затем &lt;a href=&apos;action:unstash&apos;&gt;вытащите из схрона&lt;/a&gt; для восстановления ваших изменений.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1517"/>
-        <location filename="../src/ui/RepoView.cpp" line="1538"/>
+        <location filename="../src/ui/RepoView.cpp" line="1558"/>
+        <location filename="../src/ui/RepoView.cpp" line="1579"/>
         <source>%1/%2</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1518"/>
+        <location filename="../src/ui/RepoView.cpp" line="1559"/>
         <source>%1 - %2</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1519"/>
+        <location filename="../src/ui/RepoView.cpp" line="1560"/>
         <source>Apply</source>
         <translation>Применить</translation>
     </message>
@@ -4595,46 +4605,46 @@ was added to %1</source>
         <translation type="vanished">Конфликт слияния. Перебазирование прервано</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1543"/>
+        <location filename="../src/ui/RepoView.cpp" line="1584"/>
         <source>%1 - %2 &lt;i&gt;already applied&lt;/i&gt;</source>
         <translation>%1 - %2 &lt;i&gt;уже применён&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1544"/>
+        <location filename="../src/ui/RepoView.cpp" line="1585"/>
         <source>%1 - %2 as %3</source>
         <translation>%1 - %2 как %3</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1566"/>
-        <location filename="../src/ui/RepoView.cpp" line="1586"/>
-        <location filename="../src/ui/RepoView.cpp" line="3349"/>
+        <location filename="../src/ui/RepoView.cpp" line="1607"/>
+        <location filename="../src/ui/RepoView.cpp" line="1627"/>
+        <location filename="../src/ui/RepoView.cpp" line="3390"/>
         <source>squash</source>
         <translation>объединить</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1594"/>
+        <location filename="../src/ui/RepoView.cpp" line="1635"/>
         <source>Revert</source>
         <translation>Откатить</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1611"/>
+        <location filename="../src/ui/RepoView.cpp" line="1652"/>
         <source>Revert &quot;%1&quot;
 
 This reverts commit %2.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1642"/>
+        <location filename="../src/ui/RepoView.cpp" line="1683"/>
         <source>&lt;i&gt;detached HEAD&lt;/i&gt;</source>
         <translation>&lt;i&gt;отсоединённая HEAD&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1643"/>
+        <location filename="../src/ui/RepoView.cpp" line="1684"/>
         <source>%1 on %2</source>
         <translation>%1 на %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1644"/>
+        <location filename="../src/ui/RepoView.cpp" line="1685"/>
         <source>Cherry-pick</source>
         <translation></translation>
     </message>
@@ -4643,99 +4653,99 @@ This reverts commit %2.</source>
         <translation type="vanished">Принудительно запушить?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1689"/>
+        <location filename="../src/ui/RepoView.cpp" line="1730"/>
         <source>Are you sure you want to force push?</source>
         <translation>Хотите насильно запушить?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1695"/>
+        <location filename="../src/ui/RepoView.cpp" line="1736"/>
         <source>The remote will lose any commits that are reachable only from the overwritten reference. Dropped commits may be unexpectedly reintroduced by clones that already contain those commits locally.</source>
         <translation>remote потеряет коммиты, которые достижимы только из перезаписанной ссылки. Выброшенные коммиты могут быть неожиданно возвращены клонами, которые уже содержат эти коммиты локально.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1700"/>
+        <location filename="../src/ui/RepoView.cpp" line="1741"/>
         <source>Force Push</source>
         <translation>Принудительный пуш</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1721"/>
+        <location filename="../src/ui/RepoView.cpp" line="1762"/>
         <source>&lt;i&gt;no reference&lt;/i&gt;</source>
         <translation>&lt;i&gt;нет ссылки&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1732"/>
+        <location filename="../src/ui/RepoView.cpp" line="1773"/>
         <source>Push</source>
         <translation>Запушить</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1732"/>
+        <location filename="../src/ui/RepoView.cpp" line="1773"/>
         <source>Push (Force)</source>
         <translation>Запушить (принудительно)</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1733"/>
-        <location filename="../src/ui/RepoView.cpp" line="2402"/>
+        <location filename="../src/ui/RepoView.cpp" line="1774"/>
+        <location filename="../src/ui/RepoView.cpp" line="2443"/>
         <source>%1 to %2</source>
         <translation>%1 в %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1737"/>
-        <location filename="../src/ui/RepoView.cpp" line="2344"/>
+        <location filename="../src/ui/RepoView.cpp" line="1778"/>
+        <location filename="../src/ui/RepoView.cpp" line="2385"/>
         <source>You are not currently on a branch.</source>
         <translation>Вы сейчас не на ветке.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1740"/>
+        <location filename="../src/ui/RepoView.cpp" line="1781"/>
         <source>Create a commit to add the default &apos;%1&apos; branch.</source>
         <translation>Создать коммит и добавить по-умолчанию ветку &apos;%1&apos;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1744"/>
+        <location filename="../src/ui/RepoView.cpp" line="1785"/>
         <source>You can &lt;a href=&apos;action:checkout&apos;&gt;checkout&lt;/a&gt; a branch then &lt;a href=&apos;action:push&apos;&gt;push&lt;/a&gt; again, or &lt;a href=&apos;action:push-to&apos;&gt;push to an explicit branch&lt;/a&gt;.</source>
         <translation>Вы можете &lt;a href=&apos;action:checkout&apos;&gt;перейти на&lt;/a&gt; ветку, затем &lt;a href=&apos;action:push&apos;&gt;запушить&lt;/a&gt; снова, или &lt;a href=&apos;action:push-to&apos;&gt;запушить на явную ветку&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1754"/>
+        <location filename="../src/ui/RepoView.cpp" line="1795"/>
         <source>The current branch &apos;%1&apos; has no default remote.</source>
         <translation>Текущая ветка &apos;%1&apos; не имеет remote по-умолчанию.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1757"/>
+        <location filename="../src/ui/RepoView.cpp" line="1798"/>
         <source>You may want to &lt;a href=&apos;action:add-remote?name=origin&apos;&gt;add a remote named &apos;origin&apos;&lt;/a&gt;. Then &lt;a href=&apos;action:push?set-upstream=true&apos;&gt;push and set the current branch&apos;s upstream&lt;/a&gt; to begin tracking a remote branch called &apos;origin/%1&apos;.</source>
         <translation>Ва могли хотеть &lt;a href=&apos;action:add-remote?name=origin&apos;&gt;добавить remote, названное &apos;origin&apos;&lt;/a&gt;. Тогда &lt;a href=&apos;action:push?set-upstream=true&apos;&gt;запушьте и установите upstream текущей ветки&lt;/a&gt;, чтобы начать отслеживать удаленную ветку, названную &apos;origin/%1&apos;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1764"/>
+        <location filename="../src/ui/RepoView.cpp" line="1805"/>
         <source>You can also &lt;a href=&apos;action:push-to&apos;&gt;push to an explicit URL&lt;/a&gt; if you don&apos;t want to track a remote branch.</source>
         <translation>Вы также можете &lt;a href=&apos;action:push-to&apos;&gt;запушить на явный URL&lt;/a&gt;, если не хотите отслеживать remote branch.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1777"/>
+        <location filename="../src/ui/RepoView.cpp" line="1818"/>
         <source>To begin tracking a remote branch called &apos;%1&apos;, &lt;a href=&apos;action:push?set-upstream=true&apos;&gt;push and set the current branch&apos;s upstream&lt;/a&gt;.</source>
         <translation>Чтобы начать отслеживать удаленную ветку, названную called &apos;%1&apos;, &lt;a href=&apos;action:push?set-upstream=true&apos;&gt;запушьте и установите upstream для текущей ветки&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1781"/>
+        <location filename="../src/ui/RepoView.cpp" line="1822"/>
         <source>To push without setting up tracking information, &lt;a href=&apos;action:push?ref=%1&apos;&gt;push &apos;%2&apos;&lt;/a&gt; explicitly.</source>
         <translation>Чтобы запушить без установки информации для отслеживания, &lt;a href=&apos;action:push?ref=%1&apos;&gt;запушьте &apos;%2&apos;&lt;/a&gt; явно.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1804"/>
+        <location filename="../src/ui/RepoView.cpp" line="1845"/>
         <source>Push canceled.</source>
         <translation>Пуш отменён.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1808"/>
+        <location filename="../src/ui/RepoView.cpp" line="1849"/>
         <source>push to</source>
         <translation>запушить в</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1812"/>
+        <location filename="../src/ui/RepoView.cpp" line="1853"/>
         <source>The tag update may cause the remote to lose commits.</source>
         <translation>Обновление метки может привести к потере коммитов у remote.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1814"/>
+        <location filename="../src/ui/RepoView.cpp" line="1855"/>
         <source>If you want to risk the remote losing commits, you can &lt;a href=&apos;action:push?ref=%1&amp;to=%2&amp;force=true&apos;&gt;force push&lt;/a&gt;.</source>
         <translation>Если вы хотите рискнуть потерей коммитов у remote, вы можете &lt;a href=&apos;action:push?ref=%1&amp;to=%2&amp;force=true&apos;&gt;запушить принудительно&lt;/a&gt;.</translation>
     </message>
@@ -4748,263 +4758,263 @@ This reverts commit %2.</source>
         <translation type="vanished">Если вы действительно хотите, чтобы remote потеряло коммиты, вы могли бы &lt;a href=&apos;action:push?force=true&apos;&gt;запушить принудительно&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1892"/>
+        <location filename="../src/ui/RepoView.cpp" line="1933"/>
         <source>Commit?</source>
         <translation>Закоммитить?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1893"/>
+        <location filename="../src/ui/RepoView.cpp" line="1934"/>
         <source>Are you sure you want to commit on a detached HEAD?</source>
         <translation>Вы уверенны, что хотите закоммитить поверх отсоединённой HEAD?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1899"/>
+        <location filename="../src/ui/RepoView.cpp" line="1940"/>
         <source>&lt;p&gt;You are in a detached HEAD state. You can still commit, but the new commit will not be reachable from any branch. If you want to commit to an existing branch, checkout the branch first.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Вы - в состоянии с отсоединённой HEAD. Вы всё ещё можете коммитить, но новый коммит не будет доступен из какой-либо ветки. Если вы хотите закоммитить на существующую ветку, сперва извлеките ветку.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1904"/>
-        <location filename="../src/ui/RepoView.cpp" line="1915"/>
+        <location filename="../src/ui/RepoView.cpp" line="1945"/>
+        <location filename="../src/ui/RepoView.cpp" line="1956"/>
         <source>Commit</source>
         <translation>Коммит</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1914"/>
-        <location filename="../src/ui/RepoView.cpp" line="2047"/>
+        <location filename="../src/ui/RepoView.cpp" line="1955"/>
+        <location filename="../src/ui/RepoView.cpp" line="2088"/>
         <source>&lt;i&gt;no commit&lt;/i&gt;</source>
         <translation>&lt;i&gt;нет коммита&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1920"/>
+        <location filename="../src/ui/RepoView.cpp" line="1961"/>
         <source>commit</source>
         <translation>коммит</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1928"/>
+        <location filename="../src/ui/RepoView.cpp" line="1969"/>
         <source>This commit was signed with a generated user name and email.</source>
         <translation>Этот коммит был подписан сгенерированными именем пользователя и почтой.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1930"/>
+        <location filename="../src/ui/RepoView.cpp" line="1971"/>
         <source>Consider setting the user name and email in &lt;a href=&apos;action:config?global=true&apos;&gt;global settings&lt;/a&gt;.</source>
         <translation>Рассмотрите вариант установки имени и почты в &lt;a href=&apos;action:config?global=true&apos;&gt;глобальных настройках&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1932"/>
+        <location filename="../src/ui/RepoView.cpp" line="1973"/>
         <source>If you want to limit the name and email settings to this repository, &lt;a href=&apos;action:config&apos;&gt;edit repository settings&lt;/a&gt; instead.</source>
         <translation>Если вы хотите ограничить настройки имени и почты только этим репозиторием, &lt;a href=&apos;action:config&apos;&gt;отредактируйте настройки репозитория&lt;/a&gt; вместо этого.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1936"/>
+        <location filename="../src/ui/RepoView.cpp" line="1977"/>
         <source>After settings have been updated, &lt;a href=&apos;action:amend&apos;&gt; amend this commit&lt;/a&gt; to record the new user name and email.</source>
         <translation>После того, как настройки были обновлены, &lt;a href=&apos;action:amend&apos;&gt; дополните этот коммит&lt;/a&gt; для записи нового имени пользователя и почты.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1977"/>
+        <location filename="../src/ui/RepoView.cpp" line="2018"/>
         <source>file</source>
         <translation>файл</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1977"/>
+        <location filename="../src/ui/RepoView.cpp" line="2018"/>
         <source>files</source>
         <translation>файлы</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1978"/>
+        <location filename="../src/ui/RepoView.cpp" line="2019"/>
         <source>%1 - %2 %3</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1979"/>
-        <location filename="../src/ui/RepoView.cpp" line="2054"/>
-        <location filename="../src/ui/RepoView.cpp" line="2134"/>
+        <location filename="../src/ui/RepoView.cpp" line="2020"/>
+        <location filename="../src/ui/RepoView.cpp" line="2095"/>
+        <location filename="../src/ui/RepoView.cpp" line="2175"/>
         <source>Checkout</source>
         <translation>Перейти</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2001"/>
+        <location filename="../src/ui/RepoView.cpp" line="2042"/>
         <source>Checkout Detached HEAD?</source>
         <translation>Перейти на отсоединённую HEAD?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2003"/>
+        <location filename="../src/ui/RepoView.cpp" line="2044"/>
         <source>Checkout Detached HEAD</source>
         <translation>Перейти на отсоединённую HEAD</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2012"/>
+        <location filename="../src/ui/RepoView.cpp" line="2053"/>
         <source>Checking out remote branch &apos;%1&apos; will result in a detached HEAD state. Do you want to reset the existing local branch &apos;%2&apos; to this commit instead?</source>
         <translation>Извлечение удаленной ветки &apos;%1&apos; приведёт к состоянию отсоединённой HEAD. Хотите сбросить существующую локальную ветку &apos;%2&apos; на этот коммит вместо этого?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2018"/>
+        <location filename="../src/ui/RepoView.cpp" line="2059"/>
         <source>Reset Local Branch</source>
         <translation>Сбросить локальную ветку</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2024"/>
+        <location filename="../src/ui/RepoView.cpp" line="2065"/>
         <source>Checking out remote branch &apos;%1&apos; will result in a detached HEAD state. Do you want to create a new local branch called &apos;%2&apos; to track it instead?</source>
         <translation>Извлечение удаленной ветки &apos;%1&apos; приведёт к состоянию отсоединённой HEAD. Хотите создать новую локальную ветку, названную &apos;%2&apos;, чтобы отслеживать её, вместо этого?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2029"/>
+        <location filename="../src/ui/RepoView.cpp" line="2070"/>
         <source>Create a local branch to start tracking remote changes and make new commits. Check out the detached HEAD to temporarily put your working directory into the state of the remote branch.</source>
         <translation>Создайте локальную ветку чтобы начать отслеживать изменения remote и создайте новые коммиты. Извлеките отсоединённую HEAD чтобы временно перевести вашу рабочую директорию в состояние удаленной ветки.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2034"/>
+        <location filename="../src/ui/RepoView.cpp" line="2075"/>
         <source>Create Local Branch</source>
         <translation>Создать локальную ветку</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2059"/>
+        <location filename="../src/ui/RepoView.cpp" line="2100"/>
         <source>checkout</source>
         <translation>перейти</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2071"/>
+        <location filename="../src/ui/RepoView.cpp" line="2112"/>
         <source>You may be able to reconcile your changes with the conflicting files by &lt;a href=&apos;action:stash&apos;&gt;stashing&lt;/a&gt; before you &lt;a href=&apos;action:checkout?%1&apos;&gt;checkout &apos;%2&apos;&lt;/a&gt;. Then &lt;a href=&apos;action:unstash&apos;&gt;unstash&lt;/a&gt; to restore your changes.</source>
         <translation>Вы могли бы согласовать ваши изменения с конфликтующими файлами путём &lt;a href=&apos;action:stash&apos;&gt;схоронения&lt;/a&gt; перед тем как вы &lt;a href=&apos;action:checkout?%1&apos;&gt;извлечёте&apos;%2&apos;&lt;/a&gt;. Потом &lt;a href=&apos;action:unstash&apos;&gt;вытащите из схрона&lt;/a&gt; для возвращения ваших изменений.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2098"/>
+        <location filename="../src/ui/RepoView.cpp" line="2139"/>
         <source>New Branch</source>
         <translation>Новая ветка</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2101"/>
+        <location filename="../src/ui/RepoView.cpp" line="2142"/>
         <source>create new branch</source>
         <translation>создать новую ветку</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2140"/>
+        <location filename="../src/ui/RepoView.cpp" line="2181"/>
         <source>Rename</source>
         <translation type="unfinished">Переименовать</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2147"/>
+        <location filename="../src/ui/RepoView.cpp" line="2188"/>
         <source>Delete</source>
         <translation type="unfinished">Удалить</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2159"/>
+        <location filename="../src/ui/RepoView.cpp" line="2200"/>
         <source>Push Tag to %1</source>
         <translation type="unfinished">Запушить метку в %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2165"/>
+        <location filename="../src/ui/RepoView.cpp" line="2206"/>
         <source>New Local Branch</source>
         <translation type="unfinished">Новая локальная ветка</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2183"/>
+        <location filename="../src/ui/RepoView.cpp" line="2224"/>
         <source>Merge...</source>
         <translation type="unfinished">Слить...</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2184"/>
+        <location filename="../src/ui/RepoView.cpp" line="2225"/>
         <source>Rebase...</source>
         <translation type="unfinished">Перебазировать...</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2185"/>
+        <location filename="../src/ui/RepoView.cpp" line="2226"/>
         <source>Squash...</source>
         <translation type="unfinished">Объединить...</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2199"/>
+        <location filename="../src/ui/RepoView.cpp" line="2240"/>
         <source>(no branch)</source>
         <translation>(без ветки)</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2200"/>
+        <location filename="../src/ui/RepoView.cpp" line="2241"/>
         <source>WIP on %1: %2 %3</source>
         <translation>WIP на %1: %2 %3</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2211"/>
+        <location filename="../src/ui/RepoView.cpp" line="2252"/>
         <source>&lt;i&gt;working directory&lt;/i&gt;</source>
         <translation>&lt;i&gt;рабочая копия&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2212"/>
+        <location filename="../src/ui/RepoView.cpp" line="2253"/>
         <source>Stash</source>
         <translation>Схрон</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2216"/>
+        <location filename="../src/ui/RepoView.cpp" line="2257"/>
         <source>stash</source>
         <translation>схрон</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2229"/>
+        <location filename="../src/ui/RepoView.cpp" line="2270"/>
         <source>Apply Stash</source>
         <translation>Применить схрон</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2231"/>
+        <location filename="../src/ui/RepoView.cpp" line="2272"/>
         <source>apply stash</source>
         <translation>применить схрон</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2243"/>
+        <location filename="../src/ui/RepoView.cpp" line="2284"/>
         <source>Drop Stash</source>
         <translation>Выбросить содержимое схрона</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2245"/>
+        <location filename="../src/ui/RepoView.cpp" line="2286"/>
         <source>drop stash</source>
         <translation>выбросить содержимое схрона</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2260"/>
+        <location filename="../src/ui/RepoView.cpp" line="2301"/>
         <source>Pop Stash</source>
         <translation>Извлечь из копилки</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2262"/>
+        <location filename="../src/ui/RepoView.cpp" line="2303"/>
         <source>pop stash</source>
         <translation>вынуть из схрона</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2285"/>
+        <location filename="../src/ui/RepoView.cpp" line="2326"/>
         <source>%1 as %2</source>
         <translation>%1 как %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2286"/>
+        <location filename="../src/ui/RepoView.cpp" line="2327"/>
         <source>Tag</source>
         <translation>Метка</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2288"/>
+        <location filename="../src/ui/RepoView.cpp" line="2329"/>
         <source>tag</source>
         <translation>метка</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2324"/>
-        <location filename="../src/ui/RepoView.cpp" line="2401"/>
+        <location filename="../src/ui/RepoView.cpp" line="2365"/>
+        <location filename="../src/ui/RepoView.cpp" line="2442"/>
         <source>Amend</source>
         <translation>Дополнить</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2327"/>
+        <location filename="../src/ui/RepoView.cpp" line="2368"/>
         <source>Amending commit %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2334"/>
+        <location filename="../src/ui/RepoView.cpp" line="2375"/>
         <source>%1 to %2</source>
         <comment>update ref</comment>
         <translation type="unfinished">%1 в %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2342"/>
-        <location filename="../src/ui/RepoView.cpp" line="2349"/>
-        <location filename="../src/ui/RepoView.cpp" line="2388"/>
-        <location filename="../src/ui/RepoView.cpp" line="2401"/>
-        <location filename="../src/ui/RepoView.cpp" line="2459"/>
-        <location filename="../src/ui/RepoView.cpp" line="2531"/>
+        <location filename="../src/ui/RepoView.cpp" line="2383"/>
+        <location filename="../src/ui/RepoView.cpp" line="2390"/>
+        <location filename="../src/ui/RepoView.cpp" line="2429"/>
+        <location filename="../src/ui/RepoView.cpp" line="2442"/>
+        <location filename="../src/ui/RepoView.cpp" line="2500"/>
+        <location filename="../src/ui/RepoView.cpp" line="2572"/>
         <source>Reset</source>
         <translation>Сбросить</translation>
     </message>
@@ -5021,333 +5031,333 @@ This reverts commit %2.</source>
         <translation type="vanished">Вы уверены, что хотите дополнить &apos;%1&apos;?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2364"/>
+        <location filename="../src/ui/RepoView.cpp" line="2405"/>
         <source>Are you sure you want to reset &apos;%1&apos; to &apos;%2&apos;?</source>
         <translation>Вы уверены, что хотите сбросить &apos;%1&apos; на &apos;%2&apos;?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2371"/>
+        <location filename="../src/ui/RepoView.cpp" line="2412"/>
         <source>&lt;p&gt;Some commits may become unreachable from the current branch.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Некоторые коммиты могут стать недостижимы из текущей ветки.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2377"/>
+        <location filename="../src/ui/RepoView.cpp" line="2418"/>
         <source>&lt;p&gt;Resetting will cause you to lose uncommitted changes. Untracked and ignored files will not be affected.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Сброс приведёт к тому, что вы потеряете незакоммиченные изменения. Неотслеживаемые и игнорируемые файлы не будут затронуты.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2381"/>
+        <location filename="../src/ui/RepoView.cpp" line="2422"/>
         <source>&lt;p&gt;Your branch appears to be up-to-date with its upstream branch. Resetting may cause your branch history to diverge from the remote branch history.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Ваша ветка кажется уже самой новой, соответствующей своей upstream-ветке. Сброс может привести историю вашей ветки к расхождению с историей ветки remote.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2328"/>
-        <location filename="../src/ui/RepoView.cpp" line="2406"/>
+        <location filename="../src/ui/RepoView.cpp" line="2369"/>
+        <location filename="../src/ui/RepoView.cpp" line="2447"/>
         <source>amend</source>
         <translation>дополнить</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2406"/>
+        <location filename="../src/ui/RepoView.cpp" line="2447"/>
         <source>reset</source>
         <translation>сбросить</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2530"/>
-        <location filename="../src/ui/RepoView.cpp" line="2594"/>
+        <location filename="../src/ui/RepoView.cpp" line="2571"/>
+        <location filename="../src/ui/RepoView.cpp" line="2635"/>
         <source>%1 of %2 submodules</source>
         <translation>%1 из %2 подмодулей</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2595"/>
-        <location filename="../src/ui/RepoView.cpp" line="2620"/>
+        <location filename="../src/ui/RepoView.cpp" line="2636"/>
+        <location filename="../src/ui/RepoView.cpp" line="2661"/>
         <source>Update</source>
         <translation>Обновить</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2471"/>
-        <location filename="../src/ui/RepoView.cpp" line="2633"/>
+        <location filename="../src/ui/RepoView.cpp" line="2512"/>
+        <location filename="../src/ui/RepoView.cpp" line="2674"/>
         <source>update submodule</source>
         <translation>обновить подмодуль</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="95"/>
+        <location filename="../src/ui/RepoView.cpp" line="96"/>
         <source>up-to-date</source>
         <translation type="unfinished">уже самое новое</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="97"/>
+        <location filename="../src/ui/RepoView.cpp" line="98"/>
         <source>update available</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="99"/>
+        <location filename="../src/ui/RepoView.cpp" line="100"/>
         <source>different history</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="101"/>
+        <location filename="../src/ui/RepoView.cpp" line="102"/>
         <source>not branch-tracked</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="103"/>
+        <location filename="../src/ui/RepoView.cpp" line="104"/>
         <source>error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="105"/>
+        <location filename="../src/ui/RepoView.cpp" line="106"/>
         <source>unknown</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="223"/>
+        <location filename="../src/ui/RepoView.cpp" line="224"/>
         <source>The indexer worker process crashed. If this problem persists please contact us at &lt;TODO: replace.support@gitahead.com&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1524"/>
+        <location filename="../src/ui/RepoView.cpp" line="1565"/>
         <source>Please resolve conflicts before continue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1525"/>
+        <location filename="../src/ui/RepoView.cpp" line="1566"/>
         <source>Conflict</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1555"/>
+        <location filename="../src/ui/RepoView.cpp" line="1596"/>
         <source>Rebase finished</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1688"/>
+        <location filename="../src/ui/RepoView.cpp" line="1729"/>
         <source>Force Push to %1?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1826"/>
+        <location filename="../src/ui/RepoView.cpp" line="1867"/>
         <source>You may want to integrate remote commits first by &lt;a href=&apos;action:pull&apos;&gt;pulling&lt;/a&gt;. Then &lt;a href=&apos;action:push?to=%1&apos;&gt;push&lt;/a&gt; again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1831"/>
+        <location filename="../src/ui/RepoView.cpp" line="1872"/>
         <source>If you really want the remote to lose commits, you may be able to &lt;a href=&apos;action:push?to=%1&amp;force=true&apos;&gt;force push&lt;/a&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2468"/>
+        <location filename="../src/ui/RepoView.cpp" line="2509"/>
         <source>Reset canceled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2534"/>
+        <location filename="../src/ui/RepoView.cpp" line="2575"/>
         <source>Untouched</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2680"/>
-        <location filename="../src/ui/RepoView.cpp" line="2810"/>
+        <location filename="../src/ui/RepoView.cpp" line="2721"/>
+        <location filename="../src/ui/RepoView.cpp" line="2851"/>
         <source>Another remote operation is already running.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2681"/>
-        <location filename="../src/ui/RepoView.cpp" line="2690"/>
-        <location filename="../src/ui/RepoView.cpp" line="2696"/>
+        <location filename="../src/ui/RepoView.cpp" line="2722"/>
+        <location filename="../src/ui/RepoView.cpp" line="2731"/>
+        <location filename="../src/ui/RepoView.cpp" line="2737"/>
         <source>Submodule Updates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2689"/>
+        <location filename="../src/ui/RepoView.cpp" line="2730"/>
         <source>This repository has no submodules.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2695"/>
+        <location filename="../src/ui/RepoView.cpp" line="2736"/>
         <source>Checking %1 submodules</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2735"/>
+        <location filename="../src/ui/RepoView.cpp" line="2776"/>
         <source>Submodule update check canceled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2737"/>
+        <location filename="../src/ui/RepoView.cpp" line="2778"/>
         <source>No branch-tracked submodules to check.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2739"/>
+        <location filename="../src/ui/RepoView.cpp" line="2780"/>
         <source>%1 submodules can be updated.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2742"/>
+        <location filename="../src/ui/RepoView.cpp" line="2783"/>
         <source>No updates found; %1 submodules need review.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2744"/>
+        <location filename="../src/ui/RepoView.cpp" line="2785"/>
         <source>All submodules are up-to-date.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2755"/>
+        <location filename="../src/ui/RepoView.cpp" line="2796"/>
         <source>%1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2758"/>
+        <location filename="../src/ui/RepoView.cpp" line="2799"/>
         <source> on %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2762"/>
+        <location filename="../src/ui/RepoView.cpp" line="2803"/>
         <source> (%1 -&gt; %2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2766"/>
+        <location filename="../src/ui/RepoView.cpp" line="2807"/>
         <source> - %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2811"/>
-        <location filename="../src/ui/RepoView.cpp" line="2815"/>
+        <location filename="../src/ui/RepoView.cpp" line="2852"/>
+        <location filename="../src/ui/RepoView.cpp" line="2856"/>
         <source>Add Submodule</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2824"/>
+        <location filename="../src/ui/RepoView.cpp" line="2865"/>
         <source>Add submodule canceled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2826"/>
+        <location filename="../src/ui/RepoView.cpp" line="2867"/>
         <source>add submodule</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2829"/>
+        <location filename="../src/ui/RepoView.cpp" line="2870"/>
         <source>Submodule added.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2854"/>
+        <location filename="../src/ui/RepoView.cpp" line="2895"/>
         <source>Modify Submodule</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2855"/>
+        <location filename="../src/ui/RepoView.cpp" line="2896"/>
         <source>modify submodule</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2859"/>
+        <location filename="../src/ui/RepoView.cpp" line="2900"/>
         <source>Submodule Modified</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2883"/>
+        <location filename="../src/ui/RepoView.cpp" line="2924"/>
         <source>Delete submodule &apos;%1&apos; at &apos;%2&apos;?
 
 The submodule will be removed from this project. Its working files and cached local repository will be permanently deleted. Any unpublished commits will be lost.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2888"/>
+        <location filename="../src/ui/RepoView.cpp" line="2929"/>
         <source>Delete Submodule?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2895"/>
+        <location filename="../src/ui/RepoView.cpp" line="2936"/>
         <source>The submodule working directory contains uncommitted changes that will be permanently lost.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2900"/>
-        <location filename="../src/ui/RepoView.cpp" line="2905"/>
+        <location filename="../src/ui/RepoView.cpp" line="2941"/>
+        <location filename="../src/ui/RepoView.cpp" line="2946"/>
         <source>Delete Submodule</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2908"/>
+        <location filename="../src/ui/RepoView.cpp" line="2949"/>
         <source>delete submodule</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2910"/>
+        <location filename="../src/ui/RepoView.cpp" line="2951"/>
         <source>Submodule deleted.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2926"/>
+        <location filename="../src/ui/RepoView.cpp" line="2967"/>
         <source>Invalid Submodule Repository</source>
         <translation>Неправильный репозиторий подмодуля</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2928"/>
+        <location filename="../src/ui/RepoView.cpp" line="2969"/>
         <source>The submodule &apos;%1&apos; doesn&apos;t have a valid repository. You may need to init and/or update the submodule to check out a repository.</source>
         <translation>Подмодуль &apos;%1&apos; не имеет верного репозитория. Вам может быть нужно инициализировать и/или обновить подмодуль для извлечения репозитория.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3068"/>
+        <location filename="../src/ui/RepoView.cpp" line="3109"/>
         <source>No terminal executable found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3069"/>
+        <location filename="../src/ui/RepoView.cpp" line="3110"/>
         <source>No terminal executable was found. Please configure a terminal in the configuration.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3072"/>
+        <location filename="../src/ui/RepoView.cpp" line="3113"/>
         <source>Open Configuration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3323"/>
+        <location filename="../src/ui/RepoView.cpp" line="3364"/>
         <source>There was a merge conflict.</source>
         <translation>Конфликт слияния.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3326"/>
+        <location filename="../src/ui/RepoView.cpp" line="3367"/>
         <source>Resolve conflicts, then commit to conclude the %1. See &lt;a href=&apos;expand&apos;&gt;details&lt;/a&gt;.</source>
         <translation>Разрешите конфликты, затем закоммитьте, чтобы завершить %1. См. &lt;a href=&apos;expand&apos;&gt;подробности&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3328"/>
+        <location filename="../src/ui/RepoView.cpp" line="3369"/>
         <source>Resolve conflicts in each conflicted (!) file in one of the following ways:</source>
         <translation>Разрешите конфликты в каждом конфликтующем (!) файле одним из следующих способов:</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3330"/>
+        <location filename="../src/ui/RepoView.cpp" line="3371"/>
         <source>1. Click the &apos;Ours&apos; or &apos;Theirs&apos; button to choose the correct change. Then click the &apos;Save&apos; button to apply.</source>
         <translation>1. Щёлкните кнопку &apos;Наш&apos; или &apos;Их&apos;, чтобы выбрать правильное изменение. Затем щёлкните кнопку &apos;Сохранить&apos;, чтобы применить.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3332"/>
+        <location filename="../src/ui/RepoView.cpp" line="3373"/>
         <source>2. Edit the file in the editor to make a different change. Remember to remove conflict markers.</source>
         <translation>2. Редактируйте файл в редакторе, чтобы сделать разные изменения. Не забудьте удалить маркеры конфликта.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3334"/>
+        <location filename="../src/ui/RepoView.cpp" line="3375"/>
         <source>3. Use an external merge tool. Right-click on the files in the list and choose &apos;External Merge&apos;.</source>
         <translation>3. Используйте внешний инструмент слияния. Щелчок правой на файлах в списке, и выберите &apos;Внешнее слияние&apos;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3336"/>
+        <location filename="../src/ui/RepoView.cpp" line="3377"/>
         <source>After all conflicts in the file are resolved, click the check box to mark it as resolved.</source>
         <translation>После того, как все конфликты разрешены, кликните флажок, чтобы пометить их разрешёнными.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3338"/>
+        <location filename="../src/ui/RepoView.cpp" line="3379"/>
         <source>After all conflicted files are staged, commit to conclude the %1.</source>
         <translation>После того, как все конфликтующие файлы добавлены, закоммитьте, чтобы завершить %1.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3350"/>
+        <location filename="../src/ui/RepoView.cpp" line="3391"/>
         <source>You can &lt;a href=&apos;action:abort&apos;&gt;abort&lt;/a&gt; the %1 to return the repository to its previous state.</source>
         <translation>Вы можете &lt;a href=&apos;action:abort&apos;&gt;прервать&lt;/a&gt; %1 , чтобы вернуть репозиторий в предыдущее состояние.</translation>
     </message>

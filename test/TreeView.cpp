@@ -1,5 +1,6 @@
 #include "Test.h"
 #include "ui/DiffView/DiffView.h"
+#include "ui/CommitList.h"
 #include "ui/MainWindow.h"
 #include "ui/DoubleTreeWidget.h"
 #include "ui/TreeView.h"
@@ -8,6 +9,8 @@
 #include "conf/Settings.h"
 
 #include <QTextEdit>
+#include <QStackedWidget>
+#include <QToolButton>
 
 using namespace Test;
 using namespace QTest;
@@ -43,6 +46,7 @@ private slots:
   void restoreStagedFileAfterCommit();
   void discardFiles();
   void fileMergeCrash();
+  void committedFileInspection();
   void dirtySubmoduleAndStagedSubmodule();
   void conflictedAndStagedFile();
 
@@ -262,8 +266,9 @@ void TestTreeView::fileMergeCrash() {
 
   unstagedTree->selectionModel()->select(
       index, QItemSelectionModel::SelectionFlag::Select);
+  QVERIFY(QMetaObject::invokeMethod(unstagedTree, "fileSelectionRequested"));
 
-  auto diffView = doubleTree->findChild<DiffView *>();
+  auto diffView = repoView->findChild<DiffView *>();
   QVERIFY(diffView);
 
   QToolButton *theirs = diffView->findChild<QToolButton *>("ConflictTheirs");
@@ -276,6 +281,52 @@ void TestTreeView::fileMergeCrash() {
   mouseClick(save, Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(), 0);
 
   // should not crash
+}
+
+void TestTreeView::committedFileInspection() {
+  INIT_REPO("TestRepository.zip", false);
+
+  QStackedWidget *primaryView =
+      repoView->findChild<QStackedWidget *>("RepositoryPrimaryView");
+  QWidget *fileInspection =
+      repoView->findChild<QWidget *>("FileInspectionView");
+  CommitList *commits = repoView->findChild<CommitList *>();
+  auto doubleTree = repoView->findChild<DoubleTreeWidget *>();
+  auto committedFiles = doubleTree->findChild<TreeView *>("Unstaged");
+  QVERIFY(primaryView);
+  QVERIFY(fileInspection);
+  QVERIFY(commits);
+  QVERIFY(doubleTree);
+  QVERIFY(committedFiles);
+
+  QModelIndex commitIndex;
+  for (int row = 0; row < commits->model()->rowCount(); ++row) {
+    QModelIndex candidate = commits->model()->index(row, 0);
+    if (candidate.data(CommitList::CommitRole).isValid()) {
+      commitIndex = candidate;
+      break;
+    }
+  }
+  QVERIFY(commitIndex.isValid());
+  commits->selectionModel()->select(commitIndex,
+                                    QItemSelectionModel::ClearAndSelect);
+
+  QTRY_VERIFY(committedFiles->model()->rowCount() > 0);
+  QVERIFY(primaryView->currentWidget() != fileInspection);
+  committedFiles->selectionModel()->clearSelection();
+  committedFiles->selectionModel()->select(
+      committedFiles->model()->index(0, 0), QItemSelectionModel::Select);
+  QVERIFY(primaryView->currentWidget() != fileInspection);
+  QVERIFY(
+      QMetaObject::invokeMethod(committedFiles, "fileSelectionRequested"));
+  QCOMPARE(primaryView->currentWidget(), fileInspection);
+
+  QToolButton *close =
+      repoView->findChild<QToolButton *>("CloseFileInspection");
+  QVERIFY(close);
+  close->click();
+  QVERIFY(primaryView->currentWidget() != fileInspection);
+  QVERIFY(committedFiles->selectionModel()->selectedIndexes().isEmpty());
 }
 
 void TestTreeView::dirtySubmoduleAndStagedSubmodule() {

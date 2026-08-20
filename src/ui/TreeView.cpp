@@ -164,6 +164,32 @@ void TreeView::keyPressEvent(QKeyEvent *event) {
     QTreeView::keyPressEvent(down);
   } else
     QTreeView::keyPressEvent(event);
+
+  switch (event->key()) {
+  case Qt::Key_Down:
+  case Qt::Key_Up:
+  case Qt::Key_Left:
+  case Qt::Key_Right:
+  case Qt::Key_Home:
+  case Qt::Key_End:
+  case Qt::Key_PageUp:
+  case Qt::Key_PageDown:
+  case Qt::Key_Enter:
+  case Qt::Key_Return:
+    if (!selectionModel()->selectedIndexes().isEmpty())
+      emit fileSelectionRequested();
+    break;
+  default:
+    break;
+  }
+}
+
+void TreeView::mouseReleaseEvent(QMouseEvent *event) {
+  QModelIndex index = indexAt(event->position().toPoint());
+  bool checkClicked = index.isValid() && checkRect(index).contains(event->pos());
+  QTreeView::mouseReleaseEvent(event);
+  if (event->button() == Qt::LeftButton && index.isValid() && !checkClicked)
+    emit fileSelectionRequested();
 }
 
 void TreeView::handleSelectionChange(const QItemSelection &selected,
@@ -172,8 +198,7 @@ void TreeView::handleSelectionChange(const QItemSelection &selected,
 
   // FIXME: The argument sent by Qt doesn't contain the whole selection.
   QModelIndexList indexes = selectionModel()->selectedIndexes();
-  if (indexes.count() > 0)
-    emit filesSelected(indexes);
+  emit filesSelected(indexes);
 
   // ignore deselection handling, because when selecting an item in the second
   // TreeView (staged/unstaged files), the root should not be set selected.

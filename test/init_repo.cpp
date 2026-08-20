@@ -18,12 +18,14 @@
 #include "ui/DoubleTreeWidget.h"
 #include "ui/Footer.h"
 #include "ui/MainWindow.h"
+#include "ui/MenuBar.h"
 #include "ui/RepoView.h"
 #include "ui/TreeView.h"
 #include <QFile>
 #include <QLineEdit>
 #include <QMenu>
 #include <QPushButton>
+#include <QStackedWidget>
 #include <QTextEdit>
 #include <QTextStream>
 #include <QToolButton>
@@ -108,6 +110,10 @@ void TestInitRepo::addFile() {
   QVERIFY(file.open(QFile::WriteOnly));
   QTextStream(&file) << "This is a test.";
   file.close();
+  QFile secondFile(dir.filePath("test2"));
+  QVERIFY(secondFile.open(QFile::WriteOnly));
+  QTextStream(&secondFile) << "This is another test.";
+  secondFile.close();
 
   // Check for a single file called "test".
   RepoView *view = mWindow->currentView();
@@ -122,12 +128,88 @@ void TestInitRepo::addFile() {
   {
     // Wait for refresh
     auto timeout = Timeout(10000, "Repository didn't refresh in time");
-    while (model->rowCount() < 1)
+    while (model->rowCount() < 2)
       qWait(300);
   }
 
-  QCOMPARE(model->rowCount(), 1);
+  QCOMPARE(model->rowCount(), 2);
   QCOMPARE(model->data(model->index(0, 0)).toString(), QString("test"));
+
+  QStackedWidget *primaryView =
+      view->findChild<QStackedWidget *>("RepositoryPrimaryView");
+  QWidget *fileInspection =
+      view->findChild<QWidget *>("FileInspectionView");
+  QToolButton *close =
+      view->findChild<QToolButton *>("CloseFileInspection");
+  QVERIFY(primaryView);
+  QVERIFY(fileInspection);
+  QVERIFY(close);
+  QVERIFY(primaryView->currentWidget() != fileInspection);
+
+  MenuBar *menuBar = MenuBar::instance(mWindow);
+  QVERIFY(menuBar);
+  files->setFocus();
+  QTRY_VERIFY(files->hasFocus());
+  menuBar->setMaximized(true);
+  QVERIFY(view->detailsMaximized());
+  QVERIFY(menuBar->isMaximized());
+  files->selectionModel()->clearSelection();
+  files->selectionModel()->select(model->index(0, 0),
+                                  QItemSelectionModel::Select);
+  QVERIFY(primaryView->currentWidget() != fileInspection);
+  mouseClick(files->viewport(), Qt::LeftButton, Qt::NoModifier,
+             files->visualRect(model->index(0, 0)).center());
+  QCOMPARE(primaryView->currentWidget(), fileInspection);
+  QVERIFY(!view->detailsMaximized());
+  QVERIFY(!menuBar->isMaximized());
+
+  files->selectionModel()->select(model->index(1, 0),
+                                  QItemSelectionModel::Select);
+  QCOMPARE(files->selectionModel()->selectedRows().size(), 2);
+  QCOMPARE(primaryView->currentWidget(), fileInspection);
+
+  close->setFocus();
+  QTRY_VERIFY(close->hasFocus());
+  menuBar->setMaximized(true);
+  QVERIFY(view->detailsMaximized());
+  QVERIFY(menuBar->isMaximized());
+  view->setViewMode(RepoView::Tree);
+  QVERIFY(!view->detailsMaximized());
+  QVERIFY(!menuBar->isMaximized());
+  view->setViewMode(RepoView::DoubleTree);
+  QVERIFY(primaryView->currentWidget() != fileInspection);
+  QVERIFY(QMetaObject::invokeMethod(files, "fileSelectionRequested"));
+  QCOMPARE(primaryView->currentWidget(), fileInspection);
+
+  close->click();
+  QVERIFY(primaryView->currentWidget() != fileInspection);
+  QVERIFY(files->selectionModel()->selectedIndexes().isEmpty());
+  view->refresh();
+  QCoreApplication::processEvents();
+  QVERIFY(primaryView->currentWidget() != fileInspection);
+  QVERIFY(files->selectionModel()->selectedIndexes().isEmpty());
+
+  files->selectionModel()->select(model->index(0, 0),
+                                  QItemSelectionModel::Select);
+  QVERIFY(primaryView->currentWidget() != fileInspection);
+  keyClick(files, Qt::Key_Return);
+  QCOMPARE(primaryView->currentWidget(), fileInspection);
+  close->click();
+
+  QModelIndex firstUnstaged = model->index(0, 0);
+  mouseClick(files->viewport(), Qt::LeftButton, Qt::NoModifier,
+             files->checkRect(firstUnstaged).center());
+  QVERIFY(primaryView->currentWidget() != fileInspection);
+  TreeView *stagedFiles = doubleTree->findChild<TreeView *>("Staged");
+  QVERIFY(stagedFiles);
+  QTRY_VERIFY(stagedFiles->model()->rowCount() > 0);
+  QModelIndex stagedFile = stagedFiles->model()->index(0, 0);
+  stagedFiles->selectionModel()->select(stagedFile,
+                                        QItemSelectionModel::Select);
+  QVERIFY(
+      QMetaObject::invokeMethod(stagedFiles, "fileSelectionRequested"));
+  QCOMPARE(primaryView->currentWidget(), fileInspection);
+  close->click();
 }
 
 void TestInitRepo::commitFile() {
@@ -179,14 +261,24 @@ void TestInitRepo::amendCommit() {
 void TestInitRepo::editFile() {
   RepoView *view = mWindow->currentView();
 
+  {
+    QFile file(view->repo().workdir().filePath("test"));
+    QVERIFY(file.open(QFile::Append));
+    QTextStream(&file) << "Changed for editing.";
+  }
+  view->refresh();
+
   auto doubleTree = view->findChild<DoubleTreeWidget *>();
   QVERIFY(doubleTree);
 
-  auto files = doubleTree->findChild<TreeView *>("Staged");
+  auto files = doubleTree->findChild<TreeView *>("Unstaged");
   QVERIFY(files);
 
-  files->selectionModel()->select(files->model()->index(0, 0),
-                                  QItemSelectionModel::Select);
+  QTRY_VERIFY(files->model()->rowCount() > 0);
+  QModelIndex selectedFile = files->model()->index(0, 0);
+  QVERIFY(selectedFile.isValid());
+  files->selectionModel()->select(selectedFile, QItemSelectionModel::Select);
+  QVERIFY(QMetaObject::invokeMethod(files, "fileSelectionRequested"));
 
   DiffView *diff = view->findChild<DiffView *>();
   QVERIFY(diff);

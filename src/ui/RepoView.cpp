@@ -66,6 +66,7 @@
 #include <QPushButton>
 #include <QSettings>
 #include <QShortcut>
+#include <QStackedWidget>
 #include <QTimeLine>
 #include <QUrl>
 #include <QUrlQuery>
@@ -324,12 +325,25 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
   connect(mIndex, &Index::indexReset, this,
           [this, searchField] { mCommits->setFilter(searchField->text()); });
 
+  mPrimaryView = new QStackedWidget(this);
+  mPrimaryView->setObjectName("RepositoryPrimaryView");
+  mPrimaryView->addWidget(mSideBar);
+
   mDetails = new DetailView(repo, mAvatarProvider, this);
 
   // Respond to diff/tree mode change.
   connect(mDetails, &DetailView::viewModeChanged, this,
           [this](ViewMode mode, bool spontaneous) {
-            Q_UNUSED(mode)
+            if (mode != DoubleTree) {
+              if (mMaximized && !mDetails->isVisible()) {
+                MenuBar *menuBar = MenuBar::instance(this);
+                if (menuBar && menuBar->isMaximized())
+                  menuBar->setMaximized(false);
+                else
+                  detailSplitterMaximize(false);
+              }
+              setFileInspectionVisible(false);
+            }
 
             // Update interface.
             this->toolBar()->updateView();
@@ -422,10 +436,10 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
   mDetailSplitter = new QSplitter(Qt::Horizontal, this);
   mDetailSplitter->setChildrenCollapsible(false);
   mDetailSplitter->setHandleWidth(0);
-  mDetailSplitter->addWidget(mSideBar);
+  mDetailSplitter->addWidget(mPrimaryView);
   mDetailSplitter->addWidget(mDetails);
   mDetailSplitter->setStretchFactor(0, 1);
-  mDetailSplitter->setStretchFactor(1, 3);
+  mDetailSplitter->setStretchFactor(1, 2);
   connect(mDetailSplitter, &QSplitter::splitterMoved, this, [this] {
     QSettings().setValue(kSplitterKey, mDetailSplitter->saveState());
   });
@@ -543,6 +557,33 @@ bool RepoView::isUnstageEnabled() const { return mDetails->isUnstageEnabled(); }
 RepoView::ViewMode RepoView::viewMode() const { return mDetails->viewMode(); }
 
 void RepoView::setViewMode(ViewMode mode) { mDetails->setViewMode(mode, true); }
+
+void RepoView::setFileInspectionWidget(QWidget *widget) {
+  if (!widget || mFileInspectionWidget)
+    return;
+
+  mFileInspectionWidget = widget;
+  mPrimaryView->addWidget(widget);
+}
+
+void RepoView::setFileInspectionVisible(bool visible) {
+  if (!mFileInspectionWidget)
+    return;
+
+  if (visible && mMaximized && !mPrimaryView->isVisible()) {
+    MenuBar *menuBar = MenuBar::instance(this);
+    if (menuBar && menuBar->isMaximized())
+      menuBar->setMaximized(false);
+    else
+      detailSplitterMaximize(false);
+  }
+  mPrimaryView->setCurrentWidget(visible ? mFileInspectionWidget : mSideBar);
+}
+
+bool RepoView::isFileInspectionVisible() const {
+  return mFileInspectionWidget &&
+         mPrimaryView->currentWidget() == mFileInspectionWidget;
+}
 
 bool RepoView::isWorkingDirectoryDirty() const {
   git::Diff status = mCommits->status();
@@ -3392,8 +3433,8 @@ RepoView::detailSplitterMaximize(bool maximized,
     for (int i = 0; i < mDetailSplitter->count(); i++) {
       QWidget *w = mDetailSplitter->widget(i);
       if (maximizeWidget == DetailSplitterWidgets::SideBar) {
-        if (w == mSideBar) {
-          mSideBar->setVisible(true);
+        if (w == mPrimaryView) {
+          mPrimaryView->setVisible(true);
           found = true;
           continue;
         }
@@ -3408,7 +3449,7 @@ RepoView::detailSplitterMaximize(bool maximized,
       else if (w == widget || match(widget, w)) {
         w->setVisible(true);
         found = true;
-        if (w == mSideBar)
+        if (w == mPrimaryView)
           newMaximized = DetailSplitterWidgets::SideBar;
         else if (w == mDetails)
           newMaximized = DetailSplitterWidgets::DetailView;

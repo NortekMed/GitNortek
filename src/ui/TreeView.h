@@ -28,6 +28,7 @@ public:
   void setModel(QAbstractItemModel *model) override;
   bool eventFilter(QObject *obj, QEvent *event) override;
   void keyPressEvent(QKeyEvent *event) override;
+  void mouseReleaseEvent(QMouseEvent *event) override;
   void deselectAll();
   /*!
    * Get the rectangle occupied by the item's checkboy.
@@ -72,6 +73,7 @@ public slots:
 signals:
   void linkActivated(const QString &link);
   void filesSelected(const QModelIndexList &indexes);
+  void fileSelectionRequested();
   void collapseCountChanged(int count);
 
 private:

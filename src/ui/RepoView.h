@@ -39,6 +39,7 @@ class LogEntry;
 class LogView;
 class MainWindow;
 class QMenu;
+class QStackedWidget;
 class PathspecWidget;
 class ReferenceWidget;
 class RemoteCallbacks;
@@ -105,6 +106,10 @@ public:
   // mode
   ViewMode viewMode() const;
   void setViewMode(ViewMode mode);
+
+  void setFileInspectionWidget(QWidget *widget);
+  void setFileInspectionVisible(bool visible);
+  bool isFileInspectionVisible() const;
 
   // workdir
   bool isWorkingDirectoryDirty() const;
@@ -440,6 +445,8 @@ private:
   CommitList *mCommits;
   DetailView *mDetails;
   QWidget *mSideBar;
+  QStackedWidget *mPrimaryView;
+  QWidget *mFileInspectionWidget{nullptr};
 
   LogEntry *mLogRoot;
   LogEntry *mRebase{nullptr};
