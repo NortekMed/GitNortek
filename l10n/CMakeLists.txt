@@ -7,6 +7,7 @@ set(LANGUAGES
     en
     es
     ja
+    ta
     pt
     pt_BR
     zh_CN)

@@ -127,6 +127,8 @@ void Footer::setPlusEnabled(bool enabled) { mPlus->setEnabled(enabled); }
 
 void Footer::setMinusEnabled(bool enabled) { mMinus->setEnabled(enabled); }
 
+void Footer::setMinusVisible(bool visible) { mMinus->setVisible(visible); }
+
 void Footer::paintEvent(QPaintEvent *event) {
   QStyleOption option;
   option.initFrom(this);

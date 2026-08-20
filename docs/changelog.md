@@ -21,6 +21,7 @@ Bug Fix and Feature release
 
 * Show the repository sidebar at startup and keep it open when opening repositories
 * Show Blame and Diff in the branch and commit pane when files are selected, with more default space for the commit history
+* Use the full repository sidebar for navigation and keep only the 20 most recent repositories
 * Brand Linux application and packages as GitNortek
 * Refresh repositories automatically when Git metadata changes
 * Improve diff, blame, commit description, and large binary refresh performance

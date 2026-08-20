@@ -4201,30 +4201,24 @@ Would you like to fix the merge conflict and continue?</source>
 <context>
     <name>RepoModel</name>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="318"/>
         <source>Connecting</source>
-        <translation>接続しています</translation>
+        <translation type="vanished">接続しています</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="342"/>
         <source>open</source>
-        <translation>開く</translation>
+        <translation type="vanished">開く</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="344"/>
         <source>recent</source>
-        <translation>最近使ったリポジトリ</translation>
+        <translation type="vanished">最近使ったリポジトリ</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="346"/>
         <source>remote</source>
-        <translation>リモート</translation>
+        <translation type="vanished">リモート</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="362"/>
-        <location filename="../src/ui/SideBar.cpp" line="371"/>
         <source>none</source>
-        <translation>なし</translation>
+        <translation type="vanished">なし</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="95"/>
@@ -5922,96 +5916,76 @@ The submodule will be removed from this project. Its working files and cached lo
 <context>
     <name>SideBar</name>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="610"/>
-        <source>Repositories</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/SideBar.cpp" line="711"/>
         <source>Close</source>
-        <translation>閉じる</translation>
+        <translation type="vanished">閉じる</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="715"/>
-        <location filename="../src/ui/SideBar.cpp" line="819"/>
-        <location filename="../src/ui/SideBar.cpp" line="914"/>
         <source>Remove</source>
-        <translation>削除</translation>
+        <translation type="vanished">削除</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="720"/>
         <source>Authorize</source>
-        <translation>認証</translation>
+        <translation type="vanished">認証</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="735"/>
+        <location filename="../src/ui/SideBar.cpp" line="59"/>
         <source>Clone Repository</source>
         <translation>リポジトリをクローン</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="746"/>
+        <location filename="../src/ui/SideBar.cpp" line="70"/>
         <source>Open Existing Repository</source>
         <translation>既存のリポジトリを開く</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="750"/>
+        <location filename="../src/ui/SideBar.cpp" line="73"/>
         <source>Open Repository</source>
         <translation>リポジトリを開く</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="759"/>
+        <location filename="../src/ui/SideBar.cpp" line="82"/>
         <source>Initialize New Repository</source>
         <translation>新しいリポジトリを作成</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="774"/>
         <source>Add %1 Account</source>
-        <translation>%1 アカウントを追加</translation>
+        <translation type="vanished">%1 アカウントを追加</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="809"/>
         <source>&lt;p&gt;Are you sure you want to remove the remote repository association for %1?&lt;/p&gt;&lt;p&gt;The local clone itself will not be affected.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;リモートリポジトリ %1 への関連付けを解除しますか？&lt;/p&gt;&lt;p&gt;ローカルのクローンには影響しません。&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;リモートリポジトリ %1 への関連付けを解除しますか？&lt;/p&gt;&lt;p&gt;ローカルのクローンには影響しません。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="814"/>
         <source>Remove Repository Association?</source>
-        <translation>リポジトリへの関連付けを解除しますか？</translation>
+        <translation type="vanished">リポジトリへの関連付けを解除しますか？</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="838"/>
         <source>Clear All Recent</source>
-        <translation>最近使ったリポジトリを消去</translation>
+        <translation type="vanished">最近使ったリポジトリを消去</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="842"/>
         <source>Show Full Path</source>
-        <translation>完全なパスを表示</translation>
+        <translation type="vanished">完全なパスを表示</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="852"/>
         <source>Filter Non-existent Paths</source>
-        <translation>存在しないパスを除去</translation>
+        <translation type="vanished">存在しないパスを除去</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="860"/>
         <source>Refresh Remote Accounts</source>
-        <translation>リモートアカウントを再読み込み</translation>
+        <translation type="vanished">リモートアカウントを再読み込み</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="867"/>
         <source>Show Full Name</source>
-        <translation>完全な名前を表示</translation>
+        <translation type="vanished">完全な名前を表示</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="903"/>
         <source>&lt;p&gt;Are you sure you want to remove the %1 account for &apos;%2&apos;?&lt;/p&gt;&lt;p&gt;Only the account association will be removed. Remote configurations and local clones will not be affected.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;%1 アカウント &apos;%2&apos; を削除しますか？&lt;/p&gt;&lt;p&gt;アカウントへの関連付けのみが解除されます。リモートの設定と、ローカルのクローンには影響しません。&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;%1 アカウント &apos;%2&apos; を削除しますか？&lt;/p&gt;&lt;p&gt;アカウントへの関連付けのみが解除されます。リモートの設定と、ローカルのクローンには影響しません。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="908"/>
         <source>Remove Account?</source>
-        <translation>アカウントを削除しますか？</translation>
+        <translation type="vanished">アカウントを削除しますか？</translation>
     </message>
 </context>
 <context>

@@ -6,15 +6,11 @@
 //
 
 #include "Test.h"
-#include "conf/RecentRepositories.h"
-#include "conf/RecentRepository.h"
 #include "conf/Setting.h"
 #include "conf/Settings.h"
 #include "git/Branch.h"
 #include "git/Config.h"
 #include "git/TagRef.h"
-#include "host/Account.h"
-#include "host/Accounts.h"
 #include "ui/CommitList.h"
 #include "ui/ConfigKeys.h"
 #include "ui/Footer.h"
@@ -48,14 +44,6 @@
 using namespace QTest;
 
 namespace {
-
-enum SideBarRole {
-  PathRole = Qt::UserRole,
-  TabRole,
-  RecentRole,
-  AccountRole,
-  AccountKindRole
-};
 
 QList<QPair<QString, bool>> contextMenuItems(QTreeView *view,
                                              const QModelIndex &index) {
@@ -112,9 +100,6 @@ class TestRepositorySideBar : public QObject {
 private slots:
   void initTestCase();
   void sidebarVisibility();
-  void chooserModel();
-  void recentRemoval();
-  void accountRows();
   void navigatorModel();
   void navigatorView();
   void activeRepositoryBinding();
@@ -124,23 +109,34 @@ private slots:
 
 private:
   MainWindow *mWindow = nullptr;
-  QTreeView *mTree = nullptr;
   Footer *mFooter = nullptr;
   Test::ScratchRepository mRepo;
 };
 
 void TestRepositorySideBar::initTestCase() {
-  QCOMPARE(RecentRepositories::instance()->count(), 0);
-  QCOMPARE(Accounts::instance()->count(), 0);
-
   mWindow = new MainWindow(git::Repository());
   SideBar *sideBar = mWindow->findChild<SideBar *>();
   QVERIFY(sideBar);
 
-  mTree = sideBar->findChild<QTreeView *>("RepositoryTree");
   mFooter = sideBar->findChild<Footer *>("RepositoryFooter");
-  QVERIFY(mTree);
   QVERIFY(mFooter);
+  QVERIFY(!sideBar->findChild<QTreeView *>("RepositoryTree"));
+  QVERIFY(!sideBar->findChild<QSplitter *>("RepositorySidebarContent"));
+  QToolButton *add = mFooter->findChild<QToolButton *>("Add");
+  QToolButton *remove = mFooter->findChild<QToolButton *>("Remove");
+  QToolButton *options = mFooter->findChild<QToolButton *>("Options");
+  QVERIFY(add);
+  QVERIFY(remove);
+  QVERIFY(options);
+  QVERIFY(add->isVisibleTo(mFooter));
+  QVERIFY(!remove->isVisibleTo(mFooter));
+  QVERIFY(!options->isVisibleTo(mFooter));
+  QVERIFY(add->menu());
+  QStringList actions;
+  for (QAction *action : add->menu()->actions())
+    actions.append(action->text());
+  QCOMPARE(actions, QStringList({"Clone Repository", "Open Existing Repository",
+                                 "Initialize New Repository"}));
 }
 
 void TestRepositorySideBar::sidebarVisibility() {
@@ -176,82 +172,6 @@ void TestRepositorySideBar::sidebarVisibility() {
   QVERIFY(!window.isSideBarVisible());
   sidebarButton->click();
   QVERIFY(window.isSideBarVisible());
-}
-
-void TestRepositorySideBar::chooserModel() {
-  QAbstractItemModel *model = mTree->model();
-  QCOMPARE(model->rowCount(), 3);
-
-  QModelIndex open = model->index(0, 0);
-  QCOMPARE(open.data().toString(), QString("open"));
-  QCOMPARE(model->rowCount(open), 1);
-  QCOMPARE(model->index(0, 0, open).data().toString(), QString("none"));
-
-  QModelIndex recent = model->index(1, 0);
-  QCOMPARE(recent.data().toString(), QString("recent"));
-  QCOMPARE(model->rowCount(recent), 1);
-  QCOMPARE(model->index(0, 0, recent).data().toString(), QString("none"));
-
-  QModelIndex remote = model->index(2, 0);
-  QCOMPARE(remote.data().toString(), QString("remote"));
-  QCOMPARE(model->rowCount(remote), Account::NUM_KINDS);
-  for (int row = 0; row < Account::NUM_KINDS; ++row) {
-    Account::Kind kind = static_cast<Account::Kind>(row);
-    QModelIndex provider = model->index(row, 0, remote);
-    QCOMPARE(provider.data().toString(), Account::name(kind));
-    QCOMPARE(provider.data(AccountKindRole).value<Account::Kind>(), kind);
-    QVERIFY(!provider.data(AccountRole).value<Account *>());
-  }
-}
-
-void TestRepositorySideBar::recentRemoval() {
-  QTemporaryDir dir;
-  QVERIFY(dir.isValid());
-
-  RecentRepositories *recent = RecentRepositories::instance();
-  QSignalSpy removed(recent, &RecentRepositories::repositoryRemoved);
-  recent->add(dir.path());
-  QCOMPARE(recent->count(), 1);
-
-  QAbstractItemModel *model = mTree->model();
-  QModelIndex recentRoot = model->index(1, 0);
-  QModelIndex row = model->index(0, 0, recentRoot);
-  QCOMPARE(row.data(PathRole).toString(), dir.path());
-  QVERIFY(row.data(RecentRole).value<RecentRepository *>());
-
-  mTree->selectionModel()->setCurrentIndex(
-      row, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-  QToolButton *remove = mFooter->findChild<QToolButton *>("Remove");
-  QVERIFY(remove);
-  QVERIFY(remove->isEnabled());
-  QVERIFY(QMetaObject::invokeMethod(mFooter, "minusClicked"));
-
-  QCOMPARE(removed.count(), 1);
-  QCOMPARE(recent->count(), 0);
-  recentRoot = model->index(1, 0);
-  QCOMPARE(model->index(0, 0, recentRoot).data().toString(), QString("none"));
-}
-
-void TestRepositorySideBar::accountRows() {
-  Accounts *accounts = Accounts::instance();
-  Account *account = accounts->createAccount(Account::GitLab, "offline-test");
-  QVERIFY(account);
-  QCOMPARE(accounts->count(), 1);
-
-  QAbstractItemModel *model = mTree->model();
-  QModelIndex remote = model->index(2, 0);
-  QCOMPARE(model->rowCount(remote), 1);
-
-  QModelIndex row = model->index(0, 0, remote);
-  QCOMPARE(row.data().toString(), QString("offline-test"));
-  QCOMPARE(row.data(AccountRole).value<Account *>(), account);
-  QCOMPARE(row.data(AccountKindRole).value<Account::Kind>(), Account::GitLab);
-  QCOMPARE(model->rowCount(row), 0);
-
-  accounts->removeAccount(account);
-  QCOMPARE(accounts->count(), 0);
-  remote = model->index(2, 0);
-  QCOMPARE(model->rowCount(remote), Account::NUM_KINDS);
 }
 
 void TestRepositorySideBar::navigatorModel() {
@@ -405,25 +325,13 @@ void TestRepositorySideBar::activeRepositoryBinding() {
   QVERIFY(qWaitForWindowExposed(&window));
   QVERIFY(window.isSideBarVisible());
   SideBar *sideBar = window.findChild<SideBar *>();
-  QTreeView *repositoryTree =
-      sideBar->findChild<QTreeView *>("RepositoryTree");
   RepositoryNavigator *navigator =
       sideBar->findChild<RepositoryNavigator *>("RepositoryNavigator");
-  QSplitter *content =
-      sideBar->findChild<QSplitter *>("RepositorySidebarContent");
   QVERIFY(navigator);
-  QVERIFY(repositoryTree);
-  QVERIFY(content);
-  QCOMPARE(content->count(), 2);
+  QVERIFY(!sideBar->findChild<QTreeView *>("RepositoryTree"));
+  QVERIFY(!sideBar->findChild<QSplitter *>("RepositorySidebarContent"));
   QCOMPARE(navigator->model()->repository().dir(false).path(),
            mRepo->dir(false).path());
-
-  QModelIndex openRoot = repositoryTree->model()->index(0, 0);
-  QModelIndex openRepository = repositoryTree->model()->index(0, 0, openRoot);
-  QVERIFY(openRepository.isValid());
-  QVERIFY(QMetaObject::invokeMethod(repositoryTree, "doubleClicked",
-                                    Q_ARG(QModelIndex, openRepository)));
-  QVERIFY(window.isSideBarVisible());
 
   RepositoryNavigatorModel *model = navigator->model();
   QModelIndex local =

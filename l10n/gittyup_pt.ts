@@ -4202,30 +4202,24 @@ Would you like to fix the merge conflict and continue?</source>
 <context>
     <name>RepoModel</name>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="318"/>
         <source>Connecting</source>
-        <translation>A ligar</translation>
+        <translation type="vanished">A ligar</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="342"/>
         <source>open</source>
-        <translation>abrir</translation>
+        <translation type="vanished">abrir</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="344"/>
         <source>recent</source>
-        <translation>recente</translation>
+        <translation type="vanished">recente</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="346"/>
         <source>remote</source>
-        <translation>remoto</translation>
+        <translation type="vanished">remoto</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="362"/>
-        <location filename="../src/ui/SideBar.cpp" line="371"/>
         <source>none</source>
-        <translation>nenhum</translation>
+        <translation type="vanished">nenhum</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="95"/>
@@ -5923,96 +5917,76 @@ The submodule will be removed from this project. Its working files and cached lo
 <context>
     <name>SideBar</name>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="610"/>
-        <source>Repositories</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/SideBar.cpp" line="711"/>
         <source>Close</source>
-        <translation>Fechar</translation>
+        <translation type="vanished">Fechar</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="715"/>
-        <location filename="../src/ui/SideBar.cpp" line="819"/>
-        <location filename="../src/ui/SideBar.cpp" line="914"/>
         <source>Remove</source>
-        <translation>Remover</translation>
+        <translation type="vanished">Remover</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="720"/>
         <source>Authorize</source>
-        <translation>Autorizar</translation>
+        <translation type="vanished">Autorizar</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="735"/>
+        <location filename="../src/ui/SideBar.cpp" line="59"/>
         <source>Clone Repository</source>
         <translation>Clonar repositório</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="746"/>
+        <location filename="../src/ui/SideBar.cpp" line="70"/>
         <source>Open Existing Repository</source>
         <translation>Abrir repositório existente</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="750"/>
+        <location filename="../src/ui/SideBar.cpp" line="73"/>
         <source>Open Repository</source>
         <translation>Abrir repositório</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="759"/>
+        <location filename="../src/ui/SideBar.cpp" line="82"/>
         <source>Initialize New Repository</source>
         <translation>Inicializar novo repositório</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="774"/>
         <source>Add %1 Account</source>
-        <translation>Adicionar conta %1</translation>
+        <translation type="vanished">Adicionar conta %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="809"/>
         <source>&lt;p&gt;Are you sure you want to remove the remote repository association for %1?&lt;/p&gt;&lt;p&gt;The local clone itself will not be affected.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Tem a certeza de que deseja remover a associação ao repositório remoto para %1?&lt;/p&gt;&lt;p&gt;O clone local clone não será afectado.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Tem a certeza de que deseja remover a associação ao repositório remoto para %1?&lt;/p&gt;&lt;p&gt;O clone local clone não será afectado.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="814"/>
         <source>Remove Repository Association?</source>
-        <translation>Remover associação ao repositório?</translation>
+        <translation type="vanished">Remover associação ao repositório?</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="838"/>
         <source>Clear All Recent</source>
-        <translation>Limpar todos os recentes</translation>
+        <translation type="vanished">Limpar todos os recentes</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="842"/>
         <source>Show Full Path</source>
-        <translation>Mostrar caminho completo</translation>
+        <translation type="vanished">Mostrar caminho completo</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="852"/>
         <source>Filter Non-existent Paths</source>
-        <translation>Filtrar caminhos não existentes</translation>
+        <translation type="vanished">Filtrar caminhos não existentes</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="860"/>
         <source>Refresh Remote Accounts</source>
-        <translation>Actualizar contas remotas</translation>
+        <translation type="vanished">Actualizar contas remotas</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="867"/>
         <source>Show Full Name</source>
-        <translation>Mostrar nome completo</translation>
+        <translation type="vanished">Mostrar nome completo</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="903"/>
         <source>&lt;p&gt;Are you sure you want to remove the %1 account for &apos;%2&apos;?&lt;/p&gt;&lt;p&gt;Only the account association will be removed. Remote configurations and local clones will not be affected.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Tem a certeza de que deseja remover a conta %1 para &quot;%2&quot;?&lt;/p&gt;&lt;p&gt;Só a associação da conta será removida. Configurações remotas e clones locais não serão afectados.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Tem a certeza de que deseja remover a conta %1 para &quot;%2&quot;?&lt;/p&gt;&lt;p&gt;Só a associação da conta será removida. Configurações remotas e clones locais não serão afectados.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="908"/>
         <source>Remove Account?</source>
-        <translation>Remover conta?</translation>
+        <translation type="vanished">Remover conta?</translation>
     </message>
 </context>
 <context>

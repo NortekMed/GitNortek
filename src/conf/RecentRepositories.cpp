@@ -18,6 +18,7 @@ namespace {
 
 const QString kRecentKey = "recent";
 const QString kFilterKey = "recent/filter";
+constexpr int kRecentLimit = 20;
 
 } // namespace
 
@@ -86,6 +87,8 @@ void RecentRepositories::add(QString gitpath) {
     mRepos.erase(it, end);
 
   mRepos.prepend(repo);
+  while (mRepos.size() > kRecentLimit)
+    delete mRepos.takeLast();
   store();
 
   emit repositoryAdded();
@@ -132,6 +135,9 @@ void RecentRepositories::load() {
     paths.removeDuplicates();
 #endif
   }
+
+  if (paths.size() > kRecentLimit)
+    paths.erase(paths.begin() + kRecentLimit, paths.end());
 
   // Store filtered list.
   if (!paths.isEmpty()) {
