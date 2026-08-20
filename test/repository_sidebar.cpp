@@ -769,12 +769,21 @@ void TestRepositorySideBar::stashInteraction() {
   QVariantList wideColumns;
   for (int lane = 0; lane < 60; ++lane)
     wideColumns.append(QVariant(QVariantList()));
+  int referencesWidthBeforeGraphGrowth = header->sectionSize(0);
+  int authorWidthBeforeGraphGrowth = header->sectionSize(3);
+  int dateWidthBeforeGraphGrowth = header->sectionSize(4);
+  int idWidthBeforeGraphGrowth = header->sectionSize(5);
   QModelIndex wideIndex = wideGraph.index(0, 0);
   wideGraph.setData(wideIndex, wideColumns, CommitList::GraphRole);
   wideGraph.setData(wideIndex, wideColumns, CommitList::GraphColorRole);
   wideGraph.setData(wideIndex, wideColumns, CommitList::GraphStyleRole);
   commitList->setModel(&wideGraph);
   QCoreApplication::processEvents();
+  QCOMPARE(header->sectionSize(0), referencesWidthBeforeGraphGrowth);
+  QCOMPARE(header->sectionSize(2), header->minimumSectionSize());
+  QCOMPARE(header->sectionSize(3), authorWidthBeforeGraphGrowth);
+  QCOMPARE(header->sectionSize(4), dateWidthBeforeGraphGrowth);
+  QCOMPARE(header->sectionSize(5), idWidthBeforeGraphGrowth);
   QVERIFY(commitList->horizontalScrollBar()->maximum() > 0);
   commitList->horizontalScrollBar()->setValue(
       commitList->horizontalScrollBar()->maximum());

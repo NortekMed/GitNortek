@@ -32,6 +32,7 @@ Bug Fix and Feature release
 * Preserve the selected commit when push or fetch updates remote references
 * Offer to remove recent repositories that can no longer be opened
 * Display consistent eight-character commit IDs in the interface and versions without Git's `g` prefix
+* Preserve configured Compact Mode column widths when the commit graph expands
 
 ----
 

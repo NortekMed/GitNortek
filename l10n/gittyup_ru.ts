@@ -835,42 +835,42 @@
 <context>
     <name>CommitList</name>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2203"/>
+        <location filename="../src/ui/CommitList.cpp" line="2214"/>
         <source>Remove Untracked Files</source>
         <translation>Удалить неотслеживаемые файлы</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2221"/>
+        <location filename="../src/ui/CommitList.cpp" line="2232"/>
         <source>Apply</source>
         <translation>Применить</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2224"/>
+        <location filename="../src/ui/CommitList.cpp" line="2235"/>
         <source>Pop</source>
         <translation>Вытолкнуть</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2227"/>
+        <location filename="../src/ui/CommitList.cpp" line="2238"/>
         <source>Drop</source>
         <translation>Выбросить</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2241"/>
+        <location filename="../src/ui/CommitList.cpp" line="2252"/>
         <source>Unstar</source>
         <translation>Снять отметку</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2241"/>
+        <location filename="../src/ui/CommitList.cpp" line="2252"/>
         <source>Star</source>
         <translation>Отметить</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2251"/>
+        <location filename="../src/ui/CommitList.cpp" line="2262"/>
         <source>Add Tag...</source>
         <translation>Добавить метку...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2254"/>
+        <location filename="../src/ui/CommitList.cpp" line="2265"/>
         <source>New Branch...</source>
         <translation>Новая ветка...</translation>
     </message>
@@ -923,83 +923,83 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2281"/>
+        <location filename="../src/ui/CommitList.cpp" line="2292"/>
         <source>Rename Branch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2285"/>
+        <location filename="../src/ui/CommitList.cpp" line="2296"/>
         <source>Delete Branch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2290"/>
+        <location filename="../src/ui/CommitList.cpp" line="2301"/>
         <source>Delete Tag</source>
         <translation type="unfinished">Удалить метку</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2294"/>
+        <location filename="../src/ui/CommitList.cpp" line="2305"/>
         <source>Merge...</source>
         <translation>Слить...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2309"/>
+        <location filename="../src/ui/CommitList.cpp" line="2320"/>
         <source>Rebase...</source>
         <translation>Перебазировать...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2324"/>
+        <location filename="../src/ui/CommitList.cpp" line="2335"/>
         <source>Squash...</source>
         <translation>Объединить...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2341"/>
+        <location filename="../src/ui/CommitList.cpp" line="2352"/>
         <source>Revert</source>
         <translation>Откатить</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2343"/>
+        <location filename="../src/ui/CommitList.cpp" line="2354"/>
         <source>Cherry-pick</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2350"/>
-        <location filename="../src/ui/CommitList.cpp" line="2383"/>
+        <location filename="../src/ui/CommitList.cpp" line="2361"/>
+        <location filename="../src/ui/CommitList.cpp" line="2394"/>
         <source>Checkout %1</source>
         <translation>Перейти на %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2352"/>
+        <location filename="../src/ui/CommitList.cpp" line="2363"/>
         <source>Checkout</source>
         <translation type="unfinished">Перейти</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2373"/>
+        <location filename="../src/ui/CommitList.cpp" line="2384"/>
         <source>Local branch is already checked out</source>
         <translation>Локальная ветка уже извлечена</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2376"/>
+        <location filename="../src/ui/CommitList.cpp" line="2387"/>
         <source>This is a bare repository</source>
         <translation>Это - &quot;голый&quot; репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2391"/>
+        <location filename="../src/ui/CommitList.cpp" line="2402"/>
         <source>Reset</source>
         <translation>Сбросить</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2392"/>
+        <location filename="../src/ui/CommitList.cpp" line="2403"/>
         <source>Soft</source>
         <translation>Мягкий</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2393"/>
+        <location filename="../src/ui/CommitList.cpp" line="2404"/>
         <source>Mixed</source>
         <translation>Смешанный</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2394"/>
+        <location filename="../src/ui/CommitList.cpp" line="2405"/>
         <source>Hard</source>
         <translation>Жесткий</translation>
     </message>

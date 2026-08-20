@@ -1867,17 +1867,28 @@ void CommitList::resizeHeaderToFit(int protectedColumn) {
     return;
   }
 
+  bool graphConsumesMessage =
+      protectedColumn == GraphColumn ||
+      (protectedColumn < 0 && mGraphPreferredWidth > 0 &&
+       mHeader->sectionSize(GraphColumn) > mGraphPreferredWidth);
   QList<int> columns;
-  if (SummaryColumn != protectedColumn &&
-      !mHeader->isSectionHidden(SummaryColumn))
+  if (graphConsumesMessage) {
+    // Graph growth consumes message space without changing configured columns.
+    if (!mHeader->isSectionHidden(SummaryColumn))
+      columns.append(SummaryColumn);
+  } else if (SummaryColumn != protectedColumn &&
+             !mHeader->isSectionHidden(SummaryColumn)) {
     columns.append(SummaryColumn);
-  for (int column = 0; column < ColumnCount; ++column) {
-    if (column != protectedColumn && column != SummaryColumn &&
-        !mHeader->isSectionHidden(column))
-      columns.append(column);
   }
-  if (protectedColumn >= 0 && !mHeader->isSectionHidden(protectedColumn))
-    columns.append(protectedColumn);
+  if (!graphConsumesMessage) {
+    for (int column = 0; column < ColumnCount; ++column) {
+      if (column != protectedColumn && column != SummaryColumn &&
+          !mHeader->isSectionHidden(column))
+        columns.append(column);
+    }
+    if (protectedColumn >= 0 && !mHeader->isSectionHidden(protectedColumn))
+      columns.append(protectedColumn);
+  }
   if (columns.isEmpty()) {
     updateScrollPolicy();
     mUpdatingHeader = updating;

@@ -960,49 +960,49 @@
 <context>
     <name>CommitList</name>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2203"/>
+        <location filename="../src/ui/CommitList.cpp" line="2214"/>
         <source>Remove Untracked Files</source>
         <translatorcomment>Remover arquivos não rastreados</translatorcomment>
         <translation>Remover arquivos não rastreados</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2221"/>
+        <location filename="../src/ui/CommitList.cpp" line="2232"/>
         <source>Apply</source>
         <translatorcomment>Apply, deixa na lista de stash para possível reutilização posterior.</translatorcomment>
         <translation>Aplique</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2224"/>
+        <location filename="../src/ui/CommitList.cpp" line="2235"/>
         <source>Pop</source>
         <translatorcomment>Joga fora o stash (mais alto, por padrão) depois de aplicá-lo.</translatorcomment>
         <translation>Pop</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2227"/>
+        <location filename="../src/ui/CommitList.cpp" line="2238"/>
         <source>Drop</source>
         <translatorcomment>Remove um único estado escondido da lista de stash depois de aplica-lo, stash do topo da árvore de trabalho.</translatorcomment>
         <translation>Drop</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2241"/>
+        <location filename="../src/ui/CommitList.cpp" line="2252"/>
         <source>Unstar</source>
         <translatorcomment>Unstar, remove estrela do repositório selecionado.</translatorcomment>
         <translation>Desmarcar Estrela</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2241"/>
+        <location filename="../src/ui/CommitList.cpp" line="2252"/>
         <source>Star</source>
         <translatorcomment>Star, marca com estrela o repositório selecionado.</translatorcomment>
         <translation>Marcar com Estrela</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2251"/>
+        <location filename="../src/ui/CommitList.cpp" line="2262"/>
         <source>Add Tag...</source>
         <translatorcomment>Adiciona uma Tag.</translatorcomment>
         <translation>Add Tag...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2254"/>
+        <location filename="../src/ui/CommitList.cpp" line="2265"/>
         <source>New Branch...</source>
         <translatorcomment>Cria um novo Branch.</translatorcomment>
         <translation>Novo Branch...</translation>
@@ -1058,94 +1058,94 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2281"/>
+        <location filename="../src/ui/CommitList.cpp" line="2292"/>
         <source>Rename Branch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2285"/>
+        <location filename="../src/ui/CommitList.cpp" line="2296"/>
         <source>Delete Branch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2290"/>
+        <location filename="../src/ui/CommitList.cpp" line="2301"/>
         <source>Delete Tag</source>
         <translation type="unfinished">Deletar Tag</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2294"/>
+        <location filename="../src/ui/CommitList.cpp" line="2305"/>
         <source>Merge...</source>
         <translatorcomment>Mescla o Branch atual no Branch específicado, cria sempre um commit referente a mesclagem.</translatorcomment>
         <translation>Merge...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2309"/>
+        <location filename="../src/ui/CommitList.cpp" line="2320"/>
         <source>Rebase...</source>
         <translatorcomment>Isso move toda a ramificação de recurso para começar na ponta da ramificação específicada, mas em vez de usar um commit de mesclagem, o rebase reescreve o histórico do projeto criando commits totalmente novos para cada commit na ramificação original, diferenciando-se do (Merge) que gera um commit da mesclagem.</translatorcomment>
         <translation>Rebase...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2324"/>
+        <location filename="../src/ui/CommitList.cpp" line="2335"/>
         <source>Squash...</source>
         <translatorcomment>Efetua um merge com o parâmetro --squash...</translatorcomment>
         <translation>Merge --squash...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2341"/>
+        <location filename="../src/ui/CommitList.cpp" line="2352"/>
         <source>Revert</source>
         <translatorcomment>Revert, a operação de reversão vai pegar o commit especificado, inverter as alterações dele e criar um &quot;commit de reversão&quot; novo. Os indicadores de referência são então atualizados para apontar para o commit de reversão novo, tornando o commit na ponta do branch.</translatorcomment>
         <translation>Reverter</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2343"/>
+        <location filename="../src/ui/CommitList.cpp" line="2354"/>
         <source>Cherry-pick</source>
         <translatorcomment>(Cherry-pick) Anexa o commit selecionado no branch atual.</translatorcomment>
         <translation>(Cherry-pick) Coletar-commit</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2350"/>
-        <location filename="../src/ui/CommitList.cpp" line="2383"/>
+        <location filename="../src/ui/CommitList.cpp" line="2361"/>
+        <location filename="../src/ui/CommitList.cpp" line="2394"/>
         <source>Checkout %1</source>
         <translatorcomment>Verifica o branch pai e atualiza o branch local.</translatorcomment>
         <translation>Checkout %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2352"/>
+        <location filename="../src/ui/CommitList.cpp" line="2363"/>
         <source>Checkout</source>
         <translation type="unfinished">Checkout</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2373"/>
+        <location filename="../src/ui/CommitList.cpp" line="2384"/>
         <source>Local branch is already checked out</source>
         <translatorcomment>O Branch local já foi verificado na saída.</translatorcomment>
         <translation>O Branch local já está verificado na saída</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2376"/>
+        <location filename="../src/ui/CommitList.cpp" line="2387"/>
         <source>This is a bare repository</source>
         <translatorcomment>Este é um repositório vazio.</translatorcomment>
         <translation>Este é um repositório vazio</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2391"/>
+        <location filename="../src/ui/CommitList.cpp" line="2402"/>
         <source>Reset</source>
         <translatorcomment>Reset é um comando poderoso usado para desfazer alterações locais no estado de um repositório Git. O git reset opera nas &quot;três árvores do Git&quot;. </translatorcomment>
         <translation>Resetar</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2392"/>
+        <location filename="../src/ui/CommitList.cpp" line="2403"/>
         <source>Soft</source>
         <translatorcomment>Atualiza os indicadores de ref e a redefinição para aí.</translatorcomment>
         <translation>Soft</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2393"/>
+        <location filename="../src/ui/CommitList.cpp" line="2404"/>
         <source>Mixed</source>
         <translatorcomment>Os indicadores de ref são atualizados. O Índice de staging é redefinido para o estado da confirmação especificada.</translatorcomment>
         <translation>Mixed</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2394"/>
+        <location filename="../src/ui/CommitList.cpp" line="2405"/>
         <source>Hard</source>
         <translatorcomment>Os indicadores de ref do Histórico de confirmações são atualizados para a confirmação especificada. Então, o Índice de staging e o Diretório de trabalho são redefinidos para corresponder à confirmação especificada.</translatorcomment>
         <translation>Hard</translation>
