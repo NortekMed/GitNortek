@@ -112,7 +112,12 @@ enum GraphSegment {
   LeftIn,
   LeftOut,
   RightIn,
-  RightOut
+  RightOut,
+  MergeCross,
+  MergeLeftIn,
+  MergeLeftOut,
+  MergeRightIn,
+  MergeRightOut
 };
 
 class DiffCallbacks : public git::Diff::Callbacks {
@@ -610,33 +615,40 @@ private:
         if (index < 0)
           continue;
 
-        // Handle multiple commits that share the same parent.
-        bool single = (successors.size() == 1);
-        const QColor &color =
-            single ? parent.taintedColor(commit) : mParents.at(index).color;
+        // Match each end of a lateral edge to the lane it touches.
+        bool merge = parent.commit == commit && successors.size() > 1;
+        QColor sourceColor = parent.taintedColor(commit);
+        QColor targetColor = mParents.at(index).taintedColor();
+        QColor edgeColor = merge ? targetColor : sourceColor;
         Qt::PenStyle style =
             parent.commit == commit && !isStash(commit) ? Qt::SolidLine
-                                                        : parent.style;
+                                                         : parent.style;
 
         if (index < i) {
           // out to the left
-          columns[index] << Segment(RightIn, color, style);
+          columns[index]
+              << Segment(merge ? MergeRightIn : RightIn, edgeColor, style);
           for (int j = index + 1; j < i; ++j)
-            columns[j] << Segment(Cross, color, style);
-          columns[i] << Segment(LeftOut, color, style);
+            columns[j]
+                << Segment(merge ? MergeCross : Cross, edgeColor, style);
+          columns[i]
+              << Segment(merge ? MergeLeftOut : LeftOut, edgeColor, style);
 
         } else if (index > i) {
           // out to the right
-          columns[i] << Segment(RightOut, color, style);
+          columns[i]
+              << Segment(merge ? MergeRightOut : RightOut, edgeColor, style);
           for (int j = i + 1; j < index; ++j)
-            columns[j] << Segment(Cross, color, style);
+            columns[j]
+                << Segment(merge ? MergeCross : Cross, edgeColor, style);
           if (index == columns.size())
             columns.append(Column());
-          columns[index] << Segment(LeftIn, color, style);
+          columns[index]
+              << Segment(merge ? MergeLeftIn : LeftIn, edgeColor, style);
 
         } else { // index == i
           // out the bottom
-          columns[index] << Segment(Bottom, color, style);
+          columns[index] << Segment(Bottom, edgeColor, style);
         }
       }
     }
@@ -873,7 +885,6 @@ public:
       int w = qMax(opt.fontMetrics.ascent(), kGraphNodeSize + 4);
       int h = opt.rect.height();
       int h_2 = h / 2;
-      int h_4 = h / 4;
 
       // radius
       int r =
@@ -887,13 +898,12 @@ public:
       int y1 = y + h_2 - r;
       int y2 = y + h_2;
       int y3 = y + h_2 + r;
-      int y4 = y + h_2 + h_4;
       int y5 = y + h;
+      int y4 = y3 + (y5 - y3) / 2;
 
       QVariantList segments = columns.at(i).toList();
       QVariantList colors = colorColumns.at(i).toList();
       QVariantList styles = styleColumns.at(i).toList();
-      bool hasNode = segments.contains(static_cast<int>(Dot));
       for (int j = 0; j < segments.size(); ++j) {
         QColor color = colors.at(j).value<QColor>();
         QPen pen(color, 2);
@@ -945,26 +955,16 @@ public:
 
           case RightOut: {
             QPainterPath path;
-            if (hasNode) {
-              path.moveTo(x1 + r, y2);
-              path.cubicTo(x2, y2, x1 + r, y4, x2, y4);
-            } else {
-              path.moveTo(x1, y3);
-              path.quadTo(x1, y4, x2, y4);
-            }
+            path.moveTo(x1, y3);
+            path.quadTo(x1, y4, x2, y4);
             painter->drawPath(path);
             break;
           }
 
           case LeftOut: {
             QPainterPath path;
-            if (hasNode) {
-              path.moveTo(x1 - r, y2);
-              path.cubicTo(x, y2, x1 - r, y4, x, y4);
-            } else {
-              path.moveTo(x1, y3);
-              path.quadTo(x1, y4, x, y4);
-            }
+            path.moveTo(x1, y3);
+            path.quadTo(x1, y4, x, y4);
             painter->drawPath(path);
             break;
           }
@@ -981,6 +981,34 @@ public:
             QPainterPath path;
             path.moveTo(x1, y5);
             path.quadTo(x1, y4, x, y4);
+            painter->drawPath(path);
+            break;
+          }
+
+          case MergeCross:
+            painter->drawLine(x, y2, x2, y2);
+            break;
+
+          case MergeRightOut:
+            painter->drawLine(x1 + r, y2, x2, y2);
+            break;
+
+          case MergeLeftOut:
+            painter->drawLine(x1 - r, y2, x, y2);
+            break;
+
+          case MergeLeftIn: {
+            QPainterPath path;
+            path.moveTo(x, y2);
+            path.cubicTo(x1, y2, x1, y4, x1, y5);
+            painter->drawPath(path);
+            break;
+          }
+
+          case MergeRightIn: {
+            QPainterPath path;
+            path.moveTo(x2, y2);
+            path.cubicTo(x1, y2, x1, y4, x1, y5);
             painter->drawPath(path);
             break;
           }

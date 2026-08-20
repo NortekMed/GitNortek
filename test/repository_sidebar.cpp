@@ -496,6 +496,22 @@ void TestRepositorySideBar::stashInteraction() {
             {"commit", "--allow-empty", "-m", "stash tip"});
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
+
+  QString mainBranch = repo->head().name();
+  git.start(GIT_EXECUTABLE, {"checkout", "-b", "graph-side", "HEAD~1"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE,
+            {"commit", "--allow-empty", "-m", "graph side"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE, {"checkout", mainBranch});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE,
+            {"merge", "--no-ff", "graph-side", "-m", "graph merge"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
   QVERIFY(file.open(QIODevice::Append));
   file.write("change\n");
   file.close();
@@ -598,6 +614,102 @@ void TestRepositorySideBar::stashInteraction() {
 
   while (graphModel->canFetchMore(QModelIndex()))
     graphModel->fetchMore(QModelIndex());
+  constexpr int dotSegment = 0;
+  constexpr int leftOutSegment = 6;
+  constexpr int rightOutSegment = 8;
+  constexpr int firstMergeSegment = 9;
+  constexpr int mergeLeftInSegment = 10;
+  constexpr int mergeLeftOutSegment = 11;
+  constexpr int mergeRightInSegment = 12;
+  constexpr int mergeRightOutSegment = 13;
+  bool mergeUsesSidePort = false;
+  QColor mergeNodeColor;
+  QColor mergeEdgeColor;
+  QColor mergeTargetColor;
+  QList<QColor> mergeColors;
+  bool stashUsesSourceColor = false;
+  int mergeRow = -1;
+  int mergeTargetColumn = -1;
+  for (int row = 0; row < graphModel->rowCount(); ++row) {
+    QModelIndex index = graphModel->index(row, 0);
+    git::Commit commit = index.data(CommitList::CommitRole).value<git::Commit>();
+    bool targetMerge = commit.isValid() && commit.summary() == "graph merge";
+    bool stash = index.data(CommitList::StashIndexRole).isValid();
+    QColor stashNodeColor;
+    QList<QColor> stashEdgeColors;
+    QVariantList columns = index.data(CommitList::GraphRole).toList();
+    QVariantList colorColumns =
+        index.data(CommitList::GraphColorRole).toList();
+    QVariantList styleColumns =
+        index.data(CommitList::GraphStyleRole).toList();
+    for (int column = 0; column < columns.size(); ++column) {
+      QVariantList segments = columns.at(column).toList();
+      QVariantList colors = colorColumns.at(column).toList();
+      QVariantList styles = styleColumns.at(column).toList();
+      bool hasDot = segments.contains(dotSegment);
+      for (int segment = 0; segment < segments.size(); ++segment) {
+        int type = segments.at(segment).toInt();
+        if (targetMerge && type == dotSegment)
+          mergeNodeColor = colors.at(segment).value<QColor>();
+        if (targetMerge &&
+            (type == mergeLeftOutSegment || type == mergeRightOutSegment)) {
+          mergeUsesSidePort = true;
+          mergeEdgeColor = colors.at(segment).value<QColor>();
+        }
+        if (targetMerge &&
+            (type == mergeLeftInSegment || type == mergeRightInSegment)) {
+          mergeTargetColor = colors.at(segment).value<QColor>();
+          mergeRow = row;
+          mergeTargetColumn = column;
+        }
+        if (targetMerge && type >= firstMergeSegment)
+          mergeColors.append(colors.at(segment).value<QColor>());
+        if (stash && type == dotSegment)
+          stashNodeColor = colors.at(segment).value<QColor>();
+        if (stash && styles.at(segment).toInt() == Qt::DotLine && type >= 4 &&
+            type < firstMergeSegment) {
+          stashEdgeColors.append(colors.at(segment).value<QColor>());
+        }
+      }
+      if (hasDot && stash) {
+        QColor stashEdgeColor;
+        for (int segment = 0; segment < segments.size(); ++segment) {
+          int type = segments.at(segment).toInt();
+          if (type == leftOutSegment || type == rightOutSegment)
+            stashEdgeColor = colors.at(segment).value<QColor>();
+        }
+        if (stashEdgeColor.isValid()) {
+          QCOMPARE(stashEdgeColor, stashNodeColor);
+          stashUsesSourceColor = true;
+        }
+        for (const QVariant &segment : segments)
+          QVERIFY(segment.toInt() < firstMergeSegment);
+      }
+    }
+    if (stash) {
+      QVERIFY(stashNodeColor.isValid());
+      for (const QColor &color : stashEdgeColors)
+        QCOMPARE(color, stashNodeColor);
+    }
+    if (targetMerge)
+      QVERIFY(commit.parents().size() > 1);
+  }
+  QVERIFY(mergeUsesSidePort);
+  QVERIFY(mergeNodeColor.isValid());
+  QVERIFY(mergeTargetColor.isValid());
+  QCOMPARE(mergeEdgeColor, mergeTargetColor);
+  for (const QColor &color : mergeColors)
+    QCOMPARE(color, mergeTargetColor);
+  QVERIFY(mergeRow + 1 < graphModel->rowCount());
+  QVariantList nextColorColumns = graphModel->index(mergeRow + 1, 0)
+                                      .data(CommitList::GraphColorRole)
+                                      .toList();
+  QVERIFY(mergeTargetColumn < nextColorColumns.size());
+  QVariantList nextColors = nextColorColumns.at(mergeTargetColumn).toList();
+  QVERIFY(!nextColors.isEmpty());
+  QCOMPARE(mergeTargetColor, nextColors.constFirst().value<QColor>());
+  QVERIFY(stashUsesSourceColor);
+
   int laneWidth = qMax(compactMetrics.ascent(), 20);
   int graphMinimum = 50;
   for (int row = 0; row < graphModel->rowCount(); ++row) {
