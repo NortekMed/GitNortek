@@ -10,9 +10,6 @@
 #include "ReferenceView.h"
 #include "RepoView.h"
 #include "TabBar.h"
-#include "dialogs/DeleteBranchDialog.h"
-#include "dialogs/DeleteTagDialog.h"
-#include "dialogs/MergeDialog.h"
 #include "git/Branch.h"
 #include "git/Repository.h"
 #include "git/TagRef.h"
@@ -282,97 +279,9 @@ void ReferenceView::contextMenuEvent(QContextMenuEvent *event) {
   if (!ref.isValid())
     return;
 
-  QMenu menu;
-  QAction *checkout =
-      menu.addAction(tr("Checkout"), [this, &ref] { this->checkout(ref); });
-
   RepoView *view = RepoView::parentView(this);
-  checkout->setEnabled(!ref.isHead() && !view->repo().isBare());
-
-  menu.addSeparator();
-
-  if (ref.isLocalBranch()) {
-    QAction *rename = menu.addAction(tr("Rename"), [this, ref] {
-      RepoView *view = RepoView::parentView(this);
-      ConfigDialog *dialog = view->configureSettings(ConfigDialog::Branches);
-      dialog->editBranch(ref.name());
-    });
-
-    rename->setEnabled(!ref.isHead());
-  }
-
-  if (ref.isTag() || ref.isLocalBranch()) {
-    QAction *remove = menu.addAction(tr("Delete"), [this, ref] {
-      if (ref.isTag()) {
-        DeleteTagDialog *dialog = new DeleteTagDialog(ref, this);
-        dialog->setAttribute(Qt::WA_DeleteOnClose);
-        dialog->open();
-
-      } else {
-        DeleteBranchDialog *dialog = new DeleteBranchDialog(ref, this);
-        dialog->setAttribute(Qt::WA_DeleteOnClose);
-        dialog->open();
-      }
-    });
-
-    remove->setEnabled(ref.isTag() || !ref.isHead());
-  }
-
-  if (ref.isTag()) {
-    git::Remote remote = ref.repo().defaultRemote();
-    if (remote.isValid()) {
-      menu.addAction(tr("Push Tag to %1").arg(remote.name()),
-                     [ref, view, remote] { view->push(remote, ref); });
-    }
-  }
-
-  if (ref.isRemoteBranch()) {
-    menu.addAction(tr("New Local Branch"), [this, ref] {
-      QString local = ref.name().section('/', 1);
-      RepoView::parentView(this)->createBranch(local, ref.target(), ref, true);
-    });
-  }
-
-  menu.addSeparator();
-
-  QAction *merge = menu.addAction(tr("Merge..."), [this, ref] {
-    RepoView *view = RepoView::parentView(this);
-    MergeDialog *dialog = new MergeDialog(RepoView::Merge, view->repo(), view);
-    connect(dialog, &QDialog::accepted, [view, dialog] {
-      view->merge(dialog->flags(), dialog->reference());
-    });
-
-    dialog->setReference(ref);
-    dialog->open();
-  });
-
-  QAction *rebase = menu.addAction(tr("Rebase..."), [this, ref] {
-    RepoView *view = RepoView::parentView(this);
-    MergeDialog *dialog = new MergeDialog(RepoView::Rebase, view->repo(), view);
-    connect(dialog, &QDialog::accepted, [view, dialog] {
-      view->merge(dialog->flags(), dialog->reference());
-    });
-
-    dialog->setReference(ref);
-    dialog->open();
-  });
-
-  QAction *squash = menu.addAction(tr("Squash..."), [this, ref] {
-    RepoView *view = RepoView::parentView(this);
-    MergeDialog *dialog = new MergeDialog(RepoView::Squash, view->repo(), view);
-    connect(dialog, &QDialog::accepted, [view, dialog] {
-      view->merge(dialog->flags(), dialog->reference());
-    });
-
-    dialog->setReference(ref);
-    dialog->open();
-  });
-
-  bool stash = ref.isStash();
-  merge->setEnabled(!stash);
-  rebase->setEnabled(!stash);
-  squash->setEnabled(!stash);
-
+  QMenu menu;
+  view->populateReferenceContextMenu(&menu, ref);
   menu.exec(event->globalPos());
 }
 

@@ -26,15 +26,15 @@
 #include <QCheckBox>
 #include <QLabel>
 #include <QPushButton>
-#include <QSettings>
 #include <QStackedWidget>
+#include <QStyle>
+#include <QToolButton>
 #include <QButtonGroup>
 #include <qnamespace.h>
 #include <qtreeview.h>
 
 namespace {
 
-const QString kSplitterKey = QString("diffsplitter");
 const QString kExpandAll = QString(QObject::tr("Expand all"));
 const QString kCollapseAll = QString(QObject::tr("Collapse all"));
 const QString kStagedFiles = QString(QObject::tr("Staged Files"));
@@ -98,6 +98,13 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   QMenu *contextMenu = new QMenu(this);
   contextButton->setMenu(contextMenu);
 
+  QToolButton *closeButton = new QToolButton(this);
+  closeButton->setObjectName("CloseFileInspection");
+  closeButton->setAccessibleName(tr("Close Blame and Diff"));
+  closeButton->setToolTip(tr("Close"));
+  closeButton->setAutoRaise(true);
+  closeButton->setIcon(style()->standardIcon(QStyle::SP_TitleBarCloseButton));
+
   QAction *singleTree = setupAppearanceAction(
       "Single View", Setting::Id::ShowChangedFilesInSingleView);
   QAction *listView =
@@ -118,6 +125,7 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   buttonLayout->addWidget(segmentedButton);
   buttonLayout->addStretch();
   buttonLayout->addWidget(contextButton);
+  buttonLayout->addWidget(closeButton);
 
   // bottom (Stacked widget with Blame editor and DiffView)
   QVBoxLayout *fileViewLayout = new QVBoxLayout();
@@ -132,9 +140,14 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   mFileView->setCurrentIndex(DoubleTreeWidget::Diff);
   mFileView->show();
   QWidget *fileView = new QWidget(this);
+  fileView->setObjectName("FileInspectionView");
   fileView->setLayout(fileViewLayout);
 
-  auto *repoView = qobject_cast<RepoView *>(parent->parent());
+  auto *repoView = RepoView::parentView(this);
+  Q_ASSERT(repoView);
+  repoView->setFileInspectionWidget(fileView);
+  connect(closeButton, &QToolButton::clicked, this,
+          &DoubleTreeWidget::closeFileInspection);
 
   // second column
   // staged files
@@ -218,29 +231,9 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   treeViewSplitter->setStretchFactor(0, 0);
   treeViewSplitter->setStretchFactor(1, 1);
 
-  // splitter between editor/diffview and TreeViews
-  QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
-  splitter->setHandleWidth(0);
-  splitter->addWidget(fileView);
-  splitter->addWidget(treeViewSplitter);
-  splitter->setStretchFactor(0, 3);
-  splitter->setStretchFactor(1, 1);
-  // prevent that diffview will be collapsed
-  // The problem is that the diffview is between two splitters
-  // and if the diffview is collapsed only the splitter of the
-  // commitlist is visible and is is not possible to get the
-  // diffview visible again.
-  splitter->setCollapsible(0, false);
-  connect(splitter, &QSplitter::splitterMoved, this, [splitter] {
-    QSettings().setValue(kSplitterKey, splitter->saveState());
-  });
-
-  // Restore splitter state.
-  splitter->restoreState(QSettings().value(kSplitterKey).toByteArray());
-
   QVBoxLayout *layout = new QVBoxLayout(this);
   layout->setContentsMargins(0, 0, 0, 0);
-  layout->addWidget(splitter);
+  layout->addWidget(treeViewSplitter);
 
   setLayout(layout);
 
@@ -280,11 +273,15 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
 
   connect(stagedFiles, &TreeView::filesSelected, this,
           &DoubleTreeWidget::filesSelected);
+  connect(stagedFiles, &TreeView::fileSelectionRequested, this,
+          &DoubleTreeWidget::openFileInspection);
   connect(stagedFiles, &TreeView::collapseCountChanged, this,
           &DoubleTreeWidget::collapseCountChanged);
 
   connect(unstagedFiles, &TreeView::filesSelected, this,
           &DoubleTreeWidget::filesSelected);
+  connect(unstagedFiles, &TreeView::fileSelectionRequested, this,
+          &DoubleTreeWidget::openFileInspection);
   connect(unstagedFiles, &TreeView::collapseCountChanged, this,
           &DoubleTreeWidget::collapseCountChanged);
 
@@ -421,6 +418,8 @@ void DoubleTreeWidget::setDiff(const git::Diff &diff, const QString &file,
   Q_UNUSED(pathspec)
 
   mSetDiffCounter++;
+  bool ignoreSelectionChange = mIgnoreSelectionChange;
+  mIgnoreSelectionChange = true;
 
   DebugRefresh("time: " << QDateTime::currentDateTime()
                         << "Counter: " << mSetDiffCounter);
@@ -500,8 +499,10 @@ void DoubleTreeWidget::setDiff(const git::Diff &diff, const QString &file,
   mDiffView->setDiff(diff);
 
   // Restore selection.
-  if (diff.isValid())
+  if (diff.isValid() && !mFileInspectionClosed)
     loadSelection();
+
+  mIgnoreSelectionChange = ignoreSelectionChange;
 
   DebugRefresh("finished, time: " << QDateTime::currentDateTime()
                                   << "Counter: " << mSetDiffCounter);
@@ -567,6 +568,7 @@ void DoubleTreeWidget::loadSelection() {
     }
   }
 
+  bool ignoreSelectionChange = mIgnoreSelectionChange;
   mIgnoreSelectionChange = true;
   if (mSelectedFile.stagedModel) {
     TreeProxy *proxy = static_cast<TreeProxy *>(stagedFiles->model());
@@ -579,7 +581,7 @@ void DoubleTreeWidget::loadSelection() {
     unstagedFiles->selectionModel()->setCurrentIndex(
         index, QItemSelectionModel::Select);
   }
-  mIgnoreSelectionChange = false;
+  mIgnoreSelectionChange = ignoreSelectionChange;
 }
 
 void DoubleTreeWidget::treeModelStateChanged(const QModelIndex &index,
@@ -612,19 +614,59 @@ void DoubleTreeWidget::collapseCountChanged(int count) {
 }
 
 void DoubleTreeWidget::filesSelected(const QModelIndexList &indexes) {
-  if (indexes.isEmpty())
+  if (mIgnoreSelectionChange)
     return;
 
   QObject *obj = QObject::sender();
-  if (obj) {
+  if (obj && !indexes.isEmpty()) {
+    mIgnoreSelectionChange = true;
     TreeView *treeview = static_cast<TreeView *>(obj);
     if (treeview == stagedFiles) {
       unstagedFiles->deselectAll();
     } else if (treeview == unstagedFiles) {
       stagedFiles->deselectAll();
     }
+    mIgnoreSelectionChange = false;
   }
-  loadEditorContent(indexes);
+
+  QModelIndexList selected = stagedFiles->selectionModel()->selectedIndexes();
+  selected.append(unstagedFiles->selectionModel()->selectedIndexes());
+  if (selected.isEmpty()) {
+    mDiffView->enable(false);
+    mEditor->clear();
+    mFileInspectionClosed = true;
+    RepoView::parentView(this)->setFileInspectionVisible(false);
+    return;
+  }
+
+  if (!RepoView::parentView(this)->isFileInspectionVisible())
+    return;
+
+  loadEditorContent(selected);
+}
+
+void DoubleTreeWidget::openFileInspection() {
+  QModelIndexList selected = stagedFiles->selectionModel()->selectedIndexes();
+  selected.append(unstagedFiles->selectionModel()->selectedIndexes());
+  if (selected.isEmpty())
+    return;
+
+  mFileInspectionClosed = false;
+  loadEditorContent(selected);
+  RepoView::parentView(this)->setFileInspectionVisible(true);
+}
+
+void DoubleTreeWidget::closeFileInspection() {
+  bool ignoreSelectionChange = mIgnoreSelectionChange;
+  mIgnoreSelectionChange = true;
+  stagedFiles->deselectAll();
+  unstagedFiles->deselectAll();
+  mSelectedFile.filename.clear();
+  mFileInspectionClosed = true;
+  mEditor->clear();
+  mDiffView->enable(false);
+  mIgnoreSelectionChange = ignoreSelectionChange;
+  RepoView::parentView(this)->setFileInspectionVisible(false);
 }
 
 void DoubleTreeWidget::loadEditorContent(const QModelIndexList &indexes) {

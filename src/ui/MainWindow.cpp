@@ -44,7 +44,7 @@ const QString kPathKey = "path";
 const QString kIndexKey = "index";
 const QString kStateKey = "state";
 const QString kActiveKey = "active";
-const QString kSidebarKey = "sidebar";
+const QString kSidebarWidthKey = "sidebar/repositoryNavigator/width";
 const QString kGeometryKey = "geometry";
 const QString kWindowsGroup = "windows";
 
@@ -129,6 +129,8 @@ MainWindow::MainWindow(const git::Repository &repo, QWidget *parent,
   connect(splitter, &QSplitter::splitterMoved, [this] {
     QSplitter *splitter = static_cast<QSplitter *>(centralWidget());
     mIsSideBarVisible = (splitter->sizes().first() > 0);
+    if (mIsSideBarVisible)
+      QSettings().setValue(kSidebarWidthKey, splitter->sizes().first());
   });
 
   // Create tab container.
@@ -171,8 +173,12 @@ MainWindow::MainWindow(const git::Repository &repo, QWidget *parent,
   if (MainWindow *win = activeWindow())
     move(win->x() + 24, win->y() + 24);
 
-  // Restore sidebar.
-  setSideBarVisible(QSettings().value(kSidebarKey, true).toBool());
+  // Always start with the sidebar visible at its saved width.
+  int sidebarWidth = QSettings().value(kSidebarWidthKey,
+                                       splitter->widget(0)->sizeHint().width())
+                         .toInt();
+  splitter->setSizes({qBound(220, sidebarWidth, 520), 1});
+  mIsSideBarVisible = true;
 
   // Set initial state of interface.
   updateInterface();
@@ -186,13 +192,13 @@ void MainWindow::setSideBarVisible(bool visible) {
 
   mIsSideBarVisible = visible;
 
-  // Remember in settings.
-  QSettings().setValue(kSidebarKey, visible);
-
   // Animate sidebar sliding in or out.
   QSplitter *splitter = static_cast<QSplitter *>(centralWidget());
   QWidget *sidebar = splitter->widget(0);
-  int pos = visible ? sidebar->sizeHint().width() : splitter->sizes().first();
+  int storedWidth = QSettings().value(kSidebarWidthKey,
+                                      sidebar->sizeHint().width()).toInt();
+  int pos = visible ? qBound(220, storedWidth, 520)
+                    : splitter->sizes().first();
 
   QTimeLine *timeline = new QTimeLine(250, this);
   timeline->setDirection(visible ? QTimeLine::Forward : QTimeLine::Backward);

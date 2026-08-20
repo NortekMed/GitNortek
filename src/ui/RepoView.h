@@ -29,6 +29,7 @@
 #include <functional>
 
 class CommitList;
+class CommitAvatarProvider;
 class DetailView;
 class EditorWindow;
 class History;
@@ -37,6 +38,10 @@ class Location;
 class LogEntry;
 class LogView;
 class MainWindow;
+class QFrame;
+class QMenu;
+class QStackedWidget;
+class QToolButton;
 class PathspecWidget;
 class ReferenceWidget;
 class RemoteCallbacks;
@@ -104,12 +109,18 @@ public:
   ViewMode viewMode() const;
   void setViewMode(ViewMode mode);
 
+  void setFileInspectionWidget(QWidget *widget);
+  void setFileInspectionVisible(bool visible);
+  bool isFileInspectionVisible() const;
+
   // workdir
   bool isWorkingDirectoryDirty() const;
 
   // current reference
   git::Reference reference() const;
   void selectReference(const git::Reference &ref);
+  void navigateToReference(const git::Reference &ref);
+  void selectStash(int index);
 
   // current selection
   QList<git::Commit> commits() const;
@@ -252,6 +263,7 @@ public:
                            bool checkout = false, bool force = false);
   void promptToDeleteBranch(const git::Reference &ref);
   void promptToRenameBranch(const git::Branch &branch);
+  void populateReferenceContextMenu(QMenu *menu, const git::Reference &ref);
 
   // stash
   void promptToStash();
@@ -281,11 +293,18 @@ public:
       bool recursive = true, bool init = false, bool checkout_force = false,
       LogEntry *parent = nullptr, bool restoreSelection = true);
   void checkSubmoduleUpdates(bool automatic = false);
+  const QList<git::Submodule::UpdateStatus> &submoduleUpdateStatuses() const {
+    return mSubmoduleUpdateStatuses;
+  }
   void addSubmodule(const QString &url, const QString &path,
                     const QString &branch = QString());
   bool modifySubmodule(const QString &oldName, const QString &newName,
                        const QString &newPath, const QString &newUrl,
                        const QString &newBranch);
+  void promptToModifySubmodule(const git::Submodule &submodule);
+  void promptToDeleteSubmodule(const git::Submodule &submodule);
+  bool canCommitSubmoduleChanges(const git::Submodule &submodule) const;
+  void commitSubmoduleChanges(const git::Submodule &submodule);
   bool openSubmodule(const git::Submodule &submodule);
 
   // config
@@ -366,7 +385,11 @@ private slots:
 
 signals:
   void statusChanged(bool dirty);
+  void referenceChanged(const git::Reference &ref);
+  void referenceSelected(const git::Reference &ref);
   void submodulesChanged();
+  void submoduleUpdateStatusesChanged(
+      const QList<git::Submodule::UpdateStatus> &statuses);
 
 protected:
   void showEvent(QShowEvent *event) override;
@@ -384,9 +407,7 @@ private:
 
   void notifyReferenceUpdated(const QString &name);
 
-  void startLogTimer();
-  bool suspendLogTimer();
-  void resumeLogTimer(bool suspended = true);
+  void updateLogToggle();
 
   QList<SubmoduleInfo>
   submoduleUpdateInfoList(const git::Repository &repo,
@@ -396,6 +417,7 @@ private:
                              bool recursive = true, bool init = false,
                              bool checkout_force = false,
                              bool restoreSelection = true);
+  void clearSubmoduleUpdateStatuses();
 
   QList<SubmoduleInfo>
   submoduleResetInfoList(const git::Repository &repo,
@@ -411,6 +433,7 @@ private:
   git::Repository mRepo;
 
   Index *mIndex;
+  CommitAvatarProvider *mAvatarProvider;
   QProcess mIndexer;
   bool mRestartIndexer = false;
 
@@ -424,11 +447,16 @@ private:
   CommitList *mCommits;
   DetailView *mDetails;
   QWidget *mSideBar;
+  QStackedWidget *mPrimaryView;
+  QWidget *mFileInspectionWidget{nullptr};
 
   LogEntry *mLogRoot;
   LogEntry *mRebase{nullptr};
+  QWidget *mLogPanel;
+  QFrame *mLogHeader;
+  QToolButton *mLogToggle;
   LogView *mLogView;
-  QTimer mLogTimer;
+  int mLogContentHeight{0};
   bool mIsLogVisible = false;
 
   QTimer mFetchTimer;
@@ -436,6 +464,7 @@ private:
   QFutureWatcher<git::Result> *mWatcher = nullptr;
   QFutureWatcher<QList<git::Submodule::UpdateStatus>> *mSubmoduleUpdateWatcher =
       nullptr;
+  QList<git::Submodule::UpdateStatus> mSubmoduleUpdateStatuses;
 
   QList<QWidget *> mTrackedWindows;
 

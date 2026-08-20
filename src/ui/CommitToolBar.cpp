@@ -209,4 +209,17 @@ CommitToolBar::CommitToolBar(QWidget *parent) : QToolBar(parent) {
     Settings::instance()->setValue(Setting::Id::ShowCommitsId, checked);
     emit settingsChanged();
   });
+
+  connect(menu, &QMenu::aboutToShow, this, [compact, author, date, id] {
+    compact->setChecked(Settings::instance()
+                            ->value(Setting::Id::ShowCommitsInCompactMode)
+                            .toBool());
+    author->setChecked(Settings::instance()
+                           ->value(Setting::Id::ShowCommitsAuthor, true)
+                           .toBool());
+    date->setChecked(
+        Settings::instance()->value(Setting::Id::ShowCommitsDate, true).toBool());
+    id->setChecked(
+        Settings::instance()->value(Setting::Id::ShowCommitsId, true).toBool());
+  });
 }

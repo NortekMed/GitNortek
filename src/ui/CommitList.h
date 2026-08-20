@@ -11,9 +11,15 @@
 #define COMMITLIST_H
 
 #include "git/Reference.h"
+#include <QByteArray>
 #include <QListView>
 
 class Index;
+class CommitAvatarProvider;
+class QHeaderView;
+class QShowEvent;
+class QStandardItemModel;
+class QToolButton;
 
 namespace git {
 class Commit;
@@ -24,14 +30,29 @@ class CommitList : public QListView {
   Q_OBJECT
 
 public:
-  enum Role { DiffRole = Qt::UserRole, CommitRole, GraphRole, GraphColorRole };
+  enum Role {
+    DiffRole = Qt::UserRole,
+    CommitRole,
+    GraphRole,
+    GraphColorRole,
+    GraphStyleRole,
+    GraphNodeRole,
+    StashIndexRole
+  };
+  enum class GraphNode { Commit, Stash };
+  Q_ENUM(GraphNode)
+
+  enum Column { ReferencesColumn, GraphColumn, SummaryColumn, AuthorColumn,
+                DateColumn, IdColumn, ColumnCount };
+
   enum class RefsFilter {
     AllRefs,
     SelectedRef,
     SelectedRefIgnoreMerge,
   };
 
-  CommitList(Index *index, QWidget *parent = nullptr);
+  CommitList(Index *index, CommitAvatarProvider *avatars,
+             QWidget *parent = nullptr);
 
   // Get the status diff item.
   git::Diff status() const;
@@ -74,8 +95,18 @@ protected:
   void mousePressEvent(QMouseEvent *event) override;
   void mouseReleaseEvent(QMouseEvent *event) override;
   void leaveEvent(QEvent *) override;
+  void resizeEvent(QResizeEvent *event) override;
+  void showEvent(QShowEvent *event) override;
+  bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
+  void setupHeader();
+  void updateHeader(bool saveState = true);
+  void resetHeader(bool saveState = true);
+  int minimumColumnWidth(int column) const;
+  void updateGraphColumnWidth();
+  void resizeHeaderToFit(int protectedColumn = -1);
+  void saveHeaderState();
   void storeSelection();
   void restoreSelection();
   void updateModel();
@@ -101,6 +132,17 @@ private:
 
   QAbstractListModel *mList;
   QAbstractListModel *mModel;
+
+  QHeaderView *mHeader = nullptr;
+  QStandardItemModel *mHeaderModel = nullptr;
+  QToolButton *mHeaderOptions = nullptr;
+  bool mUpdatingHeader = false;
+  bool mHeaderStateReady = false;
+  bool mResetHeaderOnShow = false;
+  bool mHeaderInteraction = false;
+  QByteArray mPendingHeaderState;
+  int mGraphMinimumWidth = 0;
+  int mGraphPreferredWidth = 0;
 
   bool mRestoreSelection{true};
 

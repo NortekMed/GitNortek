@@ -10,12 +10,12 @@
 
 #include "DetailView.h"
 #include "Badge.h"
+#include "CommitAvatarProvider.h"
 #include "MenuBar.h"
 #include "TreeWidget.h"
 #include "DoubleTreeWidget.h"
 #include "TreeWidget.h"
 #include "CommitEditor.h"
-#include "conf/Settings.h"
 #include "git/Commit.h"
 #include "git/Config.h"
 #include "git/Diff.h"
@@ -25,7 +25,6 @@
 #include <QApplication>
 #include <QActionGroup>
 #include <QClipboard>
-#include <QCryptographicHash>
 #include <QDateTime>
 #include <QDialog>
 #include <QDialogButtonBox>
@@ -34,11 +33,6 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QLineEdit>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QNetworkRequest>
-#include <QPainter>
-#include <QPainterPath>
 #include <QPoint>
 #include <QPushButton>
 #include <QRegularExpression>
@@ -48,13 +42,11 @@
 #include <QToolButton>
 #include <QUrl>
 #include <QVBoxLayout>
-#include <QWindow>
 #include <QtConcurrent>
 
 namespace {
 
 const int kSize = 64;
-const char *kCacheKey = "cache_key";
 const QString kRangeFmt = "%1..%2";
 const QString kDateRangeFmt = "%1-%2";
 const QString kBoldFmt = "<b>%1</b>";
@@ -62,7 +54,6 @@ const QString kItalicFmt = "<i>%1</i>";
 const QString kLinkFmt = "<a href='%1'>%2</a>";
 const QString kAuthorFmt = "<b>%1 &lt;%2&gt;</b>";
 const QString kAltFmt = "<span style='color: %1'>%2</span>";
-const QString kUrl = "http://www.gravatar.com/avatar/%1?s=%2&d=mm";
 
 const Qt::TextInteractionFlags kTextFlags =
     Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse;
@@ -225,7 +216,8 @@ class CommitDetail : public QFrame {
   Q_OBJECT
 
 public:
-  CommitDetail(QWidget *parent = nullptr) : QFrame(parent) {
+  CommitDetail(CommitAvatarProvider *avatars, QWidget *parent = nullptr)
+      : QFrame(parent), mAvatars(avatars) {
     mAuthorCommitterDate = new AuthorCommitterDate(this);
 
     mHash = new QLabel(this);
@@ -272,8 +264,15 @@ public:
     layout->addWidget(mSeparator);
     layout->addWidget(mMessage);
 
-    connect(&mMgr, &QNetworkAccessManager::finished, this,
-            &CommitDetail::setPicture);
+    if (mAvatars) {
+      connect(mAvatars, &CommitAvatarProvider::avatarReady, this,
+              [this](const QString &oid) {
+                if (mCommit.isValid() && mCommit.id().toString() == oid)
+                  updatePicture();
+              });
+      connect(mAvatars, &CommitAvatarProvider::avatarsChanged, this,
+              &CommitDetail::updatePicture);
+    }
 
     RepoView *view = RepoView::parentView(this);
     connect(mHash, &QLabel::linkActivated, view, &RepoView::visitLink);
@@ -321,6 +320,7 @@ public:
     mParents->setText(QString());
     mMessage->setPlainText(QString());
     mPicture->setPixmap(QPixmap());
+    mCommit = git::Commit();
 
     mParents->setVisible(false);
     mSeparator->setVisible(false);
@@ -415,57 +415,18 @@ public:
     QString msg = commit.message(git::Commit::SubstituteEmoji).trimmed();
     mMessage->setPlainText(msg);
 
-    const bool showAvatars =
-        Settings::instance()->value(Setting::Id::ShowAvatars).toBool();
-    if (showAvatars) {
-      auto w = window();
-      auto w_handler = w->windowHandle();
-
-      int size = kSize * w_handler->devicePixelRatio();
-      QByteArray email = commit.author().email().trimmed().toLower().toUtf8();
-      QByteArray hash =
-          QCryptographicHash::hash(email, QCryptographicHash::Md5);
-
-      // Check the cache first.
-      QByteArray key = hash.toHex() + '@' + QByteArray::number(size);
-      mPicture->setPixmap(mCache.value(key));
-
-      // Request the image from gravatar.
-      if (!mCache.contains(key)) {
-        QUrl url(
-            kUrl.arg(QString::fromUtf8(hash.toHex()), QString::number(size)));
-        QNetworkReply *reply = mMgr.get(QNetworkRequest(url));
-        reply->setProperty(kCacheKey, key);
-      }
-    }
-
     // Remember the id.
     mId = commit.id().toString();
+    mCommit = commit;
+    updatePicture();
   }
 
-  void setPicture(QNetworkReply *reply) {
-    // Load source.
-    QPixmap source;
-    source.loadFromData(reply->readAll());
-
-    // Render clipped to circle.
-    QPixmap pixmap(source.size());
-    pixmap.fill(Qt::transparent);
-
-    // Clip to path. The region overload doesn't antialias.
-    QPainterPath path;
-    path.addEllipse(pixmap.rect());
-
-    QPainter painter(&pixmap);
-    painter.setRenderHint(QPainter::Antialiasing);
-    painter.setClipPath(path);
-    painter.drawPixmap(0, 0, source);
-
-    // Cache the transformed pixmap.
-    pixmap.setDevicePixelRatio(window()->windowHandle()->devicePixelRatio());
-    mCache.insert(reply->property(kCacheKey).toByteArray(), pixmap);
-    mPicture->setPixmap(pixmap);
-    reply->deleteLater();
+  void updatePicture() {
+    mPicture->setPixmap(QPixmap());
+    if (!mAvatars || !mCommit.isValid())
+      return;
+    mPicture->setPixmap(
+        mAvatars->avatar(mCommit, kSize, devicePixelRatioF()));
   }
 
   void cancelBackgroundTasks() {
@@ -483,8 +444,8 @@ private:
   AuthorCommitterDate *mAuthorCommitterDate;
 
   QString mId;
-  QNetworkAccessManager mMgr;
-  QMap<QByteArray, QPixmap> mCache;
+  git::Commit mCommit;
+  CommitAvatarProvider *mAvatars;
   QFutureWatcher<QString> mWatcher;
 };
 
@@ -494,7 +455,8 @@ ContentWidget::ContentWidget(QWidget *parent) : QWidget(parent) {}
 
 ContentWidget::~ContentWidget() {}
 
-DetailView::DetailView(const git::Repository &repo, QWidget *parent)
+DetailView::DetailView(const git::Repository &repo,
+                       CommitAvatarProvider *avatars, QWidget *parent)
     : QWidget(parent) {
   QVBoxLayout *layout = new QVBoxLayout(this);
   layout->setContentsMargins(0, 0, 0, 0);
@@ -505,7 +467,7 @@ DetailView::DetailView(const git::Repository &repo, QWidget *parent)
   layout->addWidget(mDetail);
 
   // Shown when a commit is selected
-  mDetail->addWidget(new CommitDetail(this));
+  mDetail->addWidget(new CommitDetail(avatars, this));
 
   mAuthorLabel = new QLabel(this);
   mAuthorLabel->setTextFormat(Qt::TextFormat::RichText);

@@ -40,7 +40,6 @@ public:
     ShowWhitespaceInEditor,
     ColorTheme,
     ShowFullRepoPath,
-    HideLogAutomatically,
     OpenSubmodulesInTabs,
     OpenAllReposInTabs,
     HideMenuBar,

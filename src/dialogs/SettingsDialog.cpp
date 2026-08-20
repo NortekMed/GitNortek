@@ -564,14 +564,6 @@ public:
       Settings::instance()->setValue(Setting::Id::ShowFullRepoPath, checked);
     });
 
-    QCheckBox *hideLog = new QCheckBox(tr("Hide automatically"));
-    hideLog->setChecked(
-        settings->value(Setting::Id::HideLogAutomatically).toBool());
-    connect(hideLog, &QCheckBox::toggled, [](bool checked) {
-      Settings::instance()->setValue(Setting::Id::HideLogAutomatically,
-                                     checked);
-    });
-
     QCheckBox *smTabs = new QCheckBox(tr("Open submodules in tabs"));
     smTabs->setChecked(
         settings->value(Setting::Id::OpenSubmodulesInTabs).toBool());
@@ -593,6 +585,10 @@ public:
       Settings::instance()->setValue(Setting::Id::HideMenuBar, checked);
     });
     QCheckBox *showAvatars = new QCheckBox(tr("Show Avatars"));
+    showAvatars->setToolTip(tr(
+        "Download commit-author avatars from GitHub when an account is "
+        "configured, with Gravatar as a fallback. Images are cached in "
+        "memory for this session only."));
     showAvatars->setChecked(settings->value(Setting::Id::ShowAvatars).toBool());
     connect(showAvatars, &QCheckBox::toggled, [](bool checked) {
       Settings::instance()->setValue(Setting::Id::ShowAvatars, checked);
@@ -653,7 +649,6 @@ public:
 
     layout->addRow(tr("Theme:"), comboBox);
     layout->addRow(tr("Title:"), fullPath);
-    layout->addRow(tr("Log:"), hideLog);
     layout->addRow(tr("Tabs:"), smTabs);
     layout->addRow(QString(), repoTabs);
     layout->addRow(tr("View:"), hideMenuBar);

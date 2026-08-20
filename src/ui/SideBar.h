@@ -12,7 +12,6 @@
 
 #include <QWidget>
 
-class Account;
 class TabWidget;
 class MainWindow;
 
@@ -24,9 +23,6 @@ public:
 
   QSize sizeHint() const override;
   QSize minimumSizeHint() const override;
-
-private:
-  void promptToRemoveAccount(Account *account);
 };
 
 #endif

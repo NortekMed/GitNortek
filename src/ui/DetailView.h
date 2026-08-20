@@ -15,6 +15,7 @@
 #include <QWidget>
 
 class QStackedWidget;
+class CommitAvatarProvider;
 
 namespace git {
 class Diff;
@@ -47,7 +48,8 @@ class DetailView : public QWidget {
   Q_OBJECT
 
 public:
-  DetailView(const git::Repository &repo, QWidget *parent = nullptr);
+  DetailView(const git::Repository &repo, CommitAvatarProvider *avatars,
+             QWidget *parent = nullptr);
   virtual ~DetailView();
 
   // commit

@@ -10,10 +10,19 @@ Bug Fix and Feature release
 * Add a toggle for the committed file tree
 * Add Ptyxis terminal auto-detection on Linux
 * Add Tamil translation
+* Add repository navigator context actions for branches and submodules, including permanent submodule removal
+* Show colored Pin summaries on the left and aligned P and O delta columns for submodules in the repository navigator
+* Mark the checked-out local branch with a green checkbox and color ahead and behind indicators
+* Align Compact Mode into configurable columns with content-aware widths, bottom-connected stash ancestry, and side-connected merge and divergence curves
+* Display stashes as square nodes with dotted topology and stash actions in the combined commit graph
+* Display GitHub or Gravatar author avatars inside larger commit graph nodes and commit details when avatars are enabled
+* Commit checked-out submodule revisions directly from the repository navigator
 
 #### Changed
 
-* Autohide sidebar when opening repository
+* Show the repository sidebar at startup and keep it open when opening repositories
+* Show Blame and Diff in the branch and commit pane when files are selected, with more default space for the commit history
+* Use the full repository sidebar for navigation and keep only the 20 most recent repositories
 * Brand Linux application and packages as GitNortek
 * Refresh repositories automatically when Git metadata changes
 * Improve diff, blame, commit description, and large binary refresh performance
@@ -26,6 +35,9 @@ Bug Fix and Feature release
 * Preserve the selected commit when push or fetch updates remote references
 * Offer to remove recent repositories that can no longer be opened
 * Display consistent eight-character commit IDs in the interface and versions without Git's `g` prefix
+* Preserve configured Compact Mode column widths when the commit graph expands
+* Connect dotted stash ancestry from the side of its base commit node
+* Keep the operation log open until manually collapsed and leave its toggle bar visible
 
 ----
 

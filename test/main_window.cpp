@@ -13,13 +13,15 @@
 #include "ui/CommitList.h"
 #include "ui/MainWindow.h"
 #include "ui/RepoView.h"
-#include "ui/SideBar.h"
+#include "ui/TabWidget.h"
 #include <QMessageBox>
+#include <QPointer>
 #include <QProcess>
 #include <QPushButton>
 #include <QSettings>
+#include <QSignalSpy>
 #include <QTimer>
-#include <QTreeView>
+#include <QToolButton>
 
 using namespace Test;
 using namespace QTest;
@@ -30,7 +32,10 @@ class TestMainWindow : public QObject {
 private slots:
   void initTestCase();
   void show();
+  void toggleLogPanel();
   void preserveSelectionAfterRemoteUpdate();
+  void closeTab();
+  void recentRepositoryLimit();
   void invalidRecentRepository();
   void cleanupTestCase();
 
@@ -38,6 +43,7 @@ private:
   QTemporaryDir mRemoteDir;
   QTemporaryDir mInvalidRepoDir;
   ScratchRepository mRepo;
+  ScratchRepository mSecondRepo;
   QStringList mRecentRepositories;
   MainWindow *mWindow = nullptr;
 };
@@ -68,6 +74,34 @@ void TestMainWindow::show() {
   QVERIFY(qWaitForWindowActive(mWindow));
 }
 
+void TestMainWindow::toggleLogPanel() {
+  RepoView *view = mWindow->currentView();
+  QWidget *panel = view->findChild<QWidget *>("RepositoryLogPanel");
+  QWidget *header = view->findChild<QWidget *>("RepositoryLogHeader");
+  QToolButton *toggle =
+      view->findChild<QToolButton *>("RepositoryLogToggle");
+  QVERIFY(panel);
+  QVERIFY(header);
+  QVERIFY(toggle);
+  QVERIFY(view->isLogVisible());
+  QCOMPARE(toggle->arrowType(), Qt::DownArrow);
+
+  const int expandedHeight = panel->height();
+  QVERIFY(expandedHeight > header->height());
+  toggle->click();
+
+  QTRY_VERIFY(!view->isLogVisible());
+  QTRY_COMPARE(panel->height(), header->height());
+  QVERIFY(header->isVisible());
+  QCOMPARE(toggle->arrowType(), Qt::UpArrow);
+
+  toggle->click();
+
+  QTRY_VERIFY(view->isLogVisible());
+  QTRY_COMPARE(panel->height(), expandedHeight);
+  QCOMPARE(toggle->arrowType(), Qt::DownArrow);
+}
+
 void TestMainWindow::preserveSelectionAfterRemoteUpdate() {
   RepoView *view = mWindow->currentView();
   CommitList *commits = view->findChild<CommitList *>();
@@ -96,6 +130,60 @@ void TestMainWindow::preserveSelectionAfterRemoteUpdate() {
   QCOMPARE(mRepo->lookupRef(remoteName).target().id(), head.target().id());
 
   QCOMPARE(commits->selectedRange(), selected.id().toString());
+}
+
+void TestMainWindow::closeTab() {
+  RepoView *closingView = mWindow->addTab(mSecondRepo);
+  QVERIFY(closingView);
+  QCOMPARE(mWindow->count(), 2);
+
+  TabWidget *tabs = mWindow->tabWidget();
+  tabs->setCurrentIndex(0);
+  QCOMPARE(tabs->currentIndex(), 0);
+  tabs->setCurrentIndex(1);
+  QCOMPARE(tabs->currentIndex(), 1);
+
+  QSignalSpy aboutToRemove(tabs, &TabWidget::tabAboutToBeRemoved);
+  QSignalSpy removed(tabs, QOverload<>::of(&TabWidget::tabRemoved));
+  QPointer<RepoView> guard(closingView);
+
+  tabs->closeTab(closingView);
+
+  QTRY_COMPARE(aboutToRemove.count(), 1);
+  QTRY_COMPARE(removed.count(), 1);
+  QTRY_VERIFY(guard.isNull());
+  QCOMPARE(mWindow->count(), 1);
+  QCOMPARE(mWindow->currentView(), mWindow->view(0));
+
+  RecentRepositories *recent = RecentRepositories::instance();
+  bool found = false;
+  for (int i = 0; i < recent->count(); ++i)
+    found |= recent->repository(i)->gitpath() == mSecondRepo->dir(false).path();
+  QVERIFY(found);
+}
+
+void TestMainWindow::recentRepositoryLimit() {
+  QTemporaryDir dir;
+  QVERIFY(dir.isValid());
+
+  RecentRepositories *repos = RecentRepositories::instance();
+  repos->clear();
+
+  QStringList paths;
+  for (int i = 0; i < 21; ++i) {
+    const QString path = dir.filePath(QString::number(i));
+    QVERIFY(QDir().mkpath(path));
+    paths.append(path);
+    repos->add(path);
+  }
+
+  QCOMPARE(repos->count(), 20);
+  for (int i = 0; i < 20; ++i)
+    QCOMPARE(repos->repository(i)->gitpath(), paths.at(20 - i));
+
+  QStringList expected = paths.mid(1);
+  std::reverse(expected.begin(), expected.end());
+  QCOMPARE(QSettings().value("recent").toStringList(), expected);
 }
 
 void TestMainWindow::invalidRecentRepository() {
@@ -137,21 +225,10 @@ void TestMainWindow::invalidRecentRepository() {
   QVERIFY(!MainWindow::open(path));
   QVERIFY(contains());
 
-  mWindow->setSideBarVisible(true);
-  QVERIFY(mWindow->isSideBarVisible());
-  SideBar *sideBar = mWindow->findChild<SideBar *>();
-  QVERIFY(sideBar);
-  QTreeView *recentTree = sideBar->findChild<QTreeView *>();
-  QVERIFY(recentTree);
-  QModelIndex recentRoot = recentTree->model()->index(1, 0);
-  QModelIndex recent = recentTree->model()->index(0, 0, recentRoot);
-  QCOMPARE(recent.data(Qt::UserRole).toString(), path);
-
   clickButton("Remove From Recent");
-  QVERIFY(QMetaObject::invokeMethod(recentTree, "doubleClicked",
-                                    Q_ARG(QModelIndex, recent)));
+  QVERIFY(!MainWindow::open(path, true,
+                            MainWindow::OpenSource::RecentRepository));
   QVERIFY(!contains());
-  QVERIFY(mWindow->isSideBarVisible());
 }
 
 void TestMainWindow::cleanupTestCase() {

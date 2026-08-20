@@ -103,6 +103,26 @@ Risk:
 - Adds privacy, API, credential, configuration, and dependency questions.
 - Lower priority unless GitNortek explicitly wants AI features.
 
+### RepositorySidebarRedesign
+
+Visual reference: GitKraken-style active-repository navigation
+
+Plan: `docs/future-improvements/08-repository-sidebar-redesign.md`
+
+Combine the existing repository chooser with active-repository navigation for
+local and remote branches, stashes, tags, and submodules.
+
+Expected value:
+- Faster access to repository references and status from the global sidebar.
+- Preserves existing recent repository and hosting-account workflows.
+- Establishes a tested replacement for the embedded reference selector.
+
+Risk:
+- High integration risk.
+- Crosses global sidebar, repository-tab, reference-filter, stash, and submodule
+  ownership boundaries.
+- Explicitly excludes linked Git worktree UI and management.
+
 ### ptyxis_terminal
 
 Source branch: `Nicolas01/Gittyup:ptyxis_terminal`
@@ -145,3 +165,7 @@ Risk:
 6. `RecurseUntrackedDirs`
 7. `IgnorePatternSingleCommit`
 8. `ai_commit_message` only if explicitly wanted
+
+## NortekMed UI Roadmap
+
+1. `RepositorySidebarRedesign`

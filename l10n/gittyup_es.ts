@@ -40,27 +40,27 @@
 <context>
     <name>Account</name>
     <message>
-        <location filename="../src/host/Account.cpp" line="127"/>
+        <location filename="../src/host/Account.cpp" line="128"/>
         <source>Connection failed</source>
         <translation type="unfinished">Conexión fallida</translation>
     </message>
     <message>
-        <location filename="../src/host/Account.cpp" line="186"/>
+        <location filename="../src/host/Account.cpp" line="187"/>
         <source>&lt;b&gt;Note:&lt;/b&gt; Basic authentication is not supported if you have two-factor authentication enabled. Use a &lt;a href=&apos;https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/&apos;&gt;personal access token&lt;/a&gt; in the password field instead.</source>
         <translation>&lt;b&gt;Nota:&lt;/b&gt; La Autenticación Básica no es soportada si tienes autenticación de dos factores habilitada. Usa un &lt;a href=&apos;https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/&apos;&gt;token de acceso personal&lt;/a&gt; en el campo de contraseña.</translation>
     </message>
     <message>
-        <location filename="../src/host/Account.cpp" line="194"/>
+        <location filename="../src/host/Account.cpp" line="195"/>
         <source>&lt;b&gt;Note:&lt;/b&gt; Only Basic authentication is currently supported </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/host/Account.cpp" line="198"/>
+        <location filename="../src/host/Account.cpp" line="199"/>
         <source>&lt;b&gt;Note:&lt;/b&gt; Basic authentication is not supported. Use a &lt;a href=&apos;https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html&apos;&gt;personal access token&lt;/a&gt; in the password field instead.</source>
         <translation>&lt;b&gt;Nota:&lt;/b&gt; La Autenticación Básica no es soportada. Use a &lt;a href=&apos;https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html&apos;&gt;token de acceso personal&lt;/a&gt; en el campo de contraseña.</translation>
     </message>
     <message>
-        <location filename="../src/host/Account.cpp" line="288"/>
+        <location filename="../src/host/Account.cpp" line="289"/>
         <source>Authentication failed</source>
         <translation>Autenticación fallida</translation>
     </message>
@@ -148,6 +148,35 @@
     </message>
 </context>
 <context>
+    <name>AddSubmoduleDialog</name>
+    <message>
+        <location filename="../src/dialogs/AddSubmoduleDialog.cpp" line="25"/>
+        <location filename="../src/dialogs/AddSubmoduleDialog.cpp" line="48"/>
+        <source>Add Submodule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/AddSubmoduleDialog.cpp" line="38"/>
+        <source>Only submodules with a branch configured can be checked for updates.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/AddSubmoduleDialog.cpp" line="53"/>
+        <source>URL:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/AddSubmoduleDialog.cpp" line="54"/>
+        <source>Path:</source>
+        <translation type="unfinished">Ruta:</translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/AddSubmoduleDialog.cpp" line="55"/>
+        <source>Branch:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AdvancedButton</name>
     <message>
         <location filename="../src/ui/SearchField.cpp" line="43"/>
@@ -158,162 +187,162 @@
 <context>
     <name>AdvancedSearchWidget</name>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="85"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="84"/>
         <source>Author:</source>
         <translation>Autor:</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="85"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="84"/>
         <source>Author name</source>
         <translation>Nombre del Autor</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="86"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="85"/>
         <source>Email:</source>
         <translation>Correo electrónico:</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="86"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="85"/>
         <source>Author email</source>
         <translation>Correo electrónico del autor</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="87"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="86"/>
         <source>Message:</source>
         <translation>Mensaje:</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="87"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="86"/>
         <source>Commit message</source>
         <translation>Mensaje de confirmación</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="91"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="90"/>
         <source>Date:</source>
         <translation>Fecha:</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="91"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="90"/>
         <source>Specific commit date</source>
         <translation>Fecha específica de confirmación</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="92"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="91"/>
         <source>After:</source>
         <translation>Después de:</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="92"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="91"/>
         <source>Commits after date</source>
         <translation>Confirmaciones después de la fecha</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="93"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="92"/>
         <source>Before:</source>
         <translation>Antes de:</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="93"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="92"/>
         <source>Commits before date</source>
         <translation>Confirmaciones antes de la fecha</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="97"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="96"/>
         <source>File:</source>
         <translation>Archivo:</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="97"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="96"/>
         <source>File name</source>
         <translation>Nombre de archivo</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="98"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="97"/>
         <source>Path:</source>
         <translation>Ruta:</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="98"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="97"/>
         <source>File path</source>
         <translation>Ruta del archivo</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="99"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="98"/>
         <source>Scope:</source>
         <translation>Ámbito:</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="99"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="98"/>
         <source>Hunk header text</source>
         <translation>Parte del encabezado de texto</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="104"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="103"/>
         <source>Context:</source>
         <translation>Contexto:</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="104"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="103"/>
         <source>Diff context (white)</source>
         <translation>Diferencia de contexto (blanco)</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="105"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="104"/>
         <source>Addition:</source>
         <translation>Adición:</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="105"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="104"/>
         <source>Diff addition (green)</source>
         <translation>Diferencia de adición (verde)</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="106"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="105"/>
         <source>Deletion:</source>
         <translation>Borrado:</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="106"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="105"/>
         <source>Diff deletion (red)</source>
         <translation>Diferencia de borrado (rojo)</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="111"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="110"/>
         <source>Comment:</source>
         <translation>Comentario:</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="111"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="110"/>
         <source>Source code comment</source>
         <translation>Comentario de código fuente</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="112"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="111"/>
         <source>String:</source>
         <translation>Cadena de texto:</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="112"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="111"/>
         <source>Source code string literal</source>
         <translation>Cadena de texto de código fuente</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="113"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="112"/>
         <source>Identifier:</source>
         <translation>Identificador:</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="113"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="112"/>
         <source>Source code identifier</source>
         <translation>Identificador de código fuente</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="115"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="114"/>
         <source>Search</source>
         <translation>Buscar</translation>
     </message>
     <message>
-        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="123"/>
+        <location filename="../src/ui/AdvancedSearchWidget.cpp" line="122"/>
         <source>Return</source>
         <translation>Retornar</translation>
     </message>
@@ -349,12 +378,12 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../src/app/Application.cpp" line="496"/>
+        <location filename="../src/app/Application.cpp" line="509"/>
         <source>SSL Errors</source>
         <translation>Errores SSL</translation>
     </message>
     <message>
-        <location filename="../src/app/Application.cpp" line="498"/>
+        <location filename="../src/app/Application.cpp" line="511"/>
         <source>Failed to set up SSL session. Do you want to ignore these errors?</source>
         <translation>Falló al establecer la sesión SSL. ¿Quieres ignorar estos errores?</translation>
     </message>
@@ -362,17 +391,17 @@
 <context>
     <name>AuthorCommitterDate</name>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="178"/>
+        <location filename="../src/ui/DetailView.cpp" line="172"/>
         <source>Author/Committer: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="182"/>
+        <location filename="../src/ui/DetailView.cpp" line="176"/>
         <source>Author: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="184"/>
+        <location filename="../src/ui/DetailView.cpp" line="178"/>
         <source>Committer: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -394,27 +423,27 @@
 <context>
     <name>BlameEditor</name>
     <message>
-        <location filename="../src/ui/BlameEditor.cpp" line="102"/>
+        <location filename="../src/ui/BlameEditor.cpp" line="104"/>
         <source>Untitled</source>
         <translation>Sin título</translation>
     </message>
     <message>
-        <location filename="../src/ui/BlameEditor.cpp" line="116"/>
+        <location filename="../src/ui/BlameEditor.cpp" line="118"/>
         <source>Not Tracked</source>
         <translation>Sin seguimiento</translation>
     </message>
     <message>
-        <location filename="../src/ui/BlameEditor.cpp" line="134"/>
+        <location filename="../src/ui/BlameEditor.cpp" line="136"/>
         <source>HEAD</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/BlameEditor.cpp" line="138"/>
+        <location filename="../src/ui/BlameEditor.cpp" line="140"/>
         <source>Working Copy</source>
         <translation>Copia de trabajo</translation>
     </message>
     <message>
-        <location filename="../src/ui/BlameEditor.cpp" line="180"/>
+        <location filename="../src/ui/BlameEditor.cpp" line="197"/>
         <source>Save File</source>
         <translation>Guardar archivo</translation>
     </message>
@@ -422,12 +451,12 @@
 <context>
     <name>BlameMargin</name>
     <message>
-        <location filename="../src/ui/BlameMargin.cpp" line="361"/>
+        <location filename="../src/ui/BlameMargin.cpp" line="385"/>
         <source>Not Committed</source>
         <translation>No confirmado</translation>
     </message>
     <message>
-        <location filename="../src/ui/BlameMargin.cpp" line="364"/>
+        <location filename="../src/ui/BlameMargin.cpp" line="388"/>
         <source>Invalid Signature</source>
         <translation>Firma inválida</translation>
     </message>
@@ -546,27 +575,27 @@
 <context>
     <name>CommitDetail</name>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="231"/>
+        <location filename="../src/ui/DetailView.cpp" line="227"/>
         <source>Copy</source>
         <translation>Copiar</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="374"/>
+        <location filename="../src/ui/DetailView.cpp" line="378"/>
         <source>Range:</source>
         <translation>Rango:</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="392"/>
+        <location filename="../src/ui/DetailView.cpp" line="396"/>
         <source>Id:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="407"/>
+        <location filename="../src/ui/DetailView.cpp" line="411"/>
         <source>initial commit</source>
         <translation>Confirmación inicial</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="409"/>
+        <location filename="../src/ui/DetailView.cpp" line="413"/>
         <source>Parents:</source>
         <translation>Padres:</translation>
     </message>
@@ -627,120 +656,120 @@
 <context>
     <name>CommitEditor</name>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="259"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="260"/>
         <source>T</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="283"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="284"/>
         <source>&lt;b&gt;Commit Message:&lt;/b&gt;</source>
         <translation>&lt;b&gt;Mensaje de Confirmación:&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="394"/>
-        <location filename="../src/ui/CommitEditor.cpp" line="420"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="395"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="421"/>
         <source>Spell Check Language</source>
         <translation>Idioma del Corrector Ortográfico</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="395"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="396"/>
         <source>The dictionary &apos;%1&apos; is invalid</source>
         <translation>El diccionario &apos;%1&apos; es inválido</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="396"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="397"/>
         <source>Spell checking is disabled.</source>
         <translation>La corrección ortográfica está deshabilitada.</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="397"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="398"/>
         <source>The choosen dictionary &apos;%1.dic&apos; is not a valid hunspell dictionary.</source>
         <translation>El diccionario elegido &apos;%1.dic&apos; no es un diccionario hunspell válido.</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="404"/>
-        <location filename="../src/ui/CommitEditor.cpp" line="462"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="405"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="463"/>
         <source>Invalid dictionary &apos;%1.dic&apos;</source>
         <translation>Diccionario inválido, &apos;%1.dic&apos;</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="426"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="427"/>
         <source>Edit User Dictionary</source>
         <translation>Editar el Dicccionario de Usuario</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="483"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="484"/>
         <source>Stage All</source>
         <translation>Preparar Todo</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="487"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="488"/>
         <source>Unstage All</source>
         <translation>No Preparar Nada</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="490"/>
-        <location filename="../src/ui/CommitEditor.cpp" line="817"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="491"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="818"/>
         <source>Commit</source>
         <translation>Confirmar</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="494"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="495"/>
         <source>Abort rebasing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="499"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="500"/>
         <source>Continue rebasing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="504"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="505"/>
         <source>Abort Merge</source>
         <translation type="unfinished">Abortar Fusión</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="582"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="583"/>
         <source>%1</source>
         <translation type="unfinished">%1 / %2 {1?}</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="584"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="585"/>
         <source>%1 and %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="586"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="587"/>
         <source>%1, %2, and %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="693"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="694"/>
         <source>Merge</source>
         <translation type="unfinished">Fusionar</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="703"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="704"/>
         <source>Revert</source>
         <translation type="unfinished">Revertir</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="709"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="710"/>
         <source>Cherry-pick</source>
         <translation type="unfinished">Escoger</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="715"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="716"/>
         <source>Rebase</source>
         <translation type="unfinished">Reorganizar</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="723"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="724"/>
         <source>Abort %1</source>
         <translation type="unfinished">Abortar %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="812"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="813"/>
         <source>Commit Rebase</source>
         <translation type="unfinished"></translation>
     </message>
@@ -761,47 +790,47 @@
         <translation type="vanished">Actualizar %1, %2 y %3 más archivos...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="776"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="777"/>
         <source>Nothing staged</source>
         <translation>Nada preparado</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="778"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="779"/>
         <source>%1 of %2 file staged</source>
         <translation>Archivo preparado: %1 de %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="779"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="780"/>
         <source>%1 of %2 files staged</source>
         <translation>Archivo preparado: %1 de %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="783"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="784"/>
         <source>%1 file partially staged</source>
         <translation>%1 archivo parcialmente preparado</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="784"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="785"/>
         <source>%1 files partially staged</source>
         <translation>%1 archivos parcialmente preparados</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="789"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="790"/>
         <source>%1 unresolved conflict</source>
         <translation>%1 conflicto sin resolver</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="790"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="791"/>
         <source>%1 unresolved conflicts</source>
         <translation>%1 conflictos sin resolver</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="793"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="794"/>
         <source>all conflicts resolved</source>
         <translation>todos los conflictos resueltos</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="806"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="807"/>
         <source>Commit Merge</source>
         <translation>Confirmación de Fusión</translation>
     </message>
@@ -809,42 +838,42 @@
 <context>
     <name>CommitList</name>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1511"/>
+        <location filename="../src/ui/CommitList.cpp" line="2252"/>
         <source>Remove Untracked Files</source>
         <translation>Remover archivos sin seguimiento</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1526"/>
+        <location filename="../src/ui/CommitList.cpp" line="2270"/>
         <source>Apply</source>
         <translation>Aplicar</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1529"/>
+        <location filename="../src/ui/CommitList.cpp" line="2273"/>
         <source>Pop</source>
         <translation>Retirar</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1531"/>
+        <location filename="../src/ui/CommitList.cpp" line="2276"/>
         <source>Drop</source>
         <translation>Soltar</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1544"/>
+        <location filename="../src/ui/CommitList.cpp" line="2290"/>
         <source>Unstar</source>
         <translation>Desmarcar como favorito</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1544"/>
+        <location filename="../src/ui/CommitList.cpp" line="2290"/>
         <source>Star</source>
         <translation>Marcar como favorito</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1554"/>
+        <location filename="../src/ui/CommitList.cpp" line="2300"/>
         <source>Add Tag...</source>
         <translation>Agregar etiqueta...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1557"/>
+        <location filename="../src/ui/CommitList.cpp" line="2303"/>
         <source>New Branch...</source>
         <translation>Nueva rama...</translation>
     </message>
@@ -857,83 +886,123 @@
         <translation type="vanished">Borrar Rama %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1584"/>
+        <location filename="../src/ui/CommitList.cpp" line="1699"/>
+        <source>Branch / Tag</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/CommitList.cpp" line="1700"/>
+        <source>Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/CommitList.cpp" line="1702"/>
+        <source>Commit Message</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/CommitList.cpp" line="1703"/>
+        <source>Author</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/CommitList.cpp" line="1704"/>
+        <source>Date / Time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/CommitList.cpp" line="1705"/>
+        <source>SHA</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/CommitList.cpp" line="1721"/>
+        <source>Configure commit columns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/CommitList.cpp" line="1746"/>
+        <source>Reset columns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/CommitList.cpp" line="2330"/>
         <source>Rename Branch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1588"/>
+        <location filename="../src/ui/CommitList.cpp" line="2334"/>
         <source>Delete Branch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1593"/>
+        <location filename="../src/ui/CommitList.cpp" line="2339"/>
         <source>Delete Tag</source>
         <translation type="unfinished">Borrar Etiqueta</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1597"/>
+        <location filename="../src/ui/CommitList.cpp" line="2343"/>
         <source>Merge...</source>
         <translation>Fusionar...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1612"/>
+        <location filename="../src/ui/CommitList.cpp" line="2358"/>
         <source>Rebase...</source>
         <translation>Reorganizar...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1627"/>
+        <location filename="../src/ui/CommitList.cpp" line="2373"/>
         <source>Squash...</source>
         <translation>Aplastar...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1644"/>
+        <location filename="../src/ui/CommitList.cpp" line="2390"/>
         <source>Revert</source>
         <translation>Revertir</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1646"/>
+        <location filename="../src/ui/CommitList.cpp" line="2392"/>
         <source>Cherry-pick</source>
         <translation>Escoger</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1653"/>
-        <location filename="../src/ui/CommitList.cpp" line="1686"/>
+        <location filename="../src/ui/CommitList.cpp" line="2399"/>
+        <location filename="../src/ui/CommitList.cpp" line="2432"/>
         <source>Checkout %1</source>
         <translation>Revisar %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1655"/>
+        <location filename="../src/ui/CommitList.cpp" line="2401"/>
         <source>Checkout</source>
         <translation type="unfinished">Revisar</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1676"/>
+        <location filename="../src/ui/CommitList.cpp" line="2422"/>
         <source>Local branch is already checked out</source>
         <translation>La rama local ya está revisada</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1679"/>
+        <location filename="../src/ui/CommitList.cpp" line="2425"/>
         <source>This is a bare repository</source>
         <translation>Este es un repositorio vacío</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1694"/>
+        <location filename="../src/ui/CommitList.cpp" line="2440"/>
         <source>Reset</source>
         <translation>Reestablecer</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1695"/>
+        <location filename="../src/ui/CommitList.cpp" line="2441"/>
         <source>Soft</source>
         <translation>Suave</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1696"/>
+        <location filename="../src/ui/CommitList.cpp" line="2442"/>
         <source>Mixed</source>
         <translation>Mezclado</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1697"/>
+        <location filename="../src/ui/CommitList.cpp" line="2443"/>
         <source>Hard</source>
         <translation>Duro</translation>
     </message>
@@ -941,12 +1010,12 @@
 <context>
     <name>CommitModel</name>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="331"/>
+        <location filename="../src/ui/CommitList.cpp" line="471"/>
         <source>Uncommitted changes</source>
         <translation>Cambios sin confirmar</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="332"/>
+        <location filename="../src/ui/CommitList.cpp" line="472"/>
         <source>Checking for uncommitted changes</source>
         <translation>Revisando por cambios sin confirmar</translation>
     </message>
@@ -954,7 +1023,7 @@
 <context>
     <name>CommitToolBar</name>
     <message>
-        <location filename="../src/ui/CommitToolBar.cpp" line="123"/>
+        <location filename="../src/ui/CommitToolBar.cpp" line="121"/>
         <source>Show All Branches</source>
         <translation>Mostrar todas las ramas</translation>
     </message>
@@ -964,42 +1033,47 @@
         <translation>Mostrar rama seleccionada</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitToolBar.cpp" line="128"/>
+        <location filename="../src/ui/CommitToolBar.cpp" line="126"/>
+        <source>Show Selected Branch, First Parent Only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/CommitToolBar.cpp" line="133"/>
         <source>Sort by Date</source>
         <translation>Ordenar por fecha</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitToolBar.cpp" line="129"/>
+        <location filename="../src/ui/CommitToolBar.cpp" line="134"/>
         <source>Sort Topologically</source>
         <translation>Ordenar topológicamente</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitToolBar.cpp" line="146"/>
+        <location filename="../src/ui/CommitToolBar.cpp" line="151"/>
         <source>Show Graph</source>
         <translation>Mostrar Diagrama</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitToolBar.cpp" line="156"/>
+        <location filename="../src/ui/CommitToolBar.cpp" line="161"/>
         <source>Show Clean Status</source>
         <translation>Mostrar Estado Limpio</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitToolBar.cpp" line="167"/>
+        <location filename="../src/ui/CommitToolBar.cpp" line="172"/>
         <source>Compact Mode</source>
         <translation>Modo Compacto</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitToolBar.cpp" line="180"/>
+        <location filename="../src/ui/CommitToolBar.cpp" line="185"/>
         <source>Show Author</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitToolBar.cpp" line="190"/>
+        <location filename="../src/ui/CommitToolBar.cpp" line="195"/>
         <source>Show Date</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitToolBar.cpp" line="199"/>
+        <location filename="../src/ui/CommitToolBar.cpp" line="204"/>
         <source>Show Id</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1007,54 +1081,87 @@
 <context>
     <name>ConfigDialog</name>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="744"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="787"/>
         <source>Esc</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="768"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="811"/>
         <source>General</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="776"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="819"/>
         <source>Diff</source>
         <translation>Diferencia</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="784"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="827"/>
         <source>Remotes</source>
         <translation>Remotos</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="792"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="835"/>
         <source>Branches</source>
         <translation>Ramas</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="800"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="843"/>
         <source>Submodules</source>
         <translation>Submódulos</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="807"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="850"/>
         <source>Search</source>
         <translation>Búsqueda</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="814"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="857"/>
         <source>Plugins</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="821"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="864"/>
         <source>LFS</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="835"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="878"/>
         <source>Edit Config File...</source>
         <translation>Editar archivo de configuración...</translation>
+    </message>
+</context>
+<context>
+    <name>CredentialHelper</name>
+    <message>
+        <location filename="../src/cred/CredentialHelper.cpp" line="70"/>
+        <source>Caching the credentials in the RAM. Required to enter credentials on every startup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/cred/CredentialHelper.cpp" line="73"/>
+        <source>Storing the credentials unencrypted on disk, protected only by filesystem permissions &lt;a href=&quot;https://git-scm.com/docs/git-credential-store&quot;&gt;git-credential-store&lt;/a&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/cred/CredentialHelper.cpp" line="79"/>
+        <source>MacOS credential manager</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/cred/CredentialHelper.cpp" line="82"/>
+        <source>Windows credential manager</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/cred/CredentialHelper.cpp" line="87"/>
+        <source>Secret Service D-Bus client library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/cred/CredentialHelper.cpp" line="94"/>
+        <source>Prefer &lt;a href=&quot;https://wiki.gnome.org/Projects/Libsecret&quot;&gt;libsecret&lt;/a&gt; over gnome-keyring if available</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1150,17 +1257,17 @@
         <translation>Enviar</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/DeleteBranchDialog.cpp" line="72"/>
+        <location filename="../src/dialogs/DeleteBranchDialog.cpp" line="73"/>
         <source>Push canceled.</source>
         <translation>Envío cancelado.</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/DeleteBranchDialog.cpp" line="75"/>
+        <location filename="../src/dialogs/DeleteBranchDialog.cpp" line="76"/>
         <source>Unable to push to %1 - %2</source>
         <translation>No es posible enviar a %1 - %2</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/DeleteBranchDialog.cpp" line="89"/>
+        <location filename="../src/dialogs/DeleteBranchDialog.cpp" line="90"/>
         <source>The branch is not fully merged. Deleting it may cause some commits to be lost.</source>
         <translation>La rama no está totalmente fusionada. Borrarla puede causar que algunas confirmaciones se pierdan.</translation>
     </message>
@@ -1198,22 +1305,22 @@
         <translation>Enviar</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/DeleteTagDialog.cpp" line="64"/>
+        <location filename="../src/dialogs/DeleteTagDialog.cpp" line="65"/>
         <source>Push canceled.</source>
         <translation>Envío cancelado.</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/DeleteTagDialog.cpp" line="67"/>
+        <location filename="../src/dialogs/DeleteTagDialog.cpp" line="68"/>
         <source>Unable to push to %1 - %2</source>
         <translation>No es posible enviar a %1 - %2</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/DeleteTagDialog.cpp" line="76"/>
+        <location filename="../src/dialogs/DeleteTagDialog.cpp" line="77"/>
         <source>Delete Tag</source>
         <translation>Borrar Etiqueta</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/DeleteTagDialog.cpp" line="77"/>
+        <location filename="../src/dialogs/DeleteTagDialog.cpp" line="78"/>
         <source>delete tag</source>
         <translation>borrar etiqueta</translation>
     </message>
@@ -1221,24 +1328,24 @@
 <context>
     <name>DetailView</name>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="644"/>
-        <location filename="../src/ui/DetailView.cpp" line="673"/>
+        <location filename="../src/ui/DetailView.cpp" line="610"/>
+        <location filename="../src/ui/DetailView.cpp" line="639"/>
         <source>Author:</source>
         <translation type="unfinished">Autor:</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="658"/>
+        <location filename="../src/ui/DetailView.cpp" line="624"/>
         <source>reset</source>
         <translation type="unfinished">reestablecer</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="669"/>
+        <location filename="../src/ui/DetailView.cpp" line="635"/>
         <source>Here you can set the author used for committing
 These settings will not be saved permanently</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="676"/>
+        <location filename="../src/ui/DetailView.cpp" line="642"/>
         <source>Email:</source>
         <translation type="unfinished">Correo electrónico:</translation>
     </message>
@@ -1246,57 +1353,57 @@ These settings will not be saved permanently</source>
 <context>
     <name>DiffPanel</name>
     <message>
-        <location filename="../src/dialogs/DiffPanel.cpp" line="31"/>
+        <location filename="../src/dialogs/DiffPanel.cpp" line="30"/>
         <source>lines</source>
         <translation>líneas</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/DiffPanel.cpp" line="49"/>
+        <location filename="../src/dialogs/DiffPanel.cpp" line="54"/>
         <source>System Locale</source>
         <translation>Local del sistema</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/DiffPanel.cpp" line="73"/>
+        <location filename="../src/dialogs/DiffPanel.cpp" line="78"/>
         <source>Wrap lines</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/DiffPanel.cpp" line="80"/>
+        <location filename="../src/dialogs/DiffPanel.cpp" line="85"/>
         <source>Context lines:</source>
         <translation>líneas de contexto:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/DiffPanel.cpp" line="81"/>
+        <location filename="../src/dialogs/DiffPanel.cpp" line="86"/>
         <source>Wrap lines:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/DiffPanel.cpp" line="82"/>
+        <location filename="../src/dialogs/DiffPanel.cpp" line="87"/>
         <source>Character Encoding:</source>
         <translation>Codificación de Caracteres:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/DiffPanel.cpp" line="91"/>
+        <location filename="../src/dialogs/DiffPanel.cpp" line="96"/>
         <source>Ignore Whitespace (-w)</source>
         <translation>Ignorar Espacio en Blanco (-w)</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/DiffPanel.cpp" line="99"/>
+        <location filename="../src/dialogs/DiffPanel.cpp" line="104"/>
         <source>Added files</source>
         <translation>Archivos añadidos</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/DiffPanel.cpp" line="106"/>
+        <location filename="../src/dialogs/DiffPanel.cpp" line="111"/>
         <source>Deleted files</source>
         <translation>Archivos borrados</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/DiffPanel.cpp" line="113"/>
+        <location filename="../src/dialogs/DiffPanel.cpp" line="118"/>
         <source>Whitespace:</source>
         <translation>Espacio en blanco:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/DiffPanel.cpp" line="114"/>
+        <location filename="../src/dialogs/DiffPanel.cpp" line="119"/>
         <source>Auto Collapse:</source>
         <translation>Auto-ocultar:</translation>
     </message>
@@ -1304,15 +1411,20 @@ These settings will not be saved permanently</source>
 <context>
     <name>DiffTool</name>
     <message>
-        <location filename="../src/tools/DiffTool.cpp" line="28"/>
+        <location filename="../src/tools/DiffTool.cpp" line="31"/>
         <source>External Diff</source>
         <translation>Diff externo</translation>
+    </message>
+    <message>
+        <location filename="../src/tools/DiffTool.cpp" line="32"/>
+        <source>External Diff to Working Copy</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>DiffTreeModel</name>
     <message>
-        <location filename="../src/ui/DiffTreeModel.cpp" line="280"/>
+        <location filename="../src/ui/DiffTreeModel.cpp" line="311"/>
         <source>Submodule</source>
         <translation type="unfinished">Submódulo</translation>
     </message>
@@ -1320,12 +1432,12 @@ These settings will not be saved permanently</source>
 <context>
     <name>DiffView</name>
     <message>
-        <location filename="../src/ui/DiffView/DiffView.cpp" line="145"/>
+        <location filename="../src/ui/DiffView/DiffView.cpp" line="146"/>
         <source>Add new file</source>
         <translation>Añadir nuevo archivo</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/DiffView.cpp" line="159"/>
+        <location filename="../src/ui/DiffView/DiffView.cpp" line="160"/>
         <source>Or drag files here to copy into the repository</source>
         <translation>O arrastra archivos aquí para copiarlos al repositorio</translation>
     </message>
@@ -1333,24 +1445,39 @@ These settings will not be saved permanently</source>
 <context>
     <name>DoubleTreeWidget</name>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="90"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="91"/>
         <source>Blame</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="91"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="92"/>
         <source>Show Blame Editor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="92"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="93"/>
         <source>Diff</source>
         <translation type="unfinished">Diferencia</translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="93"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="94"/>
         <source>Show Diff View</source>
         <translation type="unfinished">Mostrar Vista de Diferencias</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="103"/>
+        <source>Close Blame and Diff</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="104"/>
+        <source>Close</source>
+        <translation type="unfinished">Cerrar</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="214"/>
+        <source>Show all files</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1405,57 +1532,57 @@ These settings will not be saved permanently</source>
 <context>
     <name>EditorPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="664"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="691"/>
         <source>Show whitespace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="673"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="700"/>
         <source>Tabs</source>
         <translation>Pestañas</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="674"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="701"/>
         <source>Spaces</source>
         <translation>Espacios</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="695"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="722"/>
         <source>Show heat map</source>
         <translation>Mostrar mapa de calor</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="704"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="731"/>
         <source>Font:</source>
         <translation>Fuente:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="705"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="732"/>
         <source>Font size:</source>
         <translation>Tamaño de fuente:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="706"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="733"/>
         <source>Whitespace:</source>
         <translation type="unfinished">Espacio en blanco:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="707"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="734"/>
         <source>Indent using:</source>
         <translation>Indentar usando:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="708"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="735"/>
         <source>Indent width:</source>
         <translation>Ancho de indentación:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="709"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="736"/>
         <source>Tab width:</source>
         <translation>Ancho de la tabulación:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="710"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="737"/>
         <source>Blame margin:</source>
         <translation>Márgen de culpa:</translation>
     </message>
@@ -1527,234 +1654,237 @@ These settings will not be saved permanently</source>
         <translation>El archivo seleccionado no tiene una revisión %1.</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="135"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="124"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="155"/>
         <source>Bash Not Found</source>
         <translation>Bash No Encontrado</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="136"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="125"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="156"/>
         <source>Bash was not found on your PATH.</source>
         <translation>Bash no fue encontrado en su PATH.</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="140"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="129"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="160"/>
         <source>Bash is required to execute external tools.</source>
         <translation>Bash es requerido para ejecutar herramientas externas.</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="247"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="268"/>
         <source>Stage</source>
         <translation>Preparar</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="251"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="272"/>
         <source>Unstage</source>
         <translation>No preparar</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="314"/>
         <location filename="../src/ui/FileContextMenu.cpp" line="335"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="356"/>
         <source>Discard Changes</source>
         <translation>Descartar Cambios</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="316"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="337"/>
         <source>Discard Changes?</source>
         <translation>¿Descartar Cambios?</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="317"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="338"/>
         <source>Are you sure you want to discard changes in the selected files?</source>
         <translation>¿Estás seguro que quieres descartar los cambios en los archivos seleccionados?</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="321"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="342"/>
         <source>This action cannot be undone.</source>
         <translation>Esta acción no puede ser deshecha.</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="324"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="345"/>
         <source>(Submodule)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="343"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="364"/>
         <source>%1 files</source>
         <translation>%1 archivos</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="344"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="365"/>
         <source>Discard</source>
         <translation>Descartar</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="345"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="366"/>
         <source>discard</source>
         <translation>descartar</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="357"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="378"/>
         <source>Remove Untracked Files</source>
         <translation>Remover archivos sin seguimiento</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="363"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="384"/>
         <source>Ignore</source>
         <translation>Ignorar</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="386"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="407"/>
         <source>Checkout</source>
         <translation>Revisar</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="176"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="197"/>
         <source>Unlock</source>
         <translation>Desbloquear</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="176"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="197"/>
         <source>Lock</source>
         <translation>Bloquear</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="190"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="211"/>
         <source>Copy File Name</source>
         <translation>Copiar Nombre de Archivo</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="201"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="222"/>
         <source>Filter History</source>
         <translation>Filtrar Historia</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="204"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="225"/>
         <source>Navigate to</source>
         <translation>Navegar a</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="205"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="226"/>
         <source>Next Revision</source>
         <translation>Siguiente revisión</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="210"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="231"/>
         <source>next</source>
         <translation>siguiente</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="214"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="235"/>
         <source>Previous Revision</source>
         <translation>Revisión Anterior</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="219"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="240"/>
         <source>previous</source>
         <translation>anterior</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="229"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="250"/>
         <source>Unset Executable</source>
         <translation>Desestablecer Ejecutable</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="229"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="250"/>
         <source>Set Executable</source>
         <translation>Establecer Ejecutable</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="393"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="414"/>
         <source>Save Selected Version as ...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="397"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="418"/>
         <source>Select new file directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="401"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="422"/>
         <source>Saving files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="402"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="423"/>
         <source>Saving files of selected version to disk</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="405"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="426"/>
         <source>Save file </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="408"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="429"/>
         <source>Invalid Blob</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="415"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="436"/>
         <source>Open this version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="421"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="442"/>
         <source>Opening file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="421"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="442"/>
         <source>Open </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="427"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="448"/>
         <source>open file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="427"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="448"/>
         <source>Blob is invalid.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="453"/>
-        <location filename="../src/ui/FileContextMenu.cpp" line="456"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="474"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="477"/>
         <source>Unable to checkout bare repositories</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="459"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="480"/>
         <source>Unable to open files from bare repository</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="469"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="490"/>
         <source>The file is already in the current working directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="525"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="546"/>
         <source>edit</source>
         <translation>Editar</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="529"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="550"/>
         <source>diff</source>
         <translation>diferencia</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="533"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="554"/>
         <source>merge</source>
         <translation>fusionar</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="537"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="558"/>
         <source>External Tool Not Found</source>
         <translation>Herramienta Externa No Encontrada</translation>
     </message>
     <message>
-        <location filename="../src/ui/FileContextMenu.cpp" line="538"/>
+        <location filename="../src/ui/FileContextMenu.cpp" line="559"/>
         <source>Failed to execute external %1 tool.</source>
         <translation>Falló al ejecutar la herramienta %1 externa.</translation>
     </message>
@@ -1829,107 +1959,112 @@ These settings will not be saved permanently</source>
 <context>
     <name>FileWidget</name>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="71"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="74"/>
         <source>LFS</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="77"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="90"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="80"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="93"/>
         <source>Unlock</source>
         <translation>Desbloquear</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="78"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="91"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="81"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="94"/>
         <source>Lock</source>
         <translation>Bloquear</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="95"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="423"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="98"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="447"/>
         <source>Show Object</source>
         <translation>Mostrar Objeto</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="104"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="107"/>
         <source>Edit File</source>
         <translation>Editar Archivo</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="110"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="113"/>
         <source>Discard File</source>
         <translation>Descartar Archivo</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="769"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="423"/>
+        <source>Diff not shown because it contains %1 changed lines.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="798"/>
         <source>Directory</source>
         <translation>Directorio</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="770"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="799"/>
         <source>File</source>
         <translation>Archivo</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="771"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="800"/>
         <source>Remove %1?</source>
         <translation>¿Remover %1?</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="772"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="801"/>
         <source>Discard Changes?</source>
         <translation>¿Descartar Cambios?</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="774"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="803"/>
         <source>Are you sure you want to remove &apos;%1&apos;?</source>
         <translation>¿Estás seguro que deseas remover %1?</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="775"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="804"/>
         <source>Are you sure you want to discard all changes in &apos;%1&apos;?</source>
         <translation>¿Estás seguro que quieres descartar todos los cambios en %1?</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="780"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="809"/>
         <source>This action cannot be undone.</source>
         <translation>Esta acción no puede ser deshecha.</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="782"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="811"/>
         <source>Remove %1</source>
         <translation>Remover %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="783"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="812"/>
         <source>Discard Changes</source>
         <translation>Descartar Cambios</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/DiffView.cpp" line="482"/>
+        <location filename="../src/ui/DiffView/DiffView.cpp" line="497"/>
         <source>Discard</source>
         <translation>Descartar</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/DiffView.cpp" line="483"/>
+        <location filename="../src/ui/DiffView/DiffView.cpp" line="498"/>
         <source>discard</source>
         <translation>descartar</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="117"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="121"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="120"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="124"/>
         <source>Collapse File</source>
         <translation>Ocultar Archivo</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="118"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="122"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="121"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="125"/>
         <source>Expand File</source>
         <translation>Expandir Archivo</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="422"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="446"/>
         <source>Show Pointer</source>
         <translation>Mostrar Puntero</translation>
     </message>
@@ -1968,22 +2103,40 @@ These settings will not be saved permanently</source>
     </message>
 </context>
 <context>
+    <name>Footer</name>
+    <message>
+        <location filename="../src/ui/Footer.cpp" line="90"/>
+        <source>Add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/Footer.cpp" line="95"/>
+        <source>Remove</source>
+        <translation type="unfinished">Remover</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/Footer.cpp" line="101"/>
+        <source>Options</source>
+        <translation type="unfinished">Opciones</translation>
+    </message>
+</context>
+<context>
     <name>GeneralPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="94"/>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="76"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="96"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="78"/>
         <source>Fetch every</source>
         <translation>Traer cada</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="101"/>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="83"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="103"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="85"/>
         <source>minutes</source>
         <translation>minutos</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="104"/>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="86"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="106"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="88"/>
         <source>Push after each commit</source>
         <translation>Enviar después de cada confirmación</translation>
     </message>
@@ -1992,57 +2145,87 @@ These settings will not be saved permanently</source>
         <translation type="vanished">Actualizar submódulos después de combinar</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="106"/>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="88"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="108"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="90"/>
         <source>Update submodules after pull and clone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="107"/>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="89"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="110"/>
+        <source>Check submodules for updates when opening repositories</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="111"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="91"/>
         <source>Prune when fetching</source>
         <translation>Podar cuando se traiga</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="108"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="112"/>
         <source>No translation</source>
         <translation>No traducir</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="127"/>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="92"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="133"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="94"/>
         <source>User name:</source>
         <translation>Nombre de usuario:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="128"/>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="93"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="134"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="95"/>
         <source>User email:</source>
         <translation>Correo electrónico del usuario:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="129"/>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="94"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="135"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="96"/>
         <source>Automatic actions:</source>
         <translation>Acciones automáticas:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="136"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="143"/>
         <source>Credential store type:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="140"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="144"/>
+        <source>Available Credential stores:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="149"/>
         <source>Only allow a single running instance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="143"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="152"/>
         <source>Single instance:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="118"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="280"/>
+        <source>No credential store set</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="281"/>
+        <source>No credential store is set. Go to the application settings to set the desired credential store</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="287"/>
+        <source></source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="296"/>
+        <source>Available Credential stores</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="122"/>
         <source>Store credentials in secure storage</source>
         <translation>Almacenar credenciales en almacenamiento seguro</translation>
     </message>
@@ -2051,18 +2234,18 @@ These settings will not be saved permanently</source>
         <translation type="vanished">Permitir la recolección de datos de uso</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="122"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="126"/>
         <source>&lt;a href=&apos;view&apos;&gt;View privacy policy&lt;/a&gt;</source>
         <translation>&lt;a href=&apos;view&apos;&gt;Ver políticas de privacidad&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="133"/>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="134"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="140"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="141"/>
         <source>Language:</source>
         <translation>Idioma:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="135"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="142"/>
         <source>Credentials:</source>
         <translation>Credenciales:</translation>
     </message>
@@ -2101,7 +2284,7 @@ These settings will not be saved permanently</source>
 <context>
     <name>Header</name>
     <message>
-        <location filename="../src/ui/ReferenceView.cpp" line="81"/>
+        <location filename="../src/ui/ReferenceView.cpp" line="79"/>
         <source>Filter %1</source>
         <translation>Filtrar %1</translation>
     </message>
@@ -2131,25 +2314,25 @@ These settings will not be saved permanently</source>
     <name>HunkWidget</name>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="66"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="129"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="132"/>
         <source>Save</source>
         <translation>Guardar</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="70"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="133"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="136"/>
         <source>Undo</source>
         <translation>Deshacer</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="82"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="211"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="214"/>
         <source>Use Ours</source>
         <translation>Usar nuestro</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="94"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="212"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="215"/>
         <source>Use Theirs</source>
         <translation>Usar el de ellos</translation>
     </message>
@@ -2280,12 +2463,12 @@ These settings will not be saved permanently</source>
 <context>
     <name>LfsPanel</name>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="469"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="512"/>
         <source>Initialize LFS</source>
         <translation>Inicializar LFS</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="518"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="561"/>
         <source>Specify a glob pattern for tracking large files.
 
 Generally, large files are greater than 500kB, change frequently,
@@ -2311,92 +2494,92 @@ Ejemplos
 </translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="533"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="576"/>
         <source>Pattern:</source>
         <translation>Patrón:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="538"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="581"/>
         <source>Track</source>
         <translation>Seguir</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="623"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="666"/>
         <source>days</source>
         <translation>días</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="628"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="671"/>
         <source>Fetch LFS objects from all references for the past</source>
         <translation>Traer objetos LFS desde todas las referencias del pasado</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="650"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="693"/>
         <source>reference days or</source>
         <translation>días de referencia o</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="669"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="712"/>
         <source>commit days</source>
         <translation>días de confirmación</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="673"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="716"/>
         <source>View Environment</source>
         <translation>Ver Entorno</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="678"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="721"/>
         <source>git-lfs env (read only)</source>
         <translation>git-lfs env (solo lectura)</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="694"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="737"/>
         <source>Deinitialize LFS</source>
         <translation>Desinicializar LFS</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="696"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="739"/>
         <source>Deinitialize LFS?</source>
         <translation>¿Desinicializar LFS?</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="698"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="741"/>
         <source>Are you sure you want uninstall LFS from this repository?</source>
         <translation>¿Estás seguro que quieres desinstalar LFS de este repositorio?</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="704"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="747"/>
         <source>Deinitialize</source>
         <translation>Desinicializar</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="715"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="758"/>
         <source>Server URL:</source>
         <translation>URL del Servidor:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="716"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="759"/>
         <source>Prune Offset:</source>
         <translation>Offset para podar:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="717"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="760"/>
         <source>Fetch Recent:</source>
         <translation>Traer Reciente:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="720"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="763"/>
         <source>Advanced:</source>
         <translation>Avanzado:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="724"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="767"/>
         <source>Included patterns:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="726"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="769"/>
         <source>Excluded patterns:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2480,7 +2663,7 @@ Ejemplos
 <context>
     <name>LogView</name>
     <message>
-        <location filename="../src/log/LogView.cpp" line="50"/>
+        <location filename="../src/log/LogView.cpp" line="51"/>
         <source>Copy</source>
         <translation>Copiar</translation>
     </message>
@@ -2488,59 +2671,84 @@ Ejemplos
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="471"/>
+        <location filename="../src/ui/MainWindow.cpp" line="488"/>
         <source>Invalid Git Repository</source>
         <translation>Repositorio Git Inválido</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="472"/>
+        <location filename="../src/ui/MainWindow.cpp" line="489"/>
         <source>%1 does not contain a valid git repository.</source>
         <translation>%1 no contiene un repositorio git válido.</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="536"/>
-        <location filename="../src/ui/MainWindow.cpp" line="554"/>
+        <location filename="../src/ui/MainWindow.cpp" line="494"/>
+        <source>Recent Repository Unavailable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow.cpp" line="495"/>
+        <source>The recent repository &apos;%1&apos; could not be opened.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow.cpp" line="496"/>
+        <source>It may no longer be a valid Git repository or may be inaccessible. Do you want to remove it from the recent repository list?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow.cpp" line="503"/>
+        <source>Remove From Recent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow.cpp" line="504"/>
+        <source>Keep</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MainWindow.cpp" line="572"/>
+        <location filename="../src/ui/MainWindow.cpp" line="590"/>
         <source>%1 - %2</source>
         <translation>%1 - %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="548"/>
+        <location filename="../src/ui/MainWindow.cpp" line="584"/>
         <source>ahead: %1</source>
         <translation>adelante: %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="550"/>
+        <location filename="../src/ui/MainWindow.cpp" line="586"/>
         <source>behind: %1</source>
         <translation>atrás: %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="552"/>
+        <location filename="../src/ui/MainWindow.cpp" line="588"/>
         <source>up-to-date</source>
         <translation>actualizado</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="553"/>
-        <location filename="../src/ui/MainWindow.cpp" line="590"/>
+        <location filename="../src/ui/MainWindow.cpp" line="589"/>
+        <location filename="../src/ui/MainWindow.cpp" line="626"/>
         <source>%1 (%2)</source>
         <translation>%1 (%2)</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="562"/>
+        <location filename="../src/ui/MainWindow.cpp" line="598"/>
         <source>MERGING</source>
         <translation>FUSIONANDO</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="567"/>
+        <location filename="../src/ui/MainWindow.cpp" line="603"/>
         <source>REVERTING</source>
         <translation>REVIRTIENDO</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="572"/>
+        <location filename="../src/ui/MainWindow.cpp" line="608"/>
         <source>CHERRY-PICKING</source>
         <translation>ESCOGIENDO</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="581"/>
+        <location filename="../src/ui/MainWindow.cpp" line="617"/>
         <source>REBASING</source>
         <translation>REORGANIZANDO</translation>
     </message>
@@ -2600,77 +2808,82 @@ Ejemplos
         <translation>Abrir Reciente</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="317"/>
+        <location filename="../src/ui/MenuBar.cpp" line="319"/>
         <source>Close</source>
         <translation>Cerrar</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="334"/>
+        <location filename="../src/ui/MenuBar.cpp" line="336"/>
         <source>Save</source>
         <translation>Guardar</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="343"/>
+        <location filename="../src/ui/MenuBar.cpp" line="345"/>
         <source>Exit</source>
         <translation>Salir</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="350"/>
+        <location filename="../src/ui/MenuBar.cpp" line="352"/>
         <source>Edit</source>
         <translation>Editar</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="352"/>
+        <location filename="../src/ui/MenuBar.cpp" line="354"/>
         <source>Undo</source>
         <translation>Deshacer</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="365"/>
+        <location filename="../src/ui/MenuBar.cpp" line="367"/>
         <source>Redo</source>
         <translation>Rehacer</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="380"/>
+        <location filename="../src/ui/MenuBar.cpp" line="382"/>
         <source>Cut</source>
         <translation>Cortar</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="393"/>
+        <location filename="../src/ui/MenuBar.cpp" line="395"/>
         <source>Copy</source>
         <translation>Copiar</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="408"/>
+        <location filename="../src/ui/MenuBar.cpp" line="410"/>
         <source>Paste</source>
         <translation>Pegar</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="421"/>
+        <location filename="../src/ui/MenuBar.cpp" line="423"/>
         <source>Select All</source>
         <translation>Seleccionar Todo</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="436"/>
+        <location filename="../src/ui/MenuBar.cpp" line="438"/>
         <source>Find...</source>
         <translation>Encontrar...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="448"/>
+        <location filename="../src/ui/MenuBar.cpp" line="450"/>
         <source>Find Next</source>
         <translation>Encontrar Siguiente</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="459"/>
+        <location filename="../src/ui/MenuBar.cpp" line="461"/>
         <source>Find Previous</source>
         <translation>Encontrar Previo</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="470"/>
+        <location filename="../src/ui/MenuBar.cpp" line="472"/>
         <source>Use Selection for Find</source>
         <translation>Usar la Selección para Encontrar</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1023"/>
+        <location filename="../src/ui/MenuBar.cpp" line="727"/>
+        <source>Check for Updates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MenuBar.cpp" line="1031"/>
         <source>Show Double Tree View</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2679,54 +2892,54 @@ Ejemplos
         <translation type="vanished">Ctrl+E</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="487"/>
+        <location filename="../src/ui/MenuBar.cpp" line="489"/>
         <source>View</source>
         <translation>Ver</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="489"/>
+        <location filename="../src/ui/MenuBar.cpp" line="491"/>
         <source>Refresh</source>
         <translation>Refrescar</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="495"/>
-        <location filename="../src/ui/MenuBar.cpp" line="1021"/>
+        <location filename="../src/ui/MenuBar.cpp" line="497"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1029"/>
         <source>Show Log</source>
         <translation>Mostrar Histórico</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="502"/>
+        <location filename="../src/ui/MenuBar.cpp" line="504"/>
         <source>Normal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="502"/>
+        <location filename="../src/ui/MenuBar.cpp" line="504"/>
         <source>Maximize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="521"/>
-        <location filename="../src/ui/MenuBar.cpp" line="1022"/>
+        <location filename="../src/ui/MenuBar.cpp" line="523"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1030"/>
         <source>Show Tree View</source>
         <translation>Mostrar Vista de Árbol</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="529"/>
+        <location filename="../src/ui/MenuBar.cpp" line="531"/>
         <source>Hide Menu Bar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="537"/>
+        <location filename="../src/ui/MenuBar.cpp" line="539"/>
         <source>Repository</source>
         <translation>Repositorio</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="539"/>
+        <location filename="../src/ui/MenuBar.cpp" line="541"/>
         <source>Configure Repository...</source>
         <translation>Configurar Repositorio...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="546"/>
+        <location filename="../src/ui/MenuBar.cpp" line="548"/>
         <source>Stage All</source>
         <translation>Preparar Todo</translation>
     </message>
@@ -2735,7 +2948,7 @@ Ejemplos
         <translation type="vanished">Ctrl++</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="550"/>
+        <location filename="../src/ui/MenuBar.cpp" line="552"/>
         <source>Unstage All</source>
         <translation>No Preparar Nada</translation>
     </message>
@@ -2744,7 +2957,7 @@ Ejemplos
         <translation type="vanished">Ctrl+-</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="556"/>
+        <location filename="../src/ui/MenuBar.cpp" line="558"/>
         <source>Commit</source>
         <translation>Confirmar</translation>
     </message>
@@ -2753,7 +2966,7 @@ Ejemplos
         <translation type="vanished">Ctrl+Shift+C</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="560"/>
+        <location filename="../src/ui/MenuBar.cpp" line="562"/>
         <source>Amend Commit</source>
         <translation>Enmendar Confirmación</translation>
     </message>
@@ -2762,32 +2975,32 @@ Ejemplos
         <translation type="vanished">Ctrl+Shift+A</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="566"/>
+        <location filename="../src/ui/MenuBar.cpp" line="568"/>
         <source>Git LFS</source>
         <translation>Git LFS</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="567"/>
+        <location filename="../src/ui/MenuBar.cpp" line="569"/>
         <source>Remove all locks</source>
         <translation>Remover todos los bloqueos</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="575"/>
+        <location filename="../src/ui/MenuBar.cpp" line="577"/>
         <source>Initialize</source>
         <translation>Inicializar</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="581"/>
+        <location filename="../src/ui/MenuBar.cpp" line="583"/>
         <source>Remote</source>
         <translation>Remoto</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="583"/>
+        <location filename="../src/ui/MenuBar.cpp" line="585"/>
         <source>Configure Remotes...</source>
         <translation>Configurar Remotos...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="591"/>
+        <location filename="../src/ui/MenuBar.cpp" line="593"/>
         <source>Fetch</source>
         <translation>Traer</translation>
     </message>
@@ -2796,7 +3009,7 @@ Ejemplos
         <translation type="vanished">Ctrl+Shift+Alt+F</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="595"/>
+        <location filename="../src/ui/MenuBar.cpp" line="597"/>
         <source>Fetch All</source>
         <translation>Traer Todo</translation>
     </message>
@@ -2805,7 +3018,7 @@ Ejemplos
         <translation type="vanished">Ctrl+Shift+Alt+A</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="599"/>
+        <location filename="../src/ui/MenuBar.cpp" line="601"/>
         <source>Fetch From...</source>
         <translation>Traer Desde...</translation>
     </message>
@@ -2814,7 +3027,7 @@ Ejemplos
         <translation type="vanished">Ctrl+Shift+F</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="608"/>
+        <location filename="../src/ui/MenuBar.cpp" line="610"/>
         <source>Pull</source>
         <translation>Combinar</translation>
     </message>
@@ -2823,7 +3036,7 @@ Ejemplos
         <translation type="vanished">Ctrl+Shift+Alt+L</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="612"/>
+        <location filename="../src/ui/MenuBar.cpp" line="614"/>
         <source>Pull From...</source>
         <translation>Combinar Desde...</translation>
     </message>
@@ -2832,7 +3045,7 @@ Ejemplos
         <translation type="vanished">Ctrl+Shift+L</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="621"/>
+        <location filename="../src/ui/MenuBar.cpp" line="623"/>
         <source>Push</source>
         <translation>Enviar</translation>
     </message>
@@ -2841,7 +3054,7 @@ Ejemplos
         <translation type="vanished">Ctrl+Shift+Alt+P</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="625"/>
+        <location filename="../src/ui/MenuBar.cpp" line="627"/>
         <source>Push To...</source>
         <translation>Enviar a...</translation>
     </message>
@@ -2850,27 +3063,27 @@ Ejemplos
         <translation type="vanished">Ctrl+Shift+P</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="633"/>
+        <location filename="../src/ui/MenuBar.cpp" line="635"/>
         <source>Branch</source>
         <translation>Rama</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="635"/>
+        <location filename="../src/ui/MenuBar.cpp" line="637"/>
         <source>Configure Branches...</source>
         <translation>Configurar Ramas...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="641"/>
+        <location filename="../src/ui/MenuBar.cpp" line="643"/>
         <source>New Branch...</source>
         <translation>Nueva rama...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="646"/>
+        <location filename="../src/ui/MenuBar.cpp" line="648"/>
         <source>Rename Branch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="654"/>
+        <location filename="../src/ui/MenuBar.cpp" line="656"/>
         <source>Checkout Current</source>
         <translation>Revisar Actual</translation>
     </message>
@@ -2879,7 +3092,7 @@ Ejemplos
         <translation type="vanished">Ctrl+Shift+Alt+H</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="665"/>
+        <location filename="../src/ui/MenuBar.cpp" line="667"/>
         <source>Checkout...</source>
         <translation>Revisar...</translation>
     </message>
@@ -2888,7 +3101,7 @@ Ejemplos
         <translation type="vanished">Ctrl+Shift+H</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="672"/>
+        <location filename="../src/ui/MenuBar.cpp" line="674"/>
         <source>Merge...</source>
         <translation>Fusionar...</translation>
     </message>
@@ -2897,7 +3110,7 @@ Ejemplos
         <translation type="vanished">Ctrl+Shift+M</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="684"/>
+        <location filename="../src/ui/MenuBar.cpp" line="686"/>
         <source>Rebase...</source>
         <translation>Reorganizar...</translation>
     </message>
@@ -2906,7 +3119,7 @@ Ejemplos
         <translation type="vanished">Ctrl+Shift+R</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="696"/>
+        <location filename="../src/ui/MenuBar.cpp" line="698"/>
         <source>Squash...</source>
         <translation>Aplastar</translation>
     </message>
@@ -2915,22 +3128,22 @@ Ejemplos
         <translation type="vanished">Ctrl+Shift+Q</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="710"/>
+        <location filename="../src/ui/MenuBar.cpp" line="712"/>
         <source>Abort Merge</source>
         <translation>Abortar Fusión</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="715"/>
+        <location filename="../src/ui/MenuBar.cpp" line="717"/>
         <source>Submodule</source>
         <translation>Submódulo</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="717"/>
+        <location filename="../src/ui/MenuBar.cpp" line="719"/>
         <source>Configure Submodules...</source>
         <translation>Configurar Submódulos...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="725"/>
+        <location filename="../src/ui/MenuBar.cpp" line="733"/>
         <source>Update All</source>
         <translation>Actualizar Todo</translation>
     </message>
@@ -2939,7 +3152,7 @@ Ejemplos
         <translation type="vanished">Ctrl+Shift+Alt+U</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="730"/>
+        <location filename="../src/ui/MenuBar.cpp" line="738"/>
         <source>Update...</source>
         <translation>Actualizar...</translation>
     </message>
@@ -2948,22 +3161,22 @@ Ejemplos
         <translation type="vanished">Ctrl+Shift+U</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="746"/>
+        <location filename="../src/ui/MenuBar.cpp" line="754"/>
         <source>Open</source>
         <translation>Abrir</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="764"/>
+        <location filename="../src/ui/MenuBar.cpp" line="772"/>
         <source>Stash</source>
         <translation>Guardado Rápido</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="766"/>
+        <location filename="../src/ui/MenuBar.cpp" line="774"/>
         <source>Show Stashes</source>
         <translation>Mostrar Guardados Rápidos</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="775"/>
+        <location filename="../src/ui/MenuBar.cpp" line="783"/>
         <source>Stash...</source>
         <translation>Guardado Rápido...</translation>
     </message>
@@ -2972,7 +3185,7 @@ Ejemplos
         <translation type="vanished">Ctrl+Shift+T</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="779"/>
+        <location filename="../src/ui/MenuBar.cpp" line="787"/>
         <source>Pop Stash</source>
         <translation>Sacar Guardado Rápido</translation>
     </message>
@@ -2981,37 +3194,37 @@ Ejemplos
         <translation type="vanished">Ctrl+Shift+Alt+T</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="784"/>
+        <location filename="../src/ui/MenuBar.cpp" line="792"/>
         <source>History</source>
         <translation>Historia</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="786"/>
+        <location filename="../src/ui/MenuBar.cpp" line="794"/>
         <source>Back</source>
         <translation>Atrás</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="791"/>
+        <location filename="../src/ui/MenuBar.cpp" line="799"/>
         <source>Forward</source>
         <translation>Adelante</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="797"/>
+        <location filename="../src/ui/MenuBar.cpp" line="805"/>
         <source>Window</source>
         <translation>Ventana</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="798"/>
+        <location filename="../src/ui/MenuBar.cpp" line="806"/>
         <source>Show Previous Tab</source>
         <translation>Mostrar Pestaña Anterior</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="807"/>
+        <location filename="../src/ui/MenuBar.cpp" line="815"/>
         <source>Show Next Tab</source>
         <translation>Mostrar Próxima Pestaña</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="818"/>
+        <location filename="../src/ui/MenuBar.cpp" line="826"/>
         <source>Show Repository Chooser...</source>
         <translation>Mostrar Selector de Repositorio...</translation>
     </message>
@@ -3020,82 +3233,82 @@ Ejemplos
         <translation type="vanished">Ctrl+Shift+O</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="823"/>
+        <location filename="../src/ui/MenuBar.cpp" line="831"/>
         <source>Tools</source>
         <translation>Herramientas</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="824"/>
+        <location filename="../src/ui/MenuBar.cpp" line="832"/>
         <source>Options...</source>
         <translation>Opciones...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="830"/>
+        <location filename="../src/ui/MenuBar.cpp" line="838"/>
         <source>Help</source>
         <translation>Ayuda</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="832"/>
+        <location filename="../src/ui/MenuBar.cpp" line="840"/>
         <source>About %1</source>
         <translation>Acerca de %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="837"/>
+        <location filename="../src/ui/MenuBar.cpp" line="845"/>
         <source>Check For Updates...</source>
         <translation>Buscar Actualizaciones...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="841"/>
+        <location filename="../src/ui/MenuBar.cpp" line="849"/>
         <source>Plugin Documentation...</source>
         <translation>Documentación de Plugin...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="847"/>
+        <location filename="../src/ui/MenuBar.cpp" line="855"/>
         <source>Support us via Liberapay</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="853"/>
+        <location filename="../src/ui/MenuBar.cpp" line="861"/>
         <source>Debug</source>
         <translation>Depurar</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="854"/>
+        <location filename="../src/ui/MenuBar.cpp" line="862"/>
         <source>Abort</source>
         <translation>Abortar</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="867"/>
+        <location filename="../src/ui/MenuBar.cpp" line="875"/>
         <source>Log Indexer Progress</source>
         <translation>Histórico del Progreso del indexador</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="873"/>
+        <location filename="../src/ui/MenuBar.cpp" line="881"/>
         <source>Log Credential Helper</source>
         <translation>Histórico de la Ayuda de Credenciales</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="879"/>
+        <location filename="../src/ui/MenuBar.cpp" line="887"/>
         <source>Log Remote Connection</source>
         <translation>Histórico de Conexión Remota</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="885"/>
+        <location filename="../src/ui/MenuBar.cpp" line="893"/>
         <source>Log Debug Messages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="893"/>
+        <location filename="../src/ui/MenuBar.cpp" line="901"/>
         <source>Load All Diffs</source>
         <translation>Cargar Todas las Diferencias</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="907"/>
+        <location filename="../src/ui/MenuBar.cpp" line="915"/>
         <source>Walk Commits</source>
         <translation>Recorrer las Confirmaciones</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1021"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1029"/>
         <source>Hide Log</source>
         <translation>Ocultar Histórico</translation>
     </message>
@@ -3104,27 +3317,27 @@ Ejemplos
         <translation type="vanished">Mostrar Vista de Diferencias</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1071"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1079"/>
         <source>Merge</source>
         <translation>Fusionar</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1081"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1089"/>
         <source>Revert</source>
         <translation>Revertir</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1087"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1095"/>
         <source>Cherry-pick</source>
         <translation>Escoger</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1093"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1101"/>
         <source>Rebase</source>
         <translation>Reorganizar</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1099"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1107"/>
         <source>Abort %1</source>
         <translation>Abortar %1</translation>
     </message>
@@ -3209,14 +3422,52 @@ Ejemplos
 <context>
     <name>MiscPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="776"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="803"/>
         <source>Path to SSH config file:</source>
         <translation>Ruta al fichero de configuración SSH:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="777"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="804"/>
         <source>Path to default / fallback SSH key file:</source>
         <translation>Ruta a la clave SSH por Defecto/Respaldo:</translation>
+    </message>
+</context>
+<context>
+    <name>ModifySubmoduleDialog</name>
+    <message>
+        <location filename="../src/dialogs/ModifySubmoduleDialog.cpp" line="25"/>
+        <source>Modify Submodule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/ModifySubmoduleDialog.cpp" line="43"/>
+        <source>Name is the submodule config section. Path is the folder location in the repository. Changing the path moves the folder when it exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/ModifySubmoduleDialog.cpp" line="53"/>
+        <source>Save</source>
+        <translation type="unfinished">Guardar</translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/ModifySubmoduleDialog.cpp" line="58"/>
+        <source>Name:</source>
+        <translation type="unfinished">Nombre:</translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/ModifySubmoduleDialog.cpp" line="59"/>
+        <source>Path:</source>
+        <translation type="unfinished">Ruta:</translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/ModifySubmoduleDialog.cpp" line="60"/>
+        <source>URL:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/ModifySubmoduleDialog.cpp" line="61"/>
+        <source>Branch:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3327,7 +3578,7 @@ Ejemplos
 <context>
     <name>PullRequestButton</name>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="413"/>
+        <location filename="../src/ui/ToolBar.cpp" line="414"/>
         <source>Create Pull Request</source>
         <translation>Crear Solicitud de Integración</translation>
     </message>
@@ -3383,53 +3634,219 @@ Ejemplos
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="37"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="38"/>
         <source>Expand all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="38"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="39"/>
         <source>Collapse all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="39"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="40"/>
         <source>Staged Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="40"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="41"/>
         <source>Unstaged Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="41"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="42"/>
         <source>Committed Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="42"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="43"/>
         <source>Workdir Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/app/Gittyup.cpp" line="27"/>
+        <location filename="../src/app/Gittyup.cpp" line="25"/>
         <source>Your global GIT configuration is invalid, Gittyup won&apos;t run properly until this is fixed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffTreeModel.cpp" line="26"/>
+        <location filename="../src/ui/DiffTreeModel.cpp" line="27"/>
         <source>File Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffTreeModel.cpp" line="27"/>
+        <location filename="../src/ui/DiffTreeModel.cpp" line="28"/>
         <source>Relative Path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffTreeModel.cpp" line="28"/>
+        <location filename="../src/ui/DiffTreeModel.cpp" line="29"/>
         <source>State</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="106"/>
+        <source>Failed to read moved submodule .git file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="136"/>
+        <source>Failed to update moved submodule .git file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="194"/>
+        <source>Unknown error.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="303"/>
+        <source>No pinned submodule commit is recorded.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="312"/>
+        <source>The submodule repository is not initialized.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="320"/>
+        <source>Unable to create remote.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="333"/>
+        <source>No submodule branch is configured.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="338"/>
+        <source>The special &apos;.&apos; submodule branch is not supported by this check.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="344"/>
+        <source>No submodule branch could be resolved.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="356"/>
+        <source>Unable to fetch submodule target branch.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="363"/>
+        <source>Unable to read fetched submodule branch.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="381"/>
+        <source>Remote target is not a descendant of the pinned commit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="385"/>
+        <source>Unable to compare submodule commits.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="445"/>
+        <source>Submodule name cannot be empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="448"/>
+        <source>Submodule path cannot be empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="451"/>
+        <source>Submodule URL cannot be empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="455"/>
+        <location filename="../src/git/Submodule.cpp" line="529"/>
+        <source>Submodule &apos;%1&apos; was not found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="462"/>
+        <source>A submodule named &apos;%1&apos; already exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="466"/>
+        <source>A submodule already uses path &apos;%1&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="471"/>
+        <source>Failed to open .gitmodules.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="481"/>
+        <source>Path &apos;%1&apos; already exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="491"/>
+        <source>Failed to create parent directory for &apos;%1&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="495"/>
+        <source>Failed to move submodule folder to &apos;%1&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="524"/>
+        <source>Invalid submodule.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="534"/>
+        <source>Submodule path &apos;%1&apos; is outside the repository.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="540"/>
+        <source>Failed to read .gitmodules.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="549"/>
+        <source>.gitmodules has existing changes. Commit or discard them first.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="565"/>
+        <source>Submodule cache path is outside .git/modules.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="570"/>
+        <source>Failed to remove submodule from .gitmodules.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="595"/>
+        <source>Submodule was removed from the project, but its working directory could not be deleted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/git/Submodule.cpp" line="601"/>
+        <source>Submodule was removed from the project, but its cached repository could not be deleted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="38"/>
+        <source>%1↑</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="42"/>
+        <source>%1↓</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3452,7 +3869,7 @@ Ejemplos
     </message>
     <message>
         <location filename="../src/dialogs/RebaseConflictDialog.cpp" line="35"/>
-        <source>The rebase caused a merge conflict. 
+        <source>The rebase caused a merge conflict.
 Would you like to fix the merge conflict and continue?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3476,17 +3893,17 @@ Would you like to fix the merge conflict and continue?</source>
 <context>
     <name>ReferenceModel</name>
     <message>
-        <location filename="../src/ui/ReferenceModel.cpp" line="115"/>
+        <location filename="../src/ui/ReferenceModel.cpp" line="116"/>
         <source>Branches</source>
         <translation>Ramas</translation>
     </message>
     <message>
-        <location filename="../src/ui/ReferenceModel.cpp" line="134"/>
+        <location filename="../src/ui/ReferenceModel.cpp" line="135"/>
         <source>Remotes</source>
         <translation>Remotos</translation>
     </message>
     <message>
-        <location filename="../src/ui/ReferenceModel.cpp" line="151"/>
+        <location filename="../src/ui/ReferenceModel.cpp" line="152"/>
         <source>Tags</source>
         <translation>Etiquetas</translation>
     </message>
@@ -3494,65 +3911,57 @@ Would you like to fix the merge conflict and continue?</source>
 <context>
     <name>ReferenceView</name>
     <message>
-        <location filename="../src/ui/ReferenceView.cpp" line="255"/>
+        <location filename="../src/ui/ReferenceView.cpp" line="253"/>
         <source>Branch</source>
         <translation>Rama</translation>
     </message>
     <message>
-        <location filename="../src/ui/ReferenceView.cpp" line="258"/>
+        <location filename="../src/ui/ReferenceView.cpp" line="256"/>
         <source>Remote</source>
         <translation>Remoto</translation>
     </message>
     <message>
-        <location filename="../src/ui/ReferenceView.cpp" line="261"/>
+        <location filename="../src/ui/ReferenceView.cpp" line="259"/>
         <source>Tag</source>
         <translation>Etiqueta</translation>
     </message>
     <message>
-        <location filename="../src/ui/ReferenceView.cpp" line="286"/>
         <source>Checkout</source>
-        <translation>Revisar</translation>
+        <translation type="vanished">Revisar</translation>
     </message>
     <message>
-        <location filename="../src/ui/ReferenceView.cpp" line="294"/>
         <source>Rename</source>
-        <translation>Renombrar</translation>
+        <translation type="vanished">Renombrar</translation>
     </message>
     <message>
-        <location filename="../src/ui/ReferenceView.cpp" line="304"/>
         <source>Delete</source>
-        <translation>Borrar</translation>
+        <translation type="vanished">Borrar</translation>
     </message>
     <message>
-        <location filename="../src/ui/ReferenceView.cpp" line="323"/>
         <source>Push Tag to %1</source>
-        <translation>Enviar etiqueta a %1</translation>
+        <translation type="vanished">Enviar etiqueta a %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/ReferenceView.cpp" line="329"/>
         <source>New Local Branch</source>
-        <translation>Nueva Rama Local</translation>
+        <translation type="vanished">Nueva Rama Local</translation>
     </message>
     <message>
-        <location filename="../src/ui/ReferenceView.cpp" line="337"/>
         <source>Merge...</source>
-        <translation>Fusionar...</translation>
+        <translation type="vanished">Fusionar...</translation>
     </message>
     <message>
-        <location filename="../src/ui/ReferenceView.cpp" line="348"/>
         <source>Rebase...</source>
-        <translation>Reorganizar...</translation>
+        <translation type="vanished">Reorganizar...</translation>
     </message>
     <message>
-        <location filename="../src/ui/ReferenceView.cpp" line="359"/>
         <source>Squash...</source>
-        <translation>Aplastar...</translation>
+        <translation type="vanished">Aplastar...</translation>
     </message>
 </context>
 <context>
     <name>RefreshButton</name>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="360"/>
+        <location filename="../src/ui/ToolBar.cpp" line="361"/>
         <source>Refresh</source>
         <translation>Refrescar</translation>
     </message>
@@ -3560,7 +3969,7 @@ Would you like to fix the merge conflict and continue?</source>
 <context>
     <name>RemoteButton</name>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="258"/>
+        <location filename="../src/ui/ToolBar.cpp" line="259"/>
         <source>999+</source>
         <translation>999+</translation>
     </message>
@@ -3568,59 +3977,59 @@ Would you like to fix the merge conflict and continue?</source>
 <context>
     <name>RemoteCallbacks</name>
     <message>
-        <location filename="../src/ui/RemoteCallbacks.cpp" line="162"/>
+        <location filename="../src/ui/RemoteCallbacks.cpp" line="163"/>
         <source>remote: %1</source>
         <translation>remote: %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/RemoteCallbacks.cpp" line="212"/>
+        <location filename="../src/ui/RemoteCallbacks.cpp" line="213"/>
         <source>failed to execute pre-push hook: bash not found</source>
         <translation>Falló al ejecutar hook pre-envío: bash no encontrado</translation>
     </message>
     <message>
-        <location filename="../src/ui/RemoteCallbacks.cpp" line="247"/>
+        <location filename="../src/ui/RemoteCallbacks.cpp" line="248"/>
         <source>failed to execute pre-push hook: %1</source>
         <translation>Falló al ejecutar hook pre-envío: %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/RemoteCallbacks.cpp" line="295"/>
+        <location filename="../src/ui/RemoteCallbacks.cpp" line="296"/>
         <source>HTTPS Credentials</source>
         <translation>Credenciales HTTPS</translation>
     </message>
     <message>
-        <location filename="../src/ui/RemoteCallbacks.cpp" line="295"/>
+        <location filename="../src/ui/RemoteCallbacks.cpp" line="296"/>
         <source>SSH Passphrase</source>
         <translation>Frase de contraseña SSH</translation>
     </message>
     <message>
-        <location filename="../src/ui/RemoteCallbacks.cpp" line="310"/>
+        <location filename="../src/ui/RemoteCallbacks.cpp" line="311"/>
         <source>Username:</source>
         <translation>Nombre de Usuario:</translation>
     </message>
     <message>
-        <location filename="../src/ui/RemoteCallbacks.cpp" line="311"/>
+        <location filename="../src/ui/RemoteCallbacks.cpp" line="312"/>
         <source>Password:</source>
         <translation>Contraseña:</translation>
     </message>
     <message>
-        <location filename="../src/ui/RemoteCallbacks.cpp" line="311"/>
+        <location filename="../src/ui/RemoteCallbacks.cpp" line="312"/>
         <source>Passphrase:</source>
         <translation>Frase de Contraseña:</translation>
     </message>
     <message>
-        <location filename="../src/ui/RemoteCallbacks.cpp" line="326"/>
-        <location filename="../src/ui/RemoteCallbacks.cpp" line="374"/>
+        <location filename="../src/ui/RemoteCallbacks.cpp" line="327"/>
+        <location filename="../src/ui/RemoteCallbacks.cpp" line="375"/>
         <source>authentication canceled</source>
         <translation>Autenticación cancelada</translation>
     </message>
     <message>
-        <location filename="../src/ui/RemoteCallbacks.cpp" line="459"/>
+        <location filename="../src/ui/RemoteCallbacks.cpp" line="460"/>
         <source>From %1</source>
         <translation>De %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/RemoteCallbacks.cpp" line="459"/>
-        <location filename="../src/ui/RemoteCallbacks.cpp" line="501"/>
+        <location filename="../src/ui/RemoteCallbacks.cpp" line="460"/>
+        <location filename="../src/ui/RemoteCallbacks.cpp" line="502"/>
         <source>To %1</source>
         <translation>Para %1</translation>
     </message>
@@ -3776,17 +4185,17 @@ Would you like to fix the merge conflict and continue?</source>
 <context>
     <name>RemotesPanel</name>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="202"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="204"/>
         <source>Delete Remote?</source>
         <translation>¿Borrar Remoto?</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="203"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="205"/>
         <source>Are you sure you want to delete &apos;%1&apos;?</source>
         <translation>¿Estás seguro que deseas borrar %1?</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="208"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="210"/>
         <source>Delete</source>
         <translation>Borrar</translation>
     </message>
@@ -3822,41 +4231,35 @@ Would you like to fix the merge conflict and continue?</source>
         <translation>Inicializar Nuevo Repositorio</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="314"/>
         <source>Connecting</source>
-        <translation>Conectando</translation>
+        <translation type="vanished">Conectando</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="338"/>
         <source>open</source>
-        <translation>abrir</translation>
+        <translation type="vanished">abrir</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="340"/>
         <source>recent</source>
-        <translation>reciente</translation>
+        <translation type="vanished">reciente</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="342"/>
         <source>remote</source>
-        <translation>remoto</translation>
+        <translation type="vanished">remoto</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="358"/>
-        <location filename="../src/ui/SideBar.cpp" line="367"/>
         <source>none</source>
-        <translation>ninguno</translation>
+        <translation type="vanished">ninguno</translation>
     </message>
 </context>
 <context>
     <name>RepoView</name>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="182"/>
+        <location filename="../src/ui/RepoView.cpp" line="218"/>
         <source>Indexing...</source>
         <translation>Indexando...</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="190"/>
+        <location filename="../src/ui/RepoView.cpp" line="226"/>
         <source>Search</source>
         <translation>Buscar</translation>
     </message>
@@ -3865,128 +4268,133 @@ Would you like to fix the merge conflict and continue?</source>
         <translation type="vanished">El proceso de indexado estalló. Si este problema persiste por favor contáctanos en support@gitahead.com.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="196"/>
+        <location filename="../src/ui/RepoView.cpp" line="232"/>
         <source>Indexer Crashed</source>
         <translation>El indexador estalló</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="319"/>
+        <location filename="../src/ui/RepoView.cpp" line="374"/>
         <source>Stage Directory?</source>
         <translation>¿Preparar Directorio?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="320"/>
+        <location filename="../src/ui/RepoView.cpp" line="375"/>
         <source>Are you sure you want to stage &apos;%1&apos;?</source>
         <translation>¿Estás seguro que deseas preparar %1?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="321"/>
+        <location filename="../src/ui/RepoView.cpp" line="376"/>
         <source>This will result in the addition of %1 files.</source>
         <translation>Esto resultará en la adición de %1 archivos.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="323"/>
+        <location filename="../src/ui/RepoView.cpp" line="378"/>
         <source>more than 100</source>
         <translation>más de 100</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="327"/>
+        <location filename="../src/ui/RepoView.cpp" line="382"/>
         <source>Stage Directory</source>
         <translation>Preparar Directorio</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="330"/>
+        <location filename="../src/ui/RepoView.cpp" line="385"/>
         <source>Stop prompting to stage directories</source>
         <translation>Dejar de preguntar para preparar directorios</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="346"/>
+        <location filename="../src/ui/RepoView.cpp" line="401"/>
         <source>Stage Large File?</source>
         <translation>¿Preparar Archivo Grande?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="348"/>
+        <location filename="../src/ui/RepoView.cpp" line="403"/>
         <source>Are you sure you want to stage &apos;%1&apos; with a size of %2?</source>
         <translation>¿Estás seguro que quieres preparar &apos;%1&apos; con un tamaño de %2?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="353"/>
+        <location filename="../src/ui/RepoView.cpp" line="408"/>
         <source>Stage</source>
         <translation>Preparar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="357"/>
+        <location filename="../src/ui/RepoView.cpp" line="412"/>
         <source>Track with LFS</source>
         <translation>Seguir con LFS</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="360"/>
+        <location filename="../src/ui/RepoView.cpp" line="415"/>
         <source>This repository has LFS enabled. Do you want to track the file with LFS instead?</source>
         <translation>Este repositorio tiene LFS habilitado. ¿Prefieres seguir el archivo con LFS?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="364"/>
+        <location filename="../src/ui/RepoView.cpp" line="419"/>
         <source>Stop prompting to stage large files</source>
         <translation>Dejar de preguntar para preparar archivos grandes</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="407"/>
+        <location filename="../src/ui/RepoView.cpp" line="461"/>
+        <source>Log</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="486"/>
         <source>Esc</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="413"/>
+        <location filename="../src/ui/RepoView.cpp" line="492"/>
         <source>stage</source>
         <translation>preparar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="418"/>
+        <location filename="../src/ui/RepoView.cpp" line="497"/>
         <source>Git LFS was not found on the PATH. &lt;a href=&apos;https://git-lfs.github.com&apos;&gt;Install Git LFS&lt;/a&gt; to use LFS integration.</source>
         <translation>Git LFS no fue encontrado en el PATH. &lt;a href=&apos;https://git-lfs.github.com&apos;&gt;Instala Git LFS&lt;/a&gt; para usar la integración LFS.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="465"/>
+        <location filename="../src/ui/RepoView.cpp" line="559"/>
         <source>untracked file</source>
         <translation>archivo sin seguimiento</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="466"/>
+        <location filename="../src/ui/RepoView.cpp" line="560"/>
         <source>untracked files</source>
         <translation>archivos sin seguimiento</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="469"/>
+        <location filename="../src/ui/RepoView.cpp" line="563"/>
         <source>Remove Untracked Files</source>
         <translation>Remover archivos sin seguimiento</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="470"/>
+        <location filename="../src/ui/RepoView.cpp" line="564"/>
         <source>Remove %1 %2?</source>
         <translation>¿Remover %1 %2?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="473"/>
+        <location filename="../src/ui/RepoView.cpp" line="567"/>
         <source>This action cannot be undone.</source>
         <translation>Esta acción no puede ser deshecha.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="476"/>
+        <location filename="../src/ui/RepoView.cpp" line="570"/>
         <source>Remove</source>
         <translation>Remover</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="703"/>
-        <location filename="../src/ui/RepoView.cpp" line="719"/>
+        <location filename="../src/ui/RepoView.cpp" line="840"/>
+        <location filename="../src/ui/RepoView.cpp" line="856"/>
         <source>Certificate Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="704"/>
+        <location filename="../src/ui/RepoView.cpp" line="841"/>
         <source>SSL verification disabled for this repository</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="706"/>
+        <location filename="../src/ui/RepoView.cpp" line="843"/>
         <source>[http]
   sslVerify = false
 
@@ -3994,12 +4402,12 @@ was added to %1/config</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="720"/>
+        <location filename="../src/ui/RepoView.cpp" line="857"/>
         <source>SSL verification disabled for all git repositories</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="722"/>
+        <location filename="../src/ui/RepoView.cpp" line="859"/>
         <source>[http]
   sslVerify = false
 
@@ -4007,298 +4415,313 @@ was added to %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="746"/>
+        <location filename="../src/ui/RepoView.cpp" line="883"/>
         <source>Pull Request</source>
         <translation>Solicitud de Integración</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="746"/>
+        <location filename="../src/ui/RepoView.cpp" line="883"/>
         <source>Create</source>
         <translation>Crear</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="747"/>
+        <location filename="../src/ui/RepoView.cpp" line="884"/>
         <source>create pull request</source>
         <translation>Crear solicitud de integración</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="761"/>
-        <location filename="../src/ui/RepoView.cpp" line="771"/>
-        <location filename="../src/ui/RepoView.cpp" line="794"/>
+        <location filename="../src/ui/RepoView.cpp" line="898"/>
+        <location filename="../src/ui/RepoView.cpp" line="908"/>
+        <location filename="../src/ui/RepoView.cpp" line="931"/>
         <source>Git LFS</source>
         <translation>Git LFS</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="761"/>
+        <location filename="../src/ui/RepoView.cpp" line="898"/>
         <source>Initialize</source>
         <translation>Inicializar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="763"/>
+        <location filename="../src/ui/RepoView.cpp" line="900"/>
         <source>initialize</source>
         <translation>inicializar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="767"/>
+        <location filename="../src/ui/RepoView.cpp" line="904"/>
         <source>Git LFS initialized.</source>
         <translation>Git LFS inicializado.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="771"/>
+        <location filename="../src/ui/RepoView.cpp" line="908"/>
         <source>Deinitialize</source>
         <translation>Desinicializar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="773"/>
+        <location filename="../src/ui/RepoView.cpp" line="910"/>
         <source>deinitialize</source>
         <translation>desinicializar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="777"/>
+        <location filename="../src/ui/RepoView.cpp" line="914"/>
         <source>Git LFS Deinitialized.</source>
         <translation>Git LFS desinicializado.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="782"/>
+        <location filename="../src/ui/RepoView.cpp" line="919"/>
         <source>Lock</source>
         <translation>Bloquear</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="782"/>
+        <location filename="../src/ui/RepoView.cpp" line="919"/>
         <source>Unlock</source>
         <translation>Desbloquear</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="787"/>
-        <location filename="../src/ui/RepoView.cpp" line="910"/>
+        <location filename="../src/ui/RepoView.cpp" line="924"/>
+        <location filename="../src/ui/RepoView.cpp" line="1065"/>
         <source>Unable to %1 &apos;%2&apos; - %3</source>
         <translation>No es posible  %1 %2 - %3</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="909"/>
+        <location filename="../src/ui/RepoView.cpp" line="1010"/>
+        <source>Hide Log</source>
+        <translation type="unfinished">Ocultar Histórico</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="1010"/>
+        <source>Show Log</source>
+        <translation type="unfinished">Mostrar Histórico</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="1064"/>
         <source>Unable to %1 - %2</source>
         <translation>No es posible %1 - %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="954"/>
+        <location filename="../src/ui/RepoView.cpp" line="1109"/>
         <source>%1 remotes</source>
         <translation>%1 remotos</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="955"/>
+        <location filename="../src/ui/RepoView.cpp" line="1110"/>
         <source>Fetch All</source>
         <translation>Traer Todo</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="983"/>
+        <location filename="../src/ui/RepoView.cpp" line="1138"/>
         <source>Fetch</source>
         <translation>Traer</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="985"/>
-        <location filename="../src/ui/RepoView.cpp" line="1080"/>
-        <location filename="../src/ui/RepoView.cpp" line="1666"/>
+        <location filename="../src/ui/RepoView.cpp" line="1140"/>
+        <location filename="../src/ui/RepoView.cpp" line="1236"/>
+        <location filename="../src/ui/RepoView.cpp" line="1812"/>
         <source>&lt;i&gt;no remote&lt;/i&gt;</source>
         <translation>&lt;i&gt;sin remoto&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="992"/>
+        <location filename="../src/ui/RepoView.cpp" line="1147"/>
         <source>Unable to fetch. No upstream is configured for the current branch, and there isn&apos;t a remote called &apos;origin&apos;.</source>
         <translation>No se puede traet. No hay rama a seguir configurada para la rama actual, y no hay un remoto llamado &apos;origin&apos;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1006"/>
-        <location filename="../src/ui/RepoView.cpp" line="2508"/>
+        <location filename="../src/ui/RepoView.cpp" line="1161"/>
+        <location filename="../src/ui/RepoView.cpp" line="2718"/>
         <source>Fetch canceled.</source>
         <translation>Traer cancelado.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1008"/>
+        <location filename="../src/ui/RepoView.cpp" line="1163"/>
         <source>fetch from</source>
         <translation>Traer desde</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1015"/>
+        <location filename="../src/ui/RepoView.cpp" line="1170"/>
         <source>You may disable ssl verification &lt;a href=&apos;action:sslverifyrepo&apos;&gt;for this repository&lt;/a&gt; or overall disable ssl verification &lt;a href=&apos;action:sslverifygit&apos;&gt;for all repositories&lt;/a&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1025"/>
-        <location filename="../src/ui/RepoView.cpp" line="1734"/>
-        <location filename="../src/ui/RepoView.cpp" line="1784"/>
+        <location filename="../src/ui/RepoView.cpp" line="1180"/>
+        <location filename="../src/ui/RepoView.cpp" line="1880"/>
+        <location filename="../src/ui/RepoView.cpp" line="1930"/>
         <source>Everything up-to-date.</source>
         <translation>Todo está actualizado.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1079"/>
-        <location filename="../src/ui/RepoView.cpp" line="1184"/>
-        <location filename="../src/ui/RepoView.cpp" line="2222"/>
+        <location filename="../src/ui/RepoView.cpp" line="1235"/>
+        <location filename="../src/ui/RepoView.cpp" line="1340"/>
+        <location filename="../src/ui/RepoView.cpp" line="2431"/>
         <source>&lt;i&gt;no branch&lt;/i&gt;</source>
         <translation>&lt;i&gt;sin rama&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1081"/>
+        <location filename="../src/ui/RepoView.cpp" line="1237"/>
         <source>%1 from %2</source>
         <translation>%1 desde %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1082"/>
+        <location filename="../src/ui/RepoView.cpp" line="1238"/>
         <source>Pull</source>
         <translation>Combinar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1151"/>
+        <location filename="../src/ui/RepoView.cpp" line="1307"/>
         <source>&lt;i&gt;no upstream&lt;/i&gt;</source>
         <translation>&lt;i&gt;sin rama a seguir&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1174"/>
+        <location filename="../src/ui/RepoView.cpp" line="1330"/>
         <source>Merge</source>
         <translation>Fusionar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1175"/>
+        <location filename="../src/ui/RepoView.cpp" line="1331"/>
         <source>%1 into %2</source>
         <translation>%1 en %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1177"/>
+        <location filename="../src/ui/RepoView.cpp" line="1333"/>
         <source>Fast-forward</source>
         <translation>Adelantar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1178"/>
+        <location filename="../src/ui/RepoView.cpp" line="1334"/>
         <source>%2 to %1</source>
         <translation>%2 para %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1180"/>
-        <location filename="../src/ui/RepoView.cpp" line="1498"/>
+        <location filename="../src/ui/RepoView.cpp" line="1336"/>
+        <location filename="../src/ui/RepoView.cpp" line="1652"/>
         <source>Rebase</source>
         <translation>Reorganizar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1181"/>
+        <location filename="../src/ui/RepoView.cpp" line="1337"/>
         <source>%2 on %1</source>
         <translation>%2 sobre %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1190"/>
+        <location filename="../src/ui/RepoView.cpp" line="1346"/>
         <source>The repository is empty.</source>
         <translation>El repositorio está vacío.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1198"/>
-        <location filename="../src/ui/RepoView.cpp" line="1718"/>
+        <location filename="../src/ui/RepoView.cpp" line="1354"/>
+        <location filename="../src/ui/RepoView.cpp" line="1864"/>
         <source>The current branch &apos;%1&apos; has no upstream branch.</source>
         <translation>la rama actual %1 no tiene rama a seguir.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1204"/>
-        <location filename="../src/ui/RepoView.cpp" line="2477"/>
+        <location filename="../src/ui/RepoView.cpp" line="1360"/>
+        <location filename="../src/ui/RepoView.cpp" line="2686"/>
         <source>Already up-to-date.</source>
         <translation>Ya está actualizado.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1209"/>
+        <location filename="../src/ui/RepoView.cpp" line="1365"/>
         <source>Unable to fast-forward.</source>
         <translation>No se puede adelantar.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1245"/>
+        <location filename="../src/ui/RepoView.cpp" line="1401"/>
         <source>fast-forward</source>
         <translation>adelantar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1258"/>
+        <location filename="../src/ui/RepoView.cpp" line="1414"/>
         <source>You may be able to reconcile your changes with the conflicting files by &lt;a href=&apos;action:stash&apos;&gt;stashing&lt;/a&gt; before you &lt;a href=&apos;%1&apos;&gt;fast-forward&lt;/a&gt;. Then &lt;a href=&apos;action:unstash&apos;&gt;unstash&lt;/a&gt; to restore your changes.</source>
         <translation>Puedes reconciliar tus cambios con los archivos en conflicto &lt;a href=&apos;action:stash&apos;&gt;haciendo un guardado rápido&lt;/a&gt; antes de &lt;a href=&apos;%1&apos;&gt;adelantar&lt;/a&gt;. Después, &lt;a href=&apos;action:unstash&apos;&gt;recupera el guardado&lt;/a&gt; para reestablecer tus cambios.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1270"/>
+        <location filename="../src/ui/RepoView.cpp" line="1426"/>
         <source>If you want to create a new merge commit instead of fast-forwarding, you can &lt;a href=&apos;%1&apos;&gt;merge without fast-forwarding &lt;/a&gt; instead.</source>
         <translation>Si quieres crear una nueva confirmación de fusión en lugar de adelantar, puedes &lt;a href=&apos;%1&apos;&gt;fusionar sin adelantar&lt;/a&gt; en su lugar.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1290"/>
-        <location filename="../src/ui/RepoView.cpp" line="1307"/>
-        <location filename="../src/ui/RepoView.cpp" line="1372"/>
-        <location filename="../src/ui/RepoView.cpp" line="1384"/>
+        <location filename="../src/ui/RepoView.cpp" line="1446"/>
+        <location filename="../src/ui/RepoView.cpp" line="1463"/>
+        <location filename="../src/ui/RepoView.cpp" line="1524"/>
+        <location filename="../src/ui/RepoView.cpp" line="1536"/>
         <source>merge</source>
         <translation>fusionar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1297"/>
-        <location filename="../src/ui/RepoView.cpp" line="1515"/>
+        <location filename="../src/ui/RepoView.cpp" line="1453"/>
+        <location filename="../src/ui/RepoView.cpp" line="1669"/>
         <source>You may be able to rebase by &lt;a href=&apos;action:stash&apos;&gt;stashing&lt;/a&gt; before trying to &lt;a href=&apos;action:merge&apos;&gt;merge&lt;/a&gt;. Then &lt;a href=&apos;action:unstash&apos;&gt;unstash&lt;/a&gt; to restore your changes.</source>
         <translation>Puedes reorganizar &lt;a href=&apos;action:stash&apos;&gt;haciendo un guardado rápido&lt;/a&gt; antes de &lt;a href=&apos;action:merge&apos;&gt;fusionar&lt;/a&gt;. Después, &lt;a href=&apos;action:unstash&apos;&gt;recupera el guardado&lt;/a&gt; para reestablecer tus cambios.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1372"/>
-        <location filename="../src/ui/RepoView.cpp" line="1403"/>
-        <location filename="../src/ui/RepoView.cpp" line="1426"/>
+        <location filename="../src/ui/RepoView.cpp" line="1524"/>
+        <location filename="../src/ui/RepoView.cpp" line="1555"/>
+        <location filename="../src/ui/RepoView.cpp" line="1578"/>
         <source>Abort</source>
         <translation>Abortar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1373"/>
+        <location filename="../src/ui/RepoView.cpp" line="1525"/>
         <source>Some merged files have unstaged changes</source>
         <translation>Algunos archivos fusionados tienen cambios sin preparar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1374"/>
+        <location filename="../src/ui/RepoView.cpp" line="1526"/>
         <source>abort merge</source>
         <translation>abortar fusión</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1388"/>
         <location filename="../src/ui/RepoView.cpp" line="1540"/>
-        <location filename="../src/ui/RepoView.cpp" line="1545"/>
+        <location filename="../src/ui/RepoView.cpp" line="1694"/>
+        <location filename="../src/ui/RepoView.cpp" line="1699"/>
         <source>revert</source>
         <translation>revertir</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1393"/>
-        <location filename="../src/ui/RepoView.cpp" line="1590"/>
-        <location filename="../src/ui/RepoView.cpp" line="1595"/>
+        <location filename="../src/ui/RepoView.cpp" line="1545"/>
+        <location filename="../src/ui/RepoView.cpp" line="1740"/>
+        <location filename="../src/ui/RepoView.cpp" line="1745"/>
         <source>cherry-pick</source>
         <translation>escoger</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1399"/>
-        <location filename="../src/ui/RepoView.cpp" line="1438"/>
-        <location filename="../src/ui/RepoView.cpp" line="1454"/>
+        <location filename="../src/ui/RepoView.cpp" line="1551"/>
+        <location filename="../src/ui/RepoView.cpp" line="1590"/>
+        <location filename="../src/ui/RepoView.cpp" line="1606"/>
         <source>rebase</source>
         <translation>reorganizar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1418"/>
+        <location filename="../src/ui/RepoView.cpp" line="1570"/>
         <source>Continue ongoing rebase</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1426"/>
+        <location filename="../src/ui/RepoView.cpp" line="1570"/>
+        <source></source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="1578"/>
         <source>Invalid head.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1444"/>
+        <location filename="../src/ui/RepoView.cpp" line="1596"/>
         <source>You may be able to rebase by &lt;a href=&apos;action:stash&apos;&gt;stashing&lt;/a&gt; before trying to &lt;a href=&apos;action:rebase&apos;&gt;rebase&lt;/a&gt;. Then &lt;a href=&apos;action:unstash&apos;&gt;unstash&lt;/a&gt; to restore your changes.</source>
         <translation>Puedes reorganizar &lt;a href=&apos;action:stash&apos;&gt;haciendo un guardado rápido&lt;/a&gt; antes de &lt;a href=&apos;action:rebase&apos;&gt;reorganizar&lt;/a&gt;. Después, &lt;a href=&apos;action:unstash&apos;&gt;recupera el guardado&lt;/a&gt; para reestablecer tus cambios.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1460"/>
-        <location filename="../src/ui/RepoView.cpp" line="1480"/>
+        <location filename="../src/ui/RepoView.cpp" line="1613"/>
+        <location filename="../src/ui/RepoView.cpp" line="1634"/>
         <source>%1/%2</source>
         <translation>%1 / %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1461"/>
+        <location filename="../src/ui/RepoView.cpp" line="1614"/>
         <source>%1 - %2</source>
         <translation>%1 - %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1462"/>
+        <location filename="../src/ui/RepoView.cpp" line="1615"/>
         <source>Apply</source>
         <translation>Aplicar</translation>
     </message>
@@ -4307,29 +4730,29 @@ was added to %1</source>
         <translation type="vanished">Hubo un conflicto de fusión. La reorganización ha sido abortada</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1485"/>
+        <location filename="../src/ui/RepoView.cpp" line="1639"/>
         <source>%1 - %2 &lt;i&gt;already applied&lt;/i&gt;</source>
         <translation>%1 - %2 &lt;i&gt;ya se ha aplicado&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1486"/>
+        <location filename="../src/ui/RepoView.cpp" line="1640"/>
         <source>%1 - %2 as %3</source>
         <translation>%1 - %2 como %3</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1508"/>
-        <location filename="../src/ui/RepoView.cpp" line="1528"/>
-        <location filename="../src/ui/RepoView.cpp" line="2961"/>
+        <location filename="../src/ui/RepoView.cpp" line="1662"/>
+        <location filename="../src/ui/RepoView.cpp" line="1682"/>
+        <location filename="../src/ui/RepoView.cpp" line="3488"/>
         <source>squash</source>
         <translation>aplastar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1536"/>
+        <location filename="../src/ui/RepoView.cpp" line="1690"/>
         <source>Revert</source>
         <translation>Revertir</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1553"/>
+        <location filename="../src/ui/RepoView.cpp" line="1707"/>
         <source>Revert &quot;%1&quot;
 
 This reverts commit %2.</source>
@@ -4338,17 +4761,17 @@ This reverts commit %2.</source>
 Esto revierte la confirmación %2.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1584"/>
+        <location filename="../src/ui/RepoView.cpp" line="1734"/>
         <source>&lt;i&gt;detached HEAD&lt;/i&gt;</source>
         <translation>&lt;i&gt;HEAD separado&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1585"/>
+        <location filename="../src/ui/RepoView.cpp" line="1735"/>
         <source>%1 on %2</source>
         <translation>%1 sobre %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1586"/>
+        <location filename="../src/ui/RepoView.cpp" line="1736"/>
         <source>Cherry-pick</source>
         <translation>Escoger</translation>
     </message>
@@ -4357,99 +4780,99 @@ Esto revierte la confirmación %2.</translation>
         <translation type="vanished">¿Forzar Envío?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1631"/>
+        <location filename="../src/ui/RepoView.cpp" line="1777"/>
         <source>Are you sure you want to force push?</source>
         <translation>¿Estás seguro que deseas forzar el envío?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1637"/>
+        <location filename="../src/ui/RepoView.cpp" line="1783"/>
         <source>The remote will lose any commits that are reachable only from the overwritten reference. Dropped commits may be unexpectedly reintroduced by clones that already contain those commits locally.</source>
         <translation>El remoto perderá cualquier confirmación que solo es alcanzable desde la referencia sobreescrita. Las confirmaciones descartadas podrían ser reintroducidas inesperadamente por clones que ya tengan esas confirmaciones localmente.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1642"/>
+        <location filename="../src/ui/RepoView.cpp" line="1788"/>
         <source>Force Push</source>
         <translation>Forzar Envío</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1663"/>
+        <location filename="../src/ui/RepoView.cpp" line="1809"/>
         <source>&lt;i&gt;no reference&lt;/i&gt;</source>
         <translation>&lt;i&gt;sin referencia&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1674"/>
+        <location filename="../src/ui/RepoView.cpp" line="1820"/>
         <source>Push</source>
         <translation>Enviar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1674"/>
+        <location filename="../src/ui/RepoView.cpp" line="1820"/>
         <source>Push (Force)</source>
         <translation>Envío (Forzar)</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1675"/>
-        <location filename="../src/ui/RepoView.cpp" line="2281"/>
+        <location filename="../src/ui/RepoView.cpp" line="1821"/>
+        <location filename="../src/ui/RepoView.cpp" line="2490"/>
         <source>%1 to %2</source>
         <translation>%1 para %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1679"/>
-        <location filename="../src/ui/RepoView.cpp" line="2223"/>
+        <location filename="../src/ui/RepoView.cpp" line="1825"/>
+        <location filename="../src/ui/RepoView.cpp" line="2432"/>
         <source>You are not currently on a branch.</source>
         <translation>No estás actualmente en una rama.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1682"/>
+        <location filename="../src/ui/RepoView.cpp" line="1828"/>
         <source>Create a commit to add the default &apos;%1&apos; branch.</source>
         <translation>Crea una confirmación para añadir la rama %1 por defecto.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1686"/>
+        <location filename="../src/ui/RepoView.cpp" line="1832"/>
         <source>You can &lt;a href=&apos;action:checkout&apos;&gt;checkout&lt;/a&gt; a branch then &lt;a href=&apos;action:push&apos;&gt;push&lt;/a&gt; again, or &lt;a href=&apos;action:push-to&apos;&gt;push to an explicit branch&lt;/a&gt;.</source>
         <translation>Tu puedes &lt;a href=&apos;action:checkout&apos;&gt;revisar&lt;/a&gt; una rama y depués &lt;a href=&apos;action:push&apos;&gt;enviar&lt;/a&gt; de nuevo, o &lt;a href=&apos;action:push-to&apos;&gt;enviar a una rama explícita&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1696"/>
+        <location filename="../src/ui/RepoView.cpp" line="1842"/>
         <source>The current branch &apos;%1&apos; has no default remote.</source>
         <translation>la rama actual %1 no tiene remoto por defecto.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1699"/>
+        <location filename="../src/ui/RepoView.cpp" line="1845"/>
         <source>You may want to &lt;a href=&apos;action:add-remote?name=origin&apos;&gt;add a remote named &apos;origin&apos;&lt;/a&gt;. Then &lt;a href=&apos;action:push?set-upstream=true&apos;&gt;push and set the current branch&apos;s upstream&lt;/a&gt; to begin tracking a remote branch called &apos;origin/%1&apos;.</source>
         <translation>Tu podrías querer &lt;a href=&apos;action:add-remote?name=origin&apos;&gt;añadir un remoto llamado &apos;origin&apos;&lt;/a&gt;. Después &lt;a href=&apos;action:push?set-upstream=true&apos;&gt;envía y configura la rama a seguir&lt;/a&gt; para empezar a seguir una rama remota llamada &apos;origin/%1&apos;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1706"/>
+        <location filename="../src/ui/RepoView.cpp" line="1852"/>
         <source>You can also &lt;a href=&apos;action:push-to&apos;&gt;push to an explicit URL&lt;/a&gt; if you don&apos;t want to track a remote branch.</source>
         <translation>Tu también puedes &lt;a href=&apos;action:push-to&apos;&gt;enviar a una URL explícita&lt;/a&gt; si no quieres seguir una rama remota.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1719"/>
+        <location filename="../src/ui/RepoView.cpp" line="1865"/>
         <source>To begin tracking a remote branch called &apos;%1&apos;, &lt;a href=&apos;action:push?set-upstream=true&apos;&gt;push and set the current branch&apos;s upstream&lt;/a&gt;.</source>
         <translation>Para empezar a seguir una rama remota llamada &apos;%1&apos;, &lt;a href=&apos;action:push?set-upstream=true&apos;&gt;envía y configura la rama a seguir&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1723"/>
+        <location filename="../src/ui/RepoView.cpp" line="1869"/>
         <source>To push without setting up tracking information, &lt;a href=&apos;action:push?ref=%1&apos;&gt;push &apos;%2&apos;&lt;/a&gt; explicitly.</source>
         <translation>Para enviar sin configurar información de seguimiento, &lt;a href=&apos;action:push?ref=%1&apos;&gt;envía &apos;%2&apos;&lt;/a&gt; explícitamente.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1746"/>
+        <location filename="../src/ui/RepoView.cpp" line="1892"/>
         <source>Push canceled.</source>
         <translation>Envío cancelado.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1750"/>
+        <location filename="../src/ui/RepoView.cpp" line="1896"/>
         <source>push to</source>
         <translation>enviar a</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1754"/>
+        <location filename="../src/ui/RepoView.cpp" line="1900"/>
         <source>The tag update may cause the remote to lose commits.</source>
         <translation>La actualización de la etiqueta puede causar que el remoto pierda confirmaciones.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1756"/>
+        <location filename="../src/ui/RepoView.cpp" line="1902"/>
         <source>If you want to risk the remote losing commits, you can &lt;a href=&apos;action:push?ref=%1&amp;to=%2&amp;force=true&apos;&gt;force push&lt;/a&gt;.</source>
         <translation>Si quieres arriesgar que el remoto pierda confirmaciones, tu puedes &lt;a href=&apos;action:push?ref=%1&amp;to=%2&amp;force=true&apos;&gt;forzar el envío&lt;/a&gt;.</translation>
     </message>
@@ -4462,227 +4885,264 @@ Esto revierte la confirmación %2.</translation>
         <translation type="vanished">Si realmente que el remoto pierda confirmaciones. tu podrías &lt;a href=&apos;action:push?force=true&apos;&gt;forzar el envío&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1831"/>
+        <location filename="../src/ui/RepoView.cpp" line="1980"/>
         <source>Commit?</source>
         <translation>¿Confirmar?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1832"/>
+        <location filename="../src/ui/RepoView.cpp" line="1981"/>
         <source>Are you sure you want to commit on a detached HEAD?</source>
         <translation>¿Estás seguro que quieres confirmar en un HEAD separado?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1838"/>
+        <location filename="../src/ui/RepoView.cpp" line="1987"/>
         <source>&lt;p&gt;You are in a detached HEAD state. You can still commit, but the new commit will not be reachable from any branch. If you want to commit to an existing branch, checkout the branch first.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Estás en un estado separado de HEAD. Aun así, puedes confirmar, pero la nueva confirmación no será alcanzable desde ninguna rama. Si quieres confirmar a una rama existente, revisa primero la rama.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1843"/>
-        <location filename="../src/ui/RepoView.cpp" line="1854"/>
+        <location filename="../src/ui/RepoView.cpp" line="1992"/>
+        <location filename="../src/ui/RepoView.cpp" line="2003"/>
         <source>Commit</source>
         <translation>Confirmar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1853"/>
-        <location filename="../src/ui/RepoView.cpp" line="1986"/>
+        <location filename="../src/ui/RepoView.cpp" line="2002"/>
+        <location filename="../src/ui/RepoView.cpp" line="2135"/>
+        <location filename="../src/ui/RepoView.cpp" line="3063"/>
         <source>&lt;i&gt;no commit&lt;/i&gt;</source>
         <translation>&lt;i&gt;sin confirmación&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1859"/>
+        <location filename="../src/ui/RepoView.cpp" line="2008"/>
         <source>commit</source>
         <translation>confirmar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1867"/>
+        <location filename="../src/ui/RepoView.cpp" line="2016"/>
         <source>This commit was signed with a generated user name and email.</source>
         <translation>Esta confirmación fue firmada con un nombre de usuario y correo electrónico generado.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1869"/>
+        <location filename="../src/ui/RepoView.cpp" line="2018"/>
         <source>Consider setting the user name and email in &lt;a href=&apos;action:config?global=true&apos;&gt;global settings&lt;/a&gt;.</source>
         <translation>Considera configurar el nombre de usuario y correo electrónico en &lt;a href=&apos;action:config?global=true&apos;&gt;configuración global&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1871"/>
+        <location filename="../src/ui/RepoView.cpp" line="2020"/>
         <source>If you want to limit the name and email settings to this repository, &lt;a href=&apos;action:config&apos;&gt;edit repository settings&lt;/a&gt; instead.</source>
         <translation>Si quieres limitar la configuración de nombre y correo electrónico a este repositorio, &lt;a href=&apos;action:config&apos;&gt;edita la configuración de repositorio&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1875"/>
+        <location filename="../src/ui/RepoView.cpp" line="2024"/>
         <source>After settings have been updated, &lt;a href=&apos;action:amend&apos;&gt; amend this commit&lt;/a&gt; to record the new user name and email.</source>
         <translation>Después que la configuración haya sido actualizada, &lt;a href=&apos;action:amend&apos;&gt;enmienda esta confirmación&lt;/a&gt; para registrar el nuevo nombre de usuario y correo electrónico.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1916"/>
+        <location filename="../src/ui/RepoView.cpp" line="2065"/>
         <source>file</source>
         <translation>archivo</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1916"/>
+        <location filename="../src/ui/RepoView.cpp" line="2065"/>
         <source>files</source>
         <translation>archivos</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1917"/>
+        <location filename="../src/ui/RepoView.cpp" line="2066"/>
         <source>%1 - %2 %3</source>
         <translation>%1 - %2 %3</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1918"/>
-        <location filename="../src/ui/RepoView.cpp" line="1993"/>
+        <location filename="../src/ui/RepoView.cpp" line="2067"/>
+        <location filename="../src/ui/RepoView.cpp" line="2142"/>
+        <location filename="../src/ui/RepoView.cpp" line="2222"/>
         <source>Checkout</source>
         <translation>Revisar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1940"/>
+        <location filename="../src/ui/RepoView.cpp" line="2089"/>
         <source>Checkout Detached HEAD?</source>
         <translation>¿Revisar HEAD separado?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1942"/>
+        <location filename="../src/ui/RepoView.cpp" line="2091"/>
         <source>Checkout Detached HEAD</source>
         <translation>Revisar HEAD separado</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1951"/>
+        <location filename="../src/ui/RepoView.cpp" line="2100"/>
         <source>Checking out remote branch &apos;%1&apos; will result in a detached HEAD state. Do you want to reset the existing local branch &apos;%2&apos; to this commit instead?</source>
         <translation>Revisar la rama remota &apos;%1&apos; resultará en un estado de HEAD separado . ¿Quieres restaurar la rama local existente &apos;%2&apos; a esta confirmación en su lugar?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1957"/>
+        <location filename="../src/ui/RepoView.cpp" line="2106"/>
         <source>Reset Local Branch</source>
         <translation>Restaurar Rama Local</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1963"/>
+        <location filename="../src/ui/RepoView.cpp" line="2112"/>
         <source>Checking out remote branch &apos;%1&apos; will result in a detached HEAD state. Do you want to create a new local branch called &apos;%2&apos; to track it instead?</source>
         <translation>Revisar la rama remota &apos;%1&apos; resultará en un estado de HEAD separado . ¿Quieres crear una nueva rama local llamada &apos;%2&apos; para seguirla en su lugar?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1968"/>
+        <location filename="../src/ui/RepoView.cpp" line="2117"/>
         <source>Create a local branch to start tracking remote changes and make new commits. Check out the detached HEAD to temporarily put your working directory into the state of the remote branch.</source>
         <translation>Crea una rama local para empezar a seguir los cambios remotos y hacer nuevas confirmaciones. Revisa el HEAD separado para poner tu directorio de trabajo en el estado de la rama remota temporalmente.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1973"/>
+        <location filename="../src/ui/RepoView.cpp" line="2122"/>
         <source>Create Local Branch</source>
         <translation>Crear Rama Local</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1998"/>
+        <location filename="../src/ui/RepoView.cpp" line="2147"/>
         <source>checkout</source>
         <translation>revisar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2010"/>
+        <location filename="../src/ui/RepoView.cpp" line="2159"/>
         <source>You may be able to reconcile your changes with the conflicting files by &lt;a href=&apos;action:stash&apos;&gt;stashing&lt;/a&gt; before you &lt;a href=&apos;action:checkout?%1&apos;&gt;checkout &apos;%2&apos;&lt;/a&gt;. Then &lt;a href=&apos;action:unstash&apos;&gt;unstash&lt;/a&gt; to restore your changes.</source>
         <translation>Puedes reconciliar tus cambios con los archivos en conflicto &lt;a href=&apos;action:stash&apos;&gt;haciendo un guardado rápido&lt;/a&gt; antes de &lt;a href=&apos;action:checkout?%1&apos;&gt;revisar &apos;%2&apos;&lt;/a&gt;. Después, &lt;a href=&apos;action:unstash&apos;&gt;recupera el guardado&lt;/a&gt; para reestablecer tus cambios.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2037"/>
+        <location filename="../src/ui/RepoView.cpp" line="2186"/>
         <source>New Branch</source>
         <translation>Nueva rama</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2040"/>
+        <location filename="../src/ui/RepoView.cpp" line="2189"/>
         <source>create new branch</source>
         <translation>crear nueva rama</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2078"/>
+        <location filename="../src/ui/RepoView.cpp" line="2228"/>
+        <source>Rename</source>
+        <translation type="unfinished">Renombrar</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2235"/>
+        <source>Delete</source>
+        <translation type="unfinished">Borrar</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2247"/>
+        <source>Push Tag to %1</source>
+        <translation type="unfinished">Enviar etiqueta a %1</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2253"/>
+        <source>New Local Branch</source>
+        <translation type="unfinished">Nueva Rama Local</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2271"/>
+        <source>Merge...</source>
+        <translation type="unfinished">Fusionar...</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2272"/>
+        <source>Rebase...</source>
+        <translation type="unfinished">Reorganizar...</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2273"/>
+        <source>Squash...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2287"/>
         <source>(no branch)</source>
         <translation>(sin rama)</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2079"/>
+        <location filename="../src/ui/RepoView.cpp" line="2288"/>
         <source>WIP on %1: %2 %3</source>
         <translation>WIP en %1: %2 %3</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2090"/>
+        <location filename="../src/ui/RepoView.cpp" line="2299"/>
         <source>&lt;i&gt;working directory&lt;/i&gt;</source>
         <translation>&lt;i&gt;directorio de trabajo&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2091"/>
+        <location filename="../src/ui/RepoView.cpp" line="2300"/>
         <source>Stash</source>
         <translation>Guardado rápido</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2095"/>
+        <location filename="../src/ui/RepoView.cpp" line="2304"/>
         <source>stash</source>
         <translation>guardado rápido</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2108"/>
+        <location filename="../src/ui/RepoView.cpp" line="2317"/>
         <source>Apply Stash</source>
         <translation>Aplicar guardado rápido</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2110"/>
+        <location filename="../src/ui/RepoView.cpp" line="2319"/>
         <source>apply stash</source>
         <translation>aplicar guardado rápido</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2122"/>
+        <location filename="../src/ui/RepoView.cpp" line="2331"/>
         <source>Drop Stash</source>
         <translation>Descartar guardado rápido</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2124"/>
+        <location filename="../src/ui/RepoView.cpp" line="2333"/>
         <source>drop stash</source>
         <translation>descartar guardado rápido</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2139"/>
+        <location filename="../src/ui/RepoView.cpp" line="2348"/>
         <source>Pop Stash</source>
         <translation>Sacar Guardado Rápido</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2141"/>
+        <location filename="../src/ui/RepoView.cpp" line="2350"/>
         <source>pop stash</source>
         <translation>sacar Guardado Rápido</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2164"/>
+        <location filename="../src/ui/RepoView.cpp" line="2373"/>
         <source>%1 as %2</source>
         <translation>%1 como %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2165"/>
+        <location filename="../src/ui/RepoView.cpp" line="2374"/>
         <source>Tag</source>
         <translation>Etiqueta</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2167"/>
+        <location filename="../src/ui/RepoView.cpp" line="2376"/>
         <source>tag</source>
         <translation>etiqueta</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2203"/>
-        <location filename="../src/ui/RepoView.cpp" line="2280"/>
+        <location filename="../src/ui/RepoView.cpp" line="2412"/>
+        <location filename="../src/ui/RepoView.cpp" line="2489"/>
         <source>Amend</source>
         <translation>Enmendar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2206"/>
+        <location filename="../src/ui/RepoView.cpp" line="2415"/>
         <source>Amending commit %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2213"/>
+        <location filename="../src/ui/RepoView.cpp" line="2422"/>
         <source>%1 to %2</source>
         <comment>update ref</comment>
         <translation type="unfinished">%1 para %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2221"/>
-        <location filename="../src/ui/RepoView.cpp" line="2228"/>
-        <location filename="../src/ui/RepoView.cpp" line="2267"/>
-        <location filename="../src/ui/RepoView.cpp" line="2280"/>
-        <location filename="../src/ui/RepoView.cpp" line="2338"/>
-        <location filename="../src/ui/RepoView.cpp" line="2410"/>
+        <location filename="../src/ui/RepoView.cpp" line="2430"/>
+        <location filename="../src/ui/RepoView.cpp" line="2437"/>
+        <location filename="../src/ui/RepoView.cpp" line="2476"/>
+        <location filename="../src/ui/RepoView.cpp" line="2489"/>
+        <location filename="../src/ui/RepoView.cpp" line="2547"/>
+        <location filename="../src/ui/RepoView.cpp" line="2619"/>
         <source>Reset</source>
         <translation>Reestablecer</translation>
     </message>
@@ -4699,166 +5159,349 @@ Esto revierte la confirmación %2.</translation>
         <translation type="vanished">¿Estás seguro que deseas enmendar %1?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2243"/>
+        <location filename="../src/ui/RepoView.cpp" line="2452"/>
         <source>Are you sure you want to reset &apos;%1&apos; to &apos;%2&apos;?</source>
         <translation>¿Estás seguro que deseas reestablecer &apos;%1&apos; a &apos;%2&apos;?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2250"/>
+        <location filename="../src/ui/RepoView.cpp" line="2459"/>
         <source>&lt;p&gt;Some commits may become unreachable from the current branch.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Algunas confirmaciones pueden quedar inalcanzables desde la rama actual.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2256"/>
+        <location filename="../src/ui/RepoView.cpp" line="2465"/>
         <source>&lt;p&gt;Resetting will cause you to lose uncommitted changes. Untracked and ignored files will not be affected.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Reestablecer causará que pierdas todos los cambios que no se han confirmado. Los archivos sin seguimiento e ignorados no serán afectados&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2260"/>
+        <location filename="../src/ui/RepoView.cpp" line="2469"/>
         <source>&lt;p&gt;Your branch appears to be up-to-date with its upstream branch. Resetting may cause your branch history to diverge from the remote branch history.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Tu rama parece estar actualizada con la rama que sigue. Reestablecer puede causar que tu historial de rama difiera del historial de la rama remota.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2207"/>
-        <location filename="../src/ui/RepoView.cpp" line="2285"/>
+        <location filename="../src/ui/RepoView.cpp" line="2416"/>
+        <location filename="../src/ui/RepoView.cpp" line="2494"/>
         <source>amend</source>
         <translation>enmendar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2285"/>
+        <location filename="../src/ui/RepoView.cpp" line="2494"/>
         <source>reset</source>
         <translation>reestablecer</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2409"/>
-        <location filename="../src/ui/RepoView.cpp" line="2473"/>
+        <location filename="../src/ui/RepoView.cpp" line="2618"/>
+        <location filename="../src/ui/RepoView.cpp" line="2682"/>
         <source>%1 of %2 submodules</source>
         <translation>%1 de %2 submódulos</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2474"/>
-        <location filename="../src/ui/RepoView.cpp" line="2498"/>
+        <location filename="../src/ui/RepoView.cpp" line="2683"/>
+        <location filename="../src/ui/RepoView.cpp" line="2708"/>
         <source>Update</source>
         <translation>Actualizar</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2350"/>
-        <location filename="../src/ui/RepoView.cpp" line="2511"/>
+        <location filename="../src/ui/RepoView.cpp" line="2559"/>
+        <location filename="../src/ui/RepoView.cpp" line="2721"/>
         <source>update submodule</source>
         <translation>Actualizar submódulo</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="193"/>
+        <location filename="../src/ui/RepoView.cpp" line="101"/>
+        <source>up-to-date</source>
+        <translation type="unfinished">actualizado</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="103"/>
+        <source>update available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="105"/>
+        <source>different history</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="107"/>
+        <source>not branch-tracked</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="109"/>
+        <source>error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="111"/>
+        <source>unknown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="229"/>
         <source>The indexer worker process crashed. If this problem persists please contact us at &lt;TODO: replace.support@gitahead.com&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1467"/>
+        <location filename="../src/ui/RepoView.cpp" line="1620"/>
         <source>Please resolve conflicts before continue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1468"/>
+        <location filename="../src/ui/RepoView.cpp" line="1621"/>
         <source>Conflict</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1497"/>
+        <location filename="../src/ui/RepoView.cpp" line="1651"/>
         <source>Rebase finished</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1630"/>
+        <location filename="../src/ui/RepoView.cpp" line="1776"/>
         <source>Force Push to %1?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1768"/>
+        <location filename="../src/ui/RepoView.cpp" line="1914"/>
         <source>You may want to integrate remote commits first by &lt;a href=&apos;action:pull&apos;&gt;pulling&lt;/a&gt;. Then &lt;a href=&apos;action:push?to=%1&apos;&gt;push&lt;/a&gt; again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1773"/>
+        <location filename="../src/ui/RepoView.cpp" line="1919"/>
         <source>If you really want the remote to lose commits, you may be able to &lt;a href=&apos;action:push?to=%1&amp;force=true&apos;&gt;force push&lt;/a&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2347"/>
+        <location filename="../src/ui/RepoView.cpp" line="2556"/>
         <source>Reset canceled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2413"/>
+        <location filename="../src/ui/RepoView.cpp" line="2622"/>
         <source>Untouched</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2553"/>
+        <location filename="../src/ui/RepoView.cpp" line="2768"/>
+        <location filename="../src/ui/RepoView.cpp" line="2898"/>
+        <source>Another remote operation is already running.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2769"/>
+        <location filename="../src/ui/RepoView.cpp" line="2778"/>
+        <location filename="../src/ui/RepoView.cpp" line="2784"/>
+        <source>Submodule Updates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2777"/>
+        <source>This repository has no submodules.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2783"/>
+        <source>Checking %1 submodules</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2823"/>
+        <source>Submodule update check canceled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2825"/>
+        <source>No branch-tracked submodules to check.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2827"/>
+        <source>%1 submodules can be updated.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2830"/>
+        <source>No updates found; %1 submodules need review.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2832"/>
+        <source>All submodules are up-to-date.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2843"/>
+        <source>%1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2846"/>
+        <source> on %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2850"/>
+        <source> (%1 -&gt; %2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2854"/>
+        <source> - %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2899"/>
+        <location filename="../src/ui/RepoView.cpp" line="2903"/>
+        <source>Add Submodule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2912"/>
+        <source>Add submodule canceled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2914"/>
+        <source>add submodule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2917"/>
+        <source>Submodule added.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2942"/>
+        <source>Modify Submodule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2943"/>
+        <source>modify submodule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2947"/>
+        <source>Submodule Modified</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2971"/>
+        <source>Delete submodule &apos;%1&apos; at &apos;%2&apos;?
+
+The submodule will be removed from this project. Its working files and cached local repository will be permanently deleted. Any unpublished commits will be lost.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2976"/>
+        <source>Delete Submodule?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2983"/>
+        <source>The submodule working directory contains uncommitted changes that will be permanently lost.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2988"/>
+        <location filename="../src/ui/RepoView.cpp" line="2993"/>
+        <source>Delete Submodule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2996"/>
+        <source>delete submodule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="2998"/>
+        <source>Submodule deleted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="3060"/>
+        <source>Update %1 from %2 to %3:
+%4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="3063"/>
+        <source>Commit Changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="3069"/>
+        <source>commit submodule changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="3089"/>
         <source>Invalid Submodule Repository</source>
         <translation>Repositorio de Submódulo inválido</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2555"/>
+        <location filename="../src/ui/RepoView.cpp" line="3091"/>
         <source>The submodule &apos;%1&apos; doesn&apos;t have a valid repository. You may need to init and/or update the submodule to check out a repository.</source>
         <translation>El submódulo &apos;%1&apos; no tiene un repositorio válido. Podrías necesitar inicializar y/o actualizar el submódulo para que revise un repositorio.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2684"/>
+        <location filename="../src/ui/RepoView.cpp" line="3231"/>
         <source>No terminal executable found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2685"/>
+        <location filename="../src/ui/RepoView.cpp" line="3232"/>
         <source>No terminal executable was found. Please configure a terminal in the configuration.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2688"/>
+        <location filename="../src/ui/RepoView.cpp" line="3235"/>
         <source>Open Configuration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2935"/>
+        <location filename="../src/ui/RepoView.cpp" line="3462"/>
         <source>There was a merge conflict.</source>
         <translation>Hubo un conflicto de fusión.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2938"/>
+        <location filename="../src/ui/RepoView.cpp" line="3465"/>
         <source>Resolve conflicts, then commit to conclude the %1. See &lt;a href=&apos;expand&apos;&gt;details&lt;/a&gt;.</source>
         <translation>Resuelve los conflictos, después confirma para concluir la %1. Ver &lt;a href=&apos;expand&apos;&gt;detalles&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2940"/>
+        <location filename="../src/ui/RepoView.cpp" line="3467"/>
         <source>Resolve conflicts in each conflicted (!) file in one of the following ways:</source>
         <translation>Resuelve los conflictos en cada archivo con conflicto (!) de una de las siguientes maneras:</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2942"/>
+        <location filename="../src/ui/RepoView.cpp" line="3469"/>
         <source>1. Click the &apos;Ours&apos; or &apos;Theirs&apos; button to choose the correct change. Then click the &apos;Save&apos; button to apply.</source>
         <translation>1. Presiona el botón &apos;Nuestro&apos; o &apos;De Ellos&apos; para escoger el cambio correcto. Después presiona el botón &apos;Guardar&apos; para aplicar.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2944"/>
+        <location filename="../src/ui/RepoView.cpp" line="3471"/>
         <source>2. Edit the file in the editor to make a different change. Remember to remove conflict markers.</source>
         <translation>2. Edita el archivo en el editor para hacer un cambio diferente. Recuerda remover las marcas de conflicto.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2946"/>
+        <location filename="../src/ui/RepoView.cpp" line="3473"/>
         <source>3. Use an external merge tool. Right-click on the files in the list and choose &apos;External Merge&apos;.</source>
         <translation>3. Usa una herramienta externa de fusión. Click derecho sobre los archivos de la liste y escoge &apos;Fusión externa&apos;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2948"/>
+        <location filename="../src/ui/RepoView.cpp" line="3475"/>
         <source>After all conflicts in the file are resolved, click the check box to mark it as resolved.</source>
         <translation>Después de resolver todos los conflictos en el archivo, márcalo como resuelto.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2950"/>
+        <location filename="../src/ui/RepoView.cpp" line="3477"/>
         <source>After all conflicted files are staged, commit to conclude the %1.</source>
         <translation>Después de preparar todos los archivos en conflicto, realiza una confirmación para concluir la %1.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2962"/>
+        <location filename="../src/ui/RepoView.cpp" line="3489"/>
         <source>You can &lt;a href=&apos;action:abort&apos;&gt;abort&lt;/a&gt; the %1 to return the repository to its previous state.</source>
         <translation>Tu puedes &lt;a href=&apos;action:abort&apos;&gt;abortar&lt;/a&gt;la %1 para retornar el repositorio a su estado previo.</translation>
     </message>
@@ -4866,14 +5509,295 @@ Esto revierte la confirmación %2.</translation>
 <context>
     <name>Repository</name>
     <message>
-        <location filename="../src/git/Repository.cpp" line="1147"/>
+        <location filename="../src/git/Repository.cpp" line="1290"/>
         <source>Unknown error</source>
         <translation>Error desconocido</translation>
     </message>
     <message>
-        <location filename="../src/git/Repository.cpp" line="1218"/>
+        <location filename="../src/git/Repository.cpp" line="1361"/>
         <source>git-lfs not found</source>
         <translation>git LFS no encontrado</translation>
+    </message>
+</context>
+<context>
+    <name>RepositoryNavigator</name>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="224"/>
+        <source>%1↑</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="228"/>
+        <source>%1↓</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="268"/>
+        <source>Repository navigation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="272"/>
+        <source>Repository references</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="383"/>
+        <source>Open</source>
+        <translation type="unfinished">Abrir</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="390"/>
+        <source>Commit Changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="398"/>
+        <source>Update</source>
+        <translation type="unfinished">Actualizar</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="404"/>
+        <source>Initialize and Update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="411"/>
+        <source>Modify...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="416"/>
+        <source>Delete Submodule...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="426"/>
+        <source>Apply Stash</source>
+        <translation type="unfinished">Aplicar guardado rápido</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="431"/>
+        <source>Pop Stash</source>
+        <translation type="unfinished">Sacar Guardado Rápido</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="436"/>
+        <source>Drop Stash</source>
+        <translation type="unfinished">Descartar guardado rápido</translation>
+    </message>
+</context>
+<context>
+    <name>RepositoryNavigatorModel</name>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="29"/>
+        <source>1 commit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="30"/>
+        <source>%1 commits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="35"/>
+        <source>Comparison is unavailable.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="37"/>
+        <source>The local checkout matches %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="40"/>
+        <source>The local checkout and %1 have diverged (%2 ahead, %3 behind).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="45"/>
+        <source>The local checkout is %1 ahead of %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="48"/>
+        <source>The local checkout is %1 behind %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="281"/>
+        <source>Local</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="282"/>
+        <source>Remote</source>
+        <translation type="unfinished">Remoto</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="283"/>
+        <source>Stashes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="284"/>
+        <source>Cloud Patches</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="285"/>
+        <source>Cloud Patches are not available.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="286"/>
+        <source>Pull Requests</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="287"/>
+        <source>Pull Request listing is not available.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="288"/>
+        <source>GitHub Issues</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="289"/>
+        <source>GitHub Issue listing is not available.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="290"/>
+        <source>Teams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="290"/>
+        <source>Team integration is not available.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="292"/>
+        <source>Tags</source>
+        <translation type="unfinished">Etiquetas</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="293"/>
+        <source>Submodules</source>
+        <translation type="unfinished">Submódulos</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="334"/>
+        <source>stash@{%1}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="359"/>
+        <source>Path: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="373"/>
+        <source>Local checkout: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="378"/>
+        <source>the commit recorded by the parent repository</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="380"/>
+        <source>Pin %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="386"/>
+        <source>Pin: The parent repository does not record a submodule commit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="395"/>
+        <source>the latest fetched commit on origin/%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="397"/>
+        <source>Origin %1 (%2): %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="405"/>
+        <source>Local checkout: unavailable because the submodule repository could not be read.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="409"/>
+        <source>Local checkout: unavailable because the submodule is not initialized.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="415"/>
+        <source>Origin: Not shown because no remote branch is configured. Configure a branch in the submodule settings to enable this comparison.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="420"/>
+        <source>Origin %1: Waiting for a submodule update check.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="427"/>
+        <source>Origin %1: The comparison failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="428"/>
+        <source>Origin %1: The comparison failed - %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="434"/>
+        <source>↑ means local-only commits; ↓ means commits missing locally.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="439"/>
+        <source>Indicators:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="441"/>
+        <source>%1 Left icon: Pin summary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="444"/>
+        <source>%1 matches; %2 differs; %3 unavailable; %4 uninitialized.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="450"/>
+        <source>%1 = Pin delta; %2 = Origin delta.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="454"/>
+        <source>An empty delta means no difference when comparison is available.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="456"/>
+        <source>%1 synchronized; %2 difference; %3 unavailable, pending, or not configured; %4 failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="461"/>
+        <source>%1 local-only; %2 missing locally.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4887,32 +5811,32 @@ Esto revierte la confirmación %2.</translation>
 <context>
     <name>SearchPanel</name>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="383"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="426"/>
         <source>Enable indexing</source>
         <translation>Habilitar indexado</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="398"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="441"/>
         <source>terms</source>
         <translation>términos</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="414"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="457"/>
         <source>lines</source>
         <translation>líneas</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="428"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="471"/>
         <source>Limit commits to:</source>
         <translation>Limitar confirmaciones a:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="429"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="472"/>
         <source>Diff context:</source>
         <translation>Diferencia de contexto:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="445"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="488"/>
         <source>Remove Index</source>
         <translation>Remover índice</translation>
     </message>
@@ -4920,32 +5844,32 @@ Esto revierte la confirmación %2.</translation>
 <context>
     <name>Settings</name>
     <message>
-        <location filename="../src/conf/Settings.cpp" line="166"/>
+        <location filename="../src/conf/Settings.cpp" line="171"/>
         <source>Prompt to edit stash message before stashing</source>
         <translation>Preguntar para editar el mensaje de guardado rápido antes de hacerlo</translation>
     </message>
     <message>
-        <location filename="../src/conf/Settings.cpp" line="169"/>
+        <location filename="../src/conf/Settings.cpp" line="174"/>
         <source>Prompt to edit commit message before merging</source>
         <translation>Preguntar para editar el mensaje de confirmación antes de fusionar</translation>
     </message>
     <message>
-        <location filename="../src/conf/Settings.cpp" line="172"/>
+        <location filename="../src/conf/Settings.cpp" line="177"/>
         <source>Prompt to edit commit message before reverting</source>
         <translation>Preguntar para editar el mensaje de guardado rápido antes de revertir</translation>
     </message>
     <message>
-        <location filename="../src/conf/Settings.cpp" line="175"/>
+        <location filename="../src/conf/Settings.cpp" line="180"/>
         <source>Prompt to edit commit message before cherry-picking</source>
         <translation>Preguntar para editar el mensaje de confirmación antes de escoger</translation>
     </message>
     <message>
-        <location filename="../src/conf/Settings.cpp" line="178"/>
+        <location filename="../src/conf/Settings.cpp" line="183"/>
         <source>Prompt to stage directories</source>
         <translation>Preguntar al preparar directorios</translation>
     </message>
     <message>
-        <location filename="../src/conf/Settings.cpp" line="181"/>
+        <location filename="../src/conf/Settings.cpp" line="186"/>
         <source>Prompt to stage large files</source>
         <translation>Preguntar al preparar ficheros pesados</translation>
     </message>
@@ -4953,67 +5877,67 @@ Esto revierte la confirmación %2.</translation>
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="847"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="874"/>
         <source>Esc</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="862"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="889"/>
         <source>Global git settings can be overridden for each repository in the corresponding repository configuration page.</source>
         <translation>La configuración global de git puede ser anulada por cada repositorio en la página de configuración de repositorio correspondiente.</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="879"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="906"/>
         <source>Edit Config File...</source>
         <translation>Editar Archivo de Configuración...</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="908"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="935"/>
         <source>General</source>
         <translation>General</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="916"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="943"/>
         <source>Diff</source>
         <translation>Diferencia</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="924"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="951"/>
         <source>Tools</source>
         <translation>Herramientas</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="934"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="961"/>
         <source>Window</source>
         <translation>Ventana</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="942"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="969"/>
         <source>Editor</source>
         <translation>Editor</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="950"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="977"/>
         <source>Update</source>
         <translation>Actualizar</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="958"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="985"/>
         <source>Plugins</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="966"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="993"/>
         <source>Misc</source>
         <translation>Varios</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="974"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="1001"/>
         <source>Hotkeys</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="984"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="1011"/>
         <source>Terminal</source>
         <translation></translation>
     </message>
@@ -5044,91 +5968,76 @@ Esto revierte la confirmación %2.</translation>
 <context>
     <name>SideBar</name>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="687"/>
         <source>Close</source>
-        <translation>Cerrar</translation>
+        <translation type="vanished">Cerrar</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="690"/>
-        <location filename="../src/ui/SideBar.cpp" line="793"/>
-        <location filename="../src/ui/SideBar.cpp" line="879"/>
         <source>Remove</source>
-        <translation>Remover</translation>
+        <translation type="vanished">Remover</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="695"/>
         <source>Authorize</source>
-        <translation>Autorizar</translation>
+        <translation type="vanished">Autorizar</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="709"/>
+        <location filename="../src/ui/SideBar.cpp" line="59"/>
         <source>Clone Repository</source>
         <translation>Clonar Repositorio</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="720"/>
+        <location filename="../src/ui/SideBar.cpp" line="70"/>
         <source>Open Existing Repository</source>
         <translation>Abrir Repositorio Existente</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="724"/>
+        <location filename="../src/ui/SideBar.cpp" line="73"/>
         <source>Open Repository</source>
         <translation>Abrir Repositorio</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="733"/>
+        <location filename="../src/ui/SideBar.cpp" line="82"/>
         <source>Initialize New Repository</source>
         <translation>Inicializar Nuevo Repositorio</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="748"/>
         <source>Add %1 Account</source>
-        <translation>Añadir cuenta de %1</translation>
+        <translation type="vanished">Añadir cuenta de %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="783"/>
         <source>&lt;p&gt;Are you sure you want to remove the remote repository association for %1?&lt;/p&gt;&lt;p&gt;The local clone itself will not be affected.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;¿Estás seguro que deseas remover la asociación al repositorio remoto de %1?&lt;/p&gt;&lt;p&gt;El repositorio local no será afectado.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;¿Estás seguro que deseas remover la asociación al repositorio remoto de %1?&lt;/p&gt;&lt;p&gt;El repositorio local no será afectado.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="788"/>
         <source>Remove Repository Association?</source>
-        <translation>¿Remover Asociación de Repositorio?</translation>
+        <translation type="vanished">¿Remover Asociación de Repositorio?</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="812"/>
         <source>Clear All Recent</source>
-        <translation>Limpiar Todos los Recientes</translation>
+        <translation type="vanished">Limpiar Todos los Recientes</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="816"/>
         <source>Show Full Path</source>
-        <translation>Mostrar Ruta Completa</translation>
+        <translation type="vanished">Mostrar Ruta Completa</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="826"/>
         <source>Filter Non-existent Paths</source>
-        <translation>Filtrar Rutas no Existentes</translation>
+        <translation type="vanished">Filtrar Rutas no Existentes</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="834"/>
         <source>Refresh Remote Accounts</source>
-        <translation>Refrescar Cuentas Remotas</translation>
+        <translation type="vanished">Refrescar Cuentas Remotas</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="841"/>
         <source>Show Full Name</source>
-        <translation>Mostrar Nombre Completo</translation>
+        <translation type="vanished">Mostrar Nombre Completo</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="868"/>
         <source>&lt;p&gt;Are you sure you want to remove the %1 account for &apos;%2&apos;?&lt;/p&gt;&lt;p&gt;Only the account association will be removed. Remote configurations and local clones will not be affected.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;¿Estás seguro que deseas remover la cuenta de %1 para &apos;%2&apos;?&lt;/p&gt;&lt;p&gt;Solo la asociación de la cuenta será removida. La configuraciones remotas y repositorios locales no serán afectados.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;¿Estás seguro que deseas remover la cuenta de %1 para &apos;%2&apos;?&lt;/p&gt;&lt;p&gt;Solo la asociación de la cuenta será removida. La configuraciones remotas y repositorios locales no serán afectados.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="873"/>
         <source>Remove Account?</source>
-        <translation>¿Remover Cuenta?</translation>
+        <translation type="vanished">¿Remover Cuenta?</translation>
     </message>
 </context>
 <context>
@@ -5204,38 +6113,38 @@ Esto revierte la confirmación %2.</translation>
         <translation>Ver Video Para Empezar</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="710"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="714"/>
         <source>Clone</source>
         <translation>Clonar</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="710"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="714"/>
         <source>Open</source>
         <translation>Abrir</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="776"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="780"/>
         <source>&lt;p&gt;Are you sure you want to remove the %1 account for &apos;%2&apos;?&lt;/p&gt;&lt;p&gt;Only the account association will be removed. Remote configurations and local clones will not be affected.&lt;/p&gt;</source>
         <translation>&lt;p&gt;¿Estás seguro que deseas remover la cuenta de %1 para &apos;%2&apos;?&lt;/p&gt;&lt;p&gt;Solo la asociación de la cuenta será removida. La configuraciones remotas y repositorios locales no serán afectados.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="780"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="784"/>
         <source>Remove Account?</source>
         <translation>¿Remover Cuenta?</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="783"/>
-        <location filename="../src/dialogs/StartDialog.cpp" line="803"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="787"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="807"/>
         <source>Remove</source>
         <translation>Remover</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="798"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="802"/>
         <source>&lt;p&gt;Are you sure you want to remove the remote repository association for %1?&lt;/p&gt;&lt;p&gt;The local clone itself will not be affected.&lt;/p&gt;</source>
         <translation>&lt;p&gt;¿Estás seguro que deseas remover la asociación al repositorio remoto de %1?&lt;/p&gt;&lt;p&gt;El repositorio local no será afectado.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="801"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="805"/>
         <source>Remove Repository Association?</source>
         <translation>¿Remover Asociación de Repositorio?</translation>
     </message>
@@ -5243,44 +6152,57 @@ Esto revierte la confirmación %2.</translation>
 <context>
     <name>SubmoduleTableModel</name>
     <message>
-        <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="65"/>
+        <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="67"/>
         <source>Name</source>
         <translation>Nombre</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="67"/>
+        <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="69"/>
+        <source>Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="71"/>
         <source>URL</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="69"/>
+        <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="73"/>
         <source>Branch</source>
         <translation>Rama</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="71"/>
+        <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="75"/>
         <source>Initialized</source>
         <translation>Inicializado</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="122"/>
+        <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="128"/>
         <source>Deinitializing &apos;%1&apos; will remove its working directory. Are you sure you want to deinitialize?</source>
         <translation>Desinicializar &apos;%1&apos; removerá su directorio de trabajo. ¿Estás seguro que quieres desinicializar?</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="126"/>
+        <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="132"/>
         <source>Deinitialize Submodule?</source>
         <translation>¿Desinicializar Submódulo?</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="131"/>
+        <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="138"/>
         <source>The submodule working directory contains uncommitted changes that will be lost if you continue.</source>
         <translation>El directorio de trabajo del submódulo contiene cambios sin confirmar que se perderán si continuas.</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="135"/>
+        <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="142"/>
         <source>Deinitialize</source>
         <translation>Desinicializar</translation>
+    </message>
+</context>
+<context>
+    <name>SubmodulesPanel</name>
+    <message>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="379"/>
+        <source>Modify...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5401,23 +6323,23 @@ x (number) determines the number of maximum files shown</source>
 <context>
     <name>TerminalPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="804"/>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="828"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="831"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="855"/>
         <source>Install</source>
         <translation>Instalar</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="817"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="844"/>
         <source>Name:</source>
         <translation>Nombre:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="818"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="845"/>
         <source>Location:</source>
         <translation>Ubicación:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="828"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="855"/>
         <source>Uninstall</source>
         <translation>Desinstalar</translation>
     </message>
@@ -5425,32 +6347,32 @@ x (number) determines the number of maximum files shown</source>
 <context>
     <name>TextEdit</name>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="87"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="88"/>
         <source>Replace...</source>
         <translation>Reemplazar...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="88"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="89"/>
         <source>Replace All...</source>
         <translation>Reemplazar Todo...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="117"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="118"/>
         <source>Ignore</source>
         <translation>Ignorar</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="136"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="137"/>
         <source>Ignore All</source>
         <translation>Ignorar Todo</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="142"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="143"/>
         <source>Add to User Dictionary</source>
         <translation>Añador al Diccionario de Usuario</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="156"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="157"/>
         <source>Do not Ignore</source>
         <translation>No Ignorar</translation>
     </message>
@@ -5500,93 +6422,93 @@ x (number) determines the number of maximum files shown</source>
 <context>
     <name>ToolBar</name>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="736"/>
+        <location filename="../src/ui/ToolBar.cpp" line="737"/>
         <source>Show repository sidebar</source>
         <translation>Mostrar barra lateral del repositorio</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="750"/>
+        <location filename="../src/ui/ToolBar.cpp" line="751"/>
         <source>Previous</source>
         <translation>Anterior</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="762"/>
+        <location filename="../src/ui/ToolBar.cpp" line="763"/>
         <source>Next</source>
         <translation>Siguiente</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="778"/>
+        <location filename="../src/ui/ToolBar.cpp" line="779"/>
         <source>Fetch</source>
         <translation>Traer</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="783"/>
+        <location filename="../src/ui/ToolBar.cpp" line="784"/>
         <source>Pull</source>
         <translation>Combinar</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="789"/>
+        <location filename="../src/ui/ToolBar.cpp" line="790"/>
         <source>Merge</source>
         <translation>Fusionar</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="793"/>
+        <location filename="../src/ui/ToolBar.cpp" line="794"/>
         <source>Rebase</source>
         <translation>Reorganizar</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="800"/>
+        <location filename="../src/ui/ToolBar.cpp" line="801"/>
         <source>Push</source>
         <translation>Enviar</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="806"/>
+        <location filename="../src/ui/ToolBar.cpp" line="807"/>
         <source>Checkout</source>
         <translation>Revisar</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="818"/>
+        <location filename="../src/ui/ToolBar.cpp" line="819"/>
         <source>Stash</source>
         <translation>Guardado Rápido</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="823"/>
+        <location filename="../src/ui/ToolBar.cpp" line="824"/>
         <source>Pop Stash</source>
         <translation>Sacar Guardado Rápido</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="848"/>
+        <location filename="../src/ui/ToolBar.cpp" line="849"/>
         <source>Open Terminal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="860"/>
+        <location filename="../src/ui/ToolBar.cpp" line="861"/>
         <source>Open file manager</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="872"/>
+        <location filename="../src/ui/ToolBar.cpp" line="873"/>
         <source>Configure Settings</source>
         <translation>Configuración</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="880"/>
+        <location filename="../src/ui/ToolBar.cpp" line="881"/>
         <source>Repository settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="884"/>
+        <location filename="../src/ui/ToolBar.cpp" line="885"/>
         <source>Application settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="891"/>
-        <location filename="../src/ui/ToolBar.cpp" line="1020"/>
+        <location filename="../src/ui/ToolBar.cpp" line="892"/>
+        <location filename="../src/ui/ToolBar.cpp" line="1021"/>
         <source>Show Log</source>
         <translation>Mostrar Histórico</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="909"/>
+        <location filename="../src/ui/ToolBar.cpp" line="910"/>
         <source>Double Tree View</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5595,17 +6517,17 @@ x (number) determines the number of maximum files shown</source>
         <translation type="vanished">Vista de Diferencias</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="914"/>
+        <location filename="../src/ui/ToolBar.cpp" line="915"/>
         <source>Tree View</source>
         <translation>Vista de Árbol</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="927"/>
+        <location filename="../src/ui/ToolBar.cpp" line="928"/>
         <source>Show Starred Commits</source>
         <translation>Mostrar confirmaciones favoritas</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="1020"/>
+        <location filename="../src/ui/ToolBar.cpp" line="1021"/>
         <source>Hide Log</source>
         <translation>Ocultar Histórico</translation>
     </message>
@@ -5613,42 +6535,42 @@ x (number) determines the number of maximum files shown</source>
 <context>
     <name>ToolsPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="315"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="347"/>
         <source>Keep backup of merge files (.orig)</source>
         <translation>Mantener respaldo de archivos de fusión (.orig)</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="322"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="354"/>
         <source>External editor:</source>
         <translation>Editor externo:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="323"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="355"/>
         <source>External diff:</source>
         <translation>Diff externo:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="324"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="356"/>
         <source>External merge:</source>
         <translation>Fusión Externa:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="325"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="357"/>
         <source>Backup files:</source>
         <translation>Archivos de respaldo:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="328"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="360"/>
         <source>Terminal emulator command:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="340"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="372"/>
         <source>File manager command:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="368"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="400"/>
         <source>Configure</source>
         <translation>Configurar</translation>
     </message>
@@ -5788,22 +6710,22 @@ x (number) determines the number of maximum files shown</source>
 <context>
     <name>UpdatePanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="721"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="748"/>
         <source>Check for updates automatically</source>
         <translation>Revisar por actualizaciones automáticamente</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="733"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="760"/>
         <source>Automatically download and install updates</source>
         <translation>Descargar e instalar actualizaciones automáticamente</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="743"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="770"/>
         <source>Check Now</source>
         <translation>Revisar Ahora</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="748"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="775"/>
         <source>Software Update:</source>
         <translation>Actualización de Software:</translation>
     </message>
@@ -5839,22 +6761,22 @@ x (number) determines the number of maximum files shown</source>
         <translation>No es posible revisar por actualizaciones</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="185"/>
+        <location filename="../src/update/Updater.cpp" line="199"/>
         <source>Unable to download update</source>
         <translation>No es posible descargar actualizaciones</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="188"/>
+        <location filename="../src/update/Updater.cpp" line="202"/>
         <source>Unable to open temporary file</source>
         <translation>No es posible abrir archivo temporal</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="245"/>
+        <location filename="../src/update/Updater.cpp" line="259"/>
         <source>Unable to install update</source>
         <translation>No es posible instalar actualización</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="248"/>
+        <location filename="../src/update/Updater.cpp" line="262"/>
         <source>Some windows failed to close. You can download the binary manually from %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5863,13 +6785,13 @@ x (number) determines the number of maximum files shown</source>
         <translation type="vanished">Algunas ventanas fallaron al cerrar</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="256"/>
+        <location filename="../src/update/Updater.cpp" line="270"/>
         <source>Unknown install error</source>
         <translation>Error de instalación desconocido</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="319"/>
-        <location filename="../src/update/Updater.cpp" line="347"/>
+        <location filename="../src/update/Updater.cpp" line="333"/>
+        <location filename="../src/update/Updater.cpp" line="361"/>
         <source>Installer script failed: %1</source>
         <translation>Script de instalación falló: %1</translation>
     </message>
@@ -5890,8 +6812,8 @@ x (number) determines the number of maximum files shown</source>
     </message>
     <message>
         <location filename="../src/update/Updater_mac.mm" line="117"/>
-        <location filename="../src/update/Updater.cpp" line="334"/>
-        <location filename="../src/update/Updater.cpp" line="355"/>
+        <location filename="../src/update/Updater.cpp" line="348"/>
+        <location filename="../src/update/Updater.cpp" line="370"/>
         <source>Helper application failed to start</source>
         <translation>La aplicación de ayuda falló al iniciar</translation>
     </message>
@@ -5904,112 +6826,115 @@ x (number) determines the number of maximum files shown</source>
 <context>
     <name>WindowPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="437"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="469"/>
         <source>Add New Theme</source>
         <translation>Añadir Nuevo Tema</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="438"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="470"/>
         <source>Edit Current Theme</source>
         <translation>Editar el Tema Actual</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="462"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="494"/>
         <source>Create Theme</source>
         <translation>Crear Tema</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="472"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="504"/>
         <source>Theme Name</source>
         <translation>Nombre del Tema</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="504"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="536"/>
         <source>Restart?</source>
         <translation>¿Reiniciar?</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="505"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="537"/>
         <source>The application must be restarted for the theme change to take effect.</source>
         <translation>La aplicación debe reiniciarse para que el cambio de tema tenga efecto.</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="507"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="539"/>
         <source>Do you want to restart now?</source>
         <translation>¿Quieres reiniciar ahora?</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="509"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="541"/>
         <source>Restart</source>
         <translation>Reiniciar</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="510"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="542"/>
         <source>Later</source>
         <translation>Después</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="528"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="560"/>
         <source>Show full repository path</source>
         <translation>Mostrar ruta completa del repositorio</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="535"/>
         <source>Hide automatically</source>
-        <translation>Ocultar automáticamente</translation>
+        <translation type="vanished">Ocultar automáticamente</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="543"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="567"/>
         <source>Open submodules in tabs</source>
         <translation>Abrir submódulos en pestañas</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="551"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="575"/>
         <source>Open all repositories in tabs</source>
         <translation>Abrir todos los repositorios en pestañas</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="558"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="582"/>
         <source>Hide Menubar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="563"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="587"/>
         <source>Show Avatars</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="569"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="588"/>
+        <source>Download commit-author avatars from GitHub when an account is configured, with Gravatar as a fallback. Images are cached in memory for this session only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="597"/>
         <source>Show Window Maximized when opened</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="622"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="650"/>
         <source>Theme:</source>
         <translation>Tema:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="623"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="651"/>
         <source>Title:</source>
         <translation>Título:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="624"/>
         <source>Log:</source>
-        <translation>Histórico:</translation>
+        <translation type="vanished">Histórico:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="625"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="652"/>
         <source>Tabs:</source>
         <translation>Pestañas:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="627"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="654"/>
         <source>View:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="630"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="657"/>
         <source>Prompt:</source>
         <translation>Pregunta:</translation>
     </message>
@@ -6017,29 +6942,29 @@ x (number) determines the number of maximum files shown</source>
 <context>
     <name>_FileWidget::Header</name>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="219"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="245"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="222"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="248"/>
         <source>Use Theirs: Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="227"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="238"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="230"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="241"/>
         <source>Use Ours: Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="253"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="256"/>
         <source>both: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="257"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="260"/>
         <source>ours: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="261"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="264"/>
         <source>theirs: %1</source>
         <translation type="unfinished"></translation>
     </message>

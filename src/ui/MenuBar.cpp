@@ -325,7 +325,7 @@ MenuBar::MenuBar(QWidget *parent) : QMenuBar(parent) {
 
     if (MainWindow *win = qobject_cast<MainWindow *>(window)) {
       if (win->count() > 0) {
-        win->currentView()->close();
+        win->tabWidget()->closeTab(win->currentView());
         return;
       }
     }
@@ -1188,6 +1188,11 @@ MenuBar *MenuBar::instance(QWidget *widget) {
 }
 
 bool MenuBar::isMaximized() { return mToggleMaximize->isActive(); }
+
+void MenuBar::setMaximized(bool maximized) {
+  if (mToggleMaximize->isActive() != maximized)
+    mToggleMaximize->trigger();
+}
 
 void MenuBar::registerActions(QWidget *parent) const {
   parent->addActions(actions());

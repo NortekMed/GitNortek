@@ -45,6 +45,8 @@ public:
 
   void cancelBackgroundTasks() override;
 
+  void closeFileInspection();
+
   void find() override;
   void findNext() override;
   void findPrevious() override;
@@ -68,6 +70,7 @@ private:
   void storeSelection();
   void loadSelection();
   void filesSelected(const QModelIndexList &indexes);
+  void openFileInspection();
   void loadEditorContent(const QModelIndexList &indexes);
   void toggleCollapseStagedFiles();
   void toggleCollapseUnstagedFiles();
@@ -111,6 +114,7 @@ private:
    */
   QStackedWidget *mFileView{nullptr};
   bool mIgnoreSelectionChange{false};
+  bool mFileInspectionClosed{false};
 
   git::Diff mDiff;
 

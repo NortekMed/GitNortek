@@ -5,6 +5,9 @@ return {
   log = {
     hide = true
   },
+  view = {
+    avatarsVisible = true
+  },
   tabs = {
     submodule = true,
     repository = true

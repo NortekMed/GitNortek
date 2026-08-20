@@ -86,8 +86,9 @@ void TestLineEndings::testLineEndings() {
   auto files = doubleTree->findChild<TreeView *>("Unstaged");
   QVERIFY(files);
 
-  files->selectionModel()->select(files->model()->index(0, 0),
-                                  QItemSelectionModel::Select);
+  QModelIndex file = files->model()->index(0, 0);
+  files->selectionModel()->select(file, QItemSelectionModel::Select);
+  QVERIFY(QMetaObject::invokeMethod(files, "fileSelectionRequested"));
 
   int inputDelay = this->inputDelay;
   auto mRepoView = this->mRepoView;

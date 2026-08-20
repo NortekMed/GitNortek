@@ -48,6 +48,7 @@ public:
    * \return
    */
   bool isMaximized();
+  void setMaximized(bool maximized);
 
   void registerActions(QWidget *parent) const;
 
