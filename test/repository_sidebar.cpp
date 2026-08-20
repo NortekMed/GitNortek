@@ -615,8 +615,8 @@ void TestRepositorySideBar::stashInteraction() {
   while (graphModel->canFetchMore(QModelIndex()))
     graphModel->fetchMore(QModelIndex());
   constexpr int dotSegment = 0;
-  constexpr int leftOutSegment = 6;
-  constexpr int rightOutSegment = 8;
+  constexpr int topSegment = 1;
+  constexpr int bottomSegment = 3;
   constexpr int firstMergeSegment = 9;
   constexpr int mergeLeftInSegment = 10;
   constexpr int mergeLeftOutSegment = 11;
@@ -633,6 +633,16 @@ void TestRepositorySideBar::stashInteraction() {
   QColor mergeTargetColor;
   QList<QColor> mergeColors;
   bool stashUsesSourceColor = false;
+  QList<QColor> stashNodeColors;
+  QList<QColor> stashForkColors;
+  struct StashLane {
+    int row;
+    int column;
+    QColor color;
+  };
+  QList<StashLane> stashLanes;
+  bool stashForkStartsAtParentRight = false;
+  bool stashForkReachesLane = false;
   QColor divergenceColor;
   QList<QColor> forkColors;
   bool divergenceContinuesStraight = false;
@@ -673,7 +683,7 @@ void TestRepositorySideBar::stashInteraction() {
           mergeNodeColor = colors.at(segment).value<QColor>();
         if (targetDivergence && type == dotSegment)
           divergenceColor = colors.at(segment).value<QColor>();
-        if (targetDivergence && hasDot && type == 3)
+        if (targetDivergence && hasDot && type == bottomSegment)
           divergenceContinuesStraight = true;
         if (targetMerge &&
             (type == mergeLeftOutSegment || type == mergeRightOutSegment)) {
@@ -686,7 +696,8 @@ void TestRepositorySideBar::stashInteraction() {
           mergeRow = row;
           mergeTargetColumn = column;
         }
-        if (targetMerge && type >= firstMergeSegment)
+        if (targetMerge && type >= firstMergeSegment &&
+            type <= mergeRightOutSegment)
           mergeColors.append(colors.at(segment).value<QColor>());
         if (targetParent && type >= firstForkSegment) {
           forkColors.append(colors.at(segment).value<QColor>());
@@ -699,8 +710,25 @@ void TestRepositorySideBar::stashInteraction() {
             forkReachesDeferredLane = true;
           }
         }
-        if (stash && type == dotSegment)
+        if (stash && type == dotSegment) {
           stashNodeColor = colors.at(segment).value<QColor>();
+          stashNodeColors.append(stashNodeColor);
+          stashLanes.append({row, column, stashNodeColor});
+        }
+        if (styles.at(segment).toInt() == Qt::DotLine &&
+            type >= firstForkSegment) {
+          stashForkColors.append(colors.at(segment).value<QColor>());
+          if (type == forkRightOutSegment) {
+            QCOMPARE(column, dotColumn);
+            stashForkStartsAtParentRight = true;
+          }
+          if (type == forkLeftInSegment) {
+            QVERIFY(column != dotColumn);
+            stashForkReachesLane = true;
+          }
+          QVERIFY(type != forkLeftOutSegment);
+          QVERIFY(type != forkRightInSegment);
+        }
         if (stash && styles.at(segment).toInt() == Qt::DotLine && type >= 4 &&
             type < firstMergeSegment) {
           stashEdgeColors.append(colors.at(segment).value<QColor>());
@@ -710,7 +738,8 @@ void TestRepositorySideBar::stashInteraction() {
         QColor stashEdgeColor;
         for (int segment = 0; segment < segments.size(); ++segment) {
           int type = segments.at(segment).toInt();
-          if (type == leftOutSegment || type == rightOutSegment)
+          if (type == bottomSegment &&
+              styles.at(segment).toInt() == Qt::DotLine)
             stashEdgeColor = colors.at(segment).value<QColor>();
         }
         if (stashEdgeColor.isValid()) {
@@ -744,13 +773,43 @@ void TestRepositorySideBar::stashInteraction() {
   QVERIFY(!nextColors.isEmpty());
   QCOMPARE(mergeTargetColor, nextColors.constFirst().value<QColor>());
   QVERIFY(stashUsesSourceColor);
+  QVERIFY(stashForkStartsAtParentRight);
+  QVERIFY(stashForkReachesLane);
+  QVERIFY(!stashForkColors.isEmpty());
+  for (const QColor &color : stashForkColors)
+    QVERIFY(stashNodeColors.contains(color));
+  for (const StashLane &stashLane : stashLanes) {
+    QVERIFY(stashLane.row + 1 < graphModel->rowCount());
+    QModelIndex next = graphModel->index(stashLane.row + 1, 0);
+    QVariantList nextColumns = next.data(CommitList::GraphRole).toList();
+    QVariantList nextColorColumns =
+        next.data(CommitList::GraphColorRole).toList();
+    QVariantList nextStyleColumns =
+        next.data(CommitList::GraphStyleRole).toList();
+    QVERIFY(stashLane.column < nextColumns.size());
+    QVERIFY(stashLane.column < nextColorColumns.size());
+    QVERIFY(stashLane.column < nextStyleColumns.size());
+    QVariantList nextSegments = nextColumns.at(stashLane.column).toList();
+    QVariantList nextColors = nextColorColumns.at(stashLane.column).toList();
+    QVariantList nextStyles = nextStyleColumns.at(stashLane.column).toList();
+    bool continues = false;
+    for (int segment = 0; segment < nextSegments.size(); ++segment) {
+      int type = nextSegments.at(segment).toInt();
+      if ((type == topSegment || type == forkLeftInSegment) &&
+          nextStyles.at(segment).toInt() == Qt::DotLine &&
+          nextColors.at(segment).value<QColor>() == stashLane.color) {
+        continues = true;
+        break;
+      }
+    }
+    QVERIFY(continues);
+  }
   QVERIFY(divergenceColor.isValid());
   QVERIFY(divergenceContinuesStraight);
   QVERIFY(forkStartsAtParent);
   QVERIFY(forkReachesDeferredLane);
   QVERIFY(!forkColors.isEmpty());
-  for (const QColor &color : forkColors)
-    QCOMPARE(color, divergenceColor);
+  QVERIFY(forkColors.count(divergenceColor) >= 2);
 
   int laneWidth = qMax(compactMetrics.ascent(), 20);
   int graphMinimum = 50;

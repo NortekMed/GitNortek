@@ -835,42 +835,42 @@
 <context>
     <name>CommitList</name>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2214"/>
+        <location filename="../src/ui/CommitList.cpp" line="2252"/>
         <source>Remove Untracked Files</source>
         <translation>删除未跟踪的文件</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2232"/>
+        <location filename="../src/ui/CommitList.cpp" line="2270"/>
         <source>Apply</source>
         <translation>应用</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2235"/>
+        <location filename="../src/ui/CommitList.cpp" line="2273"/>
         <source>Pop</source>
         <translation>填充（Pop）</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2238"/>
+        <location filename="../src/ui/CommitList.cpp" line="2276"/>
         <source>Drop</source>
         <translation>丢弃（Drop）</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2252"/>
+        <location filename="../src/ui/CommitList.cpp" line="2290"/>
         <source>Unstar</source>
         <translation>取消星标</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2252"/>
+        <location filename="../src/ui/CommitList.cpp" line="2290"/>
         <source>Star</source>
         <translation>星标</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2262"/>
+        <location filename="../src/ui/CommitList.cpp" line="2300"/>
         <source>Add Tag...</source>
         <translation>添加标签...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2265"/>
+        <location filename="../src/ui/CommitList.cpp" line="2303"/>
         <source>New Branch...</source>
         <translation>新建分支...</translation>
     </message>
@@ -883,123 +883,123 @@
         <translation type="vanished">删除分支%1</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1661"/>
+        <location filename="../src/ui/CommitList.cpp" line="1699"/>
         <source>Branch / Tag</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1662"/>
+        <location filename="../src/ui/CommitList.cpp" line="1700"/>
         <source>Graph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1664"/>
+        <location filename="../src/ui/CommitList.cpp" line="1702"/>
         <source>Commit Message</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1665"/>
+        <location filename="../src/ui/CommitList.cpp" line="1703"/>
         <source>Author</source>
         <translation type="unfinished">作者</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1666"/>
+        <location filename="../src/ui/CommitList.cpp" line="1704"/>
         <source>Date / Time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1667"/>
+        <location filename="../src/ui/CommitList.cpp" line="1705"/>
         <source>SHA</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1683"/>
+        <location filename="../src/ui/CommitList.cpp" line="1721"/>
         <source>Configure commit columns</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1708"/>
+        <location filename="../src/ui/CommitList.cpp" line="1746"/>
         <source>Reset columns</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2292"/>
+        <location filename="../src/ui/CommitList.cpp" line="2330"/>
         <source>Rename Branch</source>
         <translation>重命名分支</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2296"/>
+        <location filename="../src/ui/CommitList.cpp" line="2334"/>
         <source>Delete Branch</source>
         <translation>删除分支</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2301"/>
+        <location filename="../src/ui/CommitList.cpp" line="2339"/>
         <source>Delete Tag</source>
         <translation>删除标签</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2305"/>
+        <location filename="../src/ui/CommitList.cpp" line="2343"/>
         <source>Merge...</source>
         <translation>合并...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2320"/>
+        <location filename="../src/ui/CommitList.cpp" line="2358"/>
         <source>Rebase...</source>
         <translation>变基...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2335"/>
+        <location filename="../src/ui/CommitList.cpp" line="2373"/>
         <source>Squash...</source>
         <translation>聚合（Squash）...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2352"/>
+        <location filename="../src/ui/CommitList.cpp" line="2390"/>
         <source>Revert</source>
         <translation>还原</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2354"/>
+        <location filename="../src/ui/CommitList.cpp" line="2392"/>
         <source>Cherry-pick</source>
         <translation>拣选操作</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2361"/>
-        <location filename="../src/ui/CommitList.cpp" line="2394"/>
+        <location filename="../src/ui/CommitList.cpp" line="2399"/>
+        <location filename="../src/ui/CommitList.cpp" line="2432"/>
         <source>Checkout %1</source>
         <translation>检出%1</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2363"/>
+        <location filename="../src/ui/CommitList.cpp" line="2401"/>
         <source>Checkout</source>
         <translation>检出</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2384"/>
+        <location filename="../src/ui/CommitList.cpp" line="2422"/>
         <source>Local branch is already checked out</source>
         <translation>本地分支已检出</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2387"/>
+        <location filename="../src/ui/CommitList.cpp" line="2425"/>
         <source>This is a bare repository</source>
         <translation>这是一个纯仓库</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2402"/>
+        <location filename="../src/ui/CommitList.cpp" line="2440"/>
         <source>Reset</source>
         <translation>重置</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2403"/>
+        <location filename="../src/ui/CommitList.cpp" line="2441"/>
         <source>Soft</source>
         <translation>软性</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2404"/>
+        <location filename="../src/ui/CommitList.cpp" line="2442"/>
         <source>Mixed</source>
         <translation>混合</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2405"/>
+        <location filename="../src/ui/CommitList.cpp" line="2443"/>
         <source>Hard</source>
         <translation>硬性</translation>
     </message>
@@ -1007,12 +1007,12 @@
 <context>
     <name>CommitModel</name>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="445"/>
+        <location filename="../src/ui/CommitList.cpp" line="471"/>
         <source>Uncommitted changes</source>
         <translation>未提交的更改</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="446"/>
+        <location filename="../src/ui/CommitList.cpp" line="472"/>
         <source>Checking for uncommitted changes</source>
         <translation>检查未提交的更改</translation>
     </message>

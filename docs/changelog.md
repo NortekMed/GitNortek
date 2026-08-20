@@ -33,6 +33,7 @@ Bug Fix and Feature release
 * Offer to remove recent repositories that can no longer be opened
 * Display consistent eight-character commit IDs in the interface and versions without Git's `g` prefix
 * Preserve configured Compact Mode column widths when the commit graph expands
+* Connect dotted stash ancestry from the side of its base commit node
 
 ----
 

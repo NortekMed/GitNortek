@@ -343,12 +343,34 @@ public:
     git::Commit commit = nextCommit();
     while (commit.isValid()) {
       // Add root commits.
-      bool root = false;
+      int rootIndex = -1;
       if (indexOf(commit) < 0) {
-        root = true;
         Qt::PenStyle style = isStash(commit) ? Qt::DotLine : Qt::SolidLine;
-        mParents.append(
-            Parent(commit, nextColor(), false, style, mNextLane++));
+        int spacer = indexOfSpacer(commit);
+        if (spacer >= 0) {
+          rootIndex = spacer;
+          mParents[spacer] =
+              Parent(commit, nextColor(), false, style, mNextLane++);
+        } else {
+          rootIndex = mParents.size();
+          mParents.insert(
+              rootIndex,
+              Parent(commit, nextColor(), false, style, mNextLane++));
+        }
+      }
+
+      if (isStash(commit)) {
+        QList<git::Commit> stashParents = graphParents(commit);
+        if (!stashParents.isEmpty() && indexOf(stashParents.constFirst()) < 0 &&
+            indexOfSpacer(stashParents.constFirst()) < 0) {
+          int stashIndex = indexOf(commit);
+          mParents.insert(stashIndex,
+                          Parent(stashParents.constFirst(), QColor(), false,
+                                 Qt::SolidLine, mNextLane++, git::Commit(),
+                                 true));
+          if (rootIndex >= stashIndex)
+            ++rootIndex;
+        }
       }
 
       // Calculate graph columns.
@@ -371,13 +393,16 @@ public:
       int index = indexOf(commit);
       if (index >= 0) {
         Parent parent = mParents.takeAt(index);
-        bool deferJoin = !isStash(commit) && commitParents.size() == 1 &&
-                         indexOf(commitParents.constFirst()) >= 0;
+        bool deferJoin =
+            commitParents.size() == 1 &&
+            (isStash(commit) || indexOf(commitParents.constFirst()) >= 0);
         if (deferJoin) {
           git::Commit target = commitParents.constFirst();
+          Qt::PenStyle style =
+              isStash(commit) ? parent.style : Qt::SolidLine;
           mParents.insert(index,
-                          Parent(target, parent.color, false, Qt::SolidLine,
-                                 parent.lane, target));
+                          Parent(target, parent.color, false, style, parent.lane,
+                                 target));
         } else if (!replacements.isEmpty()) {
           git::Commit replacement = replacements.takeFirst();
           Qt::PenStyle style = isStash(commit) ? parent.style : Qt::SolidLine;
@@ -393,8 +418,9 @@ public:
 
       // Deferred lanes converge only when their shared parent is drawn.
       for (int j = mParents.size() - 1; j >= 0; --j) {
-        if (mParents.at(j).isDeferred() &&
-            mParents.at(j).joinTarget == commit) {
+        if ((mParents.at(j).isDeferred() &&
+             mParents.at(j).joinTarget == commit) ||
+            (mParents.at(j).isSpacer() && mParents.at(j).commit == commit)) {
           mParents.removeAt(j);
         }
       }
@@ -402,7 +428,7 @@ public:
       // Add graph row.
       QVector<Column> row;
       if (mGraphVisible && mPathspec.isEmpty())
-        row = columns(commit, parents, root);
+        row = columns(commit, parents, rootIndex);
 
       rows.append(Row(commit, row));
       DebugRefresh("Append commit: " << commit.shortId());
@@ -536,11 +562,12 @@ private:
   struct Parent {
     Parent(const git::Commit &commit, const QColor &color, bool tainted = false,
             Qt::PenStyle style = Qt::SolidLine, quint64 lane = 0,
-            const git::Commit &joinTarget = git::Commit())
+            const git::Commit &joinTarget = git::Commit(), bool spacer = false)
         : commit(commit), joinTarget(joinTarget), color(color), lane(lane),
-          tainted(tainted), style(style) {}
+          tainted(tainted), spacer(spacer), style(style) {}
 
     bool isDeferred() const { return joinTarget.isValid(); }
+    bool isSpacer() const { return spacer; }
 
     QColor taintedColor(const git::Commit &commit = git::Commit()) const {
       return (tainted && this->commit != commit) ? kTaintedColor : color;
@@ -551,6 +578,7 @@ private:
     QColor color;
     quint64 lane;
     bool tainted;
+    bool spacer;
     Qt::PenStyle style;
   };
 
@@ -577,10 +605,19 @@ private:
   int indexOf(const git::Commit &commit) const {
     int count = mParents.size();
     for (int i = 0; i < count; ++i) {
-      if (!mParents.at(i).isDeferred() && mParents.at(i).commit == commit)
+      if (!mParents.at(i).isDeferred() && !mParents.at(i).isSpacer() &&
+          mParents.at(i).commit == commit)
         return i;
     }
 
+    return -1;
+  }
+
+  int indexOfSpacer(const git::Commit &commit) const {
+    for (int i = 0; i < mParents.size(); ++i) {
+      if (mParents.at(i).isSpacer() && mParents.at(i).commit == commit)
+        return i;
+    }
     return -1;
   }
 
@@ -629,13 +666,12 @@ private:
   // The commit and parents parameters represent the current row.
   // The mParents member represents the next row after this one.
   QVector<Column> columns(const git::Commit &commit,
-                          const QList<Parent> &parents, bool root) {
+                          const QList<Parent> &parents, int rootIndex) {
     int count = parents.size();
     QVector<Column> columns(count);
     auto resolvesHere = [&commit](const Parent &parent) {
       return parent.isDeferred() && parent.joinTarget == commit;
     };
-
     int nodeIndex = -1;
     for (int i = 0; i < count; ++i) {
       if (!parents.at(i).isDeferred() && parents.at(i).commit == commit) {
@@ -645,9 +681,9 @@ private:
     }
 
     // Add incoming paths.
-    int incoming = root ? count - 1 : count;
-    for (int i = 0; i < incoming; ++i) {
-      if (!resolvesHere(parents.at(i))) {
+    for (int i = 0; i < count; ++i) {
+      if (i != rootIndex && !resolvesHere(parents.at(i)) &&
+          !parents.at(i).isSpacer()) {
         columns[i] << Segment(Top, parents.at(i).taintedColor(),
                               parents.at(i).style);
       }
@@ -681,7 +717,7 @@ private:
       // Get the successors of this column.
       QList<git::Commit> successors;
       const Parent &parent = parents.at(i);
-      if (resolvesHere(parent))
+      if (resolvesHere(parent) || parent.isSpacer())
         continue;
       if (parent.commit == commit) {
         successors = graphParents(parent.commit);
@@ -744,7 +780,7 @@ private:
     // Add middle section last.
     for (int i = 0; i < count; ++i) {
       const Parent &parent = parents.at(i);
-      if (resolvesHere(parent))
+      if (resolvesHere(parent) || parent.isSpacer())
         continue;
       bool dot = (!parent.isDeferred() && parent.commit == commit);
       columns[i] << Segment(dot ? Dot : Middle, parent.taintedColor(),
@@ -757,8 +793,10 @@ private:
   QColor nextColor() {
     // Get the first unused (or least used) color.
     QMap<QString, int> counts;
-    foreach (const Parent &parent, mParents)
-      counts[parent.color.name()]++;
+    foreach (const Parent &parent, mParents) {
+      if (!parent.isSpacer())
+        counts[parent.color.name()]++;
+    }
 
     int count = 0;
     QList<QColor> colors = Application::theme()->branchTopologyEdges();
