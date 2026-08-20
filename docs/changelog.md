@@ -19,7 +19,7 @@ Bug Fix and Feature release
 
 #### Changed
 
-* Autohide sidebar when opening repository
+* Show the repository sidebar at startup and keep it open when opening repositories
 * Brand Linux application and packages as GitNortek
 * Refresh repositories automatically when Git metadata changes
 * Improve diff, blame, commit description, and large binary refresh performance

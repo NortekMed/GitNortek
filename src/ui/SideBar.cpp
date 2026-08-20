@@ -601,7 +601,7 @@ void restoreExpansionState(QTreeView *view) {
 
 } // namespace
 
-SideBar::SideBar(TabWidget *tabs, MainWindow *mainWindow, QWidget *parent)
+SideBar::SideBar(TabWidget *tabs, MainWindow *, QWidget *parent)
     : QWidget(parent) {
   setStyleSheet(kStyleSheet);
 
@@ -658,10 +658,9 @@ SideBar::SideBar(TabWidget *tabs, MainWindow *mainWindow, QWidget *parent)
 
   connect(
       view, &QTreeView::doubleClicked,
-      [tabs, this, mainWindow](const QModelIndex &index) {
+      [tabs, this](const QModelIndex &index) {
         if (isRepoIndex(index)) {
           tabs->setCurrentIndex(index.row());
-          mainWindow->setSideBarVisible(false);
           return;
         }
 
@@ -672,8 +671,7 @@ SideBar::SideBar(TabWidget *tabs, MainWindow *mainWindow, QWidget *parent)
               index.data(RecentRole).value<RecentRepository *>()
                   ? MainWindow::OpenSource::RecentRepository
                   : MainWindow::OpenSource::Other;
-          if (MainWindow::open(path, true, source))
-            mainWindow->setSideBarVisible(false);
+          MainWindow::open(path, true, source);
           return;
         }
 
@@ -692,13 +690,12 @@ SideBar::SideBar(TabWidget *tabs, MainWindow *mainWindow, QWidget *parent)
         if (repoVariant.isValid()) {
           Repository *repo = repoVariant.value<Repository *>();
           CloneDialog *dialog = new CloneDialog(CloneDialog::Clone, this, repo);
-          connect(dialog, &CloneDialog::accepted, [repo, dialog, mainWindow] {
+          connect(dialog, &CloneDialog::accepted, [repo, dialog] {
             // Set local path.
             Account *account = repo->account();
             account->setRepositoryPath(account->indexOf(repo), dialog->path());
 
             // Open the repo.
-            mainWindow->setSideBarVisible(false);
             MainWindow::open(dialog->path());
           });
 

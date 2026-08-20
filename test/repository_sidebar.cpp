@@ -111,6 +111,7 @@ class TestRepositorySideBar : public QObject {
 
 private slots:
   void initTestCase();
+  void sidebarVisibility();
   void chooserModel();
   void recentRemoval();
   void accountRows();
@@ -140,6 +141,41 @@ void TestRepositorySideBar::initTestCase() {
   mFooter = sideBar->findChild<Footer *>("RepositoryFooter");
   QVERIFY(mTree);
   QVERIFY(mFooter);
+}
+
+void TestRepositorySideBar::sidebarVisibility() {
+  QSettings settings;
+  bool hadSidebarSetting = settings.contains("sidebar");
+  QVariant sidebarSetting = settings.value("sidebar");
+  auto restoreSidebarSetting = qScopeGuard([hadSidebarSetting, sidebarSetting] {
+    QSettings settings;
+    if (hadSidebarSetting)
+      settings.setValue("sidebar", sidebarSetting);
+    else
+      settings.remove("sidebar");
+  });
+  settings.setValue("sidebar", false);
+
+  MainWindow window{git::Repository()};
+  window.show();
+  QVERIFY(qWaitForWindowExposed(&window));
+  QVERIFY(window.isSideBarVisible());
+  QSplitter *splitter = qobject_cast<QSplitter *>(window.centralWidget());
+  QVERIFY(splitter);
+  QVERIFY(splitter->sizes().constFirst() > 0);
+
+  QToolButton *sidebarButton = nullptr;
+  for (QToolButton *button : window.findChildren<QToolButton *>()) {
+    if (button->toolTip() == "Show repository sidebar") {
+      sidebarButton = button;
+      break;
+    }
+  }
+  QVERIFY(sidebarButton);
+  sidebarButton->click();
+  QVERIFY(!window.isSideBarVisible());
+  sidebarButton->click();
+  QVERIFY(window.isSideBarVisible());
 }
 
 void TestRepositorySideBar::chooserModel() {
@@ -367,16 +403,27 @@ void TestRepositorySideBar::activeRepositoryBinding() {
   MainWindow window(mRepo);
   window.show();
   QVERIFY(qWaitForWindowExposed(&window));
+  QVERIFY(window.isSideBarVisible());
   SideBar *sideBar = window.findChild<SideBar *>();
+  QTreeView *repositoryTree =
+      sideBar->findChild<QTreeView *>("RepositoryTree");
   RepositoryNavigator *navigator =
       sideBar->findChild<RepositoryNavigator *>("RepositoryNavigator");
   QSplitter *content =
       sideBar->findChild<QSplitter *>("RepositorySidebarContent");
   QVERIFY(navigator);
+  QVERIFY(repositoryTree);
   QVERIFY(content);
   QCOMPARE(content->count(), 2);
   QCOMPARE(navigator->model()->repository().dir(false).path(),
            mRepo->dir(false).path());
+
+  QModelIndex openRoot = repositoryTree->model()->index(0, 0);
+  QModelIndex openRepository = repositoryTree->model()->index(0, 0, openRoot);
+  QVERIFY(openRepository.isValid());
+  QVERIFY(QMetaObject::invokeMethod(repositoryTree, "doubleClicked",
+                                    Q_ARG(QModelIndex, openRepository)));
+  QVERIFY(window.isSideBarVisible());
 
   RepositoryNavigatorModel *model = navigator->model();
   QModelIndex local =

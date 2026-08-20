@@ -44,7 +44,6 @@ const QString kPathKey = "path";
 const QString kIndexKey = "index";
 const QString kStateKey = "state";
 const QString kActiveKey = "active";
-const QString kSidebarKey = "sidebar";
 const QString kSidebarWidthKey = "sidebar/repositoryNavigator/width";
 const QString kGeometryKey = "geometry";
 const QString kWindowsGroup = "windows";
@@ -174,8 +173,12 @@ MainWindow::MainWindow(const git::Repository &repo, QWidget *parent,
   if (MainWindow *win = activeWindow())
     move(win->x() + 24, win->y() + 24);
 
-  // Restore sidebar.
-  setSideBarVisible(QSettings().value(kSidebarKey, true).toBool());
+  // Always start with the sidebar visible at its saved width.
+  int sidebarWidth = QSettings().value(kSidebarWidthKey,
+                                       splitter->widget(0)->sizeHint().width())
+                         .toInt();
+  splitter->setSizes({qBound(220, sidebarWidth, 520), 1});
+  mIsSideBarVisible = true;
 
   // Set initial state of interface.
   updateInterface();
@@ -188,9 +191,6 @@ void MainWindow::setSideBarVisible(bool visible) {
     return;
 
   mIsSideBarVisible = visible;
-
-  // Remember in settings.
-  QSettings().setValue(kSidebarKey, visible);
 
   // Animate sidebar sliding in or out.
   QSplitter *splitter = static_cast<QSplitter *>(centralWidget());

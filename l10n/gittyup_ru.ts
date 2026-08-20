@@ -5814,89 +5814,89 @@ The submodule will be removed from this project. Its working files and cached lo
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="714"/>
+        <location filename="../src/ui/SideBar.cpp" line="711"/>
         <source>Close</source>
         <translation>Закрыть</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="718"/>
-        <location filename="../src/ui/SideBar.cpp" line="822"/>
-        <location filename="../src/ui/SideBar.cpp" line="917"/>
+        <location filename="../src/ui/SideBar.cpp" line="715"/>
+        <location filename="../src/ui/SideBar.cpp" line="819"/>
+        <location filename="../src/ui/SideBar.cpp" line="914"/>
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="723"/>
+        <location filename="../src/ui/SideBar.cpp" line="720"/>
         <source>Authorize</source>
         <translation>Авторизоваться</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="738"/>
+        <location filename="../src/ui/SideBar.cpp" line="735"/>
         <source>Clone Repository</source>
         <translation>Клонировать репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="749"/>
+        <location filename="../src/ui/SideBar.cpp" line="746"/>
         <source>Open Existing Repository</source>
         <translation>Открыть существующий репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="753"/>
+        <location filename="../src/ui/SideBar.cpp" line="750"/>
         <source>Open Repository</source>
         <translation>Открыть репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="762"/>
+        <location filename="../src/ui/SideBar.cpp" line="759"/>
         <source>Initialize New Repository</source>
         <translation>Инициилизировать новый репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="777"/>
+        <location filename="../src/ui/SideBar.cpp" line="774"/>
         <source>Add %1 Account</source>
         <translation>Добавить аккаунт %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="812"/>
+        <location filename="../src/ui/SideBar.cpp" line="809"/>
         <source>&lt;p&gt;Are you sure you want to remove the remote repository association for %1?&lt;/p&gt;&lt;p&gt;The local clone itself will not be affected.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Вы уверенны, что хотите удалить ассоциацию с удаленным репозиторием для %1?&lt;/p&gt;&lt;p&gt;Локальный клон сам затронут не будет.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="817"/>
+        <location filename="../src/ui/SideBar.cpp" line="814"/>
         <source>Remove Repository Association?</source>
         <translation>Удалить ассоциацию с репозиторием?</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="841"/>
+        <location filename="../src/ui/SideBar.cpp" line="838"/>
         <source>Clear All Recent</source>
         <translation>Очистить все недавние</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="845"/>
+        <location filename="../src/ui/SideBar.cpp" line="842"/>
         <source>Show Full Path</source>
         <translation>Показать полный путь</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="855"/>
+        <location filename="../src/ui/SideBar.cpp" line="852"/>
         <source>Filter Non-existent Paths</source>
         <translation>Фильтровать несуществующие пути</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="863"/>
+        <location filename="../src/ui/SideBar.cpp" line="860"/>
         <source>Refresh Remote Accounts</source>
         <translation>Обновить удаленные аккаунты</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="870"/>
+        <location filename="../src/ui/SideBar.cpp" line="867"/>
         <source>Show Full Name</source>
         <translation>Показать полное имя</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="906"/>
+        <location filename="../src/ui/SideBar.cpp" line="903"/>
         <source>&lt;p&gt;Are you sure you want to remove the %1 account for &apos;%2&apos;?&lt;/p&gt;&lt;p&gt;Only the account association will be removed. Remote configurations and local clones will not be affected.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Вы уверены, что хотите удалить аккаунт %1 для &apos;%2&apos;?&lt;/p&gt;&lt;p&gt;Только ассоциация с аккаунтом будет удалена. Настройки remotes и локальные клоны не будут затронуты.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="911"/>
+        <location filename="../src/ui/SideBar.cpp" line="908"/>
         <source>Remove Account?</source>
         <translation>Удалить аккаунт?</translation>
     </message>
