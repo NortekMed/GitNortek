@@ -19,6 +19,7 @@
 #include "git/Submodule.h"
 #include "ui/DoubleTreeWidget.h"
 #include "ui/TreeView.h"
+#include "watcher/RepositoryWatcher.h"
 
 #include <QToolButton>
 #include <QMenu>
@@ -48,6 +49,7 @@ private slots:
   void updateSubmoduleClone();
   void noUpdateSubmoduleClone();
   void discardFile();
+  void movedHeadDetected();
   void removeSubmodule();
   void refuseRemovalWithGitmodulesChanges();
 
@@ -200,6 +202,99 @@ void TestSubmodule::discardFile() {
   QFile file(repo.workdir().filePath("GittyupTestRepo/README.md"));
   QVERIFY(file.open(QFile::ReadOnly));
   QCOMPARE(file.readAll(), "Changing content of submodule readme\n");
+}
+
+void TestSubmodule::movedHeadDetected() {
+  ScratchRepository child;
+  QFile childFile(child->workdir().filePath("child.txt"));
+  QVERIFY(childFile.open(QIODevice::WriteOnly));
+  childFile.write("first\n");
+  childFile.close();
+
+  QProcess git;
+  git.setWorkingDirectory(child->workdir().path());
+  git.start(GIT_EXECUTABLE, {"add", "child.txt"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE, {"commit", "-m", "first"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+
+  ScratchRepository parent;
+  git.setWorkingDirectory(parent->workdir().path());
+  git.start(GIT_EXECUTABLE,
+            {"-c", "protocol.file.allow=always", "submodule", "add",
+             child->workdir().path(), "child"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE, {"commit", "-m", "add submodule"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+
+  // Prime the repository-level submodule cache at the recorded commit.
+  QCOMPARE(parent->submodules().size(), 1);
+
+#ifdef Q_OS_LINUX
+  RepositoryWatcher watcher(parent);
+  QSignalSpy workdirChanged(parent->notifier(),
+                            &git::RepositoryNotifier::workdirChanged);
+  qWait(100);
+#endif
+
+  git.setWorkingDirectory(parent->workdir().filePath("child"));
+  git.start(GIT_EXECUTABLE, {"commit", "--allow-empty", "-m", "second"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+
+#ifdef Q_OS_LINUX
+  QTRY_VERIFY_WITH_TIMEOUT(!workdirChanged.isEmpty(), 5000);
+#endif
+
+  git::Diff status = parent->status(parent->index(), nullptr, false);
+  QVERIFY(status.isValid());
+  QCOMPARE(status.count(), 1);
+  QCOMPARE(status.name(0), QString("child"));
+  QCOMPARE(status.status(0), GIT_DELTA_MODIFIED);
+
+  git::Submodule submodule = parent->submodules().first();
+  git::Id oldId = submodule.headId();
+  git::Id stagedId = submodule.open().head().target().id();
+  parent->index().setStaged({"child"}, true);
+
+  git.setWorkingDirectory(parent->workdir().filePath("child"));
+  git.start(GIT_EXECUTABLE, {"commit", "--allow-empty", "-m", "third"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git::Id newId = submodule.open().head().target().id();
+  QString message = QString("Update child from %1 to %2:\n- %2 third")
+                        .arg(oldId.toString().left(7),
+                             newId.toString().left(7));
+  QVERIFY(!parent->commitSubmodule(submodule, newId, message).isValid());
+  QCOMPARE(parent->lookupSubmodule("child").indexId(), stagedId);
+  parent->index().setStaged({"child"}, false);
+
+  QFile parentFile(parent->workdir().filePath("parent.txt"));
+  QVERIFY(parentFile.open(QIODevice::WriteOnly));
+  parentFile.write("unrelated\n");
+  parentFile.close();
+  git.setWorkingDirectory(parent->workdir().path());
+  git.start(GIT_EXECUTABLE, {"add", "parent.txt"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+
+  submodule = parent->submodules().first();
+  QVERIFY(!parent->commitSubmodule(submodule, oldId, message).isValid());
+  git::Commit commit = parent->commitSubmodule(submodule, newId, message);
+  QVERIFY(commit.isValid());
+  QCOMPARE(commit.message().trimmed(), message);
+  QCOMPARE(commit.tree().id("child"), newId);
+  QVERIFY(commit.tree().id("parent.txt").isNull());
+
+  status = parent->status(parent->index(), nullptr, false);
+  QVERIFY(status.isValid());
+  QCOMPARE(status.count(), 1);
+  QCOMPARE(status.name(0), QString("parent.txt"));
+  QVERIFY(parent->index().isTracked("parent.txt"));
 }
 
 void TestSubmodule::removeSubmodule() {

@@ -386,6 +386,14 @@ void RepositoryNavigator::showContextMenu(const QPoint &point) {
                                          view->openSubmodule(submodule);
                                      });
       open->setEnabled(initialized && submodule.open().isValid());
+      QAction *commitChanges =
+          menu.addAction(tr("Commit Changes"), mRepoView,
+                         [view = mRepoView, submodule] {
+                           if (view)
+                             view->commitSubmoduleChanges(submodule);
+                         });
+      commitChanges->setEnabled(
+          initialized && mRepoView->canCommitSubmoduleChanges(submodule));
       if (initialized) {
         menu.addAction(tr("Update"), mRepoView,
                        [view = mRepoView, submodule] {

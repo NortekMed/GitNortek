@@ -60,6 +60,10 @@
 #include <QCloseEvent>
 #include <QCoreApplication>
 #include <QDesktopServices>
+#include <QFileInfo>
+#include <QFrame>
+#include <QHBoxLayout>
+#include <QLabel>
 #include <QMessageBox>
 #include <QMenu>
 #include <QtNetwork>
@@ -68,6 +72,7 @@
 #include <QShortcut>
 #include <QStackedWidget>
 #include <QTimeLine>
+#include <QToolButton>
 #include <QUrl>
 #include <QUrlQuery>
 #include <QVBoxLayout>
@@ -446,15 +451,37 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
 
   // Create log.
   mLogRoot = new LogEntry(this);
-  connect(mLogRoot, &LogEntry::errorInserted, this, &RepoView::suspendLogTimer);
+  mLogPanel = new QWidget(this);
+  mLogPanel->setObjectName("RepositoryLogPanel");
+  mLogHeader = new QFrame(mLogPanel);
+  mLogHeader->setObjectName("RepositoryLogHeader");
+  mLogHeader->setFixedHeight(24);
+  mLogHeader->setFrameShape(QFrame::StyledPanel);
 
-  mLogView = new LogView(mLogRoot, this);
+  QLabel *logTitle = new QLabel(tr("Log"), mLogHeader);
+  mLogToggle = new QToolButton(mLogHeader);
+  mLogToggle->setObjectName("RepositoryLogToggle");
+  mLogToggle->setAutoRaise(true);
+  connect(mLogToggle, &QToolButton::clicked, this,
+          [this] { setLogVisible(!isLogVisible()); });
+
+  QHBoxLayout *logHeaderLayout = new QHBoxLayout(mLogHeader);
+  logHeaderLayout->setContentsMargins(8, 0, 4, 0);
+  logHeaderLayout->addWidget(logTitle);
+  logHeaderLayout->addStretch();
+  logHeaderLayout->addWidget(mLogToggle);
+
+  mLogView = new LogView(mLogRoot, mLogPanel);
   connect(mLogView, &LogView::linkActivated, this, &RepoView::visitLink);
   connect(mLogView, &LogView::operationCanceled, this,
           &RepoView::cancelRemoteTransfer);
 
-  mLogTimer.setSingleShot(true);
-  connect(&mLogTimer, &QTimer::timeout, this, [this] { setLogVisible(false); });
+  QVBoxLayout *logLayout = new QVBoxLayout(mLogPanel);
+  logLayout->setContentsMargins(0, 0, 0, 0);
+  logLayout->setSpacing(0);
+  logLayout->addWidget(mLogHeader);
+  logLayout->addWidget(mLogView);
+  mLogPanel->setMinimumHeight(mLogHeader->height());
 
   QShortcut *esc = new QShortcut(tr("Esc"), mLogView);
   esc->setContext(Qt::WidgetWithChildrenShortcut);
@@ -474,21 +501,35 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
             delete context; // Disconnect after the first error.
           });
 
-  // Automatically hide the log when the model changes.
+  // Show operation output until the user explicitly hides it.
   connect(mLogView->model(), &QAbstractItemModel::rowsInserted, this,
-          &RepoView::startLogTimer);
+          [this] { setLogVisible(true); });
   connect(mLogView->model(), &QAbstractItemModel::dataChanged, this,
-          &RepoView::startLogTimer);
+          [this] { setLogVisible(true); });
 
   addWidget(mDetailSplitter);
-  addWidget(mLogView);
+  addWidget(mLogPanel);
   setCollapsible(0, false);
+  setCollapsible(1, false);
   setStretchFactor(0, 1);
   mIsLogVisible = true;
-  setSizes({1, mLogView->sizeHint().height()});
+  mLogContentHeight = mLogView->sizeHint().height();
+  updateLogToggle();
+  setSizes({1, mLogHeader->height() + mLogContentHeight});
 
-  connect(this, &QSplitter::splitterMoved,
-          [this] { mIsLogVisible = (sizes().last() > 0); });
+  connect(this, &QSplitter::splitterMoved, this, [this] {
+    int contentHeight = sizes().last() - mLogHeader->height();
+    bool visible = contentHeight > 0;
+    if (visible)
+      mLogContentHeight = contentHeight;
+    if (visible == mIsLogVisible)
+      return;
+
+    mIsLogVisible = visible;
+    updateLogToggle();
+    this->toolBar()->updateView();
+    MenuBar::instance(this)->updateView();
+  });
 
   // Restore splitter state.
   mDetailSplitter->restoreState(QSettings().value(kSplitterKey).toByteArray());
@@ -964,30 +1005,48 @@ void RepoView::cancelIndexing() {
 
 bool RepoView::isLogVisible() const { return mIsLogVisible; }
 
+void RepoView::updateLogToggle() {
+  mLogToggle->setArrowType(mIsLogVisible ? Qt::DownArrow : Qt::UpArrow);
+  QString text = mIsLogVisible ? tr("Hide Log") : tr("Show Log");
+  mLogToggle->setAccessibleName(text);
+  mLogToggle->setToolTip(text);
+}
+
 void RepoView::setLogVisible(bool visible) {
   if (visible == mIsLogVisible)
     return;
 
+  int currentHeight = sizes().last();
+  int headerHeight = mLogHeader->height();
+  if (!visible && currentHeight > headerHeight)
+    mLogContentHeight = currentHeight - headerHeight;
+
   mIsLogVisible = visible;
+  updateLogToggle();
 
   // Update interface.
   toolBar()->updateView();
   MenuBar::instance(this)->updateView();
 
-  // Animate log view sliding in or out.
-  int pos = visible ? mLogView->sizeHint().height() : sizes().last();
+  int targetHeight =
+      headerHeight + (visible ? qMax(1, mLogContentHeight) : 0);
 
   QTimeLine *timeline = new QTimeLine(250, this);
-  timeline->setDirection(visible ? QTimeLine::Forward : QTimeLine::Backward);
   timeline->setEasingCurve(QEasingCurve(QEasingCurve::Linear));
   timeline->setUpdateInterval(20);
 
-  connect(timeline, &QTimeLine::valueChanged, this, [this, pos](qreal value) {
-    setSizes({1, static_cast<int>(pos * value)});
-  });
+  connect(timeline, &QTimeLine::valueChanged, this,
+          [this, currentHeight, targetHeight](qreal value) {
+            int height = currentHeight +
+                         static_cast<int>((targetHeight - currentHeight) * value);
+            setSizes({1, height});
+          });
 
-  connect(timeline, &QTimeLine::finished,
-          [timeline] { timeline->deleteLater(); });
+  connect(timeline, &QTimeLine::finished, this,
+          [this, timeline, targetHeight] {
+            setSizes({1, targetHeight});
+            timeline->deleteLater();
+          });
 
   timeline->start();
 }
@@ -1413,15 +1472,11 @@ void RepoView::merge(MergeFlags flags, const git::AnnotatedCommit &upstream,
   QString msg = mRepo.message();
   if (Settings::instance()->prompt(Prompt::Kind::Merge)) {
     // Prompt to edit message.
-    bool suspended = suspendLogTimer();
     CommitDialog *dialog = new CommitDialog(msg, Prompt::Kind::Merge, this);
-    connect(dialog, &QDialog::rejected, this, [this, parent, suspended] {
-      resumeLogTimer(suspended);
-      mergeAbort(parent);
-    });
+    connect(dialog, &QDialog::rejected, this,
+            [this, parent] { mergeAbort(parent); });
     connect(dialog, &QDialog::accepted, this,
-            [this, dialog, upstream, parent, suspended, callback] {
-              resumeLogTimer(suspended);
+            [this, dialog, upstream, parent, callback] {
               if (commit(dialog->message(), upstream, parent) && callback)
                 callback();
             });
@@ -1652,15 +1707,11 @@ void RepoView::revert(const git::Commit &commit) {
   QString msg = tr("Revert \"%1\"\n\nThis reverts commit %2.").arg(summary, id);
   if (Settings::instance()->prompt(Prompt::Kind::Revert)) {
     // Prompt to edit message.
-    bool suspended = suspendLogTimer();
     CommitDialog *dialog = new CommitDialog(msg, Prompt::Kind::Revert, this);
-    connect(dialog, &QDialog::rejected, this, [this, parent, suspended] {
-      resumeLogTimer(suspended);
-      mergeAbort(parent);
-    });
+    connect(dialog, &QDialog::rejected, this,
+            [this, parent] { mergeAbort(parent); });
     connect(dialog, &QDialog::accepted, this,
-            [this, dialog, parent, suspended, commit, committer] {
-              resumeLogTimer(suspended);
+            [this, dialog, parent, commit, committer] {
               // TODO: or doing it differently
               this->commit(commit.author(), committer, dialog->message(),
                            git::AnnotatedCommit(), parent);
@@ -1700,16 +1751,12 @@ void RepoView::cherryPick(const git::Commit &commit) {
   QString msg = commit.message();
   if (Settings::instance()->prompt(Prompt::Kind::CherryPick)) {
     // Prompt to edit message.
-    bool suspended = suspendLogTimer();
     CommitDialog *dialog =
         new CommitDialog(msg, Prompt::Kind::CherryPick, this);
-    connect(dialog, &QDialog::rejected, this, [this, parent, suspended] {
-      resumeLogTimer(suspended);
-      mergeAbort(parent);
-    });
+    connect(dialog, &QDialog::rejected, this,
+            [this, parent] { mergeAbort(parent); });
     connect(dialog, &QDialog::accepted, this,
-            [this, dialog, parent, suspended, commit, committer] {
-              resumeLogTimer(suspended);
+            [this, dialog, parent, commit, committer] {
               this->commit(commit.author(), committer, dialog->message(),
                            git::AnnotatedCommit(), parent);
             });
@@ -2957,6 +3004,81 @@ void RepoView::promptToDeleteSubmodule(const git::Submodule &submodule) {
   message->open();
 }
 
+bool RepoView::canCommitSubmoduleChanges(
+    const git::Submodule &submodule) const {
+  git::Commit parent = mRepo.head().target();
+  git::Repository child = submodule.open();
+  git::Commit checkout = child.head().target();
+  if (!mRepo.head().isLocalBranch() ||
+      mRepo.state() != GIT_REPOSITORY_STATE_NONE || !parent.isValid() ||
+      !checkout.isValid())
+    return false;
+
+  git::Id pinned = parent.tree().id(submodule.path());
+  git::Id staged = submodule.indexId();
+  return pinned.isValid() && staged.isValid() && pinned != checkout.id() &&
+         (staged == pinned || staged == checkout.id());
+}
+
+void RepoView::commitSubmoduleChanges(const git::Submodule &submodule) {
+  git::Commit parent = mRepo.head().target();
+  git::Repository child = submodule.open();
+  git::Commit checkout = child.head().target();
+  if (!mRepo.head().isLocalBranch() ||
+      mRepo.state() != GIT_REPOSITORY_STATE_NONE || !parent.isValid() ||
+      !checkout.isValid())
+    return;
+
+  git::Id pinnedId = parent.tree().id(submodule.path());
+  git::Id checkoutId = checkout.id();
+  if (!pinnedId.isValid() || pinnedId == checkoutId)
+    return;
+
+  QStringList changes;
+  git::Commit pinned = child.lookupCommit(pinnedId);
+  if (pinned.isValid()) {
+    git::RevWalk walk = checkout.walker(GIT_SORT_TOPOLOGICAL | GIT_SORT_TIME);
+    walk.hide(pinned);
+    for (git::Commit commit = walk.next(); commit.isValid();
+         commit = walk.next()) {
+      if (changes.size() == 100) {
+        changes.append("- ...");
+        break;
+      }
+      changes.append(QString("- %1 %2")
+                         .arg(commit.id().toString().left(7),
+                              commit.summary()));
+    }
+  }
+  if (changes.isEmpty()) {
+    changes.append(QString("- %1 %2")
+                       .arg(checkoutId.toString().left(7), checkout.summary()));
+  }
+
+  QString name = QFileInfo(submodule.path()).fileName();
+  QString message =
+      tr("Update %1 from %2 to %3:\n%4")
+          .arg(name, pinnedId.toString().left(7),
+               checkoutId.toString().left(7), changes.join('\n'));
+  LogEntry *entry = addLogEntry(tr("<i>no commit</i>"), tr("Commit Changes"));
+
+  git::Commit commit = mRepo.commitSubmodule(
+      submodule, checkoutId, message, nullptr, mDetails->overrideUser(),
+      mDetails->overrideEmail());
+  if (!commit.isValid()) {
+    error(entry, tr("commit submodule changes"), name);
+    return;
+  }
+
+  entry->setText(msg(commit));
+  emit submodulesChanged();
+
+  bool enable =
+      Settings::instance()->value(Setting::Id::PushAfterEachCommit).toBool();
+  if (mRepo.appConfig().value<bool>("autopush.enable", enable))
+    push();
+}
+
 bool RepoView::openSubmodule(const git::Submodule &submodule) {
   if (!submodule.isValid())
     return false;
@@ -3224,6 +3346,8 @@ EditorWindow *RepoView::openEditor(const QString &path, int line,
 void RepoView::refresh() { refresh(true); }
 
 void RepoView::refresh(bool restoreSelection) {
+  mRepo.invalidateSubmoduleCache();
+
   // Fake head update.
   auto dtw = findChild<DoubleTreeWidget *>();
   if (dtw) {
@@ -3327,32 +3451,6 @@ CommitList *RepoView::commitList() const { return mCommits; }
 
 void RepoView::notifyReferenceUpdated(const QString &name) {
   emit mRepo.notifier()->referenceUpdated(mRepo.lookupRef(name), true);
-}
-
-void RepoView::startLogTimer() {
-  // Don't start the timer if the log is already visible and the
-  // timer isn't running. The log was opened manually by the user.
-  if (isLogVisible() && !mLogTimer.isActive())
-    return;
-
-  setLogVisible(true);
-
-  // Check the hide setting.
-  if (!Settings::instance()->value(Setting::Id::HideLogAutomatically).toBool())
-    return;
-
-  resumeLogTimer();
-}
-
-bool RepoView::suspendLogTimer() {
-  bool active = mLogTimer.isActive();
-  mLogTimer.stop();
-  return active;
-}
-
-void RepoView::resumeLogTimer(bool suspended) {
-  if (suspended)
-    mLogTimer.start(2000);
 }
 
 bool RepoView::checkForConflicts(LogEntry *parent, const QString &action) {

@@ -158,6 +158,10 @@ public:
   Commit commit(const Signature &author, const Signature &commiter,
                 const QString &message,
                 const AnnotatedCommit &mergeHead = AnnotatedCommit());
+  Commit commitSubmodule(const Submodule &submodule, const Id &target,
+                         const QString &message, bool *fakeSignature = nullptr,
+                         const QString &overrideUser = QString(),
+                         const QString &overrideEmail = QString());
 
   bool amend(const Commit &commitToAmend, const Signature &author,
              const Signature &committer, const QString &commitMessage);
@@ -288,6 +292,10 @@ private:
   operator git_repository *() const;
 
   void ensureSubmodulesCached() const;
+
+  Commit commitTree(const Signature &author, const Signature &committer,
+                    const QString &message, const Tree &tree,
+                    const AnnotatedCommit &mergeHead = AnnotatedCommit());
 
   QByteArray lfsExecute(const QStringList &args,
                         const QByteArray &input = QByteArray()) const;

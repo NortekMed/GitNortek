@@ -38,8 +38,10 @@ class Location;
 class LogEntry;
 class LogView;
 class MainWindow;
+class QFrame;
 class QMenu;
 class QStackedWidget;
+class QToolButton;
 class PathspecWidget;
 class ReferenceWidget;
 class RemoteCallbacks;
@@ -301,6 +303,8 @@ public:
                        const QString &newBranch);
   void promptToModifySubmodule(const git::Submodule &submodule);
   void promptToDeleteSubmodule(const git::Submodule &submodule);
+  bool canCommitSubmoduleChanges(const git::Submodule &submodule) const;
+  void commitSubmoduleChanges(const git::Submodule &submodule);
   bool openSubmodule(const git::Submodule &submodule);
 
   // config
@@ -403,9 +407,7 @@ private:
 
   void notifyReferenceUpdated(const QString &name);
 
-  void startLogTimer();
-  bool suspendLogTimer();
-  void resumeLogTimer(bool suspended = true);
+  void updateLogToggle();
 
   QList<SubmoduleInfo>
   submoduleUpdateInfoList(const git::Repository &repo,
@@ -450,8 +452,11 @@ private:
 
   LogEntry *mLogRoot;
   LogEntry *mRebase{nullptr};
+  QWidget *mLogPanel;
+  QFrame *mLogHeader;
+  QToolButton *mLogToggle;
   LogView *mLogView;
-  QTimer mLogTimer;
+  int mLogContentHeight{0};
   bool mIsLogVisible = false;
 
   QTimer mFetchTimer;

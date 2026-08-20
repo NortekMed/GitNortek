@@ -21,6 +21,7 @@
 #include <QSettings>
 #include <QSignalSpy>
 #include <QTimer>
+#include <QToolButton>
 
 using namespace Test;
 using namespace QTest;
@@ -31,6 +32,7 @@ class TestMainWindow : public QObject {
 private slots:
   void initTestCase();
   void show();
+  void toggleLogPanel();
   void preserveSelectionAfterRemoteUpdate();
   void closeTab();
   void recentRepositoryLimit();
@@ -70,6 +72,34 @@ void TestMainWindow::initTestCase() {
 void TestMainWindow::show() {
   mWindow->show();
   QVERIFY(qWaitForWindowActive(mWindow));
+}
+
+void TestMainWindow::toggleLogPanel() {
+  RepoView *view = mWindow->currentView();
+  QWidget *panel = view->findChild<QWidget *>("RepositoryLogPanel");
+  QWidget *header = view->findChild<QWidget *>("RepositoryLogHeader");
+  QToolButton *toggle =
+      view->findChild<QToolButton *>("RepositoryLogToggle");
+  QVERIFY(panel);
+  QVERIFY(header);
+  QVERIFY(toggle);
+  QVERIFY(view->isLogVisible());
+  QCOMPARE(toggle->arrowType(), Qt::DownArrow);
+
+  const int expandedHeight = panel->height();
+  QVERIFY(expandedHeight > header->height());
+  toggle->click();
+
+  QTRY_VERIFY(!view->isLogVisible());
+  QTRY_COMPARE(panel->height(), header->height());
+  QVERIFY(header->isVisible());
+  QCOMPARE(toggle->arrowType(), Qt::UpArrow);
+
+  toggle->click();
+
+  QTRY_VERIFY(view->isLogVisible());
+  QTRY_COMPARE(panel->height(), expandedHeight);
+  QCOMPARE(toggle->arrowType(), Qt::DownArrow);
 }
 
 void TestMainWindow::preserveSelectionAfterRemoteUpdate() {

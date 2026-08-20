@@ -8,6 +8,7 @@
 //
 
 #include "RepositoryWatcher.h"
+#include "git/Submodule.h"
 #include <QMap>
 #include <QSet>
 #include <QStringList>
@@ -19,7 +20,8 @@
 namespace {
 
 const uint kFlags = (IN_ATTRIB | IN_CLOSE_WRITE | IN_CREATE | IN_DELETE |
-                     IN_DELETE_SELF | IN_MODIFY | IN_MOVE_SELF);
+                     IN_DELETE_SELF | IN_MODIFY | IN_MOVED_FROM | IN_MOVED_TO |
+                     IN_MOVE_SELF);
 
 // FIXME: Include hidden and filter .git explicitly?
 const QDir::Filters kFilters = (QDir::Dirs | QDir::NoDotAndDotDot);
@@ -33,6 +35,12 @@ public:
   RepositoryWatcherPrivate(const git::Repository &repo,
                            QObject *parent = nullptr)
       : QThread(parent), mRepo(repo) {
+    foreach (const git::Submodule &submodule, mRepo.submodules()) {
+      git::Repository submoduleRepo = submodule.open();
+      if (submoduleRepo.isValid())
+        mSubmoduleGitDirs.append(submoduleRepo.dir().path());
+    }
+
     mFd = inotify_init1(IN_NONBLOCK);
     if (mFd < 0)
       return; // FIXME: Report error?
@@ -161,6 +169,15 @@ public:
     QDir gitDir = mRepo.dir();
     watchGitDirectory(gitDir, false);
 
+    watchGitMetadata(gitDir);
+    foreach (const QString &path, mSubmoduleGitDirs) {
+      QDir submoduleGitDir(path);
+      watchGitDirectory(submoduleGitDir, false);
+      watchGitMetadata(submoduleGitDir);
+    }
+  }
+
+  void watchGitMetadata(const QDir &gitDir) {
     foreach (const QString &path,
              QStringList({"refs", "refs/heads", "refs/remotes", "refs/tags",
                           "logs", "logs/refs", "logs/refs/heads",
@@ -170,6 +187,17 @@ public:
 
   bool isGitMetadataPath(const QString &path) const {
     QString relative = mRepo.dir().relativeFilePath(path);
+    if (relative.startsWith("modules/") || isRepositoryMetadata(relative))
+      return true;
+
+    foreach (const QString &gitDir, mSubmoduleGitDirs) {
+      if (isRepositoryMetadata(QDir(gitDir).relativeFilePath(path)))
+        return true;
+    }
+    return false;
+  }
+
+  bool isRepositoryMetadata(const QString &relative) const {
     return relative == "HEAD" || relative == "index" ||
            relative == "packed-refs" || relative == "refs" ||
            relative.startsWith("refs/") || relative == "logs" ||
@@ -195,6 +223,7 @@ private:
   QMap<int, QDir> mWds;
   QMap<QString, int> mDirWds;
   QSet<int> mGitWds;
+  QStringList mSubmoduleGitDirs;
 };
 
 RepositoryWatcher::RepositoryWatcher(const git::Repository &repo,

@@ -11,6 +11,7 @@
 #include "git/Branch.h"
 #include "git/Config.h"
 #include "git/TagRef.h"
+#include "git/Tree.h"
 #include "ui/CommitList.h"
 #include "ui/ConfigKeys.h"
 #include "ui/Footer.h"
@@ -1001,6 +1002,12 @@ void TestRepositorySideBar::submoduleInteraction() {
   QVERIFY(tooltip.contains("Left icon: Pin summary."));
   QVERIFY(tooltip.contains("Pin delta"));
   QVERIFY(tooltip.contains("Origin delta"));
+  QList<QPair<QString, bool>> cleanMenu =
+      contextMenuItems(navigator->view(), submodule);
+  QCOMPARE(menuTexts(cleanMenu),
+           QStringList({"Open", "Commit Changes", "Update", "Modify...",
+                        "Delete Submodule..."}));
+  QVERIFY(!cleanMenu.at(1).second);
 
   git::Submodule selected =
       submodule.data(RepositoryNavigatorModel::SubmoduleRole)
@@ -1103,13 +1110,25 @@ void TestRepositorySideBar::submoduleInteraction() {
   QList<QPair<QString, bool>> menu =
       contextMenuItems(navigator->view(), submodule);
   QCOMPARE(menuTexts(menu),
-           QStringList({"Open", "Update", "Modify...",
+           QStringList({"Open", "Commit Changes", "Update", "Modify...",
                         "Delete Submodule..."}));
   for (const auto &item : menu)
     QVERIFY(item.second);
 
   selected = submodule.data(RepositoryNavigatorModel::SubmoduleRole)
                  .value<git::Submodule>();
+  git::Id oldPin = parentView->repo().head().target().tree().id("child");
+  git::Commit childHead = selected.open().head().target();
+  git::Id newPin = childHead.id();
+  parentView->commitSubmoduleChanges(selected);
+  git::Commit submoduleCommit = parentView->repo().head().target();
+  QString expectedMessage =
+      QString("Update child from %1 to %2:\n- %2 local change")
+          .arg(oldPin.toString().left(7), newPin.toString().left(7));
+  QCOMPARE(submoduleCommit.message().trimmed(), expectedMessage);
+  QCOMPARE(submoduleCommit.tree().id("child"), newPin);
+  QVERIFY(!parentView->canCommitSubmoduleChanges(selected));
+
   parentView->promptToDeleteSubmodule(selected);
   QTRY_VERIFY(QApplication::activeModalWidget());
   QMessageBox *confirmation =

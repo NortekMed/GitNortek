@@ -35,6 +35,7 @@
 #include "git2/filter.h"
 #include "git2/global.h"
 #include "git2/ignore.h"
+#include "git2/index.h"
 #include "git2/merge.h"
 #include "git2/rebase.h"
 #include "git2/refs.h"
@@ -619,6 +620,102 @@ Commit Repository::commit(const Signature &author, const Signature &committer,
 
   Tree tree = idx.writeTree();
   if (!tree.isValid())
+    return Commit();
+
+  return commitTree(author, committer, message, tree, mergeHead);
+}
+
+Commit Repository::commitSubmodule(const Submodule &submodule, const Id &target,
+                                   const QString &message,
+                                   bool *fakeSignature,
+                                   const QString &overrideUser,
+                                   const QString &overrideEmail) {
+  if (!submodule.isValid() || !target.isValid() ||
+      state() != GIT_REPOSITORY_STATE_NONE)
+    return Commit();
+
+  QString submodulePath = submodule.path();
+  invalidateSubmoduleCache();
+  Submodule currentSubmodule = lookupSubmodule(submodulePath);
+  Reference ref = head();
+  Commit parent = ref.target();
+  if (!currentSubmodule.isValid() || !parent.isValid() ||
+      currentSubmodule.workdirId() != target)
+    return Commit();
+
+  Index index = this->index();
+  index.read();
+  git_index *repoIndex = index;
+  QByteArray path = submodulePath.toUtf8();
+  const git_index_entry *current =
+      git_index_get_bypath(repoIndex, path.constData(), 0);
+  if (!current)
+    return Commit();
+
+  Id parentPin = parent.tree().id(submodulePath);
+  Id indexPin(current->id);
+  if (!parentPin.isValid() || (indexPin != parentPin && indexPin != target))
+    return Commit();
+
+  git_index_entry previous = *current;
+  QByteArray previousPath = current->path;
+  previous.path = previousPath.constData();
+
+  git_index_entry pin = previous;
+  pin.path = path.constData();
+  pin.mode = GIT_FILEMODE_COMMIT;
+  git_oid_cpy(&pin.id, target);
+
+  git_index *temporary = nullptr;
+  git_oid treeId;
+  git_tree *tree = nullptr;
+  Tree parentTree = parent.tree();
+  int result = git_index_new(&temporary);
+  if (!result)
+    result = git_index_read_tree(temporary, parentTree);
+  if (!result)
+    result = git_index_add(temporary, &pin);
+  if (!result)
+    result = git_index_write_tree_to(&treeId, temporary, d->repo);
+  if (!result)
+    result = git_tree_lookup(&tree, d->repo, &treeId);
+  git_index_free(temporary);
+  if (result)
+    return Commit();
+
+  Signature signature =
+      defaultSignature(fakeSignature, overrideUser, overrideEmail);
+  if (!signature.isValid()) {
+    git_tree_free(tree);
+    return Commit();
+  }
+
+  if (git_index_add(repoIndex, &pin) || git_index_write(repoIndex)) {
+    git_index_add(repoIndex, &previous);
+    git_index_write(repoIndex);
+    git_tree_free(tree);
+    return Commit();
+  }
+
+  Commit commit = commitTree(signature, signature, message, Tree(tree));
+  if (!commit.isValid()) {
+    git_index_add(repoIndex, &previous);
+    git_index_write(repoIndex);
+    invalidateSubmoduleCache();
+    return Commit();
+  }
+
+  index.d->stagedCache.remove(submodulePath);
+  invalidateSubmoduleCache();
+  emit d->notifier->indexChanged({submodulePath});
+  return commit;
+}
+
+Commit Repository::commitTree(const Signature &author,
+                              const Signature &committer,
+                              const QString &message, const Tree &tree,
+                              const AnnotatedCommit &mergeHead) {
+  if (!author.isValid() || !committer.isValid() || !tree.isValid())
     return Commit();
 
   // Lookup the parent commit.

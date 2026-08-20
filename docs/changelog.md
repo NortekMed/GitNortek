@@ -16,6 +16,7 @@ Bug Fix and Feature release
 * Align Compact Mode into configurable columns with content-aware widths, bottom-connected stash ancestry, and side-connected merge and divergence curves
 * Display stashes as square nodes with dotted topology and stash actions in the combined commit graph
 * Display GitHub or Gravatar author avatars inside larger commit graph nodes and commit details when avatars are enabled
+* Commit checked-out submodule revisions directly from the repository navigator
 
 #### Changed
 
@@ -36,6 +37,7 @@ Bug Fix and Feature release
 * Display consistent eight-character commit IDs in the interface and versions without Git's `g` prefix
 * Preserve configured Compact Mode column widths when the commit graph expands
 * Connect dotted stash ancestry from the side of its base commit node
+* Keep the operation log open until manually collapsed and leave its toggle bar visible
 
 ----
 

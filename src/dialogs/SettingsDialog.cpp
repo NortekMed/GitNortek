@@ -564,14 +564,6 @@ public:
       Settings::instance()->setValue(Setting::Id::ShowFullRepoPath, checked);
     });
 
-    QCheckBox *hideLog = new QCheckBox(tr("Hide automatically"));
-    hideLog->setChecked(
-        settings->value(Setting::Id::HideLogAutomatically).toBool());
-    connect(hideLog, &QCheckBox::toggled, [](bool checked) {
-      Settings::instance()->setValue(Setting::Id::HideLogAutomatically,
-                                     checked);
-    });
-
     QCheckBox *smTabs = new QCheckBox(tr("Open submodules in tabs"));
     smTabs->setChecked(
         settings->value(Setting::Id::OpenSubmodulesInTabs).toBool());
@@ -657,7 +649,6 @@ public:
 
     layout->addRow(tr("Theme:"), comboBox);
     layout->addRow(tr("Title:"), fullPath);
-    layout->addRow(tr("Log:"), hideLog);
     layout->addRow(tr("Tabs:"), smTabs);
     layout->addRow(QString(), repoTabs);
     layout->addRow(tr("View:"), hideMenuBar);
