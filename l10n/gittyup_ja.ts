@@ -835,42 +835,42 @@
 <context>
     <name>CommitList</name>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2084"/>
+        <location filename="../src/ui/CommitList.cpp" line="2203"/>
         <source>Remove Untracked Files</source>
         <translation>未追跡のファイルを削除</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2102"/>
+        <location filename="../src/ui/CommitList.cpp" line="2221"/>
         <source>Apply</source>
         <translation>適用</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2105"/>
+        <location filename="../src/ui/CommitList.cpp" line="2224"/>
         <source>Pop</source>
         <translation>引き出す</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2108"/>
+        <location filename="../src/ui/CommitList.cpp" line="2227"/>
         <source>Drop</source>
         <translation>削除</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2122"/>
+        <location filename="../src/ui/CommitList.cpp" line="2241"/>
         <source>Unstar</source>
         <translation>スターを外す</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2122"/>
+        <location filename="../src/ui/CommitList.cpp" line="2241"/>
         <source>Star</source>
         <translation>スターを付ける</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2132"/>
+        <location filename="../src/ui/CommitList.cpp" line="2251"/>
         <source>Add Tag...</source>
         <translation>タグを追加...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2135"/>
+        <location filename="../src/ui/CommitList.cpp" line="2254"/>
         <source>New Branch...</source>
         <translation>新しいブランチ...</translation>
     </message>
@@ -883,123 +883,123 @@
         <translation type="vanished">ブランチ %1 を削除</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1542"/>
+        <location filename="../src/ui/CommitList.cpp" line="1661"/>
         <source>Branch / Tag</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1543"/>
+        <location filename="../src/ui/CommitList.cpp" line="1662"/>
         <source>Graph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1545"/>
+        <location filename="../src/ui/CommitList.cpp" line="1664"/>
         <source>Commit Message</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1546"/>
+        <location filename="../src/ui/CommitList.cpp" line="1665"/>
         <source>Author</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1547"/>
+        <location filename="../src/ui/CommitList.cpp" line="1666"/>
         <source>Date / Time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1548"/>
+        <location filename="../src/ui/CommitList.cpp" line="1667"/>
         <source>SHA</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1564"/>
+        <location filename="../src/ui/CommitList.cpp" line="1683"/>
         <source>Configure commit columns</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1589"/>
+        <location filename="../src/ui/CommitList.cpp" line="1708"/>
         <source>Reset columns</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2162"/>
+        <location filename="../src/ui/CommitList.cpp" line="2281"/>
         <source>Rename Branch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2166"/>
+        <location filename="../src/ui/CommitList.cpp" line="2285"/>
         <source>Delete Branch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2171"/>
+        <location filename="../src/ui/CommitList.cpp" line="2290"/>
         <source>Delete Tag</source>
         <translation type="unfinished">タグを削除</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2175"/>
+        <location filename="../src/ui/CommitList.cpp" line="2294"/>
         <source>Merge...</source>
         <translation>マージ...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2190"/>
+        <location filename="../src/ui/CommitList.cpp" line="2309"/>
         <source>Rebase...</source>
         <translation>リベース...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2205"/>
+        <location filename="../src/ui/CommitList.cpp" line="2324"/>
         <source>Squash...</source>
         <translation>スカッシュ...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2222"/>
+        <location filename="../src/ui/CommitList.cpp" line="2341"/>
         <source>Revert</source>
         <translation>取り消す</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2224"/>
+        <location filename="../src/ui/CommitList.cpp" line="2343"/>
         <source>Cherry-pick</source>
         <translation>取り込む</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2231"/>
-        <location filename="../src/ui/CommitList.cpp" line="2264"/>
+        <location filename="../src/ui/CommitList.cpp" line="2350"/>
+        <location filename="../src/ui/CommitList.cpp" line="2383"/>
         <source>Checkout %1</source>
         <translation>%1 をチェックアウト</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2233"/>
+        <location filename="../src/ui/CommitList.cpp" line="2352"/>
         <source>Checkout</source>
         <translation type="unfinished">チェックアウト</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2254"/>
+        <location filename="../src/ui/CommitList.cpp" line="2373"/>
         <source>Local branch is already checked out</source>
         <translation>ローカルブランチは既にチェックアウトされています</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2257"/>
+        <location filename="../src/ui/CommitList.cpp" line="2376"/>
         <source>This is a bare repository</source>
         <translation>これはベアリポジトリです</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2272"/>
+        <location filename="../src/ui/CommitList.cpp" line="2391"/>
         <source>Reset</source>
         <translation>リセット</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2273"/>
+        <location filename="../src/ui/CommitList.cpp" line="2392"/>
         <source>Soft</source>
         <translation>作業対象のリビジョンのみ</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2274"/>
+        <location filename="../src/ui/CommitList.cpp" line="2393"/>
         <source>Mixed</source>
         <translation>作業対象のリビジョンとステージ上の項目</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2275"/>
+        <location filename="../src/ui/CommitList.cpp" line="2394"/>
         <source>Hard</source>
         <translation>作業ツリーを含む全て</translation>
     </message>
@@ -1007,12 +1007,12 @@
 <context>
     <name>CommitModel</name>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="417"/>
+        <location filename="../src/ui/CommitList.cpp" line="445"/>
         <source>Uncommitted changes</source>
         <translation>コミットされていない変更</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="418"/>
+        <location filename="../src/ui/CommitList.cpp" line="446"/>
         <source>Checking for uncommitted changes</source>
         <translation>コミットされていない変更を確認しています</translation>
     </message>

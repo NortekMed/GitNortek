@@ -117,7 +117,12 @@ enum GraphSegment {
   MergeLeftIn,
   MergeLeftOut,
   MergeRightIn,
-  MergeRightOut
+  MergeRightOut,
+  ForkCross,
+  ForkLeftIn,
+  ForkLeftOut,
+  ForkRightIn,
+  ForkRightOut
 };
 
 class DiffCallbacks : public git::Diff::Callbacks {
@@ -241,6 +246,7 @@ public:
 
     // Reset state.
     mParents.clear();
+    mNextLane = 1;
     mRows.clear();
     mStashIndexes.clear();
     mStashAuxiliaryCommits.clear();
@@ -253,7 +259,9 @@ public:
       QVector<Column> row;
       if (mGraphVisible && mRef.isValid() && mStatus.isFinished()) {
         row.append({Segment(Bottom, kTaintedColor), Segment(Dot, QColor())});
-        mParents.append(Parent(mRef.target(), nextColor(), true));
+        mParents.append(
+            Parent(mRef.target(), nextColor(), true, Qt::SolidLine,
+                   mNextLane++));
       }
       DebugRefresh("mRows append invalid commit");
       mRows.append(Row(git::Commit(), row)); // Uncommitted changes
@@ -339,7 +347,8 @@ public:
       if (indexOf(commit) < 0) {
         root = true;
         Qt::PenStyle style = isStash(commit) ? Qt::DotLine : Qt::SolidLine;
-        mParents.append(Parent(commit, nextColor(), false, style));
+        mParents.append(
+            Parent(commit, nextColor(), false, style, mNextLane++));
       }
 
       // Calculate graph columns.
@@ -347,8 +356,9 @@ public:
       QList<Parent> parents = mParents;
 
       // Replace commit with its parents.
+      QList<git::Commit> commitParents = graphParents(commit);
       QList<git::Commit> replacements;
-      foreach (const git::Commit &parent, graphParents(commit)) {
+      foreach (const git::Commit &parent, commitParents) {
         // FIXME: Mark commits that point to existing parent?
         if (indexOf(parent) < 0 && !contains(parent, rows))
           replacements.append(parent);
@@ -361,13 +371,31 @@ public:
       int index = indexOf(commit);
       if (index >= 0) {
         Parent parent = mParents.takeAt(index);
-        if (!replacements.isEmpty()) {
+        bool deferJoin = !isStash(commit) && commitParents.size() == 1 &&
+                         indexOf(commitParents.constFirst()) >= 0;
+        if (deferJoin) {
+          git::Commit target = commitParents.constFirst();
+          mParents.insert(index,
+                          Parent(target, parent.color, false, Qt::SolidLine,
+                                 parent.lane, target));
+        } else if (!replacements.isEmpty()) {
           git::Commit replacement = replacements.takeFirst();
           Qt::PenStyle style = isStash(commit) ? parent.style : Qt::SolidLine;
-          mParents.insert(index,
-                          Parent(replacement, parent.color, false, style));
+          mParents.insert(
+              index,
+              Parent(replacement, parent.color, false, style, parent.lane));
           foreach (const git::Commit &replacement, replacements)
-            mParents.append(Parent(replacement, nextColor()));
+            mParents.append(
+                Parent(replacement, nextColor(), false, Qt::SolidLine,
+                       mNextLane++));
+        }
+      }
+
+      // Deferred lanes converge only when their shared parent is drawn.
+      for (int j = mParents.size() - 1; j >= 0; --j) {
+        if (mParents.at(j).isDeferred() &&
+            mParents.at(j).joinTarget == commit) {
+          mParents.removeAt(j);
         }
       }
 
@@ -507,15 +535,21 @@ signals:
 private:
   struct Parent {
     Parent(const git::Commit &commit, const QColor &color, bool tainted = false,
-           Qt::PenStyle style = Qt::SolidLine)
-        : commit(commit), color(color), tainted(tainted), style(style) {}
+            Qt::PenStyle style = Qt::SolidLine, quint64 lane = 0,
+            const git::Commit &joinTarget = git::Commit())
+        : commit(commit), joinTarget(joinTarget), color(color), lane(lane),
+          tainted(tainted), style(style) {}
+
+    bool isDeferred() const { return joinTarget.isValid(); }
 
     QColor taintedColor(const git::Commit &commit = git::Commit()) const {
       return (tainted && this->commit != commit) ? kTaintedColor : color;
     }
 
     git::Commit commit;
+    git::Commit joinTarget;
     QColor color;
+    quint64 lane;
     bool tainted;
     Qt::PenStyle style;
   };
@@ -543,10 +577,18 @@ private:
   int indexOf(const git::Commit &commit) const {
     int count = mParents.size();
     for (int i = 0; i < count; ++i) {
-      if (mParents.at(i).commit == commit)
+      if (!mParents.at(i).isDeferred() && mParents.at(i).commit == commit)
         return i;
     }
 
+    return -1;
+  }
+
+  int indexOfLane(quint64 lane) const {
+    for (int i = 0; i < mParents.size(); ++i) {
+      if (mParents.at(i).lane == lane)
+        return i;
+    }
     return -1;
   }
 
@@ -590,18 +632,57 @@ private:
                           const QList<Parent> &parents, bool root) {
     int count = parents.size();
     QVector<Column> columns(count);
+    auto resolvesHere = [&commit](const Parent &parent) {
+      return parent.isDeferred() && parent.joinTarget == commit;
+    };
+
+    int nodeIndex = -1;
+    for (int i = 0; i < count; ++i) {
+      if (!parents.at(i).isDeferred() && parents.at(i).commit == commit) {
+        nodeIndex = i;
+        break;
+      }
+    }
 
     // Add incoming paths.
     int incoming = root ? count - 1 : count;
-    for (int i = 0; i < incoming; ++i)
-      columns[i] << Segment(Top, parents.at(i).taintedColor(),
-                            parents.at(i).style);
+    for (int i = 0; i < incoming; ++i) {
+      if (!resolvesHere(parents.at(i))) {
+        columns[i] << Segment(Top, parents.at(i).taintedColor(),
+                              parents.at(i).style);
+      }
+    }
+
+    // Resolve shared-parent lanes at the actual parent bubble.
+    if (nodeIndex >= 0) {
+      for (int i = 0; i < count; ++i) {
+        const Parent &alias = parents.at(i);
+        if (!resolvesHere(alias))
+          continue;
+
+        if (i < nodeIndex) {
+          columns[i] << Segment(ForkRightIn, alias.color, alias.style);
+          for (int j = i + 1; j < nodeIndex; ++j)
+            columns[j] << Segment(ForkCross, alias.color, alias.style);
+          columns[nodeIndex]
+              << Segment(ForkLeftOut, alias.color, alias.style);
+        } else if (i > nodeIndex) {
+          columns[nodeIndex]
+              << Segment(ForkRightOut, alias.color, alias.style);
+          for (int j = nodeIndex + 1; j < i; ++j)
+            columns[j] << Segment(ForkCross, alias.color, alias.style);
+          columns[i] << Segment(ForkLeftIn, alias.color, alias.style);
+        }
+      }
+    }
 
     // Add outgoing paths.
     for (int i = 0; i < count; ++i) {
       // Get the successors of this column.
       QList<git::Commit> successors;
       const Parent &parent = parents.at(i);
+      if (resolvesHere(parent))
+        continue;
       if (parent.commit == commit) {
         successors = graphParents(parent.commit);
       } else {
@@ -611,7 +692,14 @@ private:
       // Add a path to each successor.
       foreach (const git::Commit &successor, successors) {
         // Find index of parent in next row.
-        int index = indexOf(successor);
+        int index = -1;
+        if (successors.size() == 1) {
+          int laneIndex = indexOfLane(parent.lane);
+          if (laneIndex >= 0 && mParents.at(laneIndex).commit == successor)
+            index = laneIndex;
+        }
+        if (index < 0)
+          index = indexOf(successor);
         if (index < 0)
           continue;
 
@@ -656,7 +744,9 @@ private:
     // Add middle section last.
     for (int i = 0; i < count; ++i) {
       const Parent &parent = parents.at(i);
-      bool dot = (parent.commit == commit);
+      if (resolvesHere(parent))
+        continue;
+      bool dot = (!parent.isDeferred() && parent.commit == commit);
       columns[i] << Segment(dot ? Dot : Middle, parent.taintedColor(),
                             parent.style);
     }
@@ -698,6 +788,7 @@ private:
 
   QList<Row> mRows;
   QList<Parent> mParents;
+  quint64 mNextLane = 1;
   QMap<git::Id, int> mStashIndexes;
   QSet<git::Id> mStashAuxiliaryCommits;
 
@@ -1009,6 +1100,34 @@ public:
             QPainterPath path;
             path.moveTo(x2, y2);
             path.cubicTo(x1, y2, x1, y4, x1, y5);
+            painter->drawPath(path);
+            break;
+          }
+
+          case ForkCross:
+            painter->drawLine(x, y2, x2, y2);
+            break;
+
+          case ForkRightOut:
+            painter->drawLine(x1 + r, y2, x2, y2);
+            break;
+
+          case ForkLeftOut:
+            painter->drawLine(x1 - r, y2, x, y2);
+            break;
+
+          case ForkLeftIn: {
+            QPainterPath path;
+            path.moveTo(x, y2);
+            path.cubicTo(x1, y2, x1, y1, x1, y);
+            painter->drawPath(path);
+            break;
+          }
+
+          case ForkRightIn: {
+            QPainterPath path;
+            path.moveTo(x2, y2);
+            path.cubicTo(x1, y2, x1, y1, x1, y);
             painter->drawPath(path);
             break;
           }
