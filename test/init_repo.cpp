@@ -231,7 +231,22 @@ void TestInitRepo::amendCommit() {
   bool finished = false;
   connect(view, &RepoView::statusChanged, [&finished]() { finished = true; });
 
-  view->amendCommit();
+  CommitList *commitList = view->findChild<CommitList *>();
+  QVERIFY(commitList);
+  QTRY_VERIFY(commitList->model()
+                  ->index(0, 0)
+                  .data(CommitList::Role::CommitRole)
+                  .value<git::Commit>()
+                  .isValid());
+  QModelIndex index = commitList->model()->index(0, 0);
+  QVERIFY(index.isValid());
+  commitList->selectionModel()->select(index,
+                                       QItemSelectionModel::ClearAndSelect);
+
+  auto message = view->findChild<QTextEdit *>("MessageLabel");
+  QVERIFY(message);
+  QTRY_COMPARE(message->viewport()->cursor().shape(), Qt::PointingHandCursor);
+  mouseClick(message->viewport(), Qt::LeftButton);
 
   auto dialog = view->findChild<AmendDialog *>();
   QVERIFY(dialog);
@@ -248,10 +263,8 @@ void TestInitRepo::amendCommit() {
   }
 
   // Verify commit amended
-  CommitList *commitList = view->findChild<CommitList *>();
-  QVERIFY(commitList);
   QAbstractItemModel *commitModel = commitList->model();
-  QModelIndex index = commitModel->index(0, 0);
+  index = commitModel->index(0, 0);
   QVERIFY(index.isValid());
   auto commit = commitModel->data(index, CommitList::Role::CommitRole)
                     .value<git::Commit>();

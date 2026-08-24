@@ -32,6 +32,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
+#include <QMouseEvent>
 #include <QLineEdit>
 #include <QPoint>
 #include <QPushButton>
@@ -77,6 +78,11 @@ public:
             &MessageLabel::updateGeometry);
   }
 
+  void setAmendEnabled(bool enabled) {
+    mAmendEnabled = enabled;
+    viewport()->setCursor(enabled ? Qt::PointingHandCursor : Qt::IBeamCursor);
+  }
+
 protected:
   QSize minimumSizeHint() const override {
     QSize size = QTextEdit::minimumSizeHint();
@@ -89,6 +95,16 @@ protected:
     int height = document()->documentLayout()->documentSize().height();
     return QSize(size.width(), qMin(height, 5 * fontMetrics().lineSpacing()));
   }
+
+  void mouseReleaseEvent(QMouseEvent *event) override {
+    QTextEdit::mouseReleaseEvent(event);
+
+    if (mAmendEnabled && event->button() == Qt::LeftButton)
+      RepoView::parentView(this)->amendCommit();
+  }
+
+private:
+  bool mAmendEnabled{false};
 };
 
 class StackedWidget : public QStackedWidget {
@@ -319,6 +335,7 @@ public:
     mAuthorCommitterDate->setAuthorCommitter(QString(), QString());
     mParents->setText(QString());
     mMessage->setPlainText(QString());
+    mMessage->setAmendEnabled(false);
     mPicture->setPixmap(QPixmap());
     mCommit = git::Commit();
 
@@ -390,6 +407,9 @@ public:
 
     // Populate details.
     git::Commit commit = commits.first();
+    git::Reference head = commit.repo().head();
+    mMessage->setAmendEnabled(head.isValid() &&
+                              head.target().id() == commit.id());
     git::Signature author = commit.author();
     git::Signature committer = commit.committer();
     QDateTime date = commit.committer().date().toLocalTime();
@@ -440,7 +460,7 @@ private:
   QLabel *mParents;
   QLabel *mPicture;
   QFrame *mSeparator;
-  QTextEdit *mMessage;
+  MessageLabel *mMessage;
   AuthorCommitterDate *mAuthorCommitterDate;
 
   QString mId;

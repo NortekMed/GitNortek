@@ -383,17 +383,17 @@
 <context>
     <name>AuthorCommitterDate</name>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="172"/>
+        <location filename="../src/ui/DetailView.cpp" line="188"/>
         <source>Author/Committer: </source>
         <translation>ஆசிரியர்/கமிட்டி:</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="176"/>
+        <location filename="../src/ui/DetailView.cpp" line="192"/>
         <source>Author: </source>
         <translation>ஆசிரியர்:</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="178"/>
+        <location filename="../src/ui/DetailView.cpp" line="194"/>
         <source>Committer: </source>
         <translation>ஆணையர்:</translation>
     </message>
@@ -553,27 +553,27 @@
 <context>
     <name>CommitDetail</name>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="227"/>
+        <location filename="../src/ui/DetailView.cpp" line="243"/>
         <source>Copy</source>
         <translation>நகலெடு</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="378"/>
+        <location filename="../src/ui/DetailView.cpp" line="395"/>
         <source>Range:</source>
         <translation>எல்லை:</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="396"/>
+        <location filename="../src/ui/DetailView.cpp" line="416"/>
         <source>Id:</source>
         <translation>ஐடி:</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="411"/>
+        <location filename="../src/ui/DetailView.cpp" line="431"/>
         <source>initial commit</source>
         <translation>ஆரம்ப அர்ப்பணிப்பு</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="413"/>
+        <location filename="../src/ui/DetailView.cpp" line="433"/>
         <source>Parents:</source>
         <translation>பெற்றோர்:</translation>
     </message>
@@ -1275,25 +1275,25 @@
 <context>
     <name>DetailView</name>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="610"/>
-        <location filename="../src/ui/DetailView.cpp" line="639"/>
+        <location filename="../src/ui/DetailView.cpp" line="630"/>
+        <location filename="../src/ui/DetailView.cpp" line="659"/>
         <source>Author:</source>
         <translation>ஆசிரியர்:</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="624"/>
+        <location filename="../src/ui/DetailView.cpp" line="644"/>
         <source>reset</source>
         <translation>மீட்டமை</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="635"/>
+        <location filename="../src/ui/DetailView.cpp" line="655"/>
         <source>Here you can set the author used for committing
 These settings will not be saved permanently</source>
         <translation>இங்கே நீங்கள் செய்ய பயன்படுத்தப்படும் ஆசிரியர் அமைக்க முடியும் 
 இந்த அமைப்புகள் நிரந்தரமாகச் சேமிக்கப்படாது</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="642"/>
+        <location filename="../src/ui/DetailView.cpp" line="662"/>
         <source>Email:</source>
         <translation>மின்னஞ்சல்:</translation>
     </message>

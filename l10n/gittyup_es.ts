@@ -391,17 +391,17 @@
 <context>
     <name>AuthorCommitterDate</name>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="172"/>
+        <location filename="../src/ui/DetailView.cpp" line="188"/>
         <source>Author/Committer: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="176"/>
+        <location filename="../src/ui/DetailView.cpp" line="192"/>
         <source>Author: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="178"/>
+        <location filename="../src/ui/DetailView.cpp" line="194"/>
         <source>Committer: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -575,27 +575,27 @@
 <context>
     <name>CommitDetail</name>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="227"/>
+        <location filename="../src/ui/DetailView.cpp" line="243"/>
         <source>Copy</source>
         <translation>Copiar</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="378"/>
+        <location filename="../src/ui/DetailView.cpp" line="395"/>
         <source>Range:</source>
         <translation>Rango:</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="396"/>
+        <location filename="../src/ui/DetailView.cpp" line="416"/>
         <source>Id:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="411"/>
+        <location filename="../src/ui/DetailView.cpp" line="431"/>
         <source>initial commit</source>
         <translation>Confirmación inicial</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="413"/>
+        <location filename="../src/ui/DetailView.cpp" line="433"/>
         <source>Parents:</source>
         <translation>Padres:</translation>
     </message>
@@ -1328,24 +1328,24 @@
 <context>
     <name>DetailView</name>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="610"/>
-        <location filename="../src/ui/DetailView.cpp" line="639"/>
+        <location filename="../src/ui/DetailView.cpp" line="630"/>
+        <location filename="../src/ui/DetailView.cpp" line="659"/>
         <source>Author:</source>
         <translation type="unfinished">Autor:</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="624"/>
+        <location filename="../src/ui/DetailView.cpp" line="644"/>
         <source>reset</source>
         <translation type="unfinished">reestablecer</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="635"/>
+        <location filename="../src/ui/DetailView.cpp" line="655"/>
         <source>Here you can set the author used for committing
 These settings will not be saved permanently</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="642"/>
+        <location filename="../src/ui/DetailView.cpp" line="662"/>
         <source>Email:</source>
         <translation type="unfinished">Correo electrónico:</translation>
     </message>

@@ -17,6 +17,7 @@ Bug Fix and Feature release
 * Display stashes as square nodes with dotted topology and stash actions in the combined commit graph
 * Display GitHub or Gravatar author avatars inside larger commit graph nodes and commit details when avatars are enabled
 * Commit checked-out submodule revisions directly from the repository navigator
+* Open the amend dialog by clicking the current HEAD commit message
 
 #### Changed
 
