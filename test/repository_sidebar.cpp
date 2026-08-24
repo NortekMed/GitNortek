@@ -1123,7 +1123,7 @@ void TestRepositorySideBar::submoduleInteraction() {
   parentView->commitSubmoduleChanges(selected);
   git::Commit submoduleCommit = parentView->repo().head().target();
   QString expectedMessage =
-      QString("Update child from %1 to %2:\n- %2 local change")
+      QString("Update child from %1 to %2:\n- local change")
           .arg(oldPin.toString().left(7), newPin.toString().left(7));
   QCOMPARE(submoduleCommit.message().trimmed(), expectedMessage);
   QCOMPARE(submoduleCommit.tree().id("child"), newPin);

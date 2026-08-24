@@ -39,6 +39,7 @@ Bug Fix and Feature release
 * Preserve configured Compact Mode column widths when the commit graph expands
 * Connect dotted stash ancestry from the side of its base commit node
 * Keep the operation log open until manually collapsed and leave its toggle bar visible
+* Avoid repeating destination commit IDs in generated submodule update messages
 
 ----
 

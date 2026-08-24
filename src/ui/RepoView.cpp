@@ -3045,14 +3045,11 @@ void RepoView::commitSubmoduleChanges(const git::Submodule &submodule) {
         changes.append("- ...");
         break;
       }
-      changes.append(QString("- %1 %2")
-                         .arg(commit.id().toString().left(7),
-                              commit.summary()));
+      changes.append(QString("- %1").arg(commit.summary()));
     }
   }
   if (changes.isEmpty()) {
-    changes.append(QString("- %1 %2")
-                       .arg(checkoutId.toString().left(7), checkout.summary()));
+    changes.append(QString("- %1").arg(checkout.summary()));
   }
 
   QString name = QFileInfo(submodule.path()).fileName();

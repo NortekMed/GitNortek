@@ -4742,7 +4742,7 @@ was added to %1</source>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1662"/>
         <location filename="../src/ui/RepoView.cpp" line="1682"/>
-        <location filename="../src/ui/RepoView.cpp" line="3488"/>
+        <location filename="../src/ui/RepoView.cpp" line="3485"/>
         <source>squash</source>
         <translation>aplastar</translation>
     </message>
@@ -4908,7 +4908,7 @@ Esto revierte la confirmación %2.</translation>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2002"/>
         <location filename="../src/ui/RepoView.cpp" line="2135"/>
-        <location filename="../src/ui/RepoView.cpp" line="3063"/>
+        <location filename="../src/ui/RepoView.cpp" line="3060"/>
         <source>&lt;i&gt;no commit&lt;/i&gt;</source>
         <translation>&lt;i&gt;sin confirmación&lt;/i&gt;</translation>
     </message>
@@ -5420,88 +5420,88 @@ The submodule will be removed from this project. Its working files and cached lo
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3060"/>
+        <location filename="../src/ui/RepoView.cpp" line="3057"/>
         <source>Update %1 from %2 to %3:
 %4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3063"/>
+        <location filename="../src/ui/RepoView.cpp" line="3060"/>
         <source>Commit Changes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3069"/>
+        <location filename="../src/ui/RepoView.cpp" line="3066"/>
         <source>commit submodule changes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3089"/>
+        <location filename="../src/ui/RepoView.cpp" line="3086"/>
         <source>Invalid Submodule Repository</source>
         <translation>Repositorio de Submódulo inválido</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3091"/>
+        <location filename="../src/ui/RepoView.cpp" line="3088"/>
         <source>The submodule &apos;%1&apos; doesn&apos;t have a valid repository. You may need to init and/or update the submodule to check out a repository.</source>
         <translation>El submódulo &apos;%1&apos; no tiene un repositorio válido. Podrías necesitar inicializar y/o actualizar el submódulo para que revise un repositorio.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3231"/>
+        <location filename="../src/ui/RepoView.cpp" line="3228"/>
         <source>No terminal executable found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3232"/>
+        <location filename="../src/ui/RepoView.cpp" line="3229"/>
         <source>No terminal executable was found. Please configure a terminal in the configuration.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3235"/>
+        <location filename="../src/ui/RepoView.cpp" line="3232"/>
         <source>Open Configuration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3462"/>
+        <location filename="../src/ui/RepoView.cpp" line="3459"/>
         <source>There was a merge conflict.</source>
         <translation>Hubo un conflicto de fusión.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3465"/>
+        <location filename="../src/ui/RepoView.cpp" line="3462"/>
         <source>Resolve conflicts, then commit to conclude the %1. See &lt;a href=&apos;expand&apos;&gt;details&lt;/a&gt;.</source>
         <translation>Resuelve los conflictos, después confirma para concluir la %1. Ver &lt;a href=&apos;expand&apos;&gt;detalles&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3467"/>
+        <location filename="../src/ui/RepoView.cpp" line="3464"/>
         <source>Resolve conflicts in each conflicted (!) file in one of the following ways:</source>
         <translation>Resuelve los conflictos en cada archivo con conflicto (!) de una de las siguientes maneras:</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3469"/>
+        <location filename="../src/ui/RepoView.cpp" line="3466"/>
         <source>1. Click the &apos;Ours&apos; or &apos;Theirs&apos; button to choose the correct change. Then click the &apos;Save&apos; button to apply.</source>
         <translation>1. Presiona el botón &apos;Nuestro&apos; o &apos;De Ellos&apos; para escoger el cambio correcto. Después presiona el botón &apos;Guardar&apos; para aplicar.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3471"/>
+        <location filename="../src/ui/RepoView.cpp" line="3468"/>
         <source>2. Edit the file in the editor to make a different change. Remember to remove conflict markers.</source>
         <translation>2. Edita el archivo en el editor para hacer un cambio diferente. Recuerda remover las marcas de conflicto.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3473"/>
+        <location filename="../src/ui/RepoView.cpp" line="3470"/>
         <source>3. Use an external merge tool. Right-click on the files in the list and choose &apos;External Merge&apos;.</source>
         <translation>3. Usa una herramienta externa de fusión. Click derecho sobre los archivos de la liste y escoge &apos;Fusión externa&apos;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3475"/>
+        <location filename="../src/ui/RepoView.cpp" line="3472"/>
         <source>After all conflicts in the file are resolved, click the check box to mark it as resolved.</source>
         <translation>Después de resolver todos los conflictos en el archivo, márcalo como resuelto.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3477"/>
+        <location filename="../src/ui/RepoView.cpp" line="3474"/>
         <source>After all conflicted files are staged, commit to conclude the %1.</source>
         <translation>Después de preparar todos los archivos en conflicto, realiza una confirmación para concluir la %1.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3489"/>
+        <location filename="../src/ui/RepoView.cpp" line="3486"/>
         <source>You can &lt;a href=&apos;action:abort&apos;&gt;abort&lt;/a&gt; the %1 to return the repository to its previous state.</source>
         <translation>Tu puedes &lt;a href=&apos;action:abort&apos;&gt;abortar&lt;/a&gt;la %1 para retornar el repositorio a su estado previo.</translation>
     </message>
