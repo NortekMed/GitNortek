@@ -1817,6 +1817,38 @@ void RepoView::push(const git::Remote &rmt, const git::Reference &src,
   if (upstreamRemote && upstreamRemote.name() != remote.name())
     upstream = git::Branch();
 
+  if (branch.isValid() && remote.isValid() && !upstream.isValid() &&
+      !setUpstream && !src.isValid()) {
+    QString remoteBranchName = QString("%1/%2").arg(remote.name(), refName);
+    git::Branch remoteBranch =
+        mRepo.lookupBranch(remoteBranchName, GIT_BRANCH_REMOTE);
+    QString title = remoteBranch.isValid()
+                        ? tr("Track Remote Branch?")
+                        : tr("Create Remote Branch?");
+    QString text = remoteBranch.isValid()
+                       ? tr("The local branch '%1' does not track '%2'.")
+                             .arg(refName, remoteBranchName)
+                       : tr("The branch '%1' does not exist on '%2'.")
+                             .arg(refName, remote.name());
+    QMessageBox *dialog = new QMessageBox(QMessageBox::Question, title, text,
+                                          QMessageBox::Cancel, this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setInformativeText(
+        remoteBranch.isValid()
+            ? tr("Track the existing remote branch and push to it?")
+            : tr("Create '%1' and set it as the upstream branch?")
+                  .arg(remoteBranchName));
+    QPushButton *accept = dialog->addButton(
+        remoteBranch.isValid() ? tr("Track and Push") : tr("Create Branch"),
+        QMessageBox::AcceptRole);
+    connect(accept, &QPushButton::clicked, this,
+            [this, remote, ref, force, tags] {
+              push(remote, ref, QString(), true, force, tags);
+            });
+    dialog->open();
+    return;
+  }
+
   QString title = !force ? tr("Push") : tr("Push (Force)");
   QString text = tr("%1 to %2").arg(refName, name);
   LogEntry *entry = addLogEntry(text, title);
@@ -1858,7 +1890,7 @@ void RepoView::push(const git::Remote &rmt, const git::Reference &src,
 
   QString unqualifiedName = !dst.isEmpty() ? dst : refName;
   QString remoteBranchName = QString("%1/%2").arg(name, unqualifiedName);
-  if (!upstream.isValid() && !setUpstream && !src.isValid()) {
+  if (!branch.isValid() && !setUpstream && !src.isValid()) {
     LogEntry *err = entry->addEntry(
         LogEntry::Error,
         tr("The current branch '%1' has no upstream branch.").arg(refName));
@@ -2028,12 +2060,6 @@ bool RepoView::commit(const git::Signature &author,
     error->addEntry(LogEntry::Hint, hint2);
     error->addEntry(LogEntry::Hint, hint3);
   }
-
-  // Automatically push if enabled.
-  bool enable =
-      Settings::instance()->value(Setting::Id::PushAfterEachCommit).toBool();
-  if (mRepo.appConfig().value<bool>("autopush.enable", enable))
-    push(); // FIXME: Check for upstream before pushing?
 
   return true;
 }
@@ -3070,10 +3096,6 @@ void RepoView::commitSubmoduleChanges(const git::Submodule &submodule) {
   entry->setText(msg(commit));
   emit submodulesChanged();
 
-  bool enable =
-      Settings::instance()->value(Setting::Id::PushAfterEachCommit).toBool();
-  if (mRepo.appConfig().value<bool>("autopush.enable", enable))
-    push();
 }
 
 bool RepoView::openSubmodule(const git::Submodule &submodule) {

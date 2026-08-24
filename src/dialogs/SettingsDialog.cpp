@@ -103,7 +103,6 @@ public:
     fetchLayout->addWidget(new QLabel(tr("minutes"), this));
     fetchLayout->addStretch();
 
-    mPushCommit = new QCheckBox(tr("Push after each commit"), this);
     mPullUpdate =
         new QCheckBox(tr("Update submodules after pull and clone"), this);
     mCheckSubmoduleUpdates = new QCheckBox(
@@ -133,7 +132,6 @@ public:
     form->addRow(tr("User name:"), mName);
     form->addRow(tr("User email:"), mEmail);
     form->addRow(tr("Automatic actions:"), fetchLayout);
-    form->addRow(QString(), mPushCommit);
     form->addRow(QString(), mPullUpdate);
     form->addRow(QString(), mCheckSubmoduleUpdates);
     form->addRow(QString(), mAutoPrune);
@@ -183,10 +181,6 @@ public:
     connect(mFetchMinutes, signal, [](int value) {
       Settings::instance()->setValue(Setting::Id::AutomaticFetchPeriodInMinutes,
                                      value);
-    });
-
-    connect(mPushCommit, &QCheckBox::toggled, [](bool checked) {
-      Settings::instance()->setValue(Setting::Id::PushAfterEachCommit, checked);
     });
 
     connect(mPullUpdate, &QCheckBox::toggled, [](bool checked) {
@@ -252,8 +246,6 @@ public:
     mFetchMinutes->setValue(
         settings->value(Setting::Id::AutomaticFetchPeriodInMinutes).toInt());
 
-    mPushCommit->setChecked(
-        settings->value(Setting::Id::PushAfterEachCommit).toBool());
     mPullUpdate->setChecked(
         settings->value(Setting::Id::UpdateSubmodulesAfterPullAndClone)
             .toBool());
@@ -308,7 +300,6 @@ private:
 
   QCheckBox *mFetch;
   QSpinBox *mFetchMinutes;
-  QCheckBox *mPushCommit;
   QCheckBox *mPullUpdate;
   QCheckBox *mCheckSubmoduleUpdates;
   QCheckBox *mAutoPrune;

@@ -1032,52 +1032,52 @@
 <context>
     <name>ConfigDialog</name>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="787"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="777"/>
         <source>Esc</source>
         <translation>தப்பி</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="811"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="801"/>
         <source>General</source>
         <translation>பொது</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="819"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="809"/>
         <source>Diff</source>
         <translation>வேறுபாடு</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="827"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="817"/>
         <source>Remotes</source>
         <translation>ரிமோட்டுகள்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="835"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="825"/>
         <source>Branches</source>
         <translation>கிளைகள்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="843"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="833"/>
         <source>Submodules</source>
         <translation>துணை தொகுதிகள்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="850"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="840"/>
         <source>Search</source>
         <translation>தேடல்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="857"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="847"/>
         <source>Plugins</source>
         <translation>செருகுநிரல்கள்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="864"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="854"/>
         <source>LFS</source>
         <translation>LFS</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="878"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="868"/>
         <source>Edit Config File...</source>
         <translation>கட்டமைப்பு கோப்பைத் திருத்து...</translation>
     </message>
@@ -1480,57 +1480,57 @@ These settings will not be saved permanently</source>
 <context>
     <name>EditorPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="691"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="682"/>
         <source>Show whitespace</source>
         <translation>இடைவெளியைக் காட்டு</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="700"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="691"/>
         <source>Tabs</source>
         <translation>தாவல்கள்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="701"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="692"/>
         <source>Spaces</source>
         <translation>இடங்கள்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="722"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="713"/>
         <source>Show heat map</source>
         <translation>வெப்ப வரைபடத்தைக் காட்டு</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="731"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="722"/>
         <source>Font:</source>
         <translation>எழுத்துரு:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="732"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="723"/>
         <source>Font size:</source>
         <translation>எழுத்துரு அளவு:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="733"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="724"/>
         <source>Whitespace:</source>
         <translation>வெண்வெளி:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="734"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="725"/>
         <source>Indent using:</source>
         <translation>உள்தள்ளலைப் பயன்படுத்தி:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="735"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="726"/>
         <source>Indent width:</source>
         <translation>உள்தள்ளல் அகலம்:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="736"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="727"/>
         <source>Tab width:</source>
         <translation>தாவல் அகலம்:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="737"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="728"/>
         <source>Blame margin:</source>
         <translation>பழி விளிம்பு:</translation>
     </message>
@@ -2016,109 +2016,107 @@ These settings will not be saved permanently</source>
         <translation>நிமிடங்கள்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="106"/>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="88"/>
         <source>Push after each commit</source>
-        <translation>ஒவ்வொரு உறுதிப்பாட்டிற்கும் பிறகு தள்ளுங்கள்</translation>
+        <translation type="vanished">ஒவ்வொரு உறுதிப்பாட்டிற்கும் பிறகு தள்ளுங்கள்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="111"/>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="91"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="110"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="90"/>
         <source>Prune when fetching</source>
         <translation>எடுக்கும்போது கத்தரிக்கவும்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="112"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="111"/>
         <source>No translation</source>
         <translation>மொழிபெயர்ப்பு இல்லை</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="122"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="121"/>
         <source>Store credentials in secure storage</source>
         <translation>நற்சான்றிதழ்களை பாதுகாப்பான சேமிப்பகத்தில் சேமிக்கவும்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="108"/>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="90"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="107"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="89"/>
         <source>Update submodules after pull and clone</source>
         <translation>இழுத்து நகலி செய்த பிறகு துணைமாட்யூல்களைப் புதுப்பிக்கவும்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="110"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="109"/>
         <source>Check submodules for updates when opening repositories</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="126"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="125"/>
         <source>&lt;a href=&apos;view&apos;&gt;View privacy policy&lt;/a&gt;</source>
         <translation>&lt;a href=&apos;view&apos;&gt;தனியுரிமைக் கொள்கையைப் பார்க்கவும்&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="133"/>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="94"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="132"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="93"/>
         <source>User name:</source>
         <translation>பயனர் பெயர்:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="134"/>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="95"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="133"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="94"/>
         <source>User email:</source>
         <translation>பயனர் மின்னஞ்சல்:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="135"/>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="96"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="134"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="95"/>
         <source>Automatic actions:</source>
         <translation>தானியங்கி செயல்கள்:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="140"/>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="141"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="138"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="139"/>
         <source>Language:</source>
         <translation>மொழி:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="142"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="140"/>
         <source>Credentials:</source>
         <translation>சான்றுகள்:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="143"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="141"/>
         <source>Credential store type:</source>
         <translation>நற்சான்றிதழ் கடை வகை:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="144"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="142"/>
         <source>Available Credential stores:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="149"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="147"/>
         <source>Only allow a single running instance</source>
         <translation>ஒரு இயங்கும் நிகழ்வை மட்டும் அனுமதிக்கவும்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="152"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="150"/>
         <source>Single instance:</source>
         <translation>ஒற்றை உதாரணம்:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="280"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="272"/>
         <source>No credential store set</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="281"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="273"/>
         <source>No credential store is set. Go to the application settings to set the desired credential store</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="287"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="279"/>
         <source></source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="296"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="288"/>
         <source>Available Credential stores</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2306,12 +2304,12 @@ These settings will not be saved permanently</source>
 <context>
     <name>LfsPanel</name>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="512"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="502"/>
         <source>Initialize LFS</source>
         <translation>LFS ஐ துவக்கவும்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="561"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="551"/>
         <source>Specify a glob pattern for tracking large files.
 
 Generally, large files are greater than 500kB, change frequently,
@@ -2336,92 +2334,92 @@ Examples
 </translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="576"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="566"/>
         <source>Pattern:</source>
         <translation>முறை:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="581"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="571"/>
         <source>Track</source>
         <translation>மின்தடம்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="666"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="656"/>
         <source>days</source>
         <translation>நாட்கள்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="671"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="661"/>
         <source>Fetch LFS objects from all references for the past</source>
         <translation>கடந்த காலத்திற்கான அனைத்து குறிப்புகளிலிருந்தும் LFS பொருட்களைப் பெறவும்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="693"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="683"/>
         <source>reference days or</source>
         <translation>குறிப்பு நாட்கள் அல்லது</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="712"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="702"/>
         <source>commit days</source>
         <translation>நாட்கள் உறுதி</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="716"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="706"/>
         <source>View Environment</source>
         <translation>சூழலைப் பார்க்கவும்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="721"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="711"/>
         <source>git-lfs env (read only)</source>
         <translation>git-lfs env (படிக்க மட்டும்)</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="737"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="727"/>
         <source>Deinitialize LFS</source>
         <translation>LFS ஐ டீனிசியலைச் செய்யவும்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="739"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="729"/>
         <source>Deinitialize LFS?</source>
         <translation>LFS ஐ நீக்கவா?</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="741"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="731"/>
         <source>Are you sure you want uninstall LFS from this repository?</source>
         <translation>இந்த களஞ்சியத்தில் இருந்து LFS ஐ நிச்சயமாக நீக்க வேண்டுமா?</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="747"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="737"/>
         <source>Deinitialize</source>
         <translation>டீனிசியலைச்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="758"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="748"/>
         <source>Server URL:</source>
         <translation>சேவையக URL:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="759"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="749"/>
         <source>Prune Offset:</source>
         <translation>ப்ரூன் ஆஃப்செட்:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="760"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="750"/>
         <source>Fetch Recent:</source>
         <translation>அண்மைக் கால பெற:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="763"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="753"/>
         <source>Advanced:</source>
         <translation>மேம்பட்ட:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="767"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="757"/>
         <source>Included patterns:</source>
         <translation>உள்ளடக்கிய வடிவங்கள்:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="769"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="759"/>
         <source>Excluded patterns:</source>
         <translation>விலக்கப்பட்ட வடிவங்கள்:</translation>
     </message>
@@ -3152,12 +3150,12 @@ Examples
 <context>
     <name>MiscPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="803"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="794"/>
         <source>Path to SSH config file:</source>
         <translation>பாஓடு கட்டமைப்பு கோப்பிற்கான பாதை:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="804"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="795"/>
         <source>Path to default / fallback SSH key file:</source>
         <translation>இயல்புநிலை / பின்னடைவு பாஓடு விசை கோப்பிற்கான பாதை:</translation>
     </message>
@@ -3912,17 +3910,17 @@ Would you like to fix the merge conflict and continue?</source>
 <context>
     <name>RemotesPanel</name>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="204"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="194"/>
         <source>Delete Remote?</source>
         <translation>ரிமோட்டை நீக்கவா?</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="205"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="195"/>
         <source>Are you sure you want to delete &apos;%1&apos;?</source>
         <translation>&apos;% 1&apos; ஐ நிச்சயமாக நீக்க வேண்டுமா?</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="210"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="200"/>
         <source>Delete</source>
         <translation>நீக்கு</translation>
     </message>
@@ -4255,7 +4253,7 @@ sslVerify = பொய்
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1161"/>
-        <location filename="../src/ui/RepoView.cpp" line="2718"/>
+        <location filename="../src/ui/RepoView.cpp" line="2744"/>
         <source>Fetch canceled.</source>
         <translation>பெறுதல் ரத்துசெய்யப்பட்டது.</translation>
     </message>
@@ -4271,15 +4269,15 @@ sslVerify = பொய்
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1180"/>
-        <location filename="../src/ui/RepoView.cpp" line="1880"/>
-        <location filename="../src/ui/RepoView.cpp" line="1930"/>
+        <location filename="../src/ui/RepoView.cpp" line="1912"/>
+        <location filename="../src/ui/RepoView.cpp" line="1962"/>
         <source>Everything up-to-date.</source>
         <translation>எல்லாம் புதுப்பித்த நிலையில் உள்ளது.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1235"/>
         <location filename="../src/ui/RepoView.cpp" line="1340"/>
-        <location filename="../src/ui/RepoView.cpp" line="2431"/>
+        <location filename="../src/ui/RepoView.cpp" line="2457"/>
         <source>&lt;i&gt;no branch&lt;/i&gt;</source>
         <translation>&lt;i&gt;கிளை இல்லை&lt;/i&gt;</translation>
     </message>
@@ -4336,13 +4334,13 @@ sslVerify = பொய்
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1354"/>
-        <location filename="../src/ui/RepoView.cpp" line="1864"/>
+        <location filename="../src/ui/RepoView.cpp" line="1896"/>
         <source>The current branch &apos;%1&apos; has no upstream branch.</source>
         <translation>தற்போதைய கிளை &apos;% 1&apos;க்கு மேலோடை கிளை இல்லை.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1360"/>
-        <location filename="../src/ui/RepoView.cpp" line="2686"/>
+        <location filename="../src/ui/RepoView.cpp" line="2712"/>
         <source>Already up-to-date.</source>
         <translation>ஏற்கனவே புதுப்பித்த நிலையில் உள்ளது.</translation>
     </message>
@@ -4467,7 +4465,7 @@ sslVerify = பொய்
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1662"/>
         <location filename="../src/ui/RepoView.cpp" line="1682"/>
-        <location filename="../src/ui/RepoView.cpp" line="3485"/>
+        <location filename="../src/ui/RepoView.cpp" line="3507"/>
         <source>squash</source>
         <translation>ச்குவாச்</translation>
     </message>
@@ -4521,390 +4519,430 @@ This reverts commit %2.</source>
         <translation>&lt;i&gt;குறிப்பு இல்லை&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1820"/>
+        <location filename="../src/ui/RepoView.cpp" line="1826"/>
+        <source>Track Remote Branch?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="1827"/>
+        <source>Create Remote Branch?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="1829"/>
+        <source>The local branch &apos;%1&apos; does not track &apos;%2&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="1831"/>
+        <source>The branch &apos;%1&apos; does not exist on &apos;%2&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="1838"/>
+        <source>Track the existing remote branch and push to it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="1839"/>
+        <source>Create &apos;%1&apos; and set it as the upstream branch?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="1842"/>
+        <source>Track and Push</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="1842"/>
+        <source>Create Branch</source>
+        <translation type="unfinished">கிளையை உருவாக்கவும்</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepoView.cpp" line="1852"/>
         <source>Push</source>
         <translation>தள்ளு</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1820"/>
+        <location filename="../src/ui/RepoView.cpp" line="1852"/>
         <source>Push (Force)</source>
         <translation>தள்ளு (படை)</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1821"/>
-        <location filename="../src/ui/RepoView.cpp" line="2490"/>
+        <location filename="../src/ui/RepoView.cpp" line="1853"/>
+        <location filename="../src/ui/RepoView.cpp" line="2516"/>
         <source>%1 to %2</source>
         <translation>% 1 முதல்% 2 வரை</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1825"/>
-        <location filename="../src/ui/RepoView.cpp" line="2432"/>
+        <location filename="../src/ui/RepoView.cpp" line="1857"/>
+        <location filename="../src/ui/RepoView.cpp" line="2458"/>
         <source>You are not currently on a branch.</source>
         <translation>நீங்கள் தற்போது கிளையில் இல்லை.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1828"/>
+        <location filename="../src/ui/RepoView.cpp" line="1860"/>
         <source>Create a commit to add the default &apos;%1&apos; branch.</source>
         <translation>இயல்புநிலை &apos;% 1&apos; கிளையைச் சேர்க்க உறுதிமொழியை உருவாக்கவும்.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1832"/>
+        <location filename="../src/ui/RepoView.cpp" line="1864"/>
         <source>You can &lt;a href=&apos;action:checkout&apos;&gt;checkout&lt;/a&gt; a branch then &lt;a href=&apos;action:push&apos;&gt;push&lt;/a&gt; again, or &lt;a href=&apos;action:push-to&apos;&gt;push to an explicit branch&lt;/a&gt;.</source>
         <translation>நீங்கள் ஒரு கிளையை &lt;a href=&apos;action:checkout&apos;&gt;செக் அவுட்&lt;/a&gt; செய்து பிறகு மீண்டும் &lt;a href=&apos;action:push&apos;&gt;தள்ளலாம்&lt;/a&gt; அல்லது &lt;a href=&apos;action:push-to&apos;&gt;வெளிப்படையான கிளைக்கு தள்ளலாம்&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1842"/>
+        <location filename="../src/ui/RepoView.cpp" line="1874"/>
         <source>The current branch &apos;%1&apos; has no default remote.</source>
         <translation>தற்போதைய கிளை &apos;% 1&apos; இல் இயல்புநிலை ரிமோட் இல்லை.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1845"/>
+        <location filename="../src/ui/RepoView.cpp" line="1877"/>
         <source>You may want to &lt;a href=&apos;action:add-remote?name=origin&apos;&gt;add a remote named &apos;origin&apos;&lt;/a&gt;. Then &lt;a href=&apos;action:push?set-upstream=true&apos;&gt;push and set the current branch&apos;s upstream&lt;/a&gt; to begin tracking a remote branch called &apos;origin/%1&apos;.</source>
         <translation>நீங்கள் &lt;a href=&apos;action:add-remote?name=origin&apos;&gt;&apos;origin&apos; என்ற ரிமோட்டைச் சேர்க்க விரும்பலாம்&lt;/a&gt;. பின்னர், &apos;origin/%1&apos; எனப்படும் தொலைநிலைக் கிளையைக் கண்காணிப்பதைத் தொடங்க, &lt;a href=&apos;action:push?set-upstream=true&apos;&gt;புச் மற்றும் தற்போதைய கிளையின் அப்ச்ட்ரீமை அமைக்கவும்&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1852"/>
+        <location filename="../src/ui/RepoView.cpp" line="1884"/>
         <source>You can also &lt;a href=&apos;action:push-to&apos;&gt;push to an explicit URL&lt;/a&gt; if you don&apos;t want to track a remote branch.</source>
         <translation>தொலைநிலை கிளையை நீங்கள் கண்காணிக்க விரும்பவில்லை என்றால், நீங்கள் &lt;a href=&apos;action:push-to&apos;&gt;வெளிப்படையான முகவரி க்கு தள்ளலாம்&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1865"/>
+        <location filename="../src/ui/RepoView.cpp" line="1897"/>
         <source>To begin tracking a remote branch called &apos;%1&apos;, &lt;a href=&apos;action:push?set-upstream=true&apos;&gt;push and set the current branch&apos;s upstream&lt;/a&gt;.</source>
         <translation>&apos;%1&apos; எனப்படும் தொலைநிலைக் கிளையைக் கண்காணிக்கத் தொடங்க, &lt;a href=&apos;action:push?set-upstream=true&apos;&gt;தற்போதைய கிளையின் மேல்நிலையை அழுத்தி அமைக்கவும்&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1869"/>
+        <location filename="../src/ui/RepoView.cpp" line="1901"/>
         <source>To push without setting up tracking information, &lt;a href=&apos;action:push?ref=%1&apos;&gt;push &apos;%2&apos;&lt;/a&gt; explicitly.</source>
         <translation>கண்காணிப்பு தகவலை அமைக்காமல் தள்ள, வெளிப்படையாக &lt;a href=&apos;action:push?ref=%1&apos;&gt;&apos;%2&apos;&lt;/a&gt; ஐ அழுத்தவும்.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1892"/>
+        <location filename="../src/ui/RepoView.cpp" line="1924"/>
         <source>Push canceled.</source>
         <translation>புச் ரத்து செய்யப்பட்டது.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1896"/>
+        <location filename="../src/ui/RepoView.cpp" line="1928"/>
         <source>push to</source>
         <translation>தள்ளு</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1900"/>
+        <location filename="../src/ui/RepoView.cpp" line="1932"/>
         <source>The tag update may cause the remote to lose commits.</source>
         <translation>டேக் புதுப்பிப்பு ரிமோட் கமிட்களை இழக்கச் செய்யலாம்.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1902"/>
+        <location filename="../src/ui/RepoView.cpp" line="1934"/>
         <source>If you want to risk the remote losing commits, you can &lt;a href=&apos;action:push?ref=%1&amp;to=%2&amp;force=true&apos;&gt;force push&lt;/a&gt;.</source>
         <translation>ரிமோட் லாசிங் கமிட்களை நீங்கள் ஆபத்தில் வைக்க விரும்பினால், நீங்கள் &lt;a href=&apos;action:push?ref=%1&amp;to=%2&amp;force=true&apos;&gt;force push&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1980"/>
+        <location filename="../src/ui/RepoView.cpp" line="2012"/>
         <source>Commit?</source>
         <translation>உறுதி?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1981"/>
+        <location filename="../src/ui/RepoView.cpp" line="2013"/>
         <source>Are you sure you want to commit on a detached HEAD?</source>
         <translation>பிரிக்கப்பட்ட தலையில் உறுதியாகச் செயல்பட விரும்புகிறீர்களா?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1987"/>
+        <location filename="../src/ui/RepoView.cpp" line="2019"/>
         <source>&lt;p&gt;You are in a detached HEAD state. You can still commit, but the new commit will not be reachable from any branch. If you want to commit to an existing branch, checkout the branch first.&lt;/p&gt;</source>
         <translation>&lt;p&gt;நீங்கள் பிரிக்கப்பட்ட HEAD நிலையில் உள்ளீர்கள். நீங்கள் இன்னும் உறுதியளிக்கலாம், ஆனால் புதிய ஒப்பந்தத்தை எந்த கிளையிலிருந்தும் அணுக முடியாது. நீங்கள் ஏற்கனவே உள்ள கிளையில் ஈடுபட விரும்பினால், முதலில் கிளையை செக்அவுட் செய்யவும்.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1992"/>
-        <location filename="../src/ui/RepoView.cpp" line="2003"/>
+        <location filename="../src/ui/RepoView.cpp" line="2024"/>
+        <location filename="../src/ui/RepoView.cpp" line="2035"/>
         <source>Commit</source>
         <translation>உறுதி</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2002"/>
-        <location filename="../src/ui/RepoView.cpp" line="2135"/>
-        <location filename="../src/ui/RepoView.cpp" line="3060"/>
+        <location filename="../src/ui/RepoView.cpp" line="2034"/>
+        <location filename="../src/ui/RepoView.cpp" line="2161"/>
+        <location filename="../src/ui/RepoView.cpp" line="3086"/>
         <source>&lt;i&gt;no commit&lt;/i&gt;</source>
         <translation>&lt;i&gt;உறுதி இல்லை&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2008"/>
+        <location filename="../src/ui/RepoView.cpp" line="2040"/>
         <source>commit</source>
         <translation>உறுதி</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2016"/>
+        <location filename="../src/ui/RepoView.cpp" line="2048"/>
         <source>This commit was signed with a generated user name and email.</source>
         <translation>உருவாக்கப்பட்ட பயனர் பெயர் மற்றும் மின்னஞ்சலுடன் இந்த உறுதிமொழி கையொப்பமிடப்பட்டது.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2018"/>
+        <location filename="../src/ui/RepoView.cpp" line="2050"/>
         <source>Consider setting the user name and email in &lt;a href=&apos;action:config?global=true&apos;&gt;global settings&lt;/a&gt;.</source>
         <translation>&lt;a href=&apos;action:config?global=true&apos;&gt;உலகளாவிய அமைப்புகளில்&lt;/a&gt; பயனர் பெயர் மற்றும் மின்னஞ்சலை அமைக்கவும்.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2020"/>
+        <location filename="../src/ui/RepoView.cpp" line="2052"/>
         <source>If you want to limit the name and email settings to this repository, &lt;a href=&apos;action:config&apos;&gt;edit repository settings&lt;/a&gt; instead.</source>
         <translation>இந்த களஞ்சியத்தில் பெயர் மற்றும் மின்னஞ்சல் அமைப்புகளை வரம்பிட விரும்பினால், அதற்கு பதிலாக &lt;a href=&apos;action:config&apos;&gt;தொகுப்பு களஞ்சிய அமைப்புகளை&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2024"/>
+        <location filename="../src/ui/RepoView.cpp" line="2056"/>
         <source>After settings have been updated, &lt;a href=&apos;action:amend&apos;&gt; amend this commit&lt;/a&gt; to record the new user name and email.</source>
         <translation>அமைப்புகள் புதுப்பிக்கப்பட்ட பிறகு, புதிய பயனர் பெயர் மற்றும் மின்னஞ்சலைப் பதிவு செய்ய &lt;a href=&apos;action:amend&apos;&gt; இந்த உறுதியைத் திருத்தவும்&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2065"/>
+        <location filename="../src/ui/RepoView.cpp" line="2091"/>
         <source>file</source>
         <translation>கோப்பு</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2065"/>
+        <location filename="../src/ui/RepoView.cpp" line="2091"/>
         <source>files</source>
         <translation>கோப்புகள்</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2066"/>
+        <location filename="../src/ui/RepoView.cpp" line="2092"/>
         <source>%1 - %2 %3</source>
         <translation>% 1 - % 2 % 3</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2067"/>
-        <location filename="../src/ui/RepoView.cpp" line="2142"/>
-        <location filename="../src/ui/RepoView.cpp" line="2222"/>
+        <location filename="../src/ui/RepoView.cpp" line="2093"/>
+        <location filename="../src/ui/RepoView.cpp" line="2168"/>
+        <location filename="../src/ui/RepoView.cpp" line="2248"/>
         <source>Checkout</source>
         <translation>வெளியேறு</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2089"/>
+        <location filename="../src/ui/RepoView.cpp" line="2115"/>
         <source>Checkout Detached HEAD?</source>
         <translation>செக் அவுட் டிட்டாச்ட் எட்?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2091"/>
+        <location filename="../src/ui/RepoView.cpp" line="2117"/>
         <source>Checkout Detached HEAD</source>
         <translation>Detached HEADஐப் பார்க்கவும்</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2100"/>
+        <location filename="../src/ui/RepoView.cpp" line="2126"/>
         <source>Checking out remote branch &apos;%1&apos; will result in a detached HEAD state. Do you want to reset the existing local branch &apos;%2&apos; to this commit instead?</source>
         <translation>ரிமோட் கிளை &apos;% 1&apos; ஐப் பார்ப்பது ஒரு பிரிக்கப்பட்ட HEAD நிலையை ஏற்படுத்தும். அதற்குப் பதிலாக தற்போதுள்ள உள்ளக கிளை &apos;%2&apos; ஐ இந்த உறுதிக்கு மீட்டமைக்க விரும்புகிறீர்களா?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2106"/>
+        <location filename="../src/ui/RepoView.cpp" line="2132"/>
         <source>Reset Local Branch</source>
         <translation>உள்ளக கிளையை மீட்டமைக்கவும்</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2112"/>
+        <location filename="../src/ui/RepoView.cpp" line="2138"/>
         <source>Checking out remote branch &apos;%1&apos; will result in a detached HEAD state. Do you want to create a new local branch called &apos;%2&apos; to track it instead?</source>
         <translation>ரிமோட் கிளை &apos;% 1&apos; ஐப் பார்ப்பது ஒரு பிரிக்கப்பட்ட HEAD நிலையை ஏற்படுத்தும். அதற்குப் பதிலாக அதைக் கண்காணிக்க &apos;%2&apos; என்ற புதிய உள்ளக கிளையை உருவாக்க விரும்புகிறீர்களா?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2117"/>
+        <location filename="../src/ui/RepoView.cpp" line="2143"/>
         <source>Create a local branch to start tracking remote changes and make new commits. Check out the detached HEAD to temporarily put your working directory into the state of the remote branch.</source>
         <translation>தொலைநிலை மாற்றங்களைக் கண்காணிக்கத் தொடங்கவும், புதிய பொறுப்புகளைச் செய்யவும் உள்ளக கிளையை உருவாக்கவும். உங்கள் வேலை செய்யும் கோப்பகத்தை ரிமோட் கிளையின் நிலைக்குத் தற்காலிகமாக வைக்க, பிரிக்கப்பட்ட HEAD ஐப் பார்க்கவும்.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2122"/>
+        <location filename="../src/ui/RepoView.cpp" line="2148"/>
         <source>Create Local Branch</source>
         <translation>உள்ளக கிளையை உருவாக்கவும்</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2147"/>
+        <location filename="../src/ui/RepoView.cpp" line="2173"/>
         <source>checkout</source>
         <translation>செக்அவுட்</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2159"/>
+        <location filename="../src/ui/RepoView.cpp" line="2185"/>
         <source>You may be able to reconcile your changes with the conflicting files by &lt;a href=&apos;action:stash&apos;&gt;stashing&lt;/a&gt; before you &lt;a href=&apos;action:checkout?%1&apos;&gt;checkout &apos;%2&apos;&lt;/a&gt;. Then &lt;a href=&apos;action:unstash&apos;&gt;unstash&lt;/a&gt; to restore your changes.</source>
         <translation>நீங்கள் &lt;a href=&apos;action:checkout?%1&apos;&gt;செக் அவுட் &apos;%2&apos;&lt;/a&gt;க்கு முன், &lt;a href=&apos;action:stash&apos;&gt;stashing&lt;/a&gt; மூலம் முரண்பட்ட கோப்புகளுடன் உங்கள் மாற்றங்களைச் சரிசெய்யலாம். உங்கள் மாற்றங்களை மீட்டெடுக்க &lt;a href=&apos;action:unstash&apos;&gt;unstash&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2186"/>
+        <location filename="../src/ui/RepoView.cpp" line="2212"/>
         <source>New Branch</source>
         <translation>புதிய கிளை</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2189"/>
+        <location filename="../src/ui/RepoView.cpp" line="2215"/>
         <source>create new branch</source>
         <translation>புதிய கிளையை உருவாக்குங்கள்</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2228"/>
+        <location filename="../src/ui/RepoView.cpp" line="2254"/>
         <source>Rename</source>
         <translation type="unfinished">மறுபெயரிடவும்</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2235"/>
+        <location filename="../src/ui/RepoView.cpp" line="2261"/>
         <source>Delete</source>
         <translation type="unfinished">நீக்கு</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2247"/>
+        <location filename="../src/ui/RepoView.cpp" line="2273"/>
         <source>Push Tag to %1</source>
         <translation type="unfinished">குறிச்சொல் % 1க்கு தள்ளவும்</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2253"/>
+        <location filename="../src/ui/RepoView.cpp" line="2279"/>
         <source>New Local Branch</source>
         <translation type="unfinished">புதிய உள்ளக கிளை</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2271"/>
+        <location filename="../src/ui/RepoView.cpp" line="2297"/>
         <source>Merge...</source>
         <translation type="unfinished">ஒன்றிணை...</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2272"/>
+        <location filename="../src/ui/RepoView.cpp" line="2298"/>
         <source>Rebase...</source>
         <translation type="unfinished">நரி...</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2273"/>
+        <location filename="../src/ui/RepoView.cpp" line="2299"/>
         <source>Squash...</source>
         <translation type="unfinished">ச்குவாச்...</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2287"/>
+        <location filename="../src/ui/RepoView.cpp" line="2313"/>
         <source>(no branch)</source>
         <translation>(கிளை இல்லை)</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2288"/>
+        <location filename="../src/ui/RepoView.cpp" line="2314"/>
         <source>WIP on %1: %2 %3</source>
         <translation>% 1 இல் WIP:% 2 % 3</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2299"/>
+        <location filename="../src/ui/RepoView.cpp" line="2325"/>
         <source>&lt;i&gt;working directory&lt;/i&gt;</source>
         <translation>&lt;i&gt;பணிபுரியும் அடைவு&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2300"/>
+        <location filename="../src/ui/RepoView.cpp" line="2326"/>
         <source>Stash</source>
         <translation>ச்டாச்</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2304"/>
+        <location filename="../src/ui/RepoView.cpp" line="2330"/>
         <source>stash</source>
         <translation>பதுக்கி வைக்க</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2317"/>
+        <location filename="../src/ui/RepoView.cpp" line="2343"/>
         <source>Apply Stash</source>
         <translation>ச்டாசைப் பயன்படுத்துங்கள்</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2319"/>
+        <location filename="../src/ui/RepoView.cpp" line="2345"/>
         <source>apply stash</source>
         <translation>ச்டாச் விண்ணப்பிக்கவும்</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2331"/>
+        <location filename="../src/ui/RepoView.cpp" line="2357"/>
         <source>Drop Stash</source>
         <translation>ச்டாசை கைவிடவும்</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2333"/>
+        <location filename="../src/ui/RepoView.cpp" line="2359"/>
         <source>drop stash</source>
         <translation>சொட்டு ச்டாச்</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2348"/>
+        <location filename="../src/ui/RepoView.cpp" line="2374"/>
         <source>Pop Stash</source>
         <translation>பாப் ச்டாச்</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2350"/>
+        <location filename="../src/ui/RepoView.cpp" line="2376"/>
         <source>pop stash</source>
         <translation>பாப் ச்டாச்</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2373"/>
+        <location filename="../src/ui/RepoView.cpp" line="2399"/>
         <source>%1 as %2</source>
         <translation>% 2 ஆக % 1</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2374"/>
+        <location filename="../src/ui/RepoView.cpp" line="2400"/>
         <source>Tag</source>
         <translation>குறிச்சொல்</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2376"/>
+        <location filename="../src/ui/RepoView.cpp" line="2402"/>
         <source>tag</source>
         <translation>குறிச்சொல்</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2412"/>
-        <location filename="../src/ui/RepoView.cpp" line="2489"/>
+        <location filename="../src/ui/RepoView.cpp" line="2438"/>
+        <location filename="../src/ui/RepoView.cpp" line="2515"/>
         <source>Amend</source>
         <translation>திருத்தவும்</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2415"/>
+        <location filename="../src/ui/RepoView.cpp" line="2441"/>
         <source>Amending commit %1</source>
         <translation>% 1ஐ திருத்துதல்</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2422"/>
+        <location filename="../src/ui/RepoView.cpp" line="2448"/>
         <source>%1 to %2</source>
         <comment>update ref</comment>
         <translation type="unfinished">% 1 முதல்% 2 வரை</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2430"/>
-        <location filename="../src/ui/RepoView.cpp" line="2437"/>
-        <location filename="../src/ui/RepoView.cpp" line="2476"/>
-        <location filename="../src/ui/RepoView.cpp" line="2489"/>
-        <location filename="../src/ui/RepoView.cpp" line="2547"/>
-        <location filename="../src/ui/RepoView.cpp" line="2619"/>
+        <location filename="../src/ui/RepoView.cpp" line="2456"/>
+        <location filename="../src/ui/RepoView.cpp" line="2463"/>
+        <location filename="../src/ui/RepoView.cpp" line="2502"/>
+        <location filename="../src/ui/RepoView.cpp" line="2515"/>
+        <location filename="../src/ui/RepoView.cpp" line="2573"/>
+        <location filename="../src/ui/RepoView.cpp" line="2645"/>
         <source>Reset</source>
         <translation>மீட்டமை</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2452"/>
+        <location filename="../src/ui/RepoView.cpp" line="2478"/>
         <source>Are you sure you want to reset &apos;%1&apos; to &apos;%2&apos;?</source>
         <translation>&apos;%1&apos; ஐ &apos;%2&apos; க்கு மீட்டமைக்க விரும்புகிறீர்களா?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2459"/>
+        <location filename="../src/ui/RepoView.cpp" line="2485"/>
         <source>&lt;p&gt;Some commits may become unreachable from the current branch.&lt;/p&gt;</source>
         <translation>&lt;p&gt;தற்போதைய கிளையிலிருந்து சில கமிட்கள் கிடைக்காமல் போகலாம்.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2465"/>
+        <location filename="../src/ui/RepoView.cpp" line="2491"/>
         <source>&lt;p&gt;Resetting will cause you to lose uncommitted changes. Untracked and ignored files will not be affected.&lt;/p&gt;</source>
         <translation>&lt;p&gt;மீட்டமைப்பதால் நீங்கள் செய்யாத மாற்றங்களை இழக்க நேரிடும். கண்காணிக்கப்படாத மற்றும் புறக்கணிக்கப்பட்ட கோப்புகள் பாதிக்கப்படாது.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2469"/>
+        <location filename="../src/ui/RepoView.cpp" line="2495"/>
         <source>&lt;p&gt;Your branch appears to be up-to-date with its upstream branch. Resetting may cause your branch history to diverge from the remote branch history.&lt;/p&gt;</source>
         <translation>&lt;p&gt;உங்கள் கிளை அதன் மேலோடை கிளையுடன் புதுப்பித்த நிலையில் இருப்பது போல் தெரிகிறது. மீட்டமைப்பதால் உங்கள் கிளை வரலாறு தொலைநிலை கிளை வரலாற்றில் இருந்து வேறுபடலாம்.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2416"/>
-        <location filename="../src/ui/RepoView.cpp" line="2494"/>
+        <location filename="../src/ui/RepoView.cpp" line="2442"/>
+        <location filename="../src/ui/RepoView.cpp" line="2520"/>
         <source>amend</source>
         <translation>திருத்தம்</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2494"/>
+        <location filename="../src/ui/RepoView.cpp" line="2520"/>
         <source>reset</source>
         <translation>மீட்டமை</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2618"/>
-        <location filename="../src/ui/RepoView.cpp" line="2682"/>
+        <location filename="../src/ui/RepoView.cpp" line="2644"/>
+        <location filename="../src/ui/RepoView.cpp" line="2708"/>
         <source>%1 of %2 submodules</source>
         <translation>% 2 துணை தொகுதிகளில் % 1</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2683"/>
-        <location filename="../src/ui/RepoView.cpp" line="2708"/>
+        <location filename="../src/ui/RepoView.cpp" line="2709"/>
+        <location filename="../src/ui/RepoView.cpp" line="2734"/>
         <source>Update</source>
         <translation>புதுப்பிப்பு</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2559"/>
-        <location filename="../src/ui/RepoView.cpp" line="2721"/>
+        <location filename="../src/ui/RepoView.cpp" line="2585"/>
+        <location filename="../src/ui/RepoView.cpp" line="2747"/>
         <source>update submodule</source>
         <translation>துணைத் தொகுதியைப் புதுப்பிக்கவும்</translation>
     </message>
@@ -4964,245 +5002,245 @@ This reverts commit %2.</source>
         <translation>% 1 க்கு கட்டாயப்படுத்தவா?</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1914"/>
+        <location filename="../src/ui/RepoView.cpp" line="1946"/>
         <source>You may want to integrate remote commits first by &lt;a href=&apos;action:pull&apos;&gt;pulling&lt;/a&gt;. Then &lt;a href=&apos;action:push?to=%1&apos;&gt;push&lt;/a&gt; again.</source>
         <translation>&lt;a href=&apos;action:pull&apos;&gt;இழுத்தல்&lt;/a&gt; மூலம் முதலில் ரிமோட் கமிட்களை ஒருங்கிணைக்க விரும்பலாம். பிறகு மீண்டும் &lt;a href=&apos;action:push?to=%1&apos;&gt;தள்ளு&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="1919"/>
+        <location filename="../src/ui/RepoView.cpp" line="1951"/>
         <source>If you really want the remote to lose commits, you may be able to &lt;a href=&apos;action:push?to=%1&amp;force=true&apos;&gt;force push&lt;/a&gt;.</source>
         <translation>ரிமோட் கமிட்களை இழக்க வேண்டும் என நீங்கள் விரும்பினால், நீங்கள் &lt;a href=&apos;action:push?to=%1&amp;force=true&apos;&gt;force push&lt;/a&gt; செய்யலாம்.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2556"/>
+        <location filename="../src/ui/RepoView.cpp" line="2582"/>
         <source>Reset canceled.</source>
         <translation>மீட்டமைப்பு ரத்துசெய்யப்பட்டது.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2622"/>
+        <location filename="../src/ui/RepoView.cpp" line="2648"/>
         <source>Untouched</source>
         <translation>தீண்டப்படாதது</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2768"/>
-        <location filename="../src/ui/RepoView.cpp" line="2898"/>
+        <location filename="../src/ui/RepoView.cpp" line="2794"/>
+        <location filename="../src/ui/RepoView.cpp" line="2924"/>
         <source>Another remote operation is already running.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2769"/>
-        <location filename="../src/ui/RepoView.cpp" line="2778"/>
-        <location filename="../src/ui/RepoView.cpp" line="2784"/>
+        <location filename="../src/ui/RepoView.cpp" line="2795"/>
+        <location filename="../src/ui/RepoView.cpp" line="2804"/>
+        <location filename="../src/ui/RepoView.cpp" line="2810"/>
         <source>Submodule Updates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2777"/>
+        <location filename="../src/ui/RepoView.cpp" line="2803"/>
         <source>This repository has no submodules.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2783"/>
+        <location filename="../src/ui/RepoView.cpp" line="2809"/>
         <source>Checking %1 submodules</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2823"/>
+        <location filename="../src/ui/RepoView.cpp" line="2849"/>
         <source>Submodule update check canceled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2825"/>
+        <location filename="../src/ui/RepoView.cpp" line="2851"/>
         <source>No branch-tracked submodules to check.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2827"/>
+        <location filename="../src/ui/RepoView.cpp" line="2853"/>
         <source>%1 submodules can be updated.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2830"/>
+        <location filename="../src/ui/RepoView.cpp" line="2856"/>
         <source>No updates found; %1 submodules need review.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2832"/>
+        <location filename="../src/ui/RepoView.cpp" line="2858"/>
         <source>All submodules are up-to-date.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2843"/>
+        <location filename="../src/ui/RepoView.cpp" line="2869"/>
         <source>%1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2846"/>
+        <location filename="../src/ui/RepoView.cpp" line="2872"/>
         <source> on %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2850"/>
+        <location filename="../src/ui/RepoView.cpp" line="2876"/>
         <source> (%1 -&gt; %2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2854"/>
+        <location filename="../src/ui/RepoView.cpp" line="2880"/>
         <source> - %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2899"/>
-        <location filename="../src/ui/RepoView.cpp" line="2903"/>
+        <location filename="../src/ui/RepoView.cpp" line="2925"/>
+        <location filename="../src/ui/RepoView.cpp" line="2929"/>
         <source>Add Submodule</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2912"/>
+        <location filename="../src/ui/RepoView.cpp" line="2938"/>
         <source>Add submodule canceled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2914"/>
+        <location filename="../src/ui/RepoView.cpp" line="2940"/>
         <source>add submodule</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2917"/>
+        <location filename="../src/ui/RepoView.cpp" line="2943"/>
         <source>Submodule added.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2942"/>
+        <location filename="../src/ui/RepoView.cpp" line="2968"/>
         <source>Modify Submodule</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2943"/>
+        <location filename="../src/ui/RepoView.cpp" line="2969"/>
         <source>modify submodule</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2947"/>
+        <location filename="../src/ui/RepoView.cpp" line="2973"/>
         <source>Submodule Modified</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2971"/>
+        <location filename="../src/ui/RepoView.cpp" line="2997"/>
         <source>Delete submodule &apos;%1&apos; at &apos;%2&apos;?
 
 The submodule will be removed from this project. Its working files and cached local repository will be permanently deleted. Any unpublished commits will be lost.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2976"/>
+        <location filename="../src/ui/RepoView.cpp" line="3002"/>
         <source>Delete Submodule?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2983"/>
+        <location filename="../src/ui/RepoView.cpp" line="3009"/>
         <source>The submodule working directory contains uncommitted changes that will be permanently lost.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2988"/>
-        <location filename="../src/ui/RepoView.cpp" line="2993"/>
+        <location filename="../src/ui/RepoView.cpp" line="3014"/>
+        <location filename="../src/ui/RepoView.cpp" line="3019"/>
         <source>Delete Submodule</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2996"/>
+        <location filename="../src/ui/RepoView.cpp" line="3022"/>
         <source>delete submodule</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="2998"/>
+        <location filename="../src/ui/RepoView.cpp" line="3024"/>
         <source>Submodule deleted.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3057"/>
+        <location filename="../src/ui/RepoView.cpp" line="3083"/>
         <source>Update %1 from %2 to %3:
 %4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3060"/>
+        <location filename="../src/ui/RepoView.cpp" line="3086"/>
         <source>Commit Changes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3066"/>
+        <location filename="../src/ui/RepoView.cpp" line="3092"/>
         <source>commit submodule changes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3086"/>
+        <location filename="../src/ui/RepoView.cpp" line="3108"/>
         <source>Invalid Submodule Repository</source>
         <translation>தவறான துணைத் தொகுதி களஞ்சியம்</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3088"/>
+        <location filename="../src/ui/RepoView.cpp" line="3110"/>
         <source>The submodule &apos;%1&apos; doesn&apos;t have a valid repository. You may need to init and/or update the submodule to check out a repository.</source>
         <translation>துணைத் தொகுதி &apos;% 1&apos; சரியான களஞ்சியத்தைக் கொண்டிருக்கவில்லை. ஒரு களஞ்சியத்தைப் பார்க்க, நீங்கள் துணைத் தொகுதியை துவக்க வேண்டும் மற்றும்/அல்லது புதுப்பிக்க வேண்டும்.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3228"/>
+        <location filename="../src/ui/RepoView.cpp" line="3250"/>
         <source>No terminal executable found</source>
         <translation>இயங்கக்கூடிய டெர்மினல் எதுவும் இல்லை</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3229"/>
+        <location filename="../src/ui/RepoView.cpp" line="3251"/>
         <source>No terminal executable was found. Please configure a terminal in the configuration.</source>
         <translation>இயங்கக்கூடிய டெர்மினல் எதுவும் கண்டறியப்படவில்லை. உள்ளமைவில் ஒரு முனையத்தை உள்ளமைக்கவும்.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3232"/>
+        <location filename="../src/ui/RepoView.cpp" line="3254"/>
         <source>Open Configuration</source>
         <translation>உள்ளமைவைத் திறக்கவும்</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3459"/>
+        <location filename="../src/ui/RepoView.cpp" line="3481"/>
         <source>There was a merge conflict.</source>
         <translation>இணைப்பு மோதல் ஏற்பட்டது.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3462"/>
+        <location filename="../src/ui/RepoView.cpp" line="3484"/>
         <source>Resolve conflicts, then commit to conclude the %1. See &lt;a href=&apos;expand&apos;&gt;details&lt;/a&gt;.</source>
         <translation>முரண்பாடுகளைத் தீர்த்து, பின்னர் % 1ஐ முடிக்க உறுதியளிக்கவும். &lt;a href=&apos;expand&apos;&gt;விவரங்களைப்&lt;/a&gt; பார்க்கவும்.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3464"/>
+        <location filename="../src/ui/RepoView.cpp" line="3486"/>
         <source>Resolve conflicts in each conflicted (!) file in one of the following ways:</source>
         <translation>ஒவ்வொரு முரண்பட்ட (!) கோப்பிலும் உள்ள முரண்பாடுகளை பின்வரும் வழிகளில் ஒன்றில் தீர்க்கவும்:</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3466"/>
+        <location filename="../src/ui/RepoView.cpp" line="3488"/>
         <source>1. Click the &apos;Ours&apos; or &apos;Theirs&apos; button to choose the correct change. Then click the &apos;Save&apos; button to apply.</source>
         <translation>1. சரியான மாற்றத்தைத் தேர்வுசெய்ய, &apos;நம்முடையது&apos; அல்லது &apos;தங்கள்&apos; பொத்தானைக் சொடுக்கு செய்யவும். விண்ணப்பிக்க, &apos;சேமி&apos; பொத்தானைக் சொடுக்கு செய்யவும்.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3468"/>
+        <location filename="../src/ui/RepoView.cpp" line="3490"/>
         <source>2. Edit the file in the editor to make a different change. Remember to remove conflict markers.</source>
         <translation>2. வேறு மாற்றத்தை செய்ய எடிட்டரில் உள்ள கோப்பை திருத்தவும். மோதல் குறிப்பான்களை அகற்ற நினைவில் கொள்ளுங்கள்.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3470"/>
+        <location filename="../src/ui/RepoView.cpp" line="3492"/>
         <source>3. Use an external merge tool. Right-click on the files in the list and choose &apos;External Merge&apos;.</source>
         <translation>3. வெளிப்புற ஒன்றிணைக்கும் கருவியைப் பயன்படுத்தவும். பட்டியலில் உள்ள கோப்புகளில் வலது சொடுக்கு செய்து, &apos;வெளிப்புற ஒன்றிணைப்பு&apos; என்பதைத் தேர்ந்தெடுக்கவும்.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3472"/>
+        <location filename="../src/ui/RepoView.cpp" line="3494"/>
         <source>After all conflicts in the file are resolved, click the check box to mark it as resolved.</source>
         <translation>கோப்பில் உள்ள அனைத்து முரண்பாடுகளும் தீர்க்கப்பட்ட பிறகு, அது தீர்க்கப்பட்டதாகக் குறிக்க தேர்வுப்பெட்டியைக் சொடுக்கு செய்யவும்.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3474"/>
+        <location filename="../src/ui/RepoView.cpp" line="3496"/>
         <source>After all conflicted files are staged, commit to conclude the %1.</source>
         <translation>முரண்பட்ட அனைத்து கோப்புகளும் அரங்கேற்றப்பட்ட பிறகு, % 1ஐ முடிக்க உறுதியளிக்கவும்.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3486"/>
+        <location filename="../src/ui/RepoView.cpp" line="3508"/>
         <source>You can &lt;a href=&apos;action:abort&apos;&gt;abort&lt;/a&gt; the %1 to return the repository to its previous state.</source>
         <translation>களஞ்சியத்தை அதன் முந்தைய நிலைக்குத் திருப்ப நீங்கள் %1 ஐ &lt;a href=&apos;action:abort&apos;&gt;abort&apos;&gt;தடுக்கலாம்&lt;/a&gt;.</translation>
     </message>
@@ -5512,32 +5550,32 @@ The submodule will be removed from this project. Its working files and cached lo
 <context>
     <name>SearchPanel</name>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="426"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="416"/>
         <source>Enable indexing</source>
         <translation>அட்டவணைப்படுத்தலை இயக்கு</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="441"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="431"/>
         <source>terms</source>
         <translation>விதிமுறைகள்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="457"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="447"/>
         <source>lines</source>
         <translation>வரிகள்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="471"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="461"/>
         <source>Limit commits to:</source>
         <translation>வரம்பு இதற்கு உறுதியளிக்கிறது:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="472"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="462"/>
         <source>Diff context:</source>
         <translation>மாறுபட்ட சூழல்:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="488"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="478"/>
         <source>Remove Index</source>
         <translation>குறியீட்டை அகற்று</translation>
     </message>
@@ -5578,67 +5616,67 @@ The submodule will be removed from this project. Its working files and cached lo
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="874"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="865"/>
         <source>Esc</source>
         <translation>தப்பி</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="889"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="880"/>
         <source>Global git settings can be overridden for each repository in the corresponding repository configuration page.</source>
         <translation>தொடர்புடைய களஞ்சிய கட்டமைப்பு பக்கத்தில் உள்ள ஒவ்வொரு களஞ்சியத்திற்கும் உலகளாவிய சிட் அமைப்புகளை மேலெழுதலாம்.</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="906"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="897"/>
         <source>Edit Config File...</source>
         <translation>கட்டமைப்பு கோப்பைத் திருத்து...</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="935"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="926"/>
         <source>General</source>
         <translation>பொது</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="943"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="934"/>
         <source>Diff</source>
         <translation>வேறுபாடு</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="951"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="942"/>
         <source>Tools</source>
         <translation>கருவிகள்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="961"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="952"/>
         <source>Window</source>
         <translation>சாளரம்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="969"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="960"/>
         <source>Editor</source>
         <translation>திருத்தி</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="977"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="968"/>
         <source>Update</source>
         <translation>புதுப்பிப்பு</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="985"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="976"/>
         <source>Plugins</source>
         <translation>செருகுநிரல்கள்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="993"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="984"/>
         <source>Misc</source>
         <translation>இதர</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="1001"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="992"/>
         <source>Hotkeys</source>
         <translation>சூடான விசைகள்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="1011"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="1002"/>
         <source>Terminal</source>
         <translation>முனையத்தில்</translation>
     </message>
@@ -5901,7 +5939,7 @@ The submodule will be removed from this project. Its working files and cached lo
 <context>
     <name>SubmodulesPanel</name>
     <message>
-        <location filename="../src/dialogs/ConfigDialog.cpp" line="379"/>
+        <location filename="../src/dialogs/ConfigDialog.cpp" line="369"/>
         <source>Modify...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6025,23 +6063,23 @@ x (எண்) காட்டப்படும் அதிகபட்ச க�
 <context>
     <name>TerminalPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="831"/>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="855"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="822"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="846"/>
         <source>Install</source>
         <translation>நிறுவவும்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="844"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="835"/>
         <source>Name:</source>
         <translation>பெயர்:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="845"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="836"/>
         <source>Location:</source>
         <translation>இடம்:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="855"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="846"/>
         <source>Uninstall</source>
         <translation>நிறுவல் நீக்கவும்</translation>
     </message>
@@ -6229,42 +6267,42 @@ x (எண்) காட்டப்படும் அதிகபட்ச க�
 <context>
     <name>ToolsPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="347"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="338"/>
         <source>Keep backup of merge files (.orig)</source>
         <translation>ஒன்றிணைக்கும் கோப்புகளை (.orig) காப்புப் பிரதி எடுக்கவும்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="354"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="345"/>
         <source>External editor:</source>
         <translation>வெளிப்புற ஆசிரியர்:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="355"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="346"/>
         <source>External diff:</source>
         <translation>வெளிப்புற வேறுபாடு:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="356"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="347"/>
         <source>External merge:</source>
         <translation>வெளிப்புற இணைப்பு:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="357"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="348"/>
         <source>Backup files:</source>
         <translation>காப்புப் பிரதி கோப்புகள்:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="360"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="351"/>
         <source>Terminal emulator command:</source>
         <translation>டெர்மினல் எமுலேட்டர் கட்டளை:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="372"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="363"/>
         <source>File manager command:</source>
         <translation>கோப்பு மேலாளர் கட்டளை:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="400"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="391"/>
         <source>Configure</source>
         <translation>கட்டமைக்கவும்</translation>
     </message>
@@ -6404,22 +6442,22 @@ x (எண்) காட்டப்படும் அதிகபட்ச க�
 <context>
     <name>UpdatePanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="748"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="739"/>
         <source>Check for updates automatically</source>
         <translation>புதுப்பிப்புகளைத் தானாகவே சரிபார்க்கவும்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="760"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="751"/>
         <source>Automatically download and install updates</source>
         <translation>புதுப்பிப்புகளை தானாகவே பதிவிறக்கி நிறுவவும்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="770"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="761"/>
         <source>Check Now</source>
         <translation>இப்போது சரிபார்க்க</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="775"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="766"/>
         <source>Software Update:</source>
         <translation>மென்பொருள் புதுப்பிப்பு:</translation>
     </message>
@@ -6516,52 +6554,52 @@ x (எண்) காட்டப்படும் அதிகபட்ச க�
 <context>
     <name>WindowPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="469"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="460"/>
         <source>Add New Theme</source>
         <translation>புதிய கருப்பொருள் சேர்க்கவும்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="470"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="461"/>
         <source>Edit Current Theme</source>
         <translation>தற்போதைய கருப்பொருள் திருத்தவும்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="494"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="485"/>
         <source>Create Theme</source>
         <translation>கருப்பொருள் உருவாக்கவும்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="504"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="495"/>
         <source>Theme Name</source>
         <translation>கருப்பொருள் பெயர்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="536"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="527"/>
         <source>Restart?</source>
         <translation>மீண்டும் தொடங்கவா?</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="537"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="528"/>
         <source>The application must be restarted for the theme change to take effect.</source>
         <translation>கருப்பொருள் மாற்றம் நடைமுறைக்கு வர, பயன்பாடு மறுதொடக்கம் செய்யப்பட வேண்டும்.</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="539"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="530"/>
         <source>Do you want to restart now?</source>
         <translation>இப்போது மீண்டும் தொடங்க வேண்டுமா?</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="541"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="532"/>
         <source>Restart</source>
         <translation>மறுதொடக்கம்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="542"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="533"/>
         <source>Later</source>
         <translation>பின்னர்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="560"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="551"/>
         <source>Show full repository path</source>
         <translation>முழு களஞ்சிய பாதையைக் காட்டு</translation>
     </message>
@@ -6570,42 +6608,42 @@ x (எண்) காட்டப்படும் அதிகபட்ச க�
         <translation type="vanished">தானாக மறை</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="567"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="558"/>
         <source>Open submodules in tabs</source>
         <translation>துணை தொகுதிகளை தாவல்களில் திறக்கவும்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="575"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="566"/>
         <source>Open all repositories in tabs</source>
         <translation>அனைத்து களஞ்சியங்களையும் தாவல்களில் திறக்கவும்</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="582"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="573"/>
         <source>Hide Menubar</source>
         <translation>மெனுபாரை மறை</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="587"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="578"/>
         <source>Show Avatars</source>
         <translation>அவதாரங்களைக் காட்டு</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="588"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="579"/>
         <source>Download commit-author avatars from GitHub when an account is configured, with Gravatar as a fallback. Images are cached in memory for this session only.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="597"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="588"/>
         <source>Show Window Maximized when opened</source>
         <translation>திறக்கும் போது பெரிதாக்கப்பட்ட சாளரத்தைக் காட்டு</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="650"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="641"/>
         <source>Theme:</source>
         <translation>தீம்:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="651"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="642"/>
         <source>Title:</source>
         <translation>தலைப்பு:</translation>
     </message>
@@ -6614,17 +6652,17 @@ x (எண்) காட்டப்படும் அதிகபட்ச க�
         <translation type="vanished">பதிவு:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="652"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="643"/>
         <source>Tabs:</source>
         <translation>தாவல்கள்:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="654"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="645"/>
         <source>View:</source>
         <translation>காண்க:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="657"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="648"/>
         <source>Prompt:</source>
         <translation>உடனடி:</translation>
     </message>

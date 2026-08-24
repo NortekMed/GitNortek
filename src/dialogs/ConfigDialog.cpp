@@ -85,7 +85,6 @@ public:
     fetchLayout->addWidget(new QLabel(tr("minutes"), this));
     fetchLayout->addStretch();
 
-    mPushCommit = new QCheckBox(tr("Push after each commit"), this);
     mPullUpdate =
         new QCheckBox(tr("Update submodules after pull and clone"), this);
     mAutoPrune = new QCheckBox(tr("Prune when fetching"), this);
@@ -94,7 +93,6 @@ public:
     form->addRow(tr("User name:"), mName);
     form->addRow(tr("User email:"), mEmail);
     form->addRow(tr("Automatic actions:"), fetchLayout);
-    form->addRow(QString(), mPushCommit);
     form->addRow(QString(), mPullUpdate);
     form->addRow(QString(), mAutoPrune);
 
@@ -124,11 +122,6 @@ public:
       config.setValue("autofetch.minutes", value);
     });
 
-    connect(mPushCommit, &QCheckBox::toggled, this, [this](bool checked) {
-      git::Config config = mRepo.appConfig();
-      config.setValue("autopush.enable", checked);
-    });
-
     connect(mPullUpdate, &QCheckBox::toggled, this, [this](bool checked) {
       git::Config config = mRepo.appConfig();
       config.setValue("autoupdate.enable", checked);
@@ -151,7 +144,6 @@ public:
     int minutes =
         settings->value(Setting::Id::AutomaticFetchPeriodInMinutes).toInt();
 
-    bool push = settings->value(Setting::Id::PushAfterEachCommit).toBool();
     bool update =
         settings->value(Setting::Id::UpdateSubmodulesAfterPullAndClone)
             .toBool();
@@ -161,7 +153,6 @@ public:
     mFetch->setChecked(app.value<bool>("autofetch.enable", fetch));
     mFetchMinutes->setValue(app.value<int>("autofetch.minutes", minutes));
     mFetchMinutes->setEnabled(mFetch->isChecked());
-    mPushCommit->setChecked(app.value<bool>("autopush.enable", push));
     mPullUpdate->setChecked(app.value<bool>("autoupdate.enable", update));
     mAutoPrune->setChecked(app.value<bool>("autoprune.enable", prune));
   }
@@ -173,7 +164,6 @@ private:
 
   QCheckBox *mFetch;
   QSpinBox *mFetchMinutes;
-  QCheckBox *mPushCommit;
   QCheckBox *mPullUpdate;
   QCheckBox *mAutoPrune;
 };

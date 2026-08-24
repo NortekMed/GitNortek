@@ -27,7 +27,6 @@ public:
   enum class Id {
     FetchAutomatically,
     AutomaticFetchPeriodInMinutes,
-    PushAfterEachCommit,
     UpdateSubmodulesAfterPullAndClone,
     CheckSubmodulesForUpdatesAutomatically,
     PruneAfterFetch,

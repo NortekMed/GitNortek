@@ -10,6 +10,7 @@
 #include "Test.h"
 #include "conf/RecentRepositories.h"
 #include "conf/RecentRepository.h"
+#include "git/Config.h"
 #include "ui/CommitList.h"
 #include "ui/MainWindow.h"
 #include "ui/RepoView.h"
@@ -34,6 +35,10 @@ private slots:
   void show();
   void toggleLogPanel();
   void preserveSelectionAfterRemoteUpdate();
+  void cancelRemoteBranchCreation();
+  void createAndTrackRemoteBranch();
+  void trackExistingRemoteBranch();
+  void pushTrackedBranchWithoutPrompt();
   void closeTab();
   void recentRepositoryLimit();
   void invalidRecentRepository();
@@ -65,6 +70,7 @@ void TestMainWindow::initTestCase() {
   }
 
   QVERIFY(mRepo->addRemote("origin", mRemoteDir.path()).isValid());
+  mRepo->appConfig().setValue("autofetch.enable", false);
 
   mWindow = new MainWindow(mRepo);
 }
@@ -130,6 +136,108 @@ void TestMainWindow::preserveSelectionAfterRemoteUpdate() {
   QCOMPARE(mRepo->lookupRef(remoteName).target().id(), head.target().id());
 
   QCOMPARE(commits->selectedRange(), selected.id().toString());
+}
+
+void TestMainWindow::cancelRemoteBranchCreation() {
+  git::Branch branch = mRepo->createBranch("create-on-origin");
+  QVERIFY(branch.isValid());
+  QVERIFY(mRepo->setHead(branch));
+  QVERIFY(mRepo->defaultRemote().isValid());
+  QVERIFY(!git::Branch(mRepo->head()).upstream().isValid());
+  QVERIFY(!mRepo->lookupBranch("origin/create-on-origin", GIT_BRANCH_REMOTE));
+
+  RepoView *view = mWindow->currentView();
+  view->push();
+  QTRY_VERIFY(view->findChild<QMessageBox *>());
+  QMessageBox *dialog = view->findChild<QMessageBox *>();
+  QVERIFY(dialog);
+  QCOMPARE(dialog->windowTitle(), QString("Create Remote Branch?"));
+  QVERIFY(dialog->text().contains("does not exist on 'origin'"));
+  dialog->button(QMessageBox::Cancel)->click();
+  QTRY_VERIFY(!view->findChild<QMessageBox *>());
+
+  QVERIFY(!mRepo->lookupBranch("origin/create-on-origin", GIT_BRANCH_REMOTE));
+  QVERIFY(!git::Branch(mRepo->head()).upstream().isValid());
+}
+
+void TestMainWindow::createAndTrackRemoteBranch() {
+  RepoView *view = mWindow->currentView();
+  view->push();
+  QTRY_VERIFY(view->findChild<QMessageBox *>());
+  QMessageBox *dialog = view->findChild<QMessageBox *>();
+  QVERIFY(dialog);
+
+  QPushButton *create = nullptr;
+  foreach (QPushButton *button, dialog->findChildren<QPushButton *>()) {
+    if (button->text() == "Create Branch") {
+      create = button;
+      break;
+    }
+  }
+  QVERIFY(create);
+  create->click();
+  QTRY_VERIFY(!view->findChild<QMessageBox *>());
+
+  QTRY_VERIFY_WITH_TIMEOUT(
+      mRepo->lookupBranch("origin/create-on-origin", GIT_BRANCH_REMOTE)
+          .isValid(),
+      10000);
+  QTRY_VERIFY_WITH_TIMEOUT(git::Branch(mRepo->head()).upstream().isValid(),
+                           10000);
+  QCOMPARE(git::Branch(mRepo->head()).upstream().name(),
+           QString("origin/create-on-origin"));
+}
+
+void TestMainWindow::trackExistingRemoteBranch() {
+  RepoView *view = mWindow->currentView();
+  git::Branch branch = mRepo->createBranch("existing-on-origin");
+  QVERIFY(branch.isValid());
+  QVERIFY(mRepo->setHead(branch));
+
+  view->push(mRepo->lookupRemote("origin"), branch);
+  QTRY_VERIFY_WITH_TIMEOUT(
+      mRepo->lookupBranch("origin/existing-on-origin", GIT_BRANCH_REMOTE)
+          .isValid(),
+      10000);
+  QVERIFY(!git::Branch(mRepo->head()).upstream().isValid());
+
+  view->push();
+  QTRY_VERIFY(view->findChild<QMessageBox *>());
+  QMessageBox *dialog = view->findChild<QMessageBox *>();
+  QVERIFY(dialog);
+  QCOMPARE(dialog->windowTitle(), QString("Track Remote Branch?"));
+  dialog->button(QMessageBox::Cancel)->click();
+  QTRY_VERIFY(!view->findChild<QMessageBox *>());
+  QVERIFY(!git::Branch(mRepo->head()).upstream().isValid());
+
+  view->push();
+  QTRY_VERIFY(view->findChild<QMessageBox *>());
+  dialog = view->findChild<QMessageBox *>();
+  QVERIFY(dialog);
+
+  QPushButton *track = nullptr;
+  foreach (QPushButton *button, dialog->findChildren<QPushButton *>()) {
+    if (button->text() == "Track and Push") {
+      track = button;
+      break;
+    }
+  }
+  QVERIFY(track);
+  track->click();
+  QTRY_VERIFY(!view->findChild<QMessageBox *>());
+
+  QTRY_VERIFY_WITH_TIMEOUT(git::Branch(mRepo->head()).upstream().isValid(),
+                           10000);
+  QCOMPARE(git::Branch(mRepo->head()).upstream().name(),
+           QString("origin/existing-on-origin"));
+}
+
+void TestMainWindow::pushTrackedBranchWithoutPrompt() {
+  QVERIFY(git::Branch(mRepo->head()).upstream().isValid());
+  RepoView *view = mWindow->currentView();
+  view->push();
+  QTest::qWait(100);
+  QVERIFY(!view->findChild<QMessageBox *>());
 }
 
 void TestMainWindow::closeTab() {
