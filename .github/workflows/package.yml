@@ -204,7 +204,7 @@ jobs:
         GH_TOKEN: ${{ github.token }}
       run: |
         set -euo pipefail
-        shopt -s nullglob
+        shopt -s globstar nullglob
 
         tag="${GITHUB_REF_NAME}"
         release_args=()
@@ -214,8 +214,8 @@ jobs:
           require_windows=false
         fi
 
-        rpms=(artifacts/GitNortek-RPM/*.rpm)
-        installers=(artifacts/GitNortek-Windows-Installer/*.exe)
+        rpms=(artifacts/**/*.rpm)
+        installers=(artifacts/**/*.exe)
         files=("${rpms[@]}" "${installers[@]}")
 
         if [ ${#rpms[@]} -eq 0 ]; then
