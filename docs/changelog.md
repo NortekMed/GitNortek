@@ -41,6 +41,7 @@ Bug Fix and Feature release
 * Keep the operation log open until manually collapsed and leave its toggle bar visible
 * Avoid repeating destination commit IDs in generated submodule update messages
 * Confirm before creating or tracking a remote branch on the first push, and remove automatic pushing after each commit
+* Prevent transient false submodule changes during branch renames and repository scans
 
 ----
 

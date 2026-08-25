@@ -186,10 +186,13 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
   setHandleWidth(0);
   setAttribute(Qt::WA_DeleteOnClose);
 
-  // Start (or restart) indexing after any reference is updated.
+  // Start (or restart) indexing after a reference target is updated.
   git::RepositoryNotifier *notifier = repo.notifier();
   connect(notifier, &git::RepositoryNotifier::referenceUpdated, this,
-          &RepoView::startIndexing);
+          [this](const git::Reference &, bool, bool refreshStatus) {
+            if (refreshStatus)
+              startIndexing();
+          });
 
   MenuBar *menuBar = MenuBar::instance(parent);
   connect(this, &RepoView::statusChanged, menuBar, &MenuBar::updateStash);
@@ -284,13 +287,13 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
 
   // Select HEAD branch when it changes.
   connect(notifier, &git::RepositoryNotifier::referenceUpdated, this,
-          [this](const git::Reference &ref) {
+          [this](const git::Reference &ref, bool, bool refreshStatus) {
             if (ref.isValid() && ref.isHead()) {
               mCommits->suppressResetWalker(true);
               mRefs->select(ref, false);
               mCommits->suppressResetWalker(false);
-              // Invalidate submodule cache when the HEAD changes.
-              mRepo.invalidateSubmoduleCache();
+              if (refreshStatus)
+                mRepo.invalidateSubmoduleCache();
             }
           });
 

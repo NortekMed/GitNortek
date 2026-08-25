@@ -50,6 +50,7 @@
 #include <QTimer>
 #include <QToolTip>
 #include <QtConcurrent>
+#include <atomic>
 
 namespace {
 
@@ -127,14 +128,14 @@ enum GraphSegment {
 
 class DiffCallbacks : public git::Diff::Callbacks {
 public:
-  void setCanceled(bool canceled) { mCanceled = canceled; }
+  void setCanceled(bool canceled) { mCanceled.store(canceled); }
 
   bool progress(const QString &oldPath, const QString &newPath) override {
-    return !mCanceled;
+    return !mCanceled.load();
   }
 
 private:
-  bool mCanceled = false;
+  std::atomic_bool mCanceled = false;
 };
 
 /*!
@@ -156,6 +157,9 @@ public:
 
     // Connect watcher to signal when the status diff finishes.
     connect(&mStatus, &QFutureWatcher<git::Diff>::finished, [this] {
+      if (!mStatus.isFinished() || !mStatus.future().resultCount())
+        return;
+
       mTimer.stop();
       resetWalker();
       emit statusFinished(!mRows.isEmpty() && !mRows.first().commit.isValid());
@@ -226,16 +230,19 @@ public:
     }
   }
 
-  void resetReference(const git::Reference &ref) {
+  void resetReference(const git::Reference &ref, bool refreshStatus = true) {
     // Reset selected ref to updated ref.
     if (ref.isValid() && mRef.isValid() &&
         ref.qualifiedName() == mRef.qualifiedName())
       mRef = ref;
 
     // Status is invalid after HEAD changes.
-    if (!ref.isValid() || ref.isHead())
-      startStatus();
-    else if (!mSuppressResetWalker) {
+    if (!ref.isValid() || ref.isHead()) {
+      if (refreshStatus)
+        startStatus();
+      else if (!mSuppressResetWalker)
+        resetWalker();
+    } else if (!mSuppressResetWalker) {
       // reset walker will be done when status finished
       resetWalker();
     }
@@ -1671,9 +1678,11 @@ CommitList::CommitList(Index *index, CommitAvatarProvider *avatars,
 
   git::RepositoryNotifier *notifier = repo.notifier();
   connect(notifier, &git::RepositoryNotifier::referenceUpdated,
-          [this](const git::Reference &ref, bool restoreSelection) {
+          [this](const git::Reference &ref, bool restoreSelection,
+                 bool refreshStatus) {
             mRestoreSelection = restoreSelection;
-            resetReference(ref);
+            static_cast<CommitModel *>(mModel)->resetReference(ref,
+                                                               refreshStatus);
           });
   connect(notifier, &git::RepositoryNotifier::workdirChanged, [this] {
     resetReference(static_cast<const CommitModel *>(mModel)->reference());

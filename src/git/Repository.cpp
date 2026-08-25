@@ -336,7 +336,10 @@ Diff Repository::diffTreeToIndex(const Tree &tree, const Index &index,
     opts.flags |= GIT_DIFF_IGNORE_WHITESPACE;
 
   git_diff *diff = nullptr;
-  git_diff_tree_to_index(&diff, d->repo, tree, index, &opts);
+  if (git_diff_tree_to_index(&diff, d->repo, tree, index, &opts)) {
+    git_diff_free(diff);
+    return Diff();
+  }
   return Diff(diff);
 }
 
@@ -361,7 +364,10 @@ Diff Repository::diffIndexToWorkdir(const Index &index,
   }
 
   git_diff *diff = nullptr;
-  git_diff_index_to_workdir(&diff, d->repo, index, &opts);
+  if (git_diff_index_to_workdir(&diff, d->repo, index, &opts)) {
+    git_diff_free(diff);
+    return Diff();
+  }
   return Diff(diff);
 }
 
@@ -791,7 +797,6 @@ void Repository::setCommitStarred(const Id &commit, bool starred) {
 }
 
 void Repository::invalidateSubmoduleCache() {
-  git_repository_submodule_cache_clear(d->repo);
   d->submodules.clear();
   d->submodulesCached = false;
 }
@@ -1349,7 +1354,6 @@ void Repository::ensureSubmodulesCached() const {
           return 0;
         },
         &d->submodules);
-    git_repository_submodule_cache_all(d->repo);
   }
 }
 

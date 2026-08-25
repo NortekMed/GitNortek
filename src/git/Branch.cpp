@@ -109,7 +109,7 @@ Branch Branch::rename(const QString &name) {
   d.clear();
 
   Branch branch(ref);
-  emit branch.repo().notifier()->referenceUpdated(branch);
+  emit branch.repo().notifier()->referenceUpdated(branch, false, false);
   return branch;
 }
 

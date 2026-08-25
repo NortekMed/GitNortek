@@ -25,6 +25,7 @@
 #include <QMenu>
 #include <QWizard>
 #include <QLineEdit>
+#include <QtConcurrent>
 
 #define INIT_REPO(repoPath, /* bool */ useTempDir)                             \
   QString path = Test::extractRepository(repoPath, useTempDir);                \
@@ -49,6 +50,8 @@ private slots:
   void updateSubmoduleClone();
   void noUpdateSubmoduleClone();
   void discardFile();
+  void canceledStatusIsDiscarded();
+  void cleanAfterBranchRename();
   void movedHeadDetected();
   void removeSubmodule();
   void refuseRemovalWithGitmodulesChanges();
@@ -202,6 +205,99 @@ void TestSubmodule::discardFile() {
   QFile file(repo.workdir().filePath("GittyupTestRepo/README.md"));
   QVERIFY(file.open(QFile::ReadOnly));
   QCOMPARE(file.readAll(), "Changing content of submodule readme\n");
+}
+
+void TestSubmodule::canceledStatusIsDiscarded() {
+  class CancelCallbacks : public git::Diff::Callbacks {
+  public:
+    bool progress(const QString &, const QString &) override {
+      called = true;
+      return false;
+    }
+
+    bool called = false;
+  } callbacks;
+
+  ScratchRepository repo;
+  QFile file(repo->workdir().filePath("untracked.txt"));
+  QVERIFY(file.open(QIODevice::WriteOnly));
+  file.write("untracked\n");
+  file.close();
+
+  git::Diff status = repo->status(repo->index(), &callbacks, false);
+  QVERIFY(callbacks.called);
+  QVERIFY(!status.isValid());
+}
+
+void TestSubmodule::cleanAfterBranchRename() {
+  ScratchRepository child;
+  QFile childFile(child->workdir().filePath("child.txt"));
+  QVERIFY(childFile.open(QIODevice::WriteOnly));
+  childFile.write("child\n");
+  childFile.close();
+
+  QProcess git;
+  git.setWorkingDirectory(child->workdir().path());
+  git.start(GIT_EXECUTABLE, {"add", "child.txt"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE, {"commit", "-m", "child"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+
+  ScratchRepository parent;
+  git.setWorkingDirectory(parent->workdir().path());
+  git.start(GIT_EXECUTABLE,
+            {"-c", "protocol.file.allow=always", "submodule", "add",
+             child->workdir().path(), "child"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE, {"commit", "-m", "add submodule"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+
+  parent->appConfig().setValue("autofetch.enable", false);
+  QCOMPARE(parent->submodules().size(), 1);
+  QVERIFY(!parent->status(parent->index(), nullptr, false).isValid());
+
+  MainWindow window(parent);
+  window.show();
+  QVERIFY(qWaitForWindowExposed(&window));
+  RepoView *view = window.currentView();
+  refresh(view, false);
+
+  QSignalSpy statusChanged(view, &RepoView::statusChanged);
+  git::Branch renamed = git::Branch(parent->head()).rename("contextual");
+  QVERIFY(renamed.isValid());
+  QCOMPARE(git::Branch(parent->head()).name(), QString("contextual"));
+  qWait(100);
+  QVERIFY(statusChanged.isEmpty());
+
+  git.setWorkingDirectory(parent->workdir().path());
+  git.start(GIT_EXECUTABLE, {"status", "--short"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  QVERIFY(git.readAllStandardOutput().isEmpty());
+
+  // Make the watcher-driven refresh deterministic even if Git did not need to
+  // rewrite index metadata on this filesystem.
+  emit parent->notifier()->workdirChanged();
+  QTRY_VERIFY_WITH_TIMEOUT(!statusChanged.isEmpty(), 10000);
+  for (const QList<QVariant> &args : statusChanged)
+    QVERIFY(!args.first().toBool());
+
+  git::Repository repo = parent;
+  for (int i = 0; i < 20; ++i) {
+    git::Index index = parent->index();
+    index.read();
+    QFuture<git::Diff> future = QtConcurrent::run(
+        [repo, index] { return repo.status(index, nullptr, false); });
+    while (!future.isFinished()) {
+      parent->invalidateSubmoduleCache();
+      QCOMPARE(parent->submodules().size(), 1);
+    }
+    QVERIFY(!future.result().isValid());
+  }
 }
 
 void TestSubmodule::movedHeadDetected() {
