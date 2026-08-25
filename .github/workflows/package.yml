@@ -185,7 +185,7 @@ jobs:
     - name: Install GitHub CLI
       run: |
         apt-get update
-        apt-get install -y gh
+        apt-get install -y ca-certificates gh
 
     - name: Validate tag
       run: |
