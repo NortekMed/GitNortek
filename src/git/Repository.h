@@ -42,6 +42,7 @@ class Rebase;
 class Reference;
 class Remote;
 class RepositoryNotifier;
+class Result;
 class RevWalk;
 class Signature;
 class Submodule;
@@ -109,12 +110,14 @@ public:
 
   // status/diff
   Diff status(const Index &index, Diff::Callbacks *callbacks,
-              bool ignoreWhitespace = false) const;
+              bool ignoreWhitespace = false, Result *result = nullptr) const;
   Diff diffTreeToIndex(const Tree &tree, const Index &index = Index(),
-                       bool ignoreWhitespace = false) const;
+                       bool ignoreWhitespace = false,
+                       Result *result = nullptr) const;
   Diff diffIndexToWorkdir(const Index &index = Index(),
                           Diff::Callbacks *callbacks = nullptr,
-                          bool ignoreWhitespace = false) const;
+                          bool ignoreWhitespace = false,
+                          Result *result = nullptr) const;
 
   // refs
   QList<Reference> refs() const;

@@ -86,6 +86,7 @@ public:
 
 signals:
   void statusChanged(bool dirty);
+  void statusError(const QString &error);
   void diffSelected(const git::Diff diff, const QString &file = QString(),
                     bool spontaneous = false);
 

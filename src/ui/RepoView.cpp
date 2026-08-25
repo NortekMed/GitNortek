@@ -68,6 +68,8 @@
 #include <QMenu>
 #include <QtNetwork>
 #include <QPushButton>
+#include <QProcess>
+#include <QStandardPaths>
 #include <QSettings>
 #include <QShortcut>
 #include <QStackedWidget>
@@ -318,6 +320,11 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
   connect(mRefs, &ReferenceWidget::referenceSelected, mCommits,
           &CommitList::selectReference);
   connect(mCommits, &CommitList::statusChanged, this, &RepoView::statusChanged);
+  connect(mCommits, &CommitList::statusError, this, [this](const QString &error) {
+    LogEntry *entry = addLogEntry(QString(), tr("Status"));
+    entry->addEntry(LogEntry::Error, error.toHtmlEscaped());
+    setLogVisible(true);
+  });
 
   // Respond to pathspec change.
   connect(mPathspec, &PathspecWidget::pathspecChanged, this,
@@ -437,8 +444,6 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
   connect(notifier, &git::RepositoryNotifier::workdirChanged, this,
           [this] { refresh(false); });
   connect(notifier, &git::RepositoryNotifier::referenceUpdated, watcher,
-          &RepositoryWatcher::cancelPendingNotification);
-  connect(mCommits, &CommitList::statusChanged, watcher,
           &RepositoryWatcher::cancelPendingNotification);
 
   mDetailSplitter = new QSplitter(Qt::Horizontal, this);
@@ -1058,6 +1063,69 @@ LogEntry *RepoView::addLogEntry(const QString &text, const QString &title,
                                 LogEntry *parent) {
   LogEntry *root = parent ? parent : mLogRoot;
   return root->addEntry(text, title);
+}
+
+void RepoView::reportDiagnostics() {
+  struct Command {
+    QString program;
+    QStringList arguments;
+    QString display;
+  };
+
+  const QList<Command> commands = {
+      {"pwd", {}, "pwd"},
+      {"git", {"rev-parse", "--show-toplevel"},
+       "git rev-parse --show-toplevel"},
+      {"git", {"status", "--porcelain=v1", "--branch"},
+       "git status --porcelain=v1 --branch"},
+      {"git", {"rev-parse", "HEAD"}, "git rev-parse HEAD"},
+  };
+
+  LogEntry *root = addLogEntry(mRepo.workdir().absolutePath().toHtmlEscaped(),
+                               tr("Repository Diagnostics"));
+  const QString workdir = mRepo.workdir().absolutePath();
+  for (const Command &command : commands) {
+    LogEntry *entry = root->addEntry(QString(), "$ " + command.display);
+    const QString executable = QStandardPaths::findExecutable(command.program);
+    if (executable.isEmpty()) {
+      entry->addEntry(LogEntry::Error,
+                      tr("Unable to find %1").arg(command.program));
+      continue;
+    }
+
+    QProcess process;
+    process.setWorkingDirectory(workdir);
+    process.start(executable, command.arguments);
+    if (!process.waitForStarted(5000)) {
+      entry->addEntry(LogEntry::Error, process.errorString().toHtmlEscaped());
+      continue;
+    }
+
+    if (!process.waitForFinished(10000)) {
+      process.kill();
+      process.waitForFinished();
+      entry->addEntry(LogEntry::Error, tr("Command timed out"));
+      continue;
+    }
+
+    auto appendOutput = [entry](const QByteArray &output, LogEntry::Kind kind) {
+      QString text = QString::fromLocal8Bit(output);
+      const QStringList lines = text.split('\n');
+      for (const QString &line : lines) {
+        if (!line.isEmpty())
+          entry->addEntry(kind, line.toHtmlEscaped());
+      }
+    };
+    appendOutput(process.readAllStandardOutput(), LogEntry::File);
+    appendOutput(process.readAllStandardError(), LogEntry::Error);
+
+    if (process.exitStatus() != QProcess::NormalExit || process.exitCode()) {
+      entry->addEntry(LogEntry::Error,
+                      tr("Exited with code %1").arg(process.exitCode()));
+    }
+  }
+
+  setLogVisible(true);
 }
 
 LogEntry *RepoView::error(LogEntry *parent, const QString &action,

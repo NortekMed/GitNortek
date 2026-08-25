@@ -42,6 +42,7 @@ Bug Fix and Feature release
 * Avoid repeating destination commit IDs in generated submodule update messages
 * Confirm before creating or tracking a remote branch on the first push, and remove automatic pushing after each commit
 * Prevent transient false submodule changes during branch renames and repository scans
+* Report local repository diagnostics and avoid reporting dirty worktrees or status errors as clean
 
 ----
 

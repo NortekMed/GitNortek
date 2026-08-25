@@ -22,6 +22,7 @@
 #include "Rebase.h"
 #include "Reference.h"
 #include "Remote.h"
+#include "Result.h"
 #include "RevWalk.h"
 #include "Signature.h"
 #include "Submodule.h"
@@ -306,17 +307,32 @@ void Repository::setIndex(const Index &index) {
  * \return
  */
 Diff Repository::status(const Index &index, Diff::Callbacks *callbacks,
-                        bool ignoreWhitespace) const {
+                        bool ignoreWhitespace, Result *result) const {
   Tree tree;
   if (Reference ref = head()) {
     if (Commit commit = ref.target())
       tree = commit.tree();
   }
 
-  Diff diff = diffTreeToIndex(tree, index, ignoreWhitespace);
-  Diff workdir = diffIndexToWorkdir(index, callbacks, ignoreWhitespace);
-  if (!diff.isValid() || !workdir.isValid())
+  Result diffResult(0);
+  Diff diff = diffTreeToIndex(tree, index, ignoreWhitespace, &diffResult);
+  if (!diffResult) {
+    if (result)
+      *result = diffResult;
     return Diff();
+  }
+
+  Result workdirResult(0);
+  Diff workdir = diffIndexToWorkdir(index, callbacks, ignoreWhitespace,
+                                    &workdirResult);
+  if (!workdirResult) {
+    if (result)
+      *result = workdirResult;
+    return Diff();
+  }
+
+  if (result)
+    *result = Result(0);
 
   diff.merge(workdir);
   diff.setIndex(index);
@@ -325,7 +341,7 @@ Diff Repository::status(const Index &index, Diff::Callbacks *callbacks,
 }
 
 Diff Repository::diffTreeToIndex(const Tree &tree, const Index &index,
-                                 bool ignoreWhitespace) const {
+                                 bool ignoreWhitespace, Result *result) const {
   git_diff_options opts = GIT_DIFF_OPTIONS_INIT;
   opts.flags |= GIT_DIFF_INCLUDE_TYPECHANGE;
 
@@ -336,7 +352,10 @@ Diff Repository::diffTreeToIndex(const Tree &tree, const Index &index,
     opts.flags |= GIT_DIFF_IGNORE_WHITESPACE;
 
   git_diff *diff = nullptr;
-  if (git_diff_tree_to_index(&diff, d->repo, tree, index, &opts)) {
+  int error = git_diff_tree_to_index(&diff, d->repo, tree, index, &opts);
+  if (result)
+    *result = Result(error);
+  if (error) {
     git_diff_free(diff);
     return Diff();
   }
@@ -345,7 +364,7 @@ Diff Repository::diffTreeToIndex(const Tree &tree, const Index &index,
 
 Diff Repository::diffIndexToWorkdir(const Index &index,
                                     Diff::Callbacks *callbacks,
-                                    bool ignoreWhitespace) const {
+                                    bool ignoreWhitespace, Result *result) const {
   git_diff_options opts = GIT_DIFF_OPTIONS_INIT;
   opts.flags |= GIT_DIFF_INCLUDE_TYPECHANGE;
 #ifndef USE_SYSTEM_LIBGIT2
@@ -364,7 +383,10 @@ Diff Repository::diffIndexToWorkdir(const Index &index,
   }
 
   git_diff *diff = nullptr;
-  if (git_diff_index_to_workdir(&diff, d->repo, index, &opts)) {
+  int error = git_diff_index_to_workdir(&diff, d->repo, index, &opts);
+  if (result)
+    *result = Result(error);
+  if (error) {
     git_diff_free(diff);
     return Diff();
   }

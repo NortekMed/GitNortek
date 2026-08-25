@@ -8,6 +8,10 @@
 //
 
 #include "Test.h"
+#include "git/Config.h"
+#include "log/LogEntry.h"
+#include "log/LogView.h"
+#include "ui/ConfigKeys.h"
 #include "ui/CommitList.h"
 #include "ui/DetailView.h"
 #include "ui/DoubleTreeWidget.h"
@@ -29,7 +33,9 @@ private slots:
   void createFile();
   void commitFile();
   void overwriteFile();
+  void dirtyStatusWhenStatusRowHidden();
   void testLineEndings();
+  void repositoryDiagnostics();
   void cleanupTestCase();
 
 private:
@@ -79,6 +85,25 @@ void TestLineEndings::overwriteFile() {
   refresh(mRepoView);
 }
 
+void TestLineEndings::dirtyStatusWhenStatusRowHidden() {
+  CommitList *commitList = mRepoView->findChild<CommitList *>();
+  QVERIFY(commitList);
+
+  git::Config config = mRepo->appConfig();
+  config.setValue(ConfigKeys::kStatusKey, false);
+  commitList->resetSettings();
+  refresh(mRepoView, true);
+  QVERIFY(commitList->status().isValid());
+  QVERIFY(commitList->model()
+              ->index(0, 0)
+              .data(CommitList::DiffRole)
+              .value<git::Diff>()
+              .isValid());
+
+  config.setValue(ConfigKeys::kStatusKey, true);
+  commitList->resetSettings();
+}
+
 void TestLineEndings::testLineEndings() {
   auto doubleTree = mRepoView->findChild<DoubleTreeWidget *>();
   QVERIFY(doubleTree);
@@ -110,6 +135,22 @@ void TestLineEndings::testLineEndings() {
 
   CommitList *commitList = mRepoView->findChild<CommitList *>();
   QVERIFY(!commitList->status().isValid());
+}
+
+void TestLineEndings::repositoryDiagnostics() {
+  mRepoView->reportDiagnostics();
+
+  LogView *log = mRepoView->findChild<LogView *>();
+  QVERIFY(log);
+  const QList<LogEntry *> entries = log->findChildren<LogEntry *>();
+  QStringList titles;
+  for (LogEntry *entry : entries)
+    titles.append(entry->title());
+
+  QVERIFY(titles.contains("$ pwd"));
+  QVERIFY(titles.contains("$ git rev-parse --show-toplevel"));
+  QVERIFY(titles.contains("$ git status --porcelain=v1 --branch"));
+  QVERIFY(titles.contains("$ git rev-parse HEAD"));
 }
 
 void TestLineEndings::cleanupTestCase() {

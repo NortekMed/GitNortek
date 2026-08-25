@@ -150,6 +150,7 @@ public:
   // log window
   bool isLogVisible() const;
   void setLogVisible(bool visible);
+  void reportDiagnostics();
 
   /*!
    * \brief addLogEntry

@@ -492,6 +492,11 @@ MenuBar::MenuBar(QWidget *parent) : QMenuBar(parent) {
   refreshHotkey.use(mRefresh);
   connect(mRefresh, &QAction::triggered, [this] { view()->refresh(); });
 
+  mRepositoryDiagnostics =
+      viewMenu->addAction(tr("Report Repository Diagnostics"));
+  connect(mRepositoryDiagnostics, &QAction::triggered,
+          [this] { view()->reportDiagnostics(); });
+
   viewMenu->addSeparator();
 
   mToggleLog = viewMenu->addAction(tr("Show Log"));
@@ -1018,6 +1023,7 @@ void MenuBar::updateView() {
   MainWindow *win = qobject_cast<MainWindow *>(window());
   RepoView *view = win ? win->currentView() : nullptr;
   mRefresh->setEnabled(view);
+  mRepositoryDiagnostics->setEnabled(view);
   mToggleLog->setEnabled(view);
   mToggleView->setEnabled(view);
   mToggleMaximize->setEnabled(view);

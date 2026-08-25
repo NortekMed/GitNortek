@@ -88,6 +88,7 @@ private:
 
   // View
   QAction *mRefresh;
+  QAction *mRepositoryDiagnostics;
   QAction *mToggleLog;
   QAction *mToggleView;
   QAction *mToggleMenuBar;

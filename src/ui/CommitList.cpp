@@ -28,9 +28,11 @@
 #include "git/Index.h"
 #include "git/Patch.h"
 #include "git/RevWalk.h"
+#include "git/Result.h"
 #include "git/Signature.h"
 #include "git/TagRef.h"
 #include "git/Tree.h"
+#include "git2/errors.h"
 #include "ui/HotkeyManager.h"
 #include <QAbstractListModel>
 #include <QApplication>
@@ -138,6 +140,11 @@ private:
   std::atomic_bool mCanceled = false;
 };
 
+struct StatusResult {
+  git::Diff diff;
+  git::Result result{0};
+};
+
 /*!
  * \brief The CommitModel class
  * Model showing all commits as timeline
@@ -156,13 +163,16 @@ public:
     });
 
     // Connect watcher to signal when the status diff finishes.
-    connect(&mStatus, &QFutureWatcher<git::Diff>::finished, [this] {
+    connect(&mStatus, &QFutureWatcher<StatusResult>::finished, [this] {
       if (!mStatus.isFinished() || !mStatus.future().resultCount())
         return;
 
       mTimer.stop();
       resetWalker();
-      emit statusFinished(!mRows.isEmpty() && !mRows.first().commit.isValid());
+      StatusResult status = mStatus.future().result();
+      if (!status.result && status.result.error() != GIT_EUSER)
+        emit statusFailed(status.result.errorString(tr("Unable to read status")));
+      emit statusFinished(status.diff.isValid());
     });
 
     resetSettings();
@@ -176,11 +186,11 @@ public:
     if (!mStatus.isFinished())
       return git::Diff();
 
-    QFuture<git::Diff> future = mStatus.future();
+    QFuture<StatusResult> future = mStatus.future();
     if (!future.resultCount())
       return git::Diff();
 
-    return future.result();
+    return future.result().diff;
   }
 
   void startStatus() {
@@ -197,7 +207,10 @@ public:
     mStatus.setFuture(QtConcurrent::run([this] {
       // Pass the repo's index to suppress reload.
       bool ignoreWhitespace = Settings::instance()->isWhitespaceIgnored();
-      return mRepo.status(mRepo.index(), &mStatusCallbacks, ignoreWhitespace);
+      StatusResult status;
+      status.diff = mRepo.status(mRepo.index(), &mStatusCallbacks,
+                                 ignoreWhitespace, &status.result);
+      return status;
     }));
   }
 
@@ -207,7 +220,7 @@ public:
 
     mStatusCallbacks.setCanceled(true);
     mStatus.waitForFinished();
-    mStatus.setFuture(QFuture<git::Diff>());
+    mStatus.setFuture(QFuture<StatusResult>());
     mStatusCallbacks.setCanceled(false);
   }
 
@@ -261,8 +274,10 @@ public:
 
     // Update status row.
     bool head = (!mRef.isValid() || mRef.isHead());
-    bool valid = (!mStatus.isFinished() || status().isValid());
-    if (mShowCleanStatus && head && valid && mPathspec.isEmpty()) {
+    bool pending = !mStatus.isFinished();
+    bool dirty = !pending && status().isValid();
+    if (head && (dirty || (mShowCleanStatus && pending)) &&
+        mPathspec.isEmpty()) {
       QVector<Column> row;
       if (mGraphVisible && mRef.isValid() && mStatus.isFinished()) {
         row.append({Segment(Bottom, kTaintedColor), Segment(Dot, QColor())});
@@ -563,7 +578,8 @@ public:
   }
 
 signals:
-  void statusFinished(bool visible);
+  void statusFinished(bool dirty);
+  void statusFailed(const QString &error);
 
 private:
   struct Parent {
@@ -824,7 +840,7 @@ private:
   int mProgress = 0;
 
   DiffCallbacks mStatusCallbacks;
-  QFutureWatcher<git::Diff> mStatus;
+  QFutureWatcher<StatusResult> mStatus;
 
   QString mPathspec;
   git::Reference mRef;
@@ -1657,7 +1673,7 @@ CommitList::CommitList(Index *index, CommitAvatarProvider *avatars,
           });
 
   CommitModel *model = static_cast<CommitModel *>(mModel);
-  connect(model, &CommitModel::statusFinished, [this, model](bool visible) {
+  connect(model, &CommitModel::statusFinished, [this, model](bool dirty) {
     mRestoreSelection = true; // Reset to default
 
     // Select the detached HEAD commit when opening a repository that is not on
@@ -1673,8 +1689,9 @@ CommitList::CommitList(Index *index, CommitAvatarProvider *avatars,
       selectFirstCommit();
 
     // Notify main window.
-    emit statusChanged(visible);
+    emit statusChanged(dirty);
   });
+  connect(model, &CommitModel::statusFailed, this, &CommitList::statusError);
 
   git::RepositoryNotifier *notifier = repo.notifier();
   connect(notifier, &git::RepositoryNotifier::referenceUpdated,
