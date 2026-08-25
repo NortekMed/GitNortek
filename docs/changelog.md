@@ -43,6 +43,7 @@ Bug Fix and Feature release
 * Confirm before creating or tracking a remote branch on the first push, and remove automatic pushing after each commit
 * Prevent transient false submodule changes during branch renames and repository scans
 * Report local repository diagnostics and avoid reporting dirty worktrees or status errors as clean
+* Run Linux package and release jobs on an isolated disposable self-hosted runner with pinned actions and container images
 
 ----
 

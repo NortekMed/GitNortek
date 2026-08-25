@@ -9,11 +9,16 @@ on:
 env:
   TAG_PATTERN: '^v[0-9]+\.[0-9]+\.[0-9]+(-pre\.?[0-9]+)?$'
 
+permissions:
+  contents: read
+
 jobs:
   rpm:
     name: Fedora RPM
-    runs-on: ubuntu-latest
-    container: fedora:42
+    runs-on:
+      group: Public-Releases
+      labels: [self-hosted, linux, x64, gitnortek-linux]
+    container: fedora:42@sha256:99e203b80b1c3d8f7e161ec10a68fd02b081ef83a3963553e513c82846b97814
     steps:
     - name: Validate tag
       run: |
@@ -40,7 +45,7 @@ jobs:
           rpm-build
 
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       with:
         submodules: recursive
 
@@ -57,7 +62,7 @@ jobs:
       run: ninja -C build/release package
 
     - name: Upload RPM
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
       with:
         name: GitNortek-RPM
         path: build/release/pack/*.rpm
@@ -82,17 +87,17 @@ jobs:
         git config --global user.email "youremail@yourdomain.com"
 
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       with:
         submodules: recursive
 
     - name: Install Perl
-      uses: shogo82148/actions-setup-perl@v1
+      uses: shogo82148/actions-setup-perl@53e33bb27be492a926eee378e8a5f7ff6618b061 # v1
       with:
         perl-version: '5.30'
 
     - name: Install Qt
-      uses: jurplel/install-qt-action@v4.3.0
+      uses: jurplel/install-qt-action@d325aaf2a8baeeda41ad0b5d39f84a6af9bcf005 # v4.3.0
       timeout-minutes: 10
       with:
         version: 6.7.3
@@ -103,19 +108,19 @@ jobs:
         modules: qtwebengine
 
     - name: Install Ninja
-      uses: seanmiddleditch/gha-setup-ninja@v6
+      uses: seanmiddleditch/gha-setup-ninja@3b1f8f94a2f8254bd26914c4ab9474d4f0015f67 # v6
       with:
         version: 1.11.1
         platform: win
         destination: ninja
 
     - name: Setup MSVC environment
-      uses: seanmiddleditch/gha-setup-vsdevenv@v5
+      uses: seanmiddleditch/gha-setup-vsdevenv@cf96bf5b227cac6af28c04c4a4e69286ea444163 # v5
       with:
         arch: x64
 
     - name: Install NASM
-      uses: ilammy/setup-nasm@v1.2.0
+      uses: ilammy/setup-nasm@9a15c8cb72fe84e3e00527b3014de04693cf60cf # v1.2.0
 
     - name: Install NSIS for CPack
       shell: pwsh
@@ -151,7 +156,7 @@ jobs:
       run: ninja -C build/release package
 
     - name: Upload EXE
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
       with:
         name: GitNortek-Windows-Installer
         path: build/release/pack/*.exe
@@ -166,10 +171,18 @@ jobs:
         needs.rpm.result == 'success' &&
         (contains(github.ref_name, '-pre') || needs.windows-exe.result == 'success')
       }}
-    runs-on: ubuntu-latest
+    runs-on:
+      group: Public-Releases
+      labels: [self-hosted, linux, x64, gitnortek-linux]
+    container: ubuntu:24.04@sha256:33ceb71981b602c1a7443a53469e4dba065f7503eab3078a2d7a57a2ab987517
     permissions:
       contents: write
     steps:
+    - name: Install GitHub CLI
+      run: |
+        apt-get update
+        apt-get install -y gh
+
     - name: Validate tag
       run: |
         if [[ ! "${GITHUB_REF_NAME}" =~ ${TAG_PATTERN} ]]; then
@@ -178,7 +191,7 @@ jobs:
         fi
 
     - name: Download artifacts
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
       with:
         path: artifacts
 
