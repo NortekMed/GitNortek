@@ -14,7 +14,8 @@ The package workflow is `.github/workflows/package.yml`:
 - GitHub release publishing runs in a digest-pinned Ubuntu 24.04 container on
   the same runner group.
 - Windows EXE remains on GitHub-hosted `windows-2022`.
-- The workflow runs only for version tags matching `v*.*.*`.
+- The workflow accepts stable `vX.Y.Z` and prerelease `vX.Y.Z-pre.N` tags. The
+  legacy undotted `-preN` form is excluded before jobs are created.
 - Actions are pinned to commit SHAs.
 - Default `GITHUB_TOKEN` access is read-only; only the release job receives
   `contents: write`.
