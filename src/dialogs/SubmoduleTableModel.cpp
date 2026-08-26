@@ -96,19 +96,27 @@ bool SubmoduleTableModel::setData(const QModelIndex &index,
     return false;
 
   git::Submodule submodule = mSubmodules.at(index.row());
+  bool configurationChanged = false;
   switch (index.column()) {
     case Name:
     case Path:
       return false;
 
     case Url:
+      if (submodule.url() == value.toString())
+        return false;
       submodule.setUrl(value.toString());
+      configurationChanged = true;
       break;
 
     case Branch: {
       QString name = value.toString();
-      if (!name.isEmpty() || !submodule.branch().isEmpty())
+      if (name == submodule.branch())
+        return false;
+      if (!name.isEmpty() || !submodule.branch().isEmpty()) {
         submodule.setBranch(value.toString());
+        configurationChanged = true;
+      }
       break;
     }
 
@@ -150,6 +158,8 @@ bool SubmoduleTableModel::setData(const QModelIndex &index,
   }
 
   emit dataChanged(index, index);
+  if (configurationChanged)
+    emit this->configurationChanged();
   return true;
 }
 

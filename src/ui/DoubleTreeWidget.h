@@ -23,6 +23,7 @@ class StatePushButton;
 class DiffView;
 class QLabel;
 class QCheckBox;
+class QPushButton;
 
 // button in treeview:
 // https://stackoverflow.com/questions/40716138/how-to-add-a-button-to-a-qtreeview-row
@@ -72,6 +73,7 @@ private:
   void filesSelected(const QModelIndexList &indexes);
   void openFileInspection();
   void loadEditorContent(const QModelIndexList &indexes);
+  void updateStageAllChangesButton();
   void toggleCollapseStagedFiles();
   void toggleCollapseUnstagedFiles();
   QAction *setupAppearanceAction(const char *name, Setting::Id id,
@@ -82,6 +84,7 @@ private:
   TreeView *unstagedFiles{nullptr};
   StatePushButton *collapseButtonStagedFiles{nullptr};
   StatePushButton *collapseButtonUnstagedFiles{nullptr};
+  QPushButton *mStageAllChanges{nullptr};
   QLabel *mUnstagedCommitedFiles{nullptr};
   QCheckBox *mShowAllFiles{nullptr};
 

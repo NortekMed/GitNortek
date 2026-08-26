@@ -35,6 +35,9 @@ public:
                int role = Qt::EditRole);
   void refresh();
 
+signals:
+  void configurationChanged();
+
 private:
   QList<git::Submodule> mSubmodules;
   git::Repository mRepo;

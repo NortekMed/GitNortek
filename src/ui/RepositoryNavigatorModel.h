@@ -59,7 +59,8 @@ public:
     PinnedBehindRole,
     OriginAheadRole,
     OriginBehindRole,
-    OriginStateRole
+    OriginStateRole,
+    OriginTargetRole
   };
 
   explicit RepositoryNavigatorModel(QObject *parent = nullptr);
@@ -105,6 +106,7 @@ private:
     int originAhead = -1;
     int originBehind = -1;
     OriginState originState = OriginState::Hidden;
+    git::Id originTarget;
   };
 
   struct SectionData {

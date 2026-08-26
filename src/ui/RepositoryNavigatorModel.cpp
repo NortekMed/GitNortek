@@ -8,6 +8,7 @@
 #include "RepositoryNavigatorModel.h"
 #include "git/Branch.h"
 #include "git/TagRef.h"
+#include <QUrl>
 #include <algorithm>
 
 namespace {
@@ -207,6 +208,10 @@ QVariant RepositoryNavigatorModel::data(const QModelIndex &index,
       return row->kind == ItemKind::Submodule
                  ? QVariant::fromValue(row->originState)
                  : QVariant();
+    case OriginTargetRole:
+      return row->originTarget.isValid()
+                 ? QVariant::fromValue(row->originTarget)
+                 : QVariant();
     default:
       return QVariant();
   }
@@ -357,20 +362,21 @@ void RepositoryNavigatorModel::rebuild() {
     row.branch = submodule.branch();
     row.initialized = submodule.isInitialized();
     QStringList tooltip{tr("Path: %1").arg(row.path)};
+    git::Id pinnedId = submodule.indexId();
     auto status = mSubmoduleUpdateStatuses.constFind(row.display);
-    bool matchingStatus = status != mSubmoduleUpdateStatuses.cend() &&
-                          status->branch == row.branch;
+    bool matchingStatus =
+        status != mSubmoduleUpdateStatuses.cend() && status->path == row.path &&
+        (status->url == row.url || QUrl(row.url).isRelative()) &&
+        status->branch == row.branch && status->pinnedId == pinnedId;
     if (!row.branch.isEmpty()) {
-      row.originState = matchingStatus ? OriginState::Failed
-                                       : OriginState::Pending;
+      row.originState =
+          matchingStatus ? OriginState::Failed : OriginState::Pending;
     }
     if (row.initialized) {
       git::Repository repo = submodule.open();
       git::Id checkoutId = submodule.workdirId();
-      git::Id pinnedId = submodule.indexId();
       if (repo.isValid() && checkoutId.isValid()) {
-        tooltip.append(
-            tr("Local checkout: %1").arg(checkoutId.shortId()));
+        tooltip.append(tr("Local checkout: %1").arg(checkoutId.shortId()));
         if (pinnedId.isValid()) {
           compareCommits(repo, checkoutId, pinnedId, row.pinnedAhead,
                          row.pinnedBehind);
@@ -391,6 +397,7 @@ void RepositoryNavigatorModel::rebuild() {
           if (compareCommits(repo, checkoutId, status->targetId,
                              row.originAhead, row.originBehind)) {
             row.originState = OriginState::Ready;
+            row.originTarget = status->targetId;
             QString reference =
                 tr("the latest fetched commit on origin/%1").arg(row.branch);
             QString text =

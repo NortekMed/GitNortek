@@ -19,6 +19,8 @@ Bug Fix and Feature release
 * Commit checked-out submodule revisions directly from the repository navigator
 * Open the amend dialog by clicking the current HEAD commit message
 * Warn before pushing a parent commit whose initialized submodule pins cannot be proven available from their clone URLs
+* Add a green Stage All Changes button above the working-directory file tree
+* Checkout the latest fetched configured branch from behind-origin submodule context menus
 
 #### Changed
 
@@ -45,6 +47,8 @@ Bug Fix and Feature release
 * Prevent transient false submodule changes during branch renames and repository scans
 * Report local repository diagnostics and avoid reporting dirty worktrees or status errors as clean
 * Run Linux package and release jobs on an isolated disposable self-hosted runner with pinned actions and container images
+* Expose pull, push, and confirmed force push actions in the Remote menu, toolbar, current branch, and HEAD commit context menus
+* Recheck submodule updates after changing submodule URL, path, or branch configuration
 
 ----
 

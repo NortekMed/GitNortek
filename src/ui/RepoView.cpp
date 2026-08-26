@@ -78,6 +78,7 @@
 #include <QToolButton>
 #include <QUrl>
 #include <QUrlQuery>
+#include <algorithm>
 #include <QVBoxLayout>
 #include <QtConcurrent>
 
@@ -687,10 +688,13 @@ git::Tree RepoView::tree() const {
 }
 
 void RepoView::cancelRemoteTransfer() {
-  if (!mCallbacks)
+  if (!mCallbacks && !mSubmoduleUpdateCallbacks)
     return;
 
-  mCallbacks->setCanceled(true);
+  if (mCallbacks)
+    mCallbacks->setCanceled(true);
+  if (mSubmoduleUpdateCallbacks)
+    mSubmoduleUpdateCallbacks->setCanceled(true);
   QCoreApplication::processEvents();
   if (mWatcher && mWatcher->isRunning())
     mWatcher->waitForFinished();
@@ -1847,9 +1851,14 @@ void RepoView::cherryPick(const git::Commit &commit) {
 
 void RepoView::promptToForcePush(const git::Remote &remote,
                                  const git::Reference &src) {
-  // FIXME: Check if force is really required?
+  git::Remote targetRemote = remote.isValid() ? remote : mRepo.defaultRemote();
+  git::Reference target = src.isValid() ? src : mRepo.head();
+  if (!targetRemote.isValid() || !target.isValid()) {
+    push(targetRemote, target, QString(), false, true);
+    return;
+  }
 
-  QString title = tr("Force Push to %1?").arg(remote.name());
+  QString title = tr("Force Push to %1?").arg(targetRemote.name());
   QString text = tr("Are you sure you want to force push?");
   QMessageBox *dialog = new QMessageBox(QMessageBox::Warning, title, text,
                                         QMessageBox::Cancel, this);
@@ -1862,8 +1871,9 @@ void RepoView::promptToForcePush(const git::Remote &remote,
 
   QPushButton *accept =
       dialog->addButton(tr("Force Push"), QMessageBox::AcceptRole);
-  connect(accept, &QPushButton::clicked, this,
-          [this, remote, src] { push(remote, src, QString(), false, true); });
+  connect(accept, &QPushButton::clicked, this, [this, targetRemote, target] {
+    push(targetRemote, target, QString(), false, true);
+  });
 
   dialog->open();
 }
@@ -2434,10 +2444,24 @@ void RepoView::promptToRenameBranch(const git::Branch &branch) {
   dialog->open();
 }
 
+void RepoView::populateRemoteContextMenu(QMenu *menu) {
+  if (!menu)
+    return;
+
+  menu->addAction(tr("Pull"), this, [this] { pull(); });
+  menu->addAction(tr("Push"), this, [this] { push(); });
+  menu->addAction(tr("Force Push..."), this, [this] { promptToForcePush(); });
+}
+
 void RepoView::populateReferenceContextMenu(QMenu *menu,
                                             const git::Reference &ref) {
   if (!menu || !ref.isValid())
     return;
+
+  if (ref.isLocalBranch() && ref.isHead()) {
+    populateRemoteContextMenu(menu);
+    menu->addSeparator();
+  }
 
   QAction *checkout = menu->addAction(tr("Checkout"), this,
                                       [this, ref] { this->checkout(ref); });
@@ -2974,13 +2998,24 @@ void RepoView::updateSubmodulesAsync(const QList<SubmoduleInfo> &submodules,
 }
 
 void RepoView::checkSubmoduleUpdates(bool automatic) {
-  if (mSubmoduleUpdateWatcher)
+  if (mSubmoduleUpdateWatcher) {
+    if (automatic)
+      mSubmoduleUpdateCheckPending = true;
     return;
+  }
 
   if (mWatcher) {
     if (automatic) {
-      connect(mWatcher, &QFutureWatcher<git::Result>::finished, this,
-              [this] { checkSubmoduleUpdates(true); });
+      mSubmoduleUpdateCheckPending = true;
+      connect(
+          mWatcher, &QFutureWatcher<git::Result>::finished, this,
+          [this] {
+            QTimer::singleShot(0, this, [this] {
+              if (mSubmoduleUpdateCheckPending)
+                checkSubmoduleUpdates(true);
+            });
+          },
+          Qt::SingleShotConnection);
       return;
     }
 
@@ -2989,6 +3024,9 @@ void RepoView::checkSubmoduleUpdates(bool automatic) {
                   tr("Submodule Updates"));
     return;
   }
+
+  mSubmoduleUpdateCheckPending = false;
+  const quint64 generation = mSubmoduleConfigurationGeneration;
 
   QList<git::Submodule> submodules = mRepo.submodules();
   if (submodules.isEmpty()) {
@@ -3006,18 +3044,36 @@ void RepoView::checkSubmoduleUpdates(bool automatic) {
 
   mSubmoduleUpdateWatcher =
       new QFutureWatcher<QList<git::Submodule::UpdateStatus>>(this);
-  mCallbacks = new RemoteCallbacks(RemoteCallbacks::Receive, entry,
-                                   submodules.first().url(), QString(),
-                                   mSubmoduleUpdateWatcher, mRepo);
+  QFutureWatcher<QList<git::Submodule::UpdateStatus>> *watcher =
+      mSubmoduleUpdateWatcher;
+  mSubmoduleUpdateCallbacks =
+      new RemoteCallbacks(RemoteCallbacks::Receive, entry,
+                          submodules.first().url(), QString(), watcher, mRepo);
+  RemoteCallbacks *callbacks = mSubmoduleUpdateCallbacks;
 
   connect(
-      mSubmoduleUpdateWatcher,
-      &QFutureWatcher<QList<git::Submodule::UpdateStatus>>::finished,
-      mSubmoduleUpdateWatcher, [this, entry, automatic] {
+      watcher, &QFutureWatcher<QList<git::Submodule::UpdateStatus>>::finished,
+      watcher, [this, watcher, callbacks, entry, automatic, generation] {
         entry->setBusy(false);
 
-        QList<git::Submodule::UpdateStatus> results =
-            mSubmoduleUpdateWatcher->result();
+        QList<git::Submodule::UpdateStatus> results = watcher->result();
+        if (generation != mSubmoduleConfigurationGeneration) {
+          entry->setText(
+              tr("Submodule configuration changed; checking again."));
+          callbacks->storeDeferredCredentials();
+          mSubmoduleUpdateCheckPending = true;
+          watcher->deleteLater();
+          if (mSubmoduleUpdateWatcher == watcher)
+            mSubmoduleUpdateWatcher = nullptr;
+          if (mSubmoduleUpdateCallbacks == callbacks)
+            mSubmoduleUpdateCallbacks = nullptr;
+          QTimer::singleShot(0, this, [this] {
+            if (mSubmoduleUpdateCheckPending)
+              checkSubmoduleUpdates(true);
+          });
+          return;
+        }
+
         mSubmoduleUpdateStatuses = results;
         emit submoduleUpdateStatusesChanged(mSubmoduleUpdateStatuses);
 
@@ -3039,7 +3095,7 @@ void RepoView::checkSubmoduleUpdates(bool automatic) {
             ++warnings;
         }
 
-        if (mCallbacks->isCanceled()) {
+        if (callbacks->isCanceled()) {
           entry->setText(tr("Submodule update check canceled."));
         } else if (!checked) {
           entry->setText(tr("No branch-tracked submodules to check."));
@@ -3084,14 +3140,22 @@ void RepoView::checkSubmoduleUpdates(bool automatic) {
           entry->addEntry(kind, text);
         }
 
-        mCallbacks->storeDeferredCredentials();
-        mSubmoduleUpdateWatcher->deleteLater();
-        mSubmoduleUpdateWatcher = nullptr;
-        mCallbacks = nullptr;
+        callbacks->storeDeferredCredentials();
+        const bool restart = mSubmoduleUpdateCheckPending;
+        watcher->deleteLater();
+        if (mSubmoduleUpdateWatcher == watcher)
+          mSubmoduleUpdateWatcher = nullptr;
+        if (mSubmoduleUpdateCallbacks == callbacks)
+          mSubmoduleUpdateCallbacks = nullptr;
+        if (restart) {
+          QTimer::singleShot(0, this, [this] {
+            if (mSubmoduleUpdateCheckPending)
+              checkSubmoduleUpdates(true);
+          });
+        }
       });
 
-  RemoteCallbacks *callbacks = mCallbacks;
-  mSubmoduleUpdateWatcher->setFuture(QtConcurrent::run([submodules, callbacks] {
+  watcher->setFuture(QtConcurrent::run([submodules, callbacks] {
     QList<git::Submodule::UpdateStatus> results;
     for (const git::Submodule &submodule : submodules) {
       if (callbacks->isCanceled())
@@ -3110,6 +3174,80 @@ void RepoView::clearSubmoduleUpdateStatuses() {
 
   mSubmoduleUpdateStatuses.clear();
   emit submoduleUpdateStatusesChanged(mSubmoduleUpdateStatuses);
+}
+
+void RepoView::submoduleConfigurationChanged() {
+  ++mSubmoduleConfigurationGeneration;
+  mRepo.invalidateSubmoduleCache();
+  clearSubmoduleUpdateStatuses();
+  emit submodulesChanged();
+  refresh(true);
+  checkSubmoduleUpdates(true);
+}
+
+bool RepoView::checkoutSubmoduleOrigin(const QString &name,
+                                       const QString &branch,
+                                       const git::Id &target) {
+  LogEntry *entry = addLogEntry(name, tr("Checkout Submodule"));
+  if (mWatcher || mSubmoduleUpdateWatcher || mSubmodulePushCheckWatcher) {
+    entry->addEntry(LogEntry::Error,
+                    tr("Another remote operation is already running."));
+    return false;
+  }
+
+  git::Submodule submodule = mRepo.lookupSubmodule(name);
+  auto status = std::find_if(
+      mSubmoduleUpdateStatuses.cbegin(), mSubmoduleUpdateStatuses.cend(),
+      [submodule, branch, target](const git::Submodule::UpdateStatus &status) {
+        return submodule.isValid() && status.name == submodule.name() &&
+               status.path == submodule.path() &&
+               (status.url == submodule.url() ||
+                QUrl(submodule.url()).isRelative()) &&
+               status.branch == branch && status.targetId == target &&
+               status.pinnedId == submodule.indexId();
+      });
+  if (!submodule.isInitialized() || !target.isValid() ||
+      status == mSubmoduleUpdateStatuses.cend()) {
+    entry->addEntry(
+        LogEntry::Error,
+        tr("The fetched submodule target is no longer current. Run the "
+           "submodule update check again."));
+    return false;
+  }
+
+  git::Repository child = submodule.open();
+  if (!child.isValid()) {
+    entry->addEntry(LogEntry::Error,
+                    tr("The submodule repository is unavailable."));
+    return false;
+  }
+
+  git::Commit commit = child.lookupCommit(target);
+  if (!commit.isValid()) {
+    entry->addEntry(LogEntry::Error,
+                    tr("The fetched submodule commit is unavailable."));
+    return false;
+  }
+
+  if (!child.checkout(commit)) {
+    error(entry, tr("checkout submodule"), name);
+    emit submodulesChanged();
+    refresh(true);
+    return false;
+  }
+
+  if (!child.setHeadDetached(commit)) {
+    error(entry, tr("detach submodule HEAD"), name);
+    emit submodulesChanged();
+    refresh(true);
+    return false;
+  }
+
+  entry->addEntry(
+      tr("Checked out origin/%1 at %2.").arg(branch, target.shortId()));
+  emit submodulesChanged();
+  refresh(true);
+  return true;
 }
 
 void RepoView::addSubmodule(const QString &url, const QString &path,
@@ -3165,9 +3303,7 @@ bool RepoView::modifySubmodule(const QString &oldName, const QString &newName,
   }
 
   addLogEntry(newName, tr("Submodule Modified"));
-  clearSubmoduleUpdateStatuses();
-  emit submodulesChanged();
-  refresh(true);
+  submoduleConfigurationChanged();
   return true;
 }
 

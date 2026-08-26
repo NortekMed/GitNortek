@@ -365,6 +365,8 @@ public:
 
     connect(view, &RepoView::submodulesChanged, model,
             &SubmoduleTableModel::refresh);
+    connect(model, &SubmoduleTableModel::configurationChanged, view,
+            &RepoView::submoduleConfigurationChanged);
 
     QPushButton *modify = new QPushButton(tr("Modify..."), this);
     modify->setEnabled(false);

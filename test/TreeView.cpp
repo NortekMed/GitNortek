@@ -3,13 +3,16 @@
 #include "ui/CommitList.h"
 #include "ui/MainWindow.h"
 #include "ui/DoubleTreeWidget.h"
+#include "ui/StatePushButton.h"
 #include "ui/TreeView.h"
 #include "ui/TreeProxy.h"
 #include "ui/FileContextMenu.h"
 #include "conf/Settings.h"
 
-#include <QTextEdit>
+#include <QHBoxLayout>
+#include <QPushButton>
 #include <QStackedWidget>
+#include <QTextEdit>
 #include <QToolButton>
 
 using namespace Test;
@@ -49,6 +52,7 @@ private slots:
   void committedFileInspection();
   void dirtySubmoduleAndStagedSubmodule();
   void conflictedAndStagedFile();
+  void stageAllChangesButton();
 
 private:
 };
@@ -401,6 +405,55 @@ void TestTreeView::conflictedAndStagedFile() {
     QVERIFY(index.isValid());
     QCOMPARE(index.data(), "conflictedFile.txt");
   }
+}
+
+void TestTreeView::stageAllChangesButton() {
+  INIT_REPO("TestRepository.zip", false);
+
+  QFile file(repo.workdir().filePath("file.txt"));
+  QVERIFY(file.open(QFile::WriteOnly | QFile::Truncate));
+  QCOMPARE(file.write("Stage all changes test\n"), 23);
+  file.close();
+  refresh(repoView);
+
+  auto *doubleTree = repoView->findChild<DoubleTreeWidget *>();
+  QVERIFY(doubleTree);
+  auto *button = doubleTree->findChild<QPushButton *>("StageAllChangesButton");
+  QVERIFY(button);
+  QCOMPARE(button, doubleTree->mStageAllChanges);
+
+  auto *unstagedLayout = qobject_cast<QVBoxLayout *>(
+      doubleTree->collapseButtonUnstagedFiles->parentWidget()->layout());
+  QVERIFY(unstagedLayout);
+  auto *headerLayout =
+      qobject_cast<QHBoxLayout *>(unstagedLayout->itemAt(0)->layout());
+  QVERIFY(headerLayout);
+  QCOMPARE(headerLayout->indexOf(button) + 1,
+           headerLayout->indexOf(doubleTree->collapseButtonUnstagedFiles));
+
+  QTRY_VERIFY(button->isVisible());
+  QTRY_VERIFY(button->isEnabled());
+  QCOMPARE(button->isEnabled(), repoView->isStageEnabled());
+
+  mouseClick(button, Qt::LeftButton);
+  QTRY_COMPARE(repo.diffIndexToWorkdir().count(), 0);
+  QTRY_VERIFY(!button->isEnabled());
+  QCOMPARE(button->isEnabled(), repoView->isStageEnabled());
+
+  auto *commits = repoView->findChild<CommitList *>();
+  QVERIFY(commits);
+  QModelIndex commitIndex;
+  for (int row = 0; row < commits->model()->rowCount(); ++row) {
+    QModelIndex candidate = commits->model()->index(row, 0);
+    if (candidate.data(CommitList::CommitRole).isValid()) {
+      commitIndex = candidate;
+      break;
+    }
+  }
+  QVERIFY(commitIndex.isValid());
+  commits->selectionModel()->select(commitIndex,
+                                    QItemSelectionModel::ClearAndSelect);
+  QTRY_VERIFY(!button->isVisible());
 }
 
 TEST_MAIN(TestTreeView)

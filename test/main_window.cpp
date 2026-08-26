@@ -13,8 +13,10 @@
 #include "git/Config.h"
 #include "ui/CommitList.h"
 #include "ui/MainWindow.h"
+#include "ui/MenuBar.h"
 #include "ui/RepoView.h"
 #include "ui/TabWidget.h"
+#include <QMenu>
 #include <QMessageBox>
 #include <QPointer>
 #include <QProcess>
@@ -39,6 +41,7 @@ private slots:
   void createAndTrackRemoteBranch();
   void trackExistingRemoteBranch();
   void pushTrackedBranchWithoutPrompt();
+  void forcePushResetBranch();
   void closeTab();
   void recentRepositoryLimit();
   void invalidRecentRepository();
@@ -238,6 +241,73 @@ void TestMainWindow::pushTrackedBranchWithoutPrompt() {
   view->push();
   QTest::qWait(100);
   QVERIFY(!view->findChild<QMessageBox *>());
+}
+
+void TestMainWindow::forcePushResetBranch() {
+  git::Reference branch = mRepo->head();
+  git::Branch upstream = branch;
+  QVERIFY(upstream.upstream().isValid());
+
+  git::Repository published = git::Repository::open(mRemoteDir.path());
+  QVERIFY(published.isValid());
+  const QString remoteRef = "refs/heads/" + branch.name();
+  const git::Id publishedId = published.lookupRef(remoteRef).target().id();
+  QCOMPARE(publishedId, branch.target().id());
+
+  QProcess git;
+  git.setWorkingDirectory(mRepo->workdir().path());
+  git.start(GIT_EXECUTABLE, {"reset", "--hard", "HEAD~"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+
+  const git::Id resetId = mRepo->head().target().id();
+  QVERIFY(resetId != publishedId);
+
+  QMenu *remoteMenu = nullptr;
+  foreach (QAction *action, MenuBar::instance(mWindow)->actions()) {
+    if (action->text() == "Remote") {
+      remoteMenu = action->menu();
+      break;
+    }
+  }
+  QVERIFY(remoteMenu);
+
+  QAction *forcePush = nullptr;
+  foreach (QAction *action, remoteMenu->actions()) {
+    if (action->text() == "Force Push...") {
+      forcePush = action;
+      break;
+    }
+  }
+  QVERIFY(forcePush);
+  QVERIFY(forcePush->isEnabled());
+
+  bool toolbarActionFound = false;
+  foreach (QToolButton *button, mWindow->findChildren<QToolButton *>()) {
+    if (!button->menu())
+      continue;
+    foreach (QAction *action, button->menu()->actions())
+      toolbarActionFound |= action->text() == "Force Push...";
+  }
+  QVERIFY(toolbarActionFound);
+
+  forcePush->trigger();
+  QTRY_VERIFY(mWindow->findChild<QMessageBox *>());
+  QMessageBox *dialog = mWindow->findChild<QMessageBox *>();
+  QCOMPARE(dialog->windowTitle(), QString("Force Push to origin?"));
+
+  QPushButton *accept = nullptr;
+  foreach (QPushButton *button, dialog->findChildren<QPushButton *>()) {
+    if (button->text() == "Force Push") {
+      accept = button;
+      break;
+    }
+  }
+  QVERIFY(accept);
+  accept->click();
+
+  QTRY_COMPARE_WITH_TIMEOUT(published.lookupRef(remoteRef).target().id(),
+                            resetId, 10000);
 }
 
 void TestMainWindow::closeTab() {

@@ -369,8 +369,8 @@ void RepositoryNavigator::showContextMenu(const QPoint &point) {
     return;
 
   QMenu menu;
-  git::Reference ref =
-      index.data(RepositoryNavigatorModel::ReferenceRole).value<git::Reference>();
+  git::Reference ref = index.data(RepositoryNavigatorModel::ReferenceRole)
+                           .value<git::Reference>();
   if (ref.isValid()) {
     mRepoView->populateReferenceContextMenu(&menu, ref);
   } else {
@@ -380,26 +380,44 @@ void RepositoryNavigator::showContextMenu(const QPoint &point) {
     if (submodule.isValid()) {
       bool initialized =
           index.data(RepositoryNavigatorModel::InitializedRole).toBool();
-      QAction *open = menu.addAction(tr("Open"), mRepoView,
-                                     [view = mRepoView, submodule] {
-                                       if (view)
-                                         view->openSubmodule(submodule);
-                                     });
+      QAction *open =
+          menu.addAction(tr("Open"), mRepoView, [view = mRepoView, submodule] {
+            if (view)
+              view->openSubmodule(submodule);
+          });
       open->setEnabled(initialized && submodule.open().isValid());
-      QAction *commitChanges =
-          menu.addAction(tr("Commit Changes"), mRepoView,
-                         [view = mRepoView, submodule] {
-                           if (view)
-                             view->commitSubmoduleChanges(submodule);
-                         });
+      QAction *commitChanges = menu.addAction(
+          tr("Commit Changes"), mRepoView, [view = mRepoView, submodule] {
+            if (view)
+              view->commitSubmoduleChanges(submodule);
+          });
       commitChanges->setEnabled(
           initialized && mRepoView->canCommitSubmoduleChanges(submodule));
+      RepositoryNavigatorModel::OriginState originState =
+          index.data(RepositoryNavigatorModel::OriginStateRole)
+              .value<RepositoryNavigatorModel::OriginState>();
+      int originBehind =
+          index.data(RepositoryNavigatorModel::OriginBehindRole).toInt();
+      git::Id originTarget =
+          index.data(RepositoryNavigatorModel::OriginTargetRole)
+              .value<git::Id>();
+      QString branch =
+          index.data(RepositoryNavigatorModel::BranchRole).toString();
+      if (initialized &&
+          originState == RepositoryNavigatorModel::OriginState::Ready &&
+          originBehind > 0 && originTarget.isValid()) {
+        menu.addAction(
+            tr("Checkout origin/%1").arg(branch), mRepoView,
+            [view = mRepoView, name = submodule.name(), branch, originTarget] {
+              if (view)
+                view->checkoutSubmoduleOrigin(name, branch, originTarget);
+            });
+      }
       if (initialized) {
-        menu.addAction(tr("Update"), mRepoView,
-                       [view = mRepoView, submodule] {
-                         if (view)
-                           view->updateSubmodules({submodule});
-                       });
+        menu.addAction(tr("Update"), mRepoView, [view = mRepoView, submodule] {
+          if (view)
+            view->updateSubmodules({submodule});
+        });
       } else {
         menu.addAction(tr("Initialize and Update"), mRepoView,
                        [view = mRepoView, submodule] {
@@ -408,11 +426,10 @@ void RepositoryNavigator::showContextMenu(const QPoint &point) {
                        });
       }
       menu.addSeparator();
-      menu.addAction(tr("Modify..."), mRepoView,
-                     [view = mRepoView, submodule] {
-                       if (view)
-                         view->promptToModifySubmodule(submodule);
-                     });
+      menu.addAction(tr("Modify..."), mRepoView, [view = mRepoView, submodule] {
+        if (view)
+          view->promptToModifySubmodule(submodule);
+      });
       menu.addAction(tr("Delete Submodule..."), mRepoView,
                      [view = mRepoView, submodule] {
                        if (view)

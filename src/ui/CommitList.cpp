@@ -2323,6 +2323,11 @@ void CommitList::contextMenuEvent(QContextMenuEvent *event) {
     if (selectionModel()->selectedIndexes().size() <= 1) {
       menu.addSeparator();
 
+      if (commit == view->repo().head().target()) {
+        view->populateRemoteContextMenu(&menu);
+        menu.addSeparator();
+      }
+
       menu.addAction(tr("Add Tag..."),
                      [view, commit] { view->promptToAddTag(commit); });
 

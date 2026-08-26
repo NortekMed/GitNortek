@@ -310,10 +310,9 @@ void TestRepositorySideBar::navigatorView() {
 
   view->collapse(local);
   QCoreApplication::processEvents();
-  QCOMPARE(QSettings()
-               .value("sidebar/repositoryNavigator/expanded/Local")
-               .toBool(),
-           false);
+  QCOMPARE(
+      QSettings().value("sidebar/repositoryNavigator/expanded/Local").toBool(),
+      false);
 
   navigator.setRepository(mRepo);
   local = model->sectionIndex(RepositoryNavigatorModel::Section::Local);
@@ -353,15 +352,20 @@ void TestRepositorySideBar::activeRepositoryBinding() {
   QList<QPair<QString, bool>> currentItems =
       contextMenuItems(navigator->view(), current);
   QCOMPARE(menuTexts(currentItems),
-           QStringList({"Checkout", "Rename", "Delete", "Merge...",
-                        "Rebase...", "Squash..."}));
-  QCOMPARE(currentItems.at(0).second, false);
-  QCOMPARE(currentItems.at(1).second, false);
-  QCOMPARE(currentItems.at(2).second, false);
+           QStringList({"Pull", "Push", "Force Push...", "Checkout", "Rename",
+                        "Delete", "Merge...", "Rebase...", "Squash..."}));
+  QVERIFY(currentItems.at(0).second);
+  QVERIFY(currentItems.at(1).second);
+  QVERIFY(currentItems.at(2).second);
+  QCOMPARE(currentItems.at(3).second, false);
+  QCOMPARE(currentItems.at(4).second, false);
+  QCOMPARE(currentItems.at(5).second, false);
 
   QList<QPair<QString, bool>> otherItems =
       contextMenuItems(navigator->view(), other);
-  QCOMPARE(menuTexts(otherItems), menuTexts(currentItems));
+  QCOMPARE(menuTexts(otherItems),
+           QStringList({"Checkout", "Rename", "Delete", "Merge...", "Rebase...",
+                        "Squash..."}));
   QVERIFY(otherItems.at(0).second);
   QVERIFY(otherItems.at(1).second);
   QVERIFY(otherItems.at(2).second);
@@ -373,8 +377,8 @@ void TestRepositorySideBar::activeRepositoryBinding() {
   QList<QPair<QString, bool>> remoteItems =
       contextMenuItems(navigator->view(), remote);
   QCOMPARE(menuTexts(remoteItems),
-           QStringList({"Checkout", "New Local Branch", "Merge...",
-                        "Rebase...", "Squash..."}));
+           QStringList({"Checkout", "New Local Branch", "Merge...", "Rebase...",
+                        "Squash..."}));
   for (const auto &item : remoteItems)
     QVERIFY(item.second);
 
@@ -879,6 +883,7 @@ void TestRepositorySideBar::stashInteraction() {
 
   bool passedHead = false;
   git::Id head = repo->head().target().id();
+  QModelIndex headIndex;
   for (int row = 0; row < graphModel->rowCount(); ++row) {
     QModelIndex index = graphModel->index(row, 0);
     git::Commit commit =
@@ -890,10 +895,18 @@ void TestRepositorySideBar::stashInteraction() {
           QVERIFY(color.value<QColor>() != QColor(Qt::gray));
       }
     }
-    if (commit.isValid() && commit.id() == head)
+    if (commit.isValid() && commit.id() == head) {
       passedHead = true;
+      headIndex = index;
+    }
   }
   QVERIFY(passedHead);
+  QVERIFY(headIndex.isValid());
+
+  QStringList headMenu = contextMenuItems(commitList, headIndex);
+  QVERIFY(headMenu.contains("Pull"));
+  QVERIFY(headMenu.contains("Push"));
+  QVERIFY(headMenu.contains("Force Push..."));
 
   QCOMPARE(contextMenuItems(commitList, graphStashes().first()),
            QStringList({"Apply", "Pop", "Drop"}));
@@ -992,10 +1005,13 @@ void TestRepositorySideBar::submoduleInteraction() {
   QCOMPARE(submodule.data(RepositoryNavigatorModel::OriginStateRole)
                .value<RepositoryNavigatorModel::OriginState>(),
            RepositoryNavigatorModel::OriginState::Pending);
-  QVERIFY(submodule.data(Qt::ToolTipRole).toString().contains(
-      "matches the commit recorded by the parent repository"));
-  QVERIFY(submodule.data(Qt::ToolTipRole).toString().contains(
-      "Waiting for a submodule update check"));
+  QVERIFY(
+      submodule.data(Qt::ToolTipRole)
+          .toString()
+          .contains("matches the commit recorded by the parent repository"));
+  QVERIFY(submodule.data(Qt::ToolTipRole)
+              .toString()
+              .contains("Waiting for a submodule update check"));
   QString tooltip = submodule.data(Qt::ToolTipRole).toString();
   QVERIFY(tooltip.startsWith("<qt>"));
   QVERIFY(tooltip.contains("color:#36c96b"));
@@ -1014,7 +1030,10 @@ void TestRepositorySideBar::submoduleInteraction() {
           .value<git::Submodule>();
   git::Submodule::UpdateStatus synchronized;
   synchronized.name = "child";
+  synchronized.path = selected.path();
+  synchronized.url = selected.url();
   synchronized.branch = childBranch;
+  synchronized.pinnedId = selected.indexId();
   synchronized.targetId = selected.workdirId();
   navigator->model()->setSubmoduleUpdateStatuses({synchronized});
   submodules = navigator->model()->sectionIndex(
@@ -1048,7 +1067,10 @@ void TestRepositorySideBar::submoduleInteraction() {
 
   git::Submodule::UpdateStatus failed;
   failed.name = "child";
+  failed.path = selected.path();
+  failed.url = selected.url();
   failed.branch = childBranch;
+  failed.pinnedId = selected.indexId();
   failed.state = git::Submodule::UpdateStatus::Error;
   failed.message = "test failure";
   navigator->model()->setSubmoduleUpdateStatuses({failed});
@@ -1058,8 +1080,9 @@ void TestRepositorySideBar::submoduleInteraction() {
   QCOMPARE(submodule.data(RepositoryNavigatorModel::OriginStateRole)
                .value<RepositoryNavigatorModel::OriginState>(),
            RepositoryNavigatorModel::OriginState::Failed);
-  QVERIFY(submodule.data(Qt::ToolTipRole).toString().contains(
-      "comparison failed - test failure"));
+  QVERIFY(submodule.data(Qt::ToolTipRole)
+              .toString()
+              .contains("comparison failed - test failure"));
   navigator->model()->setSubmoduleUpdateStatuses(
       parentView->submoduleUpdateStatuses());
 
@@ -1087,12 +1110,36 @@ void TestRepositorySideBar::submoduleInteraction() {
            1);
   QCOMPARE(submodule.data(RepositoryNavigatorModel::OriginBehindRole).toInt(),
            1);
-  QVERIFY(submodule.data(Qt::ToolTipRole).toString().contains(
-      "have diverged (1 commit ahead, 1 commit behind)"));
+  QVERIFY(submodule.data(Qt::ToolTipRole)
+              .toString()
+              .contains("have diverged (1 commit ahead, 1 commit behind)"));
+
+  QList<QPair<QString, bool>> behindMenu =
+      contextMenuItems(navigator->view(), submodule);
+  QVERIFY(menuTexts(behindMenu)
+              .contains(QString("Checkout origin/%1").arg(childBranch)));
+  git::Id originTarget =
+      submodule.data(RepositoryNavigatorModel::OriginTargetRole)
+          .value<git::Id>();
+  QVERIFY(originTarget.isValid());
+  selected = parentView->repo().lookupSubmodule("child");
+  git::Id parentPin = selected.indexId();
+  git::Id localCommit = selected.workdirId();
+  QVERIFY(
+      parentView->checkoutSubmoduleOrigin("child", childBranch, originTarget));
+  selected = parentView->repo().lookupSubmodule("child");
+  QCOMPARE(selected.workdirId(), originTarget);
+  QCOMPARE(selected.indexId(), parentPin);
+  QVERIFY(selected.open().isHeadDetached());
+
+  git.setWorkingDirectory(parent->workdir().filePath("child"));
+  git.start(GIT_EXECUTABLE, {"checkout", "--detach", localCommit.toString()});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  parent->invalidateSubmoduleCache();
 
   git.setWorkingDirectory(parent->workdir().path());
-  git.start(GIT_EXECUTABLE,
-            {"submodule", "set-branch", "--default", "child"});
+  git.start(GIT_EXECUTABLE, {"submodule", "set-branch", "--default", "child"});
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
   parent->invalidateSubmoduleCache();
@@ -1104,16 +1151,24 @@ void TestRepositorySideBar::submoduleInteraction() {
                .value<RepositoryNavigatorModel::OriginState>(),
            RepositoryNavigatorModel::OriginState::Hidden);
   QVERIFY(!submodule.data(RepositoryNavigatorModel::OriginAheadRole).isValid());
-  QVERIFY(submodule.data(Qt::ToolTipRole).toString().contains(
-      "Not shown because no remote branch is configured"));
+  QVERIFY(submodule.data(Qt::ToolTipRole)
+              .toString()
+              .contains("Not shown because no remote branch is configured"));
+  selected = parentView->repo().lookupSubmodule("child");
+  QCOMPARE(selected.open().head().target().id(), localCommit);
+  QCOMPARE(selected.indexId(), parentPin);
+  QVERIFY(parentView->repo().head().isLocalBranch());
+  QCOMPARE(parentView->repo().state(), GIT_REPOSITORY_STATE_NONE);
+  QCOMPARE(parentView->repo().head().target().tree().id("child"), parentPin);
+  QVERIFY(parentPin != localCommit);
+  QVERIFY(parentView->canCommitSubmoduleChanges(selected));
 
   QList<QPair<QString, bool>> menu =
       contextMenuItems(navigator->view(), submodule);
-  QCOMPARE(menuTexts(menu),
-           QStringList({"Open", "Commit Changes", "Update", "Modify...",
-                        "Delete Submodule..."}));
+  QCOMPARE(menuTexts(menu), QStringList({"Open", "Commit Changes", "Update",
+                                         "Modify...", "Delete Submodule..."}));
   for (const auto &item : menu)
-    QVERIFY(item.second);
+    QVERIFY2(item.second, qPrintable(item.first));
 
   selected = submodule.data(RepositoryNavigatorModel::SubmoduleRole)
                  .value<git::Submodule>();
@@ -1128,6 +1183,14 @@ void TestRepositorySideBar::submoduleInteraction() {
   QCOMPARE(submoduleCommit.message().trimmed(), expectedMessage);
   QCOMPARE(submoduleCommit.tree().id("child"), newPin);
   QVERIFY(!parentView->canCommitSubmoduleChanges(selected));
+
+  QSignalSpy configurationCheck(parentView,
+                                &RepoView::submoduleUpdateStatusesChanged);
+  selected = parentView->repo().lookupSubmodule("child");
+  QVERIFY(parentView->modifySubmodule(selected.name(), selected.name(),
+                                      selected.path(), selected.url(),
+                                      childBranch));
+  QTRY_VERIFY(!configurationCheck.isEmpty());
 
   parentView->promptToDeleteSubmodule(selected);
   QTRY_VERIFY(QApplication::activeModalWidget());

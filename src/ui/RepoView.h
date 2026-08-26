@@ -265,6 +265,7 @@ public:
                            bool checkout = false, bool force = false);
   void promptToDeleteBranch(const git::Reference &ref);
   void promptToRenameBranch(const git::Branch &branch);
+  void populateRemoteContextMenu(QMenu *menu);
   void populateReferenceContextMenu(QMenu *menu, const git::Reference &ref);
 
   // stash
@@ -295,6 +296,9 @@ public:
       bool recursive = true, bool init = false, bool checkout_force = false,
       LogEntry *parent = nullptr, bool restoreSelection = true);
   void checkSubmoduleUpdates(bool automatic = false);
+  void submoduleConfigurationChanged();
+  bool checkoutSubmoduleOrigin(const QString &name, const QString &branch,
+                               const git::Id &target);
   const QList<git::Submodule::UpdateStatus> &submoduleUpdateStatuses() const {
     return mSubmoduleUpdateStatuses;
   }
@@ -471,6 +475,9 @@ private:
   QFutureWatcher<git::Result> *mWatcher = nullptr;
   QFutureWatcher<QList<git::Submodule::UpdateStatus>> *mSubmoduleUpdateWatcher =
       nullptr;
+  RemoteCallbacks *mSubmoduleUpdateCallbacks = nullptr;
+  quint64 mSubmoduleConfigurationGeneration = 0;
+  bool mSubmoduleUpdateCheckPending = false;
   QFutureWatcher<QList<git::SubmoduleAvailability::Issue>>
       *mSubmodulePushCheckWatcher = nullptr;
   QList<git::Submodule::UpdateStatus> mSubmoduleUpdateStatuses;

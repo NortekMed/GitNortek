@@ -111,6 +111,7 @@ private:
   QAction *mPull;
   QAction *mPullFrom;
   QAction *mPush;
+  QAction *mForcePush;
   QAction *mPushTo;
 
   // Branch

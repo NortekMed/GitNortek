@@ -798,7 +798,15 @@ ToolBar::ToolBar(MainWindow *parent) : QToolBar(parent) {
   connect(mPullButton, &Button::clicked, [this] { currentView()->pull(); });
 
   mPushButton = new RemoteButton(RemoteButton::Push, remote);
+  mPushButton->setPopupMode(QToolButton::MenuButtonPopup);
   remote->addButton(mPushButton, tr("Push"));
+
+  QMenu *pushMenu = new QMenu(mPushButton);
+  mPushButton->setMenu(pushMenu);
+  QAction *forcePushAction = pushMenu->addAction(tr("Force Push..."));
+  connect(forcePushAction, &QAction::triggered,
+          [this] { currentView()->promptToForcePush(); });
+
   connect(mPushButton, &Button::clicked, [this] { currentView()->push(); });
 
   addWidget(new Spacer(4, this));

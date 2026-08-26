@@ -214,6 +214,23 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   mShowAllFiles = new QCheckBox(tr("Show all files"), this);
   mShowAllFiles->setVisible(false);
   hBoxLayout->addWidget(mShowAllFiles);
+  mStageAllChanges = new QPushButton(tr("Stage All Changes"), this);
+  mStageAllChanges->setObjectName("StageAllChangesButton");
+  mStageAllChanges->setStyleSheet(QStringLiteral(
+      "QPushButton#StageAllChangesButton {"
+      "  background-color: #36c96b; color: #102817;"
+      "  border: 1px solid #2ead5b; border-radius: 3px; padding: 4px 10px;"
+      "}"
+      "QPushButton#StageAllChangesButton:hover {"
+      "  background-color: #4bd77d;"
+      "}"
+      "QPushButton#StageAllChangesButton:pressed {"
+      "  background-color: #2eaa59; color: #ffffff;"
+      "}"
+      "QPushButton#StageAllChangesButton:disabled {"
+      "  background-color: #71877a; color: #e5ebe7; border-color: #71877a;"
+      "}"));
+  hBoxLayout->addWidget(mStageAllChanges);
   collapseButtonUnstagedFiles =
       new StatePushButton(kCollapseAll, kExpandAll, this);
   hBoxLayout->addWidget(collapseButtonUnstagedFiles);
@@ -289,11 +306,16 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
           &DoubleTreeWidget::toggleCollapseStagedFiles);
   connect(collapseButtonUnstagedFiles, &StatePushButton::clicked, this,
           &DoubleTreeWidget::toggleCollapseUnstagedFiles);
-  connect(mShowAllFiles, &QCheckBox::toggled, this,
-          [this] { setDiff(mDiff); });
+  connect(mStageAllChanges, &QPushButton::clicked, repoView, &RepoView::stage);
+  connect(mShowAllFiles, &QCheckBox::toggled, this, [this] { setDiff(mDiff); });
 
   connect(repo.notifier(), &git::RepositoryNotifier::indexChanged, this,
-          [this](const QStringList &paths) { mDiffTreeModel->refresh(paths); });
+          [this](const QStringList &paths) {
+            mDiffTreeModel->refresh(paths);
+            QMetaObject::invokeMethod(
+                this, [this] { updateStageAllChangesButton(); },
+                Qt::QueuedConnection);
+          });
 
   RepoView *view = RepoView::parentView(this);
   connect(mEditor, &BlameEditor::linkActivated, view, &RepoView::visitLink);
@@ -461,6 +483,7 @@ void DoubleTreeWidget::setDiff(const git::Diff &diff, const QString &file,
   // mUnstagedCommitedFiles->setVisible(!singleTree);
   collapseButtonStagedFiles->setVisible(!listView);
   collapseButtonUnstagedFiles->setVisible(!listView);
+  updateStageAllChangesButton();
 
   unstagedFiles->updateView(); // Must be before expandAll/collapseAll is done,
                                // otherwise the collapse counter is wrong
@@ -515,6 +538,13 @@ void DoubleTreeWidget::findNext() { mEditor->findNext(); }
 void DoubleTreeWidget::findPrevious() { mEditor->findPrevious(); }
 
 void DoubleTreeWidget::cancelBackgroundTasks() { mEditor->cancelBlame(); }
+
+void DoubleTreeWidget::updateStageAllChangesButton() {
+  const bool statusDiff = mDiff.isValid() && mDiff.isStatusDiff();
+  mStageAllChanges->setVisible(statusDiff);
+  mStageAllChanges->setEnabled(statusDiff &&
+                               RepoView::parentView(this)->isStageEnabled());
+}
 
 void DoubleTreeWidget::storeSelection() {
   QModelIndexList indexes = stagedFiles->selectionModel()->selectedIndexes();

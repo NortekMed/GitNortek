@@ -183,6 +183,9 @@ static Hotkey pullFromHotkey = HotkeyManager::registerHotkey(
 static Hotkey pushHotkey = HotkeyManager::registerHotkey(
     "Ctrl+Shift+Alt+P", "remote/push", "Remote/Push");
 
+static Hotkey forcePushHotkey = HotkeyManager::registerHotkey(
+    nullptr, "remote/forcePush", "Remote/Force Push");
+
 static Hotkey pushToHotkey = HotkeyManager::registerHotkey(
     "Ctrl+Shift+P", "remote/pushTo", "Remote/Push To");
 
@@ -629,6 +632,11 @@ MenuBar::MenuBar(QWidget *parent) : QMenuBar(parent) {
   pushHotkey.use(mPush);
   connect(mPush, &QAction::triggered, [this] { view()->push(); });
 
+  mForcePush = remote->addAction(tr("Force Push..."));
+  forcePushHotkey.use(mForcePush);
+  connect(mForcePush, &QAction::triggered,
+          [this] { view()->promptToForcePush(); });
+
   mPushTo = remote->addAction(tr("Push To..."));
   pushToHotkey.use(mPushTo);
   connect(mPushTo, &QAction::triggered, [this] {
@@ -1059,6 +1067,7 @@ void MenuBar::updateRemote() {
   mFetchAll->setEnabled(view);
   mPull->setEnabled(view && !view->repo().isBare());
   mPush->setEnabled(view);
+  mForcePush->setEnabled(view);
   mFetchFrom->setEnabled(view);
   mPullFrom->setEnabled(view);
   mPushTo->setEnabled(view);
