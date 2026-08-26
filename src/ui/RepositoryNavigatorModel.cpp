@@ -367,7 +367,7 @@ void RepositoryNavigatorModel::rebuild() {
     bool matchingStatus =
         status != mSubmoduleUpdateStatuses.cend() && status->path == row.path &&
         (status->url == row.url || QUrl(row.url).isRelative()) &&
-        status->branch == row.branch && status->pinnedId == pinnedId;
+        status->branch == row.branch;
     if (!row.branch.isEmpty()) {
       row.originState =
           matchingStatus ? OriginState::Failed : OriginState::Pending;

@@ -424,19 +424,39 @@ void TestRepositorySideBar::activeRepositoryBinding() {
 }
 
 void TestRepositorySideBar::stashInteraction() {
-  const QString headerStateKey = "commit/columns/headerStateV10";
+  const QString headerStateKey = "commit/columns/headerStateV12";
+  const QString previousHeaderStateKey = "commit/columns/headerStateV11";
+  const QString legacyHeaderStateKey = "commit/columns/headerStateV10";
   QSettings columnSettings;
   bool hadHeaderState = columnSettings.contains(headerStateKey);
   QByteArray headerState = columnSettings.value(headerStateKey).toByteArray();
-  auto restoreHeaderState = qScopeGuard([hadHeaderState, headerStateKey,
-                                         headerState] {
-    QSettings settings;
-    if (hadHeaderState)
-      settings.setValue(headerStateKey, headerState);
-    else
-      settings.remove(headerStateKey);
-  });
+  bool hadPreviousHeaderState = columnSettings.contains(previousHeaderStateKey);
+  QByteArray previousHeaderState =
+      columnSettings.value(previousHeaderStateKey).toByteArray();
+  bool hadLegacyHeaderState = columnSettings.contains(legacyHeaderStateKey);
+  QByteArray legacyHeaderState =
+      columnSettings.value(legacyHeaderStateKey).toByteArray();
+  auto restoreHeaderState = qScopeGuard(
+      [hadHeaderState, headerStateKey, headerState, hadPreviousHeaderState,
+       previousHeaderStateKey, previousHeaderState, hadLegacyHeaderState,
+       legacyHeaderStateKey, legacyHeaderState] {
+        QSettings settings;
+        if (hadHeaderState)
+          settings.setValue(headerStateKey, headerState);
+        else
+          settings.remove(headerStateKey);
+        if (hadPreviousHeaderState)
+          settings.setValue(previousHeaderStateKey, previousHeaderState);
+        else
+          settings.remove(previousHeaderStateKey);
+        if (hadLegacyHeaderState)
+          settings.setValue(legacyHeaderStateKey, legacyHeaderState);
+        else
+          settings.remove(legacyHeaderStateKey);
+      });
   columnSettings.remove(headerStateKey);
+  columnSettings.remove(previousHeaderStateKey);
+  columnSettings.remove(legacyHeaderStateKey);
 
   Test::ScratchRepository repo;
   QFile file(repo->workdir().filePath("stash.txt"));
@@ -486,6 +506,15 @@ void TestRepositorySideBar::stashInteraction() {
                   static_cast<int>(CommitList::RefsFilter::AllRefs));
   config.setValue(ConfigKeys::kStatusKey, false);
 
+  QStandardItemModel legacyHeaderModel(0, 6);
+  QHeaderView legacyHeader(Qt::Horizontal);
+  legacyHeader.setMinimumSectionSize(24);
+  legacyHeader.setModel(&legacyHeaderModel);
+  const int legacySizes[] = {55, 74, 180, 82, 116, 71};
+  for (int column = 0; column < 6; ++column)
+    legacyHeader.resizeSection(column, legacySizes[column]);
+  columnSettings.setValue(previousHeaderStateKey, legacyHeader.saveState());
+
   MainWindow window(repo);
   CommitList *commitList = window.currentView()->findChild<CommitList *>();
   QVERIFY(commitList);
@@ -518,7 +547,30 @@ void TestRepositorySideBar::stashInteraction() {
   QCOMPARE(header->count(), 6);
   QCOMPARE(header->length(), header->width());
   QTRY_COMPARE(header->sectionSize(0),
-               qBound(55, header->width() * 19 / 100, 360));
+               2 * qBound(55, header->width() * 19 / 100, 360));
+  QCOMPARE(header->sectionSize(3), legacySizes[3]);
+  QVERIFY(columnSettings.contains(headerStateKey));
+
+  int preferredReferencesWidth = header->sectionSize(0);
+  commitList->setMinimumWidth(0);
+  commitList->setFixedWidth(360);
+  QTRY_COMPARE(header->sectionSize(0), preferredReferencesWidth);
+  QTRY_VERIFY(commitList->horizontalScrollBar()->maximum() > 0);
+  header->moveSection(0, 1);
+  header->moveSection(1, 0);
+
+  QHeaderView savedHeader(Qt::Horizontal);
+  QStandardItemModel savedHeaderModel(0, 6);
+  savedHeader.setModel(&savedHeaderModel);
+  QVERIFY(savedHeader.restoreState(
+      columnSettings.value(headerStateKey).toByteArray()));
+  QCOMPARE(savedHeader.sectionSize(0), preferredReferencesWidth);
+
+  commitList->setMinimumWidth(0);
+  commitList->setMaximumWidth(QWIDGETSIZE_MAX);
+  commitList->setMinimumWidth(900);
+  window.resize(1600, 900);
+  QTRY_COMPARE(header->sectionSize(0), preferredReferencesWidth);
   QFont compactFont = commitList->font();
   if (compactFont.pointSizeF() > 1.0)
     compactFont.setPointSizeF(compactFont.pointSizeF() - 1.0);
@@ -1114,6 +1166,21 @@ void TestRepositorySideBar::submoduleInteraction() {
               .toString()
               .contains("have diverged (1 commit ahead, 1 commit behind)"));
 
+  selected = parentView->repo().lookupSubmodule("child");
+  git::Id localCommit = selected.workdirId();
+  parentView->commitSubmoduleChanges(selected);
+  submodules = navigator->model()->sectionIndex(
+      RepositoryNavigatorModel::Section::Submodules);
+  submodule = navigator->model()->index(0, 0, submodules);
+  QCOMPARE(submodule.data(RepositoryNavigatorModel::PinnedAheadRole).toInt(),
+           0);
+  QCOMPARE(submodule.data(RepositoryNavigatorModel::PinnedBehindRole).toInt(),
+           0);
+  QCOMPARE(submodule.data(RepositoryNavigatorModel::OriginAheadRole).toInt(),
+           1);
+  QCOMPARE(submodule.data(RepositoryNavigatorModel::OriginBehindRole).toInt(),
+           1);
+
   QList<QPair<QString, bool>> behindMenu =
       contextMenuItems(navigator->view(), submodule);
   QVERIFY(menuTexts(behindMenu)
@@ -1124,7 +1191,7 @@ void TestRepositorySideBar::submoduleInteraction() {
   QVERIFY(originTarget.isValid());
   selected = parentView->repo().lookupSubmodule("child");
   git::Id parentPin = selected.indexId();
-  git::Id localCommit = selected.workdirId();
+  QCOMPARE(parentPin, localCommit);
   QVERIFY(
       parentView->checkoutSubmoduleOrigin("child", childBranch, originTarget));
   selected = parentView->repo().lookupSubmodule("child");
@@ -1136,7 +1203,21 @@ void TestRepositorySideBar::submoduleInteraction() {
   git.start(GIT_EXECUTABLE, {"checkout", "--detach", localCommit.toString()});
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
+
+  QFile secondLocalFile(parent->workdir().filePath("child/second.txt"));
+  QVERIFY(secondLocalFile.open(QIODevice::WriteOnly));
+  secondLocalFile.write("second local change\n");
+  secondLocalFile.close();
+  git.start(GIT_EXECUTABLE, {"add", "second.txt"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE, {"commit", "-m", "second local change"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
   parent->invalidateSubmoduleCache();
+  parentView->repo().invalidateSubmoduleCache();
+  git::Id secondLocalCommit =
+      parentView->repo().lookupSubmodule("child").workdirId();
 
   git.setWorkingDirectory(parent->workdir().path());
   git.start(GIT_EXECUTABLE, {"submodule", "set-branch", "--default", "child"});
@@ -1155,12 +1236,12 @@ void TestRepositorySideBar::submoduleInteraction() {
               .toString()
               .contains("Not shown because no remote branch is configured"));
   selected = parentView->repo().lookupSubmodule("child");
-  QCOMPARE(selected.open().head().target().id(), localCommit);
+  QCOMPARE(selected.open().head().target().id(), secondLocalCommit);
   QCOMPARE(selected.indexId(), parentPin);
   QVERIFY(parentView->repo().head().isLocalBranch());
   QCOMPARE(parentView->repo().state(), GIT_REPOSITORY_STATE_NONE);
   QCOMPARE(parentView->repo().head().target().tree().id("child"), parentPin);
-  QVERIFY(parentPin != localCommit);
+  QVERIFY(parentPin != secondLocalCommit);
   QVERIFY(parentView->canCommitSubmoduleChanges(selected));
 
   QList<QPair<QString, bool>> menu =
@@ -1178,7 +1259,7 @@ void TestRepositorySideBar::submoduleInteraction() {
   parentView->commitSubmoduleChanges(selected);
   git::Commit submoduleCommit = parentView->repo().head().target();
   QString expectedMessage =
-      QString("Update child from %1 to %2:\n- local change")
+      QString("Update child from %1 to %2:\n- second local change")
           .arg(oldPin.toString().left(7), newPin.toString().left(7));
   QCOMPARE(submoduleCommit.message().trimmed(), expectedMessage);
   QCOMPARE(submoduleCommit.tree().id("child"), newPin);

@@ -104,6 +104,7 @@ private:
   void setupHeader();
   void updateHeader(bool saveState = true);
   void resetHeader(bool saveState = true);
+  int defaultReferencesWidth() const;
   int minimumColumnWidth(int column) const;
   void updateGraphColumnWidth();
   void resizeHeaderToFit(int protectedColumn = -1);
@@ -141,7 +142,9 @@ private:
   bool mHeaderStateReady = false;
   bool mResetHeaderOnShow = false;
   bool mHeaderInteraction = false;
+  bool mMigrateReferencesWidth = false;
   QByteArray mPendingHeaderState;
+  int mReferencesPreferredWidth = 0;
   int mGraphMinimumWidth = 0;
   int mGraphPreferredWidth = 0;
 

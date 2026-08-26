@@ -49,6 +49,8 @@ Bug Fix and Feature release
 * Run Linux package and release jobs on an isolated disposable self-hosted runner with pinned actions and container images
 * Expose pull, push, and confirmed force push actions in the Remote menu, toolbar, current branch, and HEAD commit context menus
 * Recheck submodule updates after changing submodule URL, path, or branch configuration
+* Preserve fetched submodule origin comparisons when committing a new parent pin
+* Double the default Branch / Tag width and preserve it during compact-view compression
 
 ----
 

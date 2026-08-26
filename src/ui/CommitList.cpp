@@ -67,7 +67,9 @@ constexpr int kGraphMinimumWidth = 50;
 constexpr int kSummaryMinimumWidth = 24;
 constexpr int kAuthorMinimumWidth = 70;
 constexpr int kDateMinimumWidth = 100;
-const char kCommitHeaderStateKey[] = "commit/columns/headerStateV10";
+const char kCommitHeaderStateKey[] = "commit/columns/headerStateV12";
+const char kPreviousCommitHeaderStateKey[] = "commit/columns/headerStateV11";
+const char kLegacyCommitHeaderStateKey[] = "commit/columns/headerStateV10";
 
 // FIXME: Factor out into theme?
 const QColor kTaintedColor = Qt::gray;
@@ -1788,8 +1790,12 @@ void CommitList::setupHeader() {
           [this](int column, int, int size) {
             if (mUpdatingHeader)
               return;
-            if (column == GraphColumn && mHeaderInteraction)
-              mGraphPreferredWidth = size;
+            if (mHeaderInteraction) {
+              if (column == ReferencesColumn)
+                mReferencesPreferredWidth = size;
+              else if (column == GraphColumn)
+                mGraphPreferredWidth = size;
+            }
             resizeHeaderToFit(column);
             if (mHeaderInteraction)
               saveHeaderState();
@@ -1802,7 +1808,14 @@ void CommitList::setupHeader() {
     viewport()->update();
   });
 
-  QByteArray state = QSettings().value(kCommitHeaderStateKey).toByteArray();
+  QSettings settings;
+  QByteArray state = settings.value(kCommitHeaderStateKey).toByteArray();
+  if (state.isEmpty()) {
+    state = settings.value(kPreviousCommitHeaderStateKey).toByteArray();
+    if (state.isEmpty())
+      state = settings.value(kLegacyCommitHeaderStateKey).toByteArray();
+    mMigrateReferencesWidth = !state.isEmpty();
+  }
   resetHeader(false);
   mPendingHeaderState = state;
   mResetHeaderOnShow = true;
@@ -1822,7 +1835,7 @@ void CommitList::resetHeader(bool saveState) {
 
   int width = qMax(240, viewport()->width() - kCommitHeaderInset -
                             kCommitHeaderOptionsWidth);
-  int refs = qBound(kReferencesMinimumWidth, width * 19 / 100, 360);
+  int refs = defaultReferencesWidth();
   int graph = qBound(kGraphMinimumWidth, width * 7 / 100, 160);
   int author = qBound(kAuthorMinimumWidth, width * 7 / 100, 120);
   int date = qBound(kDateMinimumWidth, width * 11 / 100, 160);
@@ -1831,6 +1844,7 @@ void CommitList::resetHeader(bool saveState) {
   const int sizes[] = {refs, graph, summary, author, date, id};
   for (int column = 0; column < ColumnCount; ++column)
     mHeader->resizeSection(column, sizes[column]);
+  mReferencesPreferredWidth = refs;
   mGraphPreferredWidth = graph;
   mUpdatingHeader = false;
   if (saveState)
@@ -1842,17 +1856,24 @@ void CommitList::saveHeaderState() {
   if (!mHeaderStateReady || mUpdatingHeader || !mHeader)
     return;
 
+  int referencesWidth = mHeader->sectionSize(ReferencesColumn);
   int graphWidth = mHeader->sectionSize(GraphColumn);
-  if (mGraphPreferredWidth > 0 && graphWidth != mGraphPreferredWidth) {
-    mUpdatingHeader = true;
+  mUpdatingHeader = true;
+  if (mReferencesPreferredWidth > 0)
+    mHeader->resizeSection(ReferencesColumn, mReferencesPreferredWidth);
+  if (mGraphPreferredWidth > 0)
     mHeader->resizeSection(GraphColumn, mGraphPreferredWidth);
-    QByteArray state = mHeader->saveState();
-    mHeader->resizeSection(GraphColumn, graphWidth);
-    mUpdatingHeader = false;
-    QSettings().setValue(kCommitHeaderStateKey, state);
-  } else {
-    QSettings().setValue(kCommitHeaderStateKey, mHeader->saveState());
-  }
+  QByteArray state = mHeader->saveState();
+  mHeader->resizeSection(ReferencesColumn, referencesWidth);
+  mHeader->resizeSection(GraphColumn, graphWidth);
+  mUpdatingHeader = false;
+  QSettings().setValue(kCommitHeaderStateKey, state);
+}
+
+int CommitList::defaultReferencesWidth() const {
+  int width = qMax(240, viewport()->width() - kCommitHeaderInset -
+                            kCommitHeaderOptionsWidth);
+  return 2 * qBound(kReferencesMinimumWidth, width * 19 / 100, 360);
 }
 
 int CommitList::minimumColumnWidth(int column) const {
@@ -1946,11 +1967,12 @@ void CommitList::resizeHeaderToFit(int protectedColumn) {
   }
   if (!graphConsumesMessage) {
     for (int column = 0; column < ColumnCount; ++column) {
-      if (column != protectedColumn && column != SummaryColumn &&
-          !mHeader->isSectionHidden(column))
+      if (column != protectedColumn && column != ReferencesColumn &&
+          column != SummaryColumn && !mHeader->isSectionHidden(column))
         columns.append(column);
     }
-    if (protectedColumn >= 0 && !mHeader->isSectionHidden(protectedColumn))
+    if (protectedColumn >= 0 && protectedColumn != ReferencesColumn &&
+        !mHeader->isSectionHidden(protectedColumn))
       columns.append(protectedColumn);
   }
   if (columns.isEmpty()) {
@@ -1960,6 +1982,20 @@ void CommitList::resizeHeaderToFit(int protectedColumn) {
   }
 
   if (delta > 0) {
+    if (!mHeader->isSectionHidden(ReferencesColumn) &&
+        ReferencesColumn != protectedColumn &&
+        mHeader->sectionSize(ReferencesColumn) < mReferencesPreferredWidth) {
+      int growth = qMin(delta, mReferencesPreferredWidth -
+                                   mHeader->sectionSize(ReferencesColumn));
+      mHeader->resizeSection(ReferencesColumn,
+                             mHeader->sectionSize(ReferencesColumn) + growth);
+      delta -= growth;
+    }
+    if (delta == 0) {
+      updateScrollPolicy();
+      mUpdatingHeader = updating;
+      return;
+    }
     int column = columns.constFirst();
     mHeader->resizeSection(column, mHeader->sectionSize(column) + delta);
   } else {
@@ -2564,10 +2600,19 @@ void CommitList::showEvent(QShowEvent *event) {
 
     mUpdatingHeader = true;
     mHeader->restoreState(mPendingHeaderState);
+    if (mMigrateReferencesWidth)
+      mHeader->resizeSection(ReferencesColumn, defaultReferencesWidth());
+    mReferencesPreferredWidth = mHeader->sectionSize(ReferencesColumn);
+    QByteArray migratedState =
+        mMigrateReferencesWidth ? mHeader->saveState() : QByteArray();
     mUpdatingHeader = false;
     mPendingHeaderState.clear();
     mGraphPreferredWidth = mHeader->sectionSize(GraphColumn);
     updateHeader(false);
+    if (mMigrateReferencesWidth) {
+      mMigrateReferencesWidth = false;
+      QSettings().setValue(kCommitHeaderStateKey, migratedState);
+    }
   });
 }
 

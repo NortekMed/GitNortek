@@ -3203,8 +3203,7 @@ bool RepoView::checkoutSubmoduleOrigin(const QString &name,
                status.path == submodule.path() &&
                (status.url == submodule.url() ||
                 QUrl(submodule.url()).isRelative()) &&
-               status.branch == branch && status.targetId == target &&
-               status.pinnedId == submodule.indexId();
+               status.branch == branch && status.targetId == target;
       });
   if (!submodule.isInitialized() || !target.isValid() ||
       status == mSubmoduleUpdateStatuses.cend()) {
