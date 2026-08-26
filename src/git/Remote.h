@@ -50,6 +50,7 @@ public:
         : mUrl(url), mRepo(repo) {}
 
     QString url() const { return mUrl; }
+    void setUrl(const QString &url) { mUrl = url; }
 
     State state() const { return mState; }
 

@@ -46,6 +46,7 @@
 #include "git/Rebase.h"
 #include "git/RevWalk.h"
 #include "git/Signature.h"
+#include "git/SubmoduleAvailability.h"
 #include "git/TagRef.h"
 #include "git/Tree.h"
 #include "git/Signature.h"
@@ -320,11 +321,12 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
   connect(mRefs, &ReferenceWidget::referenceSelected, mCommits,
           &CommitList::selectReference);
   connect(mCommits, &CommitList::statusChanged, this, &RepoView::statusChanged);
-  connect(mCommits, &CommitList::statusError, this, [this](const QString &error) {
-    LogEntry *entry = addLogEntry(QString(), tr("Status"));
-    entry->addEntry(LogEntry::Error, error.toHtmlEscaped());
-    setLogVisible(true);
-  });
+  connect(mCommits, &CommitList::statusError, this,
+          [this](const QString &error) {
+            LogEntry *entry = addLogEntry(QString(), tr("Status"));
+            entry->addEntry(LogEntry::Error, error.toHtmlEscaped());
+            setLogVisible(true);
+          });
 
   // Respond to pathspec change.
   connect(mPathspec, &PathspecWidget::pathspecChanged, this,
@@ -694,6 +696,8 @@ void RepoView::cancelRemoteTransfer() {
     mWatcher->waitForFinished();
   if (mSubmoduleUpdateWatcher && mSubmoduleUpdateWatcher->isRunning())
     mSubmoduleUpdateWatcher->waitForFinished();
+  if (mSubmodulePushCheckWatcher && mSubmodulePushCheckWatcher->isRunning())
+    mSubmodulePushCheckWatcher->waitForFinished();
 }
 
 void RepoView::cancelBackgroundTasks() {
@@ -1036,8 +1040,7 @@ void RepoView::setLogVisible(bool visible) {
   toolBar()->updateView();
   MenuBar::instance(this)->updateView();
 
-  int targetHeight =
-      headerHeight + (visible ? qMax(1, mLogContentHeight) : 0);
+  int targetHeight = headerHeight + (visible ? qMax(1, mLogContentHeight) : 0);
 
   QTimeLine *timeline = new QTimeLine(250, this);
   timeline->setEasingCurve(QEasingCurve(QEasingCurve::Linear));
@@ -1045,16 +1048,16 @@ void RepoView::setLogVisible(bool visible) {
 
   connect(timeline, &QTimeLine::valueChanged, this,
           [this, currentHeight, targetHeight](qreal value) {
-            int height = currentHeight +
-                         static_cast<int>((targetHeight - currentHeight) * value);
+            int height =
+                currentHeight +
+                static_cast<int>((targetHeight - currentHeight) * value);
             setSizes({1, height});
           });
 
-  connect(timeline, &QTimeLine::finished, this,
-          [this, timeline, targetHeight] {
-            setSizes({1, targetHeight});
-            timeline->deleteLater();
-          });
+  connect(timeline, &QTimeLine::finished, this, [this, timeline, targetHeight] {
+    setSizes({1, targetHeight});
+    timeline->deleteLater();
+  });
 
   timeline->start();
 }
@@ -1074,9 +1077,11 @@ void RepoView::reportDiagnostics() {
 
   const QList<Command> commands = {
       {"pwd", {}, "pwd"},
-      {"git", {"rev-parse", "--show-toplevel"},
+      {"git",
+       {"rev-parse", "--show-toplevel"},
        "git rev-parse --show-toplevel"},
-      {"git", {"status", "--porcelain=v1", "--branch"},
+      {"git",
+       {"status", "--porcelain=v1", "--branch"},
        "git status --porcelain=v1 --branch"},
       {"git", {"rev-parse", "HEAD"}, "git rev-parse HEAD"},
   };
@@ -1864,13 +1869,16 @@ void RepoView::promptToForcePush(const git::Remote &remote,
 }
 
 void RepoView::push(const git::Remote &rmt, const git::Reference &src,
-                    const QString &dst, bool setUpstream, bool force,
-                    bool tags) {
+                    const QString &dst, bool setUpstream, bool force, bool tags,
+                    bool checkSubmodules) {
+  if (mSubmodulePushCheckWatcher)
+    return;
+
   if (mWatcher) {
     // Queue push.
     connect(mWatcher, &QFutureWatcher<git::Result>::finished, mWatcher,
-            [this, rmt, src, dst, setUpstream, force, tags] {
-              push(rmt, src, dst, setUpstream, force, tags);
+            [this, rmt, src, dst, setUpstream, force, tags, checkSubmodules] {
+              push(rmt, src, dst, setUpstream, force, tags, checkSubmodules);
             });
 
     return;
@@ -1893,9 +1901,8 @@ void RepoView::push(const git::Remote &rmt, const git::Reference &src,
     QString remoteBranchName = QString("%1/%2").arg(remote.name(), refName);
     git::Branch remoteBranch =
         mRepo.lookupBranch(remoteBranchName, GIT_BRANCH_REMOTE);
-    QString title = remoteBranch.isValid()
-                        ? tr("Track Remote Branch?")
-                        : tr("Create Remote Branch?");
+    QString title = remoteBranch.isValid() ? tr("Track Remote Branch?")
+                                           : tr("Create Remote Branch?");
     QString text = remoteBranch.isValid()
                        ? tr("The local branch '%1' does not track '%2'.")
                              .arg(refName, remoteBranchName)
@@ -1984,6 +1991,123 @@ void RepoView::push(const git::Remote &rmt, const git::Reference &src,
     return;
   }
 
+  if (checkSubmodules) {
+    git::Commit parent = ref.target();
+    QList<git::Commit> parents{parent};
+    if (tags) {
+      foreach (const git::TagRef &tag, mRepo.tags()) {
+        git::Commit commit = tag.target();
+        if (commit.isValid() && commit != parent)
+          parents.append(commit);
+      }
+    }
+    QList<git::Submodule> submodules = mRepo.submodules();
+    bool hasSubmoduleConfig = false;
+    foreach (const git::Commit &commit, parents)
+      hasSubmoduleConfig |= !commit.tree().id(".gitmodules").isNull();
+
+    if (parent.isValid() && (!submodules.isEmpty() || hasSubmoduleConfig)) {
+      LogEntry *checkEntry =
+          entry->addEntry(tr("Checking submodule commit availability..."));
+      checkEntry->setBusy(true);
+
+      auto watcher =
+          new QFutureWatcher<QList<git::SubmoduleAvailability::Issue>>(this);
+      mSubmodulePushCheckWatcher = watcher;
+      mCallbacks =
+          new RemoteCallbacks(RemoteCallbacks::Receive, checkEntry,
+                              remote.url(), remote.name(), watcher, mRepo);
+      RemoteCallbacks *callbacks = mCallbacks;
+      connect(
+          watcher,
+          &QFutureWatcher<QList<git::SubmoduleAvailability::Issue>>::finished,
+          watcher,
+          [this, watcher, callbacks, remote, src, ref, dst, setUpstream, force,
+           tags, entry, remoteBranchName, checkEntry] {
+            checkEntry->setBusy(false);
+            QList<git::SubmoduleAvailability::Issue> issues = watcher->result();
+            mSubmodulePushCheckWatcher = nullptr;
+            mCallbacks = nullptr;
+            watcher->deleteLater();
+
+            if (callbacks->isCanceled()) {
+              entry->addEntry(LogEntry::Error, tr("Push canceled."));
+              return;
+            }
+
+            if (issues.isEmpty()) {
+              callbacks->storeDeferredCredentials();
+              pushRemote(remote, src, ref, dst, setUpstream, force, tags, entry,
+                         remoteBranchName);
+              return;
+            }
+
+            QStringList details;
+            for (const git::SubmoduleAvailability::Issue &issue : issues) {
+              QString detail = tr("%1 (%2)").arg(issue.name, issue.path);
+              if (!issue.pinnedId.isNull())
+                detail +=
+                    tr("\nPinned commit: %1").arg(issue.pinnedId.toString());
+              if (!issue.url.isEmpty())
+                detail += tr("\nURL: %1").arg(issue.url);
+              details.append(detail + "\n" + issue.message);
+            }
+
+            QMessageBox *dialog = new QMessageBox(
+                QMessageBox::Warning, tr("Submodule Commits May Be Missing"),
+                tr("One or more submodule commits cannot be proven available "
+                   "from the URLs used by new clones."),
+                QMessageBox::Cancel, this);
+            dialog->setAttribute(Qt::WA_DeleteOnClose);
+            dialog->setInformativeText(
+                tr("New clones may be unable to check out the parent commit. "
+                   "GitNortek will not push submodules automatically."));
+            dialog->setDetailedText(details.join("\n\n"));
+            QPushButton *accept = dialog->addButton(tr("Push Parent Anyway"),
+                                                    QMessageBox::AcceptRole);
+            dialog->setDefaultButton(QMessageBox::Cancel);
+            dialog->setEscapeButton(QMessageBox::Cancel);
+            connect(accept, &QPushButton::clicked, this,
+                    [this, remote, src, ref, dst, setUpstream, force, tags,
+                     entry, remoteBranchName] {
+                      pushRemote(remote, src, ref, dst, setUpstream, force,
+                                 tags, entry, remoteBranchName);
+                    });
+            connect(dialog, &QDialog::rejected, this, [this, entry] {
+              entry->addEntry(LogEntry::Error, tr("Push canceled."));
+            });
+            dialog->open();
+          });
+      git::Repository repo = mRepo;
+      watcher->setFuture(
+          QtConcurrent::run([repo, parents, submodules, callbacks] {
+            QList<git::SubmoduleAvailability::Issue> issues;
+            QSet<QString> seen;
+            foreach (const git::Commit &parent, parents) {
+              foreach (const git::SubmoduleAvailability::Issue &issue,
+                       git::SubmoduleAvailability::check(
+                           repo, parent, submodules, callbacks)) {
+                QString key = issue.path + issue.pinnedId.toString();
+                if (!seen.contains(key)) {
+                  seen.insert(key);
+                  issues.append(issue);
+                }
+              }
+            }
+            return issues;
+          }));
+      return;
+    }
+  }
+
+  pushRemote(remote, src, ref, dst, setUpstream, force, tags, entry,
+             remoteBranchName);
+}
+
+void RepoView::pushRemote(const git::Remote &remote, const git::Reference &src,
+                          const git::Reference &ref, const QString &dst,
+                          bool setUpstream, bool force, bool tags,
+                          LogEntry *entry, const QString &remoteBranchName) {
   mWatcher = new QFutureWatcher<git::Result>(this);
   connect(
       mWatcher, &QFutureWatcher<git::Result>::finished, mWatcher,
@@ -2315,9 +2439,8 @@ void RepoView::populateReferenceContextMenu(QMenu *menu,
   if (!menu || !ref.isValid())
     return;
 
-  QAction *checkout =
-      menu->addAction(tr("Checkout"), this,
-                      [this, ref] { this->checkout(ref); });
+  QAction *checkout = menu->addAction(tr("Checkout"), this,
+                                      [this, ref] { this->checkout(ref); });
   checkout->setEnabled(!ref.isHead() && !mRepo.isBare());
   menu->addSeparator();
 
@@ -2355,7 +2478,7 @@ void RepoView::populateReferenceContextMenu(QMenu *menu,
 
   menu->addSeparator();
   const auto addMergeAction = [this, menu, ref](const QString &text,
-                                                 MergeFlags flags) {
+                                                MergeFlags flags) {
     QAction *action = menu->addAction(text, this, [this, ref, flags] {
       MergeDialog *dialog = new MergeDialog(flags, mRepo, this);
       connect(dialog, &QDialog::accepted, this,
@@ -3150,15 +3273,14 @@ void RepoView::commitSubmoduleChanges(const git::Submodule &submodule) {
   }
 
   QString name = QFileInfo(submodule.path()).fileName();
-  QString message =
-      tr("Update %1 from %2 to %3:\n%4")
-          .arg(name, pinnedId.toString().left(7),
-               checkoutId.toString().left(7), changes.join('\n'));
+  QString message = tr("Update %1 from %2 to %3:\n%4")
+                        .arg(name, pinnedId.toString().left(7),
+                             checkoutId.toString().left(7), changes.join('\n'));
   LogEntry *entry = addLogEntry(tr("<i>no commit</i>"), tr("Commit Changes"));
 
-  git::Commit commit = mRepo.commitSubmodule(
-      submodule, checkoutId, message, nullptr, mDetails->overrideUser(),
-      mDetails->overrideEmail());
+  git::Commit commit = mRepo.commitSubmodule(submodule, checkoutId, message,
+                                             nullptr, mDetails->overrideUser(),
+                                             mDetails->overrideEmail());
   if (!commit.isValid()) {
     error(entry, tr("commit submodule changes"), name);
     return;
@@ -3166,7 +3288,6 @@ void RepoView::commitSubmoduleChanges(const git::Submodule &submodule) {
 
   entry->setText(msg(commit));
   emit submodulesChanged();
-
 }
 
 bool RepoView::openSubmodule(const git::Submodule &submodule) {

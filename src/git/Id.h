@@ -16,6 +16,8 @@
 
 namespace git {
 
+class SubmoduleAvailability;
+
 class Id {
 public:
   Id();
@@ -45,6 +47,7 @@ private:
   friend class Index;
   friend class Repository;
   friend class Submodule;
+  friend class SubmoduleAvailability;
 };
 
 uint qHash(const Id &key);

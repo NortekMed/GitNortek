@@ -19,6 +19,7 @@
 #include "git/Remote.h"
 #include "git/Repository.h"
 #include "git/Submodule.h"
+#include "git/SubmoduleAvailability.h"
 #include "git/Rebase.h"
 #include "host/Account.h"
 #include <QFuture>
@@ -236,7 +237,7 @@ public:
   void push(const git::Remote &remote = git::Remote(),
             const git::Reference &src = git::Reference(),
             const QString &dst = QString(), bool setUpstream = false,
-            bool force = false, bool tags = false);
+            bool force = false, bool tags = false, bool checkSubmodules = true);
 
   // commit
   bool commit(const git::Signature &author, const git::Signature &commiter,
@@ -397,6 +398,11 @@ protected:
   void closeEvent(QCloseEvent *event) override;
 
 private:
+  void pushRemote(const git::Remote &remote, const git::Reference &src,
+                  const git::Reference &ref, const QString &dst,
+                  bool setUpstream, bool force, bool tags, LogEntry *entry,
+                  const QString &remoteBranchName);
+
   struct SubmoduleInfo {
     git::Submodule submodule;
     git::Repository repo;
@@ -465,6 +471,8 @@ private:
   QFutureWatcher<git::Result> *mWatcher = nullptr;
   QFutureWatcher<QList<git::Submodule::UpdateStatus>> *mSubmoduleUpdateWatcher =
       nullptr;
+  QFutureWatcher<QList<git::SubmoduleAvailability::Issue>>
+      *mSubmodulePushCheckWatcher = nullptr;
   QList<git::Submodule::UpdateStatus> mSubmoduleUpdateStatuses;
 
   QList<QWidget *> mTrackedWindows;

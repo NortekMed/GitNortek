@@ -46,6 +46,7 @@ class Result;
 class RevWalk;
 class Signature;
 class Submodule;
+class SubmoduleAvailability;
 class TagRef;
 
 class Repository {
@@ -320,6 +321,7 @@ private:
   friend class Reference;
   friend class Remote;
   friend class Submodule;
+  friend class SubmoduleAvailability;
   friend class TagRef;
 };
 

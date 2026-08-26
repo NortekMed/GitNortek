@@ -23,6 +23,7 @@ add_library(
   RevWalk.cpp
   Signature.cpp
   Submodule.cpp
+  SubmoduleAvailability.cpp
   Tag.cpp
   TagRef.cpp
   Tree.cpp)

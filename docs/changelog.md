@@ -18,6 +18,7 @@ Bug Fix and Feature release
 * Display GitHub or Gravatar author avatars inside larger commit graph nodes and commit details when avatars are enabled
 * Commit checked-out submodule revisions directly from the repository navigator
 * Open the amend dialog by clicking the current HEAD commit message
+* Warn before pushing a parent commit whose initialized submodule pins cannot be proven available from their clone URLs
 
 #### Changed
 
