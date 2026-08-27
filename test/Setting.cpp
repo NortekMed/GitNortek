@@ -1,6 +1,8 @@
 #include "Test.h"
 
 #include "conf/Setting.h"
+#include "conf/Settings.h"
+#include <QFileInfo>
 
 using namespace QTest;
 
@@ -10,6 +12,7 @@ class TestSetting : public QObject {
 private slots:
   void defines_a_non_empty_settings_key_for_each_id();
   void defines_each_settings_key_only_once();
+  void resolves_about_documents();
 
 private:
   template <typename TId> QList<TId> ids() const {
@@ -59,6 +62,13 @@ void TestSetting::defines_each_settings_key_only_once() {
                      .arg(settingsKey)));
     uniqueSettingsKeys.append(settingsKey);
   }
+}
+
+void TestSetting::resolves_about_documents() {
+  const QDir dir = Settings::docDir();
+  QVERIFY(QFileInfo::exists(dir.filePath("changelog.html")));
+  QVERIFY(QFileInfo::exists(dir.filePath("acknowledgments.html")));
+  QVERIFY(QFileInfo::exists(dir.filePath("privacy.html")));
 }
 
 TEST_MAIN(TestSetting)

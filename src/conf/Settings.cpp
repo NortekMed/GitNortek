@@ -234,7 +234,22 @@ QDir Settings::appDir() {
   return dir;
 }
 
-QDir Settings::docDir() { return confDir(); }
+QDir Settings::docDir() {
+  QDir dir(confDir());
+  if (dir.exists("changelog.html"))
+    return dir;
+
+  QDir buildDir(appDir());
+  if (buildDir.cd("docs") && buildDir.exists("changelog.html"))
+    return buildDir;
+
+  buildDir = appDir();
+  buildDir.cdUp();
+  if (buildDir.cd("docs") && buildDir.exists("changelog.html"))
+    return buildDir;
+
+  return dir;
+}
 
 QDir Settings::confDir() {
 
