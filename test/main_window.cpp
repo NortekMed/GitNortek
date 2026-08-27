@@ -35,6 +35,7 @@ class TestMainWindow : public QObject {
 private slots:
   void initTestCase();
   void show();
+  void commitReferencesOnSecondLine();
   void toggleLogPanel();
   void preserveSelectionAfterRemoteUpdate();
   void cancelRemoteBranchCreation();
@@ -81,6 +82,16 @@ void TestMainWindow::initTestCase() {
 void TestMainWindow::show() {
   mWindow->show();
   QVERIFY(qWaitForWindowActive(mWindow));
+}
+
+void TestMainWindow::commitReferencesOnSecondLine() {
+  mWindow->currentView()->selectHead();
+  QWidget *id = mWindow->findChild<QWidget *>("CommitId");
+  QWidget *references = mWindow->findChild<QWidget *>("CommitReferences");
+  QVERIFY(id);
+  QVERIFY(references);
+  QTRY_VERIFY(references->isVisible());
+  QTRY_VERIFY(references->geometry().top() > id->geometry().bottom());
 }
 
 void TestMainWindow::toggleLogPanel() {

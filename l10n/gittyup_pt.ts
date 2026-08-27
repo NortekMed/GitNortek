@@ -575,27 +575,27 @@
 <context>
     <name>CommitDetail</name>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="243"/>
+        <location filename="../src/ui/DetailView.cpp" line="244"/>
         <source>Copy</source>
         <translation>Copiar</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="395"/>
+        <location filename="../src/ui/DetailView.cpp" line="402"/>
         <source>Range:</source>
         <translation>Intervalo:</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="416"/>
+        <location filename="../src/ui/DetailView.cpp" line="423"/>
         <source>Id:</source>
         <translation>Id:</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="431"/>
+        <location filename="../src/ui/DetailView.cpp" line="438"/>
         <source>initial commit</source>
         <translation>submissão inicial</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="433"/>
+        <location filename="../src/ui/DetailView.cpp" line="440"/>
         <source>Parents:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -835,42 +835,42 @@
 <context>
     <name>CommitList</name>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2314"/>
+        <location filename="../src/ui/CommitList.cpp" line="2316"/>
         <source>Remove Untracked Files</source>
         <translation>Remover ficheiros não rastreados</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2332"/>
+        <location filename="../src/ui/CommitList.cpp" line="2334"/>
         <source>Apply</source>
         <translation>Aplicar</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2335"/>
+        <location filename="../src/ui/CommitList.cpp" line="2337"/>
         <source>Pop</source>
         <translation>Aplicar e apagar</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2338"/>
+        <location filename="../src/ui/CommitList.cpp" line="2340"/>
         <source>Drop</source>
         <translation>Largar</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2352"/>
+        <location filename="../src/ui/CommitList.cpp" line="2354"/>
         <source>Unstar</source>
         <translation>Sem estrela</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2352"/>
+        <location filename="../src/ui/CommitList.cpp" line="2354"/>
         <source>Star</source>
         <translation>Com estrela</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2367"/>
+        <location filename="../src/ui/CommitList.cpp" line="2369"/>
         <source>Add Tag...</source>
         <translation>Adicionar etiqueta...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2370"/>
+        <location filename="../src/ui/CommitList.cpp" line="2372"/>
         <source>New Branch...</source>
         <translation>Novo ramo...</translation>
     </message>
@@ -883,123 +883,123 @@
         <translation type="vanished">Eliminar ramo %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1727"/>
+        <location filename="../src/ui/CommitList.cpp" line="1729"/>
         <source>Branch / Tag</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1728"/>
+        <location filename="../src/ui/CommitList.cpp" line="1730"/>
         <source>Graph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1730"/>
+        <location filename="../src/ui/CommitList.cpp" line="1732"/>
         <source>Commit Message</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1731"/>
+        <location filename="../src/ui/CommitList.cpp" line="1733"/>
         <source>Author</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1732"/>
+        <location filename="../src/ui/CommitList.cpp" line="1734"/>
         <source>Date / Time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1733"/>
+        <location filename="../src/ui/CommitList.cpp" line="1735"/>
         <source>SHA</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1749"/>
+        <location filename="../src/ui/CommitList.cpp" line="1751"/>
         <source>Configure commit columns</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="1774"/>
+        <location filename="../src/ui/CommitList.cpp" line="1776"/>
         <source>Reset columns</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2397"/>
+        <location filename="../src/ui/CommitList.cpp" line="2401"/>
         <source>Rename Branch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2401"/>
+        <location filename="../src/ui/CommitList.cpp" line="2405"/>
         <source>Delete Branch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2406"/>
+        <location filename="../src/ui/CommitList.cpp" line="2410"/>
         <source>Delete Tag</source>
         <translation type="unfinished">Eliminar etiqueta</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2410"/>
+        <location filename="../src/ui/CommitList.cpp" line="2414"/>
         <source>Merge...</source>
         <translation>Unir...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2425"/>
+        <location filename="../src/ui/CommitList.cpp" line="2429"/>
         <source>Rebase...</source>
         <translation>Rebasear...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2440"/>
+        <location filename="../src/ui/CommitList.cpp" line="2444"/>
         <source>Squash...</source>
         <translation>Comprimir...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2457"/>
+        <location filename="../src/ui/CommitList.cpp" line="2461"/>
         <source>Revert</source>
         <translation>Reverter</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2459"/>
+        <location filename="../src/ui/CommitList.cpp" line="2463"/>
         <source>Cherry-pick</source>
         <translation>Escolher este</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2466"/>
-        <location filename="../src/ui/CommitList.cpp" line="2499"/>
+        <location filename="../src/ui/CommitList.cpp" line="2470"/>
+        <location filename="../src/ui/CommitList.cpp" line="2503"/>
         <source>Checkout %1</source>
         <translation>Mudar para %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2468"/>
+        <location filename="../src/ui/CommitList.cpp" line="2472"/>
         <source>Checkout</source>
         <translation type="unfinished">Mudar</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2489"/>
+        <location filename="../src/ui/CommitList.cpp" line="2493"/>
         <source>Local branch is already checked out</source>
         <translation>O ramo local já foi mudado</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2492"/>
+        <location filename="../src/ui/CommitList.cpp" line="2496"/>
         <source>This is a bare repository</source>
         <translation>Este é um repositório em bruto</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2507"/>
+        <location filename="../src/ui/CommitList.cpp" line="2511"/>
         <source>Reset</source>
         <translation>Repor</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2508"/>
+        <location filename="../src/ui/CommitList.cpp" line="2512"/>
         <source>Soft</source>
         <translation>Suave</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2509"/>
+        <location filename="../src/ui/CommitList.cpp" line="2513"/>
         <source>Mixed</source>
         <translation>Misto</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitList.cpp" line="2510"/>
+        <location filename="../src/ui/CommitList.cpp" line="2514"/>
         <source>Hard</source>
         <translation>Forçado</translation>
     </message>
@@ -1330,24 +1330,24 @@
 <context>
     <name>DetailView</name>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="630"/>
-        <location filename="../src/ui/DetailView.cpp" line="659"/>
+        <location filename="../src/ui/DetailView.cpp" line="637"/>
+        <location filename="../src/ui/DetailView.cpp" line="666"/>
         <source>Author:</source>
         <translation type="unfinished">Autor:</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="644"/>
+        <location filename="../src/ui/DetailView.cpp" line="651"/>
         <source>reset</source>
         <translation type="unfinished">repor</translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="655"/>
+        <location filename="../src/ui/DetailView.cpp" line="662"/>
         <source>Here you can set the author used for committing
 These settings will not be saved permanently</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DetailView.cpp" line="662"/>
+        <location filename="../src/ui/DetailView.cpp" line="669"/>
         <source>Email:</source>
         <translation type="unfinished">Email:</translation>
     </message>
@@ -3916,7 +3916,7 @@ Would you like to fix the merge conflict and continue?</source>
 <context>
     <name>Reference</name>
     <message>
-        <location filename="../src/git/Reference.cpp" line="65"/>
+        <location filename="../src/git/Reference.cpp" line="70"/>
         <source>HEAD detached at %1</source>
         <translation>HEAD desanexado em %1</translation>
     </message>

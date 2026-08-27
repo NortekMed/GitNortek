@@ -45,6 +45,11 @@ bool Reference::isRemoteBranch() const {
   return git_reference_is_remote(d.data());
 }
 
+bool Reference::isRemoteHead() const {
+  return isRemoteBranch() && qualifiedName().endsWith("/HEAD") &&
+         git_reference_type(d.data()) == GIT_REFERENCE_SYMBOLIC;
+}
+
 bool Reference::isDetachedHead() const { return (qualifiedName() == "HEAD"); }
 
 bool Reference::isHead() const {

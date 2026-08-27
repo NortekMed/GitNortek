@@ -318,7 +318,7 @@ void RepositoryNavigatorModel::rebuild() {
 
   SectionData &remote = mSections[static_cast<int>(Section::Remote)];
   for (const git::Branch &branch : mRepo.branches(GIT_BRANCH_REMOTE)) {
-    if (branch.name().endsWith("HEAD"))
+    if (branch.isRemoteHead())
       continue;
     Row row;
     row.reference = branch;

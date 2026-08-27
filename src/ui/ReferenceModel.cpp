@@ -125,7 +125,7 @@ void ReferenceModel::update() {
       Debug("ReferenceView: Remote branches: " << branch.name());
       const bool remoteOnCommit =
           !mCommit.isValid() || branch.annotatedCommit().commit() == mCommit;
-      if (!branch.name().endsWith("HEAD") && remoteOnCommit)
+      if (!branch.isRemoteHead() && remoteOnCommit)
         remotes.append(branch);
     }
 

@@ -1581,6 +1581,8 @@ private:
     }
 
     foreach (const git::Reference &ref, mRepo.refs()) {
+      if (ref.isRemoteHead())
+        continue;
       if (git::Commit target = ref.target())
         mRefs[target.id()].append(
             {Badge::Label::Type::Ref, ref.name(), ref.isHead(), ref.isTag()});
@@ -2377,6 +2379,8 @@ void CommitList::contextMenuEvent(QContextMenuEvent *event) {
       QList<git::Reference> delete_branches;
       QList<git::Reference> all_branches; // used later
       for (const git::Reference &ref : commit.refs()) {
+        if (ref.isRemoteHead())
+          continue;
         if (ref.isTag()) {
           tags.append(ref);
         } else if (ref.isBranch()) {

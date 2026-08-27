@@ -38,6 +38,7 @@ public:
   bool isBranch() const;
   bool isLocalBranch() const;
   bool isRemoteBranch() const;
+  bool isRemoteHead() const;
 
   bool isDetachedHead() const;
   bool isHead() const;

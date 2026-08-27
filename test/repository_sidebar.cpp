@@ -193,6 +193,15 @@ void TestRepositorySideBar::navigatorModel() {
             {"update-ref", "refs/remotes/origin/main", "HEAD"});
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE,
+            {"update-ref", "refs/remotes/origin/NOTHEAD", "HEAD"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE,
+            {"symbolic-ref", "refs/remotes/origin/HEAD",
+             "refs/remotes/origin/main"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
 
   git::Commit head = mRepo->head().target();
   QVERIFY(head.isValid());
@@ -207,6 +216,8 @@ void TestRepositorySideBar::navigatorModel() {
   git::Branch main = mRepo->head();
   git::Branch upstream = mRepo->lookupBranch("origin/main", GIT_BRANCH_REMOTE);
   QVERIFY(upstream.isValid());
+  QVERIFY(mRepo->lookupRef("refs/remotes/origin/HEAD").isRemoteHead());
+  QVERIFY(!mRepo->lookupRef("refs/remotes/origin/NOTHEAD").isRemoteHead());
   main.setUpstream(upstream);
 
   RepositoryNavigatorModel model;
@@ -259,9 +270,13 @@ void TestRepositorySideBar::navigatorModel() {
 
   QModelIndex remotes =
       model.sectionIndex(RepositoryNavigatorModel::Section::Remote);
-  QCOMPARE(model.rowCount(remotes), 1);
-  QCOMPARE(model.index(0, 0, remotes).data().toString(),
-           QString("origin/main"));
+  QCOMPARE(model.rowCount(remotes), 2);
+  QStringList remoteNames;
+  for (int row = 0; row < model.rowCount(remotes); ++row)
+    remoteNames.append(model.index(row, 0, remotes).data().toString());
+  QVERIFY(remoteNames.contains("origin/main"));
+  QVERIFY(remoteNames.contains("origin/NOTHEAD"));
+  QVERIFY(!remoteNames.contains("origin/HEAD"));
 
   QVERIFY(mRepo->createBranch("notified", head).isValid());
   QTRY_COMPARE(model.rowCount(local), 3);

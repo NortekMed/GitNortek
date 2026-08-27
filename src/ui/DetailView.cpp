@@ -237,6 +237,7 @@ public:
     mAuthorCommitterDate = new AuthorCommitterDate(this);
 
     mHash = new QLabel(this);
+    mHash->setObjectName("CommitId");
     mHash->setTextInteractionFlags(kTextFlags);
 
     QToolButton *copy = new QToolButton(this);
@@ -245,6 +246,7 @@ public:
             [this] { QApplication::clipboard()->setText(mId); });
 
     mRefs = new Badge(QList<Badge::Label>(), this);
+    mRefs->setObjectName("CommitReferences");
     mParents = new QLabel(this);
     mParents->setTextInteractionFlags(kTextFlags);
 
@@ -253,12 +255,12 @@ public:
     line3->addWidget(copy);
     line3->addWidget(mParents);
     line3->addStretch();
-    line3->addWidget(mRefs);
 
     QVBoxLayout *details = new QVBoxLayout;
     details->setSpacing(6);
     details->addWidget(mAuthorCommitterDate); // line 1 + 2
     details->addLayout(line3);
+    details->addWidget(mRefs, 0, Qt::AlignLeft);
     details->addStretch();
 
     mPicture = new QLabel(this);
@@ -296,8 +298,10 @@ public:
 
     connect(&mWatcher, &QFutureWatcher<QString>::finished, this, [this] {
       QString result = mWatcher.result();
-      if (result.contains('+'))
+      if (result.contains('+')) {
         mRefs->appendLabel({Badge::Label::Type::Ref, result, false, true});
+        mRefs->setVisible(true);
+      }
     });
 
     // Respond to reference changes.
@@ -315,12 +319,15 @@ public:
   void setReferences(const QList<git::Commit> &commits) {
     QList<Badge::Label> refs;
     foreach (const git::Commit &commit, commits) {
-      foreach (const git::Reference &ref, commit.refs())
-        refs.append(
-            {Badge::Label::Type::Ref, ref.name(), ref.isHead(), ref.isTag()});
+      foreach (const git::Reference &ref, commit.refs()) {
+        if (!ref.isRemoteHead())
+          refs.append(
+              {Badge::Label::Type::Ref, ref.name(), ref.isHead(), ref.isTag()});
+      }
     }
 
     mRefs->setLabels(refs);
+    mRefs->setVisible(!refs.isEmpty());
 
     // Compute description asynchronously.
     if (commits.size() == 1)
