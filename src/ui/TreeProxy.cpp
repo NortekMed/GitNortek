@@ -46,6 +46,11 @@ bool TreeProxy::filterAcceptsRow(int source_row,
   if (!index.isValid())
     return false;
 
+  QString status =
+      sourceModel()->data(index, DiffTreeModel::StatusRole).toString();
+  if (mUnresolvedOnly && !status.contains('!'))
+    return false;
+
   if (!mFilter)
     return true;
 

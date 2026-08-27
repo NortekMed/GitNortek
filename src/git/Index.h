@@ -34,9 +34,12 @@ public:
     Id ancestor;
     Id ours;
     Id theirs;
+    git_filemode_t ancestorMode = GIT_FILEMODE_UNREADABLE;
+    git_filemode_t oursMode = GIT_FILEMODE_UNREADABLE;
+    git_filemode_t theirsMode = GIT_FILEMODE_UNREADABLE;
 
     bool isValid() const {
-      return !ancestor.isNull() && !ours.isNull() && !theirs.isNull();
+      return !ancestor.isNull() || !ours.isNull() || !theirs.isNull();
     }
   };
 
@@ -45,6 +48,10 @@ public:
   bool isValid() const { return !d.isNull(); }
 
   Conflict conflict(const QString &path) const;
+  bool conflictMatches(const QString &path, const Conflict &expected);
+  bool resolveConflict(const QString &path, const Conflict &expected);
+  bool resolveConflict(const QString &path, const Conflict &expected,
+                       const Id &id, git_filemode_t mode);
 
   git_filemode_t mode(const QString &path) const;
   void setMode(const QString &path, git_filemode_t mode);

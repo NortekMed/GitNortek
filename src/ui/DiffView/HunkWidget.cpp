@@ -27,6 +27,7 @@
 #include <QTableWidget>
 #include <QShortcut>
 #include <QHeaderView>
+#include <QButtonGroup>
 
 namespace {
 
@@ -62,43 +63,34 @@ _HunkWidget::Header::Header(const git::Diff &diff, const git::Patch &patch,
   HunkLabel *label = new HunkLabel(label_string, submodule, this);
 
   if (patch.isConflicted()) {
-    mSave = new QToolButton(this);
-    mSave->setObjectName("ConflictSave");
-    mSave->setText(HunkWidget::tr("Save"));
+    mClear = new QToolButton(this);
+    mClear->setObjectName("ConflictClear");
+    mClear->setText(HunkWidget::tr("Clear"));
 
-    mUndo = new QToolButton(this);
-    mUndo->setObjectName("ConflictUndo");
-    mUndo->setText(HunkWidget::tr("Undo"));
-    connect(mUndo, &QToolButton::clicked, [this] {
-      mSave->setVisible(false);
-      mUndo->setVisible(false);
-      mOurs->setEnabled(true);
-      mTheirs->setEnabled(true);
-    });
-
-    mOurs = new QToolButton(this);
-    mOurs->setObjectName("ConflictOurs");
-    mOurs->setStyleSheet(
+    mCurrent = new QToolButton(this);
+    mCurrent->setObjectName("ConflictCurrent");
+    mCurrent->setCheckable(true);
+    mCurrent->setStyleSheet(
         Application::theme()->diffButtonStyle(Theme::Diff::Ours));
-    mOurs->setText(HunkWidget::tr("Use Ours"));
-    connect(mOurs, &QToolButton::clicked, [this] {
-      mSave->setVisible(true);
-      mUndo->setVisible(true);
-      mOurs->setEnabled(false);
-      mTheirs->setEnabled(false);
-    });
+    mCurrent->setText(HunkWidget::tr("Current"));
 
-    mTheirs = new QToolButton(this);
-    mTheirs->setObjectName("ConflictTheirs");
-    mTheirs->setStyleSheet(
+    mIncoming = new QToolButton(this);
+    mIncoming->setObjectName("ConflictIncoming");
+    mIncoming->setCheckable(true);
+    mIncoming->setStyleSheet(
         Application::theme()->diffButtonStyle(Theme::Diff::Theirs));
-    mTheirs->setText(HunkWidget::tr("Use Theirs"));
-    connect(mTheirs, &QToolButton::clicked, [this] {
-      mSave->setVisible(true);
-      mUndo->setVisible(true);
-      mOurs->setEnabled(false);
-      mTheirs->setEnabled(false);
-    });
+    mIncoming->setText(HunkWidget::tr("Incoming"));
+
+    mBoth = new QToolButton(this);
+    mBoth->setObjectName("ConflictBoth");
+    mBoth->setCheckable(true);
+    mBoth->setText(HunkWidget::tr("Both"));
+
+    mConflictGroup = new QButtonGroup(this);
+    mConflictGroup->setExclusive(true);
+    mConflictGroup->addButton(mCurrent);
+    mConflictGroup->addButton(mIncoming);
+    mConflictGroup->addButton(mBoth);
   }
 
   EditButton *edit = new EditButton(patch, index, false, lfs, this);
@@ -126,13 +118,12 @@ _HunkWidget::Header::Header(const git::Diff &diff, const git::Patch &patch,
   QHBoxLayout *buttons = new QHBoxLayout;
   buttons->setContentsMargins(0, 0, 0, 0);
   buttons->setSpacing(4);
-  if (mSave && mUndo && mOurs && mTheirs) {
-    mSave->setVisible(false);
-    mUndo->setVisible(false);
-    buttons->addWidget(mSave);
-    buttons->addWidget(mUndo);
-    buttons->addWidget(mOurs);
-    buttons->addWidget(mTheirs);
+  if (mClear && mCurrent && mIncoming && mBoth) {
+    mClear->setVisible(false);
+    buttons->addWidget(mClear);
+    buttons->addWidget(mCurrent);
+    buttons->addWidget(mIncoming);
+    buttons->addWidget(mBoth);
     buttons->addSpacing(8);
   }
 
@@ -174,22 +165,35 @@ QCheckBox *_HunkWidget::Header::check() const { return mCheck; }
 
 DisclosureButton *_HunkWidget::Header::button() const { return mButton; }
 
-QToolButton *_HunkWidget::Header::saveButton() const { return mSave; }
+QToolButton *_HunkWidget::Header::clearButton() const { return mClear; }
 
-QToolButton *_HunkWidget::Header::undoButton() const { return mUndo; }
+QToolButton *_HunkWidget::Header::currentButton() const { return mCurrent; }
 
-QToolButton *_HunkWidget::Header::oursButton() const { return mOurs; }
+QToolButton *_HunkWidget::Header::incomingButton() const { return mIncoming; }
 
-QToolButton *_HunkWidget::Header::theirsButton() const { return mTheirs; }
+QToolButton *_HunkWidget::Header::bothButton() const { return mBoth; }
+
+void _HunkWidget::Header::setResolution(
+    git::Patch::ConflictResolution resolution) {
+  if (!mCurrent || !mIncoming || !mBoth || !mClear)
+    return;
+
+  mConflictGroup->setExclusive(false);
+  mCurrent->setChecked(resolution == git::Patch::Ours);
+  mIncoming->setChecked(resolution == git::Patch::Theirs);
+  mBoth->setChecked(resolution == git::Patch::Both);
+  mConflictGroup->setExclusive(true);
+  mClear->setVisible(resolution != git::Patch::Unresolved);
+}
 
 void _HunkWidget::Header::mouseDoubleClickEvent(QMouseEvent *event) {
   if (mButton->isEnabled())
     mButton->toggle();
 }
 
-//#############################################################################
-//##########     HunkWidget     ###############################################
-//#############################################################################
+// #############################################################################
+// ##########     HunkWidget     ###############################################
+// #############################################################################
 
 HunkWidget::HunkWidget(DiffView *view, const git::Diff &diff,
                        const git::Patch &patch, const git::Patch &staged,
@@ -245,76 +249,24 @@ HunkWidget::HunkWidget(DiffView *view, const git::Diff &diff,
   connect(mHeader, &_HunkWidget::Header::stageStateChanged, this,
           &HunkWidget::headerCheckStateChanged);
 
-  // Handle conflict resolution.
-  if (QToolButton *save = mHeader->saveButton()) {
-    connect(save, &QToolButton::clicked, [this] {
-      TextEditor editor;
-      git::Repository repo = mPatch.repo();
-      QString path = repo.workdir().filePath(mPatch.name());
-
-      {
-        // Read file.
-        QFile file(path);
-        if (file.open(QFile::ReadOnly))
-          editor.load(path, repo.decode(file.readAll()));
-      }
-
-      if (!editor.length())
-        return;
-
-      // Apply resolution.
-      for (int i = mPatch.lineCount(mIndex); i >= 0; --i) {
-        char origin = mPatch.lineOrigin(mIndex, i);
-        auto resolution = mPatch.conflictResolution(mIndex);
-        if (origin == GIT_DIFF_LINE_CONTEXT ||
-            (origin == 'O' && resolution == git::Patch::Ours) ||
-            (origin == 'T' && resolution == git::Patch::Theirs))
-          continue;
-
-        int line = mPatch.lineNumber(mIndex, i);
-        int pos = editor.positionFromLine(line);
-        int length = editor.lineLength(line);
-        editor.deleteRange(pos, length);
-      }
-
-      // Write file to disk.
-      QSaveFile file(path);
-      if (!file.open(QFile::WriteOnly))
-        return;
-
-      QTextStream out(&file);
-      out.setEncoding(repo.encoding());
-      out << editor.text();
-      file.commit();
-
-      mPatch.setConflictResolution(mIndex, git::Patch::Unresolved);
-
-      RepoView::parentView(this)->refresh();
-    });
+  if (QToolButton *clear = mHeader->clearButton()) {
+    connect(clear, &QToolButton::clicked,
+            [this] { setConflictResolution(git::Patch::Unresolved); });
   }
 
-  if (QToolButton *undo = mHeader->undoButton()) {
-    connect(undo, &QToolButton::clicked, [this] {
-      // Invalidate to trigger reload.
-      invalidate();
-      mPatch.setConflictResolution(mIndex, git::Patch::Unresolved);
-    });
+  if (QToolButton *current = mHeader->currentButton()) {
+    connect(current, &QToolButton::clicked,
+            [this] { setConflictResolution(git::Patch::Ours); });
   }
 
-  if (QToolButton *ours = mHeader->oursButton()) {
-    connect(ours, &QToolButton::clicked, [this] {
-      mEditor->markerDeleteAll(TextEditor::Theirs);
-      chooseLines(TextEditor::Ours);
-      mPatch.setConflictResolution(mIndex, git::Patch::Ours);
-    });
+  if (QToolButton *incoming = mHeader->incomingButton()) {
+    connect(incoming, &QToolButton::clicked,
+            [this] { setConflictResolution(git::Patch::Theirs); });
   }
 
-  if (QToolButton *theirs = mHeader->theirsButton()) {
-    connect(theirs, &QToolButton::clicked, [this] {
-      mEditor->markerDeleteAll(TextEditor::Ours);
-      chooseLines(TextEditor::Theirs);
-      mPatch.setConflictResolution(mIndex, git::Patch::Theirs);
-    });
+  if (QToolButton *both = mHeader->bothButton()) {
+    connect(both, &QToolButton::clicked,
+            [this] { setConflictResolution(git::Patch::Both); });
   }
 
   // Hook up error margin click.
@@ -785,20 +737,13 @@ void HunkWidget::load(git::Patch &staged, bool force) {
   // Disallow editing.
   mEditor->setReadOnly(true);
 
-  // Restore resolved conflicts.
+  // Restore pending conflict choices.
   if (mPatch.isConflicted()) {
-    switch (mPatch.conflictResolution(mIndex)) {
-      case git::Patch::Ours:
-        mHeader->oursButton()->click();
-        break;
-
-      case git::Patch::Theirs:
-        mHeader->theirsButton()->click();
-        break;
-
-      case git::Patch::Unresolved:
-        break;
-    }
+    if (mResolution == git::Patch::Unresolved)
+      mResolution = mPatch.conflictResolution(mIndex);
+    mHeader->setResolution(mResolution);
+    if (mResolution != git::Patch::Unresolved)
+      chooseLines(mResolution);
   }
 
   // Execute hunk plugins.
@@ -1265,10 +1210,14 @@ git::Index::StagedState HunkWidget::stageState() {
   return mStagedStage;
 }
 
-void HunkWidget::chooseLines(TextEditor::Marker kind) {
-  // Edit hunk.
+void HunkWidget::chooseLines(git::Patch::ConflictResolution resolution) {
   mEditor->setReadOnly(false);
-  int mask = ((1 << TextEditor::Context) | (1 << kind));
+  int mask = 1 << TextEditor::Context;
+  if (resolution == git::Patch::Ours || resolution == git::Patch::Both)
+    mask |= 1 << TextEditor::Ours;
+  if (resolution == git::Patch::Theirs || resolution == git::Patch::Both)
+    mask |= 1 << TextEditor::Theirs;
+
   for (int i = mEditor->lineCount() - 1; i >= 0; --i) {
     if (!(mask & mEditor->markers(i))) {
       int pos = mEditor->positionFromLine(i);
@@ -1278,4 +1227,13 @@ void HunkWidget::chooseLines(TextEditor::Marker kind) {
   }
 
   mEditor->setReadOnly(true);
+}
+
+void HunkWidget::setConflictResolution(
+    git::Patch::ConflictResolution resolution) {
+  mResolution = resolution;
+  mPatch.setConflictResolution(mIndex, resolution);
+  mHeader->setResolution(resolution);
+  load(mStaged, true);
+  emit resolutionChanged(resolution);
 }

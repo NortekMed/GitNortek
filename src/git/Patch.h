@@ -25,11 +25,18 @@ class Repository;
 
 class Patch {
 public:
-  enum ConflictResolution { Unresolved, Ours, Theirs };
+  enum ConflictResolution { Unresolved, Ours, Theirs, Both };
 
   struct LineStats {
     int additions;
     int deletions;
+  };
+
+  struct ConflictBlock {
+    int startMarker;
+    int endMarker;
+    QList<QByteArray> currentLines;
+    QList<QByteArray> incomingLines;
   };
 
   Patch();
@@ -42,6 +49,7 @@ public:
   git_delta_t status() const;
   bool isUntracked() const;
   bool isConflicted() const;
+  bool hasMalformedConflicts() const { return mMalformedConflicts; }
   bool isBinary() const;
   bool isLfsPointer() const;
 
@@ -100,6 +108,11 @@ public:
 
   ConflictResolution conflictResolution(int hidx);
   void setConflictResolution(int hidx, ConflictResolution resolution);
+  QList<ConflictBlock> conflictBlocks() const;
+  QList<QByteArray> conflictFileLines() const { return mConflictFileLines; }
+  bool conflictFileMatches() const;
+  bool resolveConflicts(const QList<ConflictResolution> &resolutions,
+                        QByteArray &result) const;
 
   /*!
    * Reads the filecontent in the blob and stores in image
@@ -162,6 +175,7 @@ private:
   struct ConflictHunk {
     int line; // start line
     int min;  // <<<<<<< line
+    int base; // ||||||| line, or -1
     int mid;  // ======= line
     int max;  // >>>>>>> line
     QList<QByteArray> lines;
@@ -171,6 +185,12 @@ private:
 
   QSharedPointer<git_patch> d;
   QList<ConflictHunk> mConflicts;
+  QList<QByteArray> mConflictFileLines;
+  QByteArray mConflictFileContent;
+  QString mConflictSymlinkTarget;
+  bool mConflictFilePresent = false;
+  bool mConflictFileSymlink = false;
+  bool mMalformedConflicts = false;
 
   friend class Diff;
 };

@@ -20,6 +20,7 @@
 #include "DiffView/DiffView.h"
 #include "git/Index.h"
 #include "git/Config.h"
+#include "git/Patch.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -32,6 +33,7 @@
 #include <QButtonGroup>
 #include <qnamespace.h>
 #include <qtreeview.h>
+#include <functional>
 
 namespace {
 
@@ -210,7 +212,27 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   hBoxLayout = new QHBoxLayout();
   mUnstagedCommitedFiles = new QLabel(kUnstagedFiles);
   hBoxLayout->addWidget(mUnstagedCommitedFiles);
+  mConflictSummary = new QLabel(this);
+  mConflictSummary->setObjectName("ConflictSummary");
+  mConflictSummary->setVisible(false);
+  hBoxLayout->addWidget(mConflictSummary);
   hBoxLayout->addStretch();
+  mUnresolvedOnly = new QCheckBox(tr("Unresolved only"), this);
+  mUnresolvedOnly->setObjectName("UnresolvedOnly");
+  mUnresolvedOnly->setVisible(false);
+  hBoxLayout->addWidget(mUnresolvedOnly);
+  mPreviousConflict = new QToolButton(this);
+  mPreviousConflict->setObjectName("PreviousConflict");
+  mPreviousConflict->setToolTip(tr("Previous unresolved file"));
+  mPreviousConflict->setIcon(style()->standardIcon(QStyle::SP_ArrowBack));
+  mPreviousConflict->setVisible(false);
+  hBoxLayout->addWidget(mPreviousConflict);
+  mNextConflict = new QToolButton(this);
+  mNextConflict->setObjectName("NextConflict");
+  mNextConflict->setToolTip(tr("Next unresolved file"));
+  mNextConflict->setIcon(style()->standardIcon(QStyle::SP_ArrowForward));
+  mNextConflict->setVisible(false);
+  hBoxLayout->addWidget(mNextConflict);
   mShowAllFiles = new QCheckBox(tr("Show all files"), this);
   mShowAllFiles->setVisible(false);
   hBoxLayout->addWidget(mShowAllFiles);
@@ -310,6 +332,17 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
           &DoubleTreeWidget::toggleCollapseUnstagedFiles);
   connect(mStageAllChanges, &QPushButton::clicked, repoView, &RepoView::stage);
   connect(mShowAllFiles, &QCheckBox::toggled, this, [this] { setDiff(mDiff); });
+  connect(mUnresolvedOnly, &QCheckBox::toggled, this, [this](bool checked) {
+    static_cast<TreeProxy *>(stagedFiles->model())->setUnresolvedOnly(checked);
+    static_cast<TreeProxy *>(unstagedFiles->model())
+        ->setUnresolvedOnly(checked);
+    if (checked)
+      unstagedFiles->expandAll();
+  });
+  connect(mPreviousConflict, &QToolButton::clicked, this,
+          [this] { selectAdjacentConflict(-1); });
+  connect(mNextConflict, &QToolButton::clicked, this,
+          [this] { selectAdjacentConflict(1); });
 
   connect(repo.notifier(), &git::RepositoryNotifier::indexChanged, this,
           [this](const QStringList &paths) {
@@ -486,6 +519,7 @@ void DoubleTreeWidget::setDiff(const git::Diff &diff, const QString &file,
   collapseButtonStagedFiles->setVisible(!listView);
   collapseButtonUnstagedFiles->setVisible(!listView);
   updateStageAllChangesButton();
+  updateConflictUi();
 
   unstagedFiles->updateView(); // Must be before expandAll/collapseAll is done,
                                // otherwise the collapse counter is wrong
@@ -546,6 +580,90 @@ void DoubleTreeWidget::updateStageAllChangesButton() {
   mStageAllChanges->setVisible(statusDiff);
   mStageAllChanges->setEnabled(statusDiff &&
                                RepoView::parentView(this)->isStageEnabled());
+}
+
+void DoubleTreeWidget::updateConflictUi() {
+  int unresolvedFiles = 0;
+  int unresolvedBlocks = 0;
+  if (mDiff.isValid() && mDiff.isStatusDiff()) {
+    for (int i = 0; i < mDiff.count(); ++i) {
+      git::Patch patch = mDiff.patch(i);
+      if (!patch.isConflicted())
+        continue;
+      ++unresolvedFiles;
+      unresolvedBlocks += patch.count();
+    }
+  }
+
+  if (unresolvedFiles == 0) {
+    mConflictSessionTotal = 0;
+    mUnresolvedOnly->setChecked(false);
+  } else {
+    mConflictSessionTotal = qMax(mConflictSessionTotal, unresolvedFiles);
+  }
+
+  QString summary;
+  int resolvedFiles = mConflictSessionTotal - unresolvedFiles;
+  if (resolvedFiles > 0) {
+    summary = tr("%1 of %2 resolved | %3 blocks remaining")
+                  .arg(resolvedFiles)
+                  .arg(mConflictSessionTotal)
+                  .arg(unresolvedBlocks);
+  } else {
+    summary = tr("%1 unresolved files | %2 blocks")
+                  .arg(unresolvedFiles)
+                  .arg(unresolvedBlocks);
+  }
+  mConflictSummary->setText(summary);
+
+  bool visible = unresolvedFiles > 0;
+  mConflictSummary->setVisible(visible);
+  mUnresolvedOnly->setVisible(visible);
+  mPreviousConflict->setVisible(visible);
+  mNextConflict->setVisible(visible);
+}
+
+void DoubleTreeWidget::selectAdjacentConflict(int direction) {
+  QList<QModelIndex> conflicts;
+  TreeProxy *proxy = static_cast<TreeProxy *>(unstagedFiles->model());
+  std::function<void(const QModelIndex &)> collect =
+      [&](const QModelIndex &parent) {
+        for (int row = 0; row < proxy->rowCount(parent); ++row) {
+          QModelIndex index = proxy->index(row, 0, parent);
+          int patchIndex = index.data(DiffTreeModel::PatchIndexRole).toInt();
+          if (patchIndex >= 0 && mDiff.patch(patchIndex).isConflicted())
+            conflicts.append(index);
+          collect(index);
+        }
+      };
+  collect(QModelIndex());
+
+  if (conflicts.isEmpty())
+    return;
+
+  QModelIndexList selected = unstagedFiles->selectionModel()->selectedIndexes();
+  QModelIndex current = selected.isEmpty() ? QModelIndex() : selected.first();
+  int currentIndex = -1;
+  for (int i = 0; i < conflicts.size(); ++i) {
+    if (conflicts.at(i) == current) {
+      currentIndex = i;
+      break;
+    }
+  }
+
+  int targetIndex;
+  if (currentIndex < 0)
+    targetIndex = direction > 0 ? 0 : conflicts.size() - 1;
+  else
+    targetIndex =
+        (currentIndex + direction + conflicts.size()) % conflicts.size();
+  QModelIndex target = conflicts.at(targetIndex);
+
+  stagedFiles->deselectAll();
+  unstagedFiles->selectionModel()->setCurrentIndex(
+      target, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+  unstagedFiles->scrollTo(target);
+  openFileInspection();
 }
 
 void DoubleTreeWidget::storeSelection() {

@@ -15,6 +15,7 @@
 class DiffView;
 class Header;
 class QToolButton;
+class QButtonGroup;
 class DisclosureButton;
 class Line;
 
@@ -40,10 +41,11 @@ public:
 
   DisclosureButton *button() const;
 
-  QToolButton *saveButton() const;
-  QToolButton *undoButton() const;
-  QToolButton *oursButton() const;
-  QToolButton *theirsButton() const;
+  QToolButton *clearButton() const;
+  QToolButton *currentButton() const;
+  QToolButton *incomingButton() const;
+  QToolButton *bothButton() const;
+  void setResolution(git::Patch::ConflictResolution resolution);
 
 public slots:
   void setCheckState(git::Index::StagedState state);
@@ -58,10 +60,11 @@ signals:
 private:
   QCheckBox *mCheck;
   DisclosureButton *mButton;
-  QToolButton *mSave = nullptr;
-  QToolButton *mUndo = nullptr;
-  QToolButton *mOurs = nullptr;
-  QToolButton *mTheirs = nullptr;
+  QToolButton *mClear = nullptr;
+  QToolButton *mCurrent = nullptr;
+  QToolButton *mIncoming = nullptr;
+  QToolButton *mBoth = nullptr;
+  QButtonGroup *mConflictGroup = nullptr;
 };
 } // namespace _HunkWidget
 
@@ -125,6 +128,7 @@ public:
    * \param force Set to true to force reloading
    */
   void load(git::Patch &staged, bool force = false);
+  git::Patch::ConflictResolution resolution() const { return mResolution; }
 
 signals:
   /*!
@@ -136,6 +140,7 @@ signals:
    */
   void stageStateChanged(git::Index::StagedState state);
   void discardSignal();
+  void resolutionChanged(git::Patch::ConflictResolution resolution);
 
 protected:
   void paintEvent(QPaintEvent *event);
@@ -179,7 +184,8 @@ private:
 
   QList<Token> tokens(int line) const;
   QByteArray tokenBuffer(const QList<Token> &tokens);
-  void chooseLines(TextEditor::Marker kind);
+  void chooseLines(git::Patch::ConflictResolution resolution);
+  void setConflictResolution(git::Patch::ConflictResolution resolution);
 
   DiffView *mView;
   git::Patch mPatch;
@@ -193,6 +199,7 @@ private:
   bool mLoading{false}; // during execution of the load() method
   bool mStagedStateLoaded{false};
   git::Index::StagedState mStagedStage;
+  git::Patch::ConflictResolution mResolution{git::Patch::Unresolved};
 };
 
 #endif // HUNKWIDGET_H

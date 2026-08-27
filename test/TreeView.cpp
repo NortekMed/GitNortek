@@ -10,6 +10,7 @@
 #include "conf/Settings.h"
 
 #include <QHBoxLayout>
+#include <QCheckBox>
 #include <QPushButton>
 #include <QStackedWidget>
 #include <QTextEdit>
@@ -276,14 +277,16 @@ void TestTreeView::fileMergeCrash() {
   auto diffView = repoView->findChild<DiffView *>();
   QVERIFY(diffView);
 
-  QToolButton *theirs = diffView->findChild<QToolButton *>("ConflictTheirs");
-  QVERIFY(theirs);
-  mouseClick(theirs, Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(), 0);
+  QCheckBox *incoming =
+      diffView->findChild<QCheckBox *>("ConflictIncomingBlock_0");
+  QVERIFY(incoming);
+  mouseClick(incoming, Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(), 0);
 
-  QToolButton *save =
-      diffView->widget()->findChild<QToolButton *>("ConflictSave");
-  QVERIFY(save);
-  mouseClick(save, Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(), 0);
+  QToolButton *markResolved =
+      diffView->widget()->findChild<QToolButton *>("ConflictMarkResolved");
+  QVERIFY(markResolved);
+  mouseClick(markResolved, Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(),
+             0);
 
   // should not crash
 }
@@ -319,11 +322,10 @@ void TestTreeView::committedFileInspection() {
   QTRY_VERIFY(committedFiles->model()->rowCount() > 0);
   QVERIFY(primaryView->currentWidget() != fileInspection);
   committedFiles->selectionModel()->clearSelection();
-  committedFiles->selectionModel()->select(
-      committedFiles->model()->index(0, 0), QItemSelectionModel::Select);
+  committedFiles->selectionModel()->select(committedFiles->model()->index(0, 0),
+                                           QItemSelectionModel::Select);
   QVERIFY(primaryView->currentWidget() != fileInspection);
-  QVERIFY(
-      QMetaObject::invokeMethod(committedFiles, "fileSelectionRequested"));
+  QVERIFY(QMetaObject::invokeMethod(committedFiles, "fileSelectionRequested"));
   QCOMPARE(primaryView->currentWidget(), fileInspection);
 
   QToolButton *close =
@@ -406,6 +408,28 @@ void TestTreeView::conflictedAndStagedFile() {
     QVERIFY(index.isValid());
     QCOMPARE(index.data(), "conflictedFile.txt");
   }
+
+  auto *unresolvedOnly = doubleTree->findChild<QCheckBox *>("UnresolvedOnly");
+  QVERIFY(unresolvedOnly);
+  QTRY_VERIFY(unresolvedOnly->isVisible());
+
+  auto *unstagedProxy = static_cast<TreeProxy *>(unstagedTree->model());
+  unstagedProxy->enableFilter(false);
+  unstagedProxy->setUnresolvedOnly(false);
+  QModelIndex folder = unstagedProxy->index(0, 0);
+  QCOMPARE(unstagedProxy->rowCount(folder), 2);
+
+  mouseClick(unresolvedOnly, Qt::LeftButton);
+  folder = unstagedProxy->index(0, 0);
+  QCOMPARE(unstagedProxy->rowCount(folder), 1);
+  QCOMPARE(unstagedProxy->index(0, 0, folder).data(), "conflictedFile.txt");
+
+  stagedTree->deselectAll();
+  unstagedTree->deselectAll();
+  auto *next = doubleTree->findChild<QToolButton *>("NextConflict");
+  QVERIFY(next);
+  mouseClick(next, Qt::LeftButton);
+  QTRY_COMPARE(doubleTree->selectedFile(), QString("conflictedFile.txt"));
 }
 
 void TestTreeView::stageAllChangesButton() {

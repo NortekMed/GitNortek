@@ -24,6 +24,7 @@ class DiffView;
 class QLabel;
 class QCheckBox;
 class QPushButton;
+class QToolButton;
 
 // button in treeview:
 // https://stackoverflow.com/questions/40716138/how-to-add-a-button-to-a-qtreeview-row
@@ -74,6 +75,8 @@ private:
   void openFileInspection();
   void loadEditorContent(const QModelIndexList &indexes);
   void updateStageAllChangesButton();
+  void updateConflictUi();
+  void selectAdjacentConflict(int direction);
   void toggleCollapseStagedFiles();
   void toggleCollapseUnstagedFiles();
   QAction *setupAppearanceAction(const char *name, Setting::Id id,
@@ -87,6 +90,10 @@ private:
   QPushButton *mStageAllChanges{nullptr};
   QLabel *mUnstagedCommitedFiles{nullptr};
   QCheckBox *mShowAllFiles{nullptr};
+  QLabel *mConflictSummary{nullptr};
+  QCheckBox *mUnresolvedOnly{nullptr};
+  QToolButton *mPreviousConflict{nullptr};
+  QToolButton *mNextConflict{nullptr};
 
   struct SelectedFile {
     QString filename;
@@ -95,9 +102,7 @@ private:
 
   // Determines which file is selected.
   // Is used to restore the selection after a new diff is set
-  struct SelectedFile mSelectedFile {
-    "", false
-  };
+  struct SelectedFile mSelectedFile{"", false};
   /*!
    * needed to set the visibility. When the diff is a commit, no need for
    * a second TreeView. So the staged one gets hidden.
@@ -124,6 +129,7 @@ private:
   int fileCountExpansionThreshold{100};
 
   uint32_t mSetDiffCounter{0};
+  int mConflictSessionTotal{0};
 
   friend class TestTreeView;
 };

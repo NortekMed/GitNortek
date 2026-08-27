@@ -5,6 +5,7 @@
 #include "DiscardButton.h"
 #include "LineStats.h"
 #include "FileLabel.h"
+#include "ConflictResolverWidget.h"
 #include "HunkWidget.h"
 #include "Images.h"
 #include "conf/Constants.h"
@@ -19,6 +20,8 @@
 #include "git/Repository.h"
 
 #include "git/Buffer.h"
+#include "git/Blob.h"
+#include "git/Id.h"
 
 #include <QCheckBox>
 #include <QContextMenuEvent>
@@ -31,7 +34,7 @@
 namespace {
 bool disclosure = false;
 constexpr int kMaxDisplayedChangedLines = 5000;
-}
+} // namespace
 
 _FileWidget::Header::Header(const git::Diff &diff, const git::Patch &patch,
                             bool binary, bool lfs, bool submodule,
@@ -127,49 +130,55 @@ _FileWidget::Header::Header(const git::Diff &diff, const git::Patch &patch,
   mDisclosureButton->setVisible(disclosure);
   buttons->addWidget(mDisclosureButton);
 
-  mSave = new QToolButton(this);
-  mSave->setObjectName("ConflictFileSave");
-  mSave->setText(HunkWidget::tr("Save"));
+  mMarkResolved = new QToolButton(this);
+  mMarkResolved->setObjectName("ConflictMarkResolved");
+  mMarkResolved->setText(HunkWidget::tr("Mark Resolved"));
+  mMarkResolved->setEnabled(false);
+  mMarkResolved->setStyleSheet(
+      "QToolButton { background: #b8860b; color: white; border-radius: 3px; "
+      "padding: 4px 10px; font-weight: 700; }"
+      "QToolButton:disabled { background: palette(mid); color: "
+      "palette(disabled-text); }");
 
-  mUndo = new QToolButton(this);
-  mUndo->setObjectName("ConflictFileUndo");
-  mUndo->setText(HunkWidget::tr("Undo"));
-  connect(mUndo, &QToolButton::clicked, [this] {
-    mSave->setVisible(false);
-    mUndo->setVisible(false);
-    mOurs->setEnabled(true);
-    mTheirs->setEnabled(true);
+  mClear = new QToolButton(this);
+  mClear->setObjectName("ConflictFileClear");
+  mClear->setText(HunkWidget::tr("Clear"));
+  connect(mClear, &QToolButton::clicked, [this] {
+    mClear->setVisible(false);
+    mCurrent->setEnabled(true);
+    mIncoming->setEnabled(true);
     mResolution = git::Patch::ConflictResolution::Unresolved;
+    mMarkResolved->setEnabled(false);
   });
 
-  mOurs = new QToolButton(this);
-  mOurs->setObjectName("ConflictFileOurs");
-  mOurs->setStyleSheet(
+  mCurrent = new QToolButton(this);
+  mCurrent->setObjectName("ConflictFileCurrent");
+  mCurrent->setStyleSheet(
       Application::theme()->diffButtonStyle(Theme::Diff::Ours));
-  connect(mOurs, &QToolButton::clicked, [this] {
-    mSave->setVisible(true);
-    mUndo->setVisible(true);
-    mOurs->setEnabled(false);
-    mTheirs->setEnabled(false);
+  connect(mCurrent, &QToolButton::clicked, [this] {
+    mClear->setVisible(true);
+    mCurrent->setEnabled(false);
+    mIncoming->setEnabled(true);
     mResolution = git::Patch::ConflictResolution::Ours;
+    mMarkResolved->setEnabled(!mPatch.hasMalformedConflicts());
   });
 
-  mTheirs = new QToolButton(this);
-  mTheirs->setObjectName("ConflictFileTheirs");
-  mTheirs->setStyleSheet(
+  mIncoming = new QToolButton(this);
+  mIncoming->setObjectName("ConflictFileIncoming");
+  mIncoming->setStyleSheet(
       Application::theme()->diffButtonStyle(Theme::Diff::Theirs));
-  connect(mTheirs, &QToolButton::clicked, [this] {
-    mSave->setVisible(true);
-    mUndo->setVisible(true);
-    mOurs->setEnabled(false);
-    mTheirs->setEnabled(false);
+  connect(mIncoming, &QToolButton::clicked, [this] {
+    mClear->setVisible(true);
+    mCurrent->setEnabled(true);
+    mIncoming->setEnabled(false);
     mResolution = git::Patch::ConflictResolution::Theirs;
+    mMarkResolved->setEnabled(!mPatch.hasMalformedConflicts());
   });
 
-  buttons->addWidget(mSave);
-  buttons->addWidget(mUndo);
-  buttons->addWidget(mOurs);
-  buttons->addWidget(mTheirs);
+  buttons->addWidget(mClear);
+  buttons->addWidget(mCurrent);
+  buttons->addWidget(mIncoming);
+  buttons->addWidget(mMarkResolved);
 
   updatePatch(patch);
 
@@ -204,22 +213,22 @@ void _FileWidget::Header::updatePatch(const git::Patch &patch) {
   mEdit->updatePatch(patch, -1);
 
   auto isConflicted = status == GIT_DELTA_CONFLICTED;
-  auto showFileSolverButtons = patch.count() != 1;
+  bool showFileSolverButtons = patch.count() == 0;
 
   if (isConflicted) {
     auto conflict = mDiff.index().conflict(patch.name());
     auto ours = QString();
     auto theirs = QString();
 
-    mOurs->setText(HunkWidget::tr("Use Ours"));
-    mTheirs->setText(HunkWidget::tr("Use Theirs"));
+    mCurrent->setText(HunkWidget::tr("Current"));
+    mIncoming->setText(HunkWidget::tr("Incoming"));
 
     if (conflict.ancestor.isNull()) {
       if (!conflict.ours.isNull()) {
         ours = "A";
 
         if (conflict.theirs.isNull()) {
-          mTheirs->setText(tr("Use Theirs: Delete"));
+          mIncoming->setText(tr("Incoming: Delete"));
         }
       }
 
@@ -227,7 +236,7 @@ void _FileWidget::Header::updatePatch(const git::Patch &patch) {
         theirs = "A";
 
         if (conflict.ours.isNull()) {
-          mOurs->setText(tr("Use Ours: Delete"));
+          mCurrent->setText(tr("Current: Delete"));
         }
       }
 
@@ -238,14 +247,14 @@ void _FileWidget::Header::updatePatch(const git::Patch &patch) {
 
       if (conflict.ours.isNull()) {
         ours = "D";
-        mOurs->setText(tr("Use Ours: Delete"));
+        mCurrent->setText(tr("Current: Delete"));
       } else if (conflict.ours != conflict.ancestor) {
         ours = "M";
       }
 
       if (conflict.theirs.isNull()) {
         theirs = "D";
-        mTheirs->setText(tr("Use Theirs: Delete"));
+        mIncoming->setText(tr("Incoming: Delete"));
       } else if (conflict.theirs != conflict.ancestor) {
         theirs = "M";
       }
@@ -268,14 +277,13 @@ void _FileWidget::Header::updatePatch(const git::Patch &patch) {
 
   mStatusBadge->setLabels(labels);
 
-  mOurs->setVisible(isConflicted && showFileSolverButtons);
-  mTheirs->setVisible(isConflicted && showFileSolverButtons);
-
-  mSave->setVisible(mResolution != git::Patch::ConflictResolution::Unresolved);
-  mUndo->setVisible(mResolution != git::Patch::ConflictResolution::Unresolved);
-  mOurs->setEnabled(mResolution == git::Patch::ConflictResolution::Unresolved);
-  mTheirs->setEnabled(mResolution ==
-                      git::Patch::ConflictResolution::Unresolved);
+  mCurrent->setVisible(isConflicted && showFileSolverButtons);
+  mIncoming->setVisible(isConflicted && showFileSolverButtons);
+  mMarkResolved->setVisible(isConflicted);
+  mClear->setVisible(showFileSolverButtons &&
+                     mResolution != git::Patch::Unresolved);
+  mCurrent->setEnabled(mResolution != git::Patch::Ours);
+  mIncoming->setEnabled(mResolution != git::Patch::Theirs);
 
   mDiscardButton->setVisible(mDiff.isStatusDiff() && !mSubmodule &&
                              !isConflicted);
@@ -328,7 +336,7 @@ void _FileWidget::Header::updateCheckState() {
       break;
 
     case git::Index::Conflicted:
-      disabled = (mPatch.count() > 0);
+      disabled = true;
       break;
   }
 
@@ -336,9 +344,9 @@ void _FileWidget::Header::updateCheckState() {
   mCheck->setEnabled(!disabled);
 }
 
-//###############################################################################
-//###############      FileWidget ###########################################
-//###############################################################################
+// ###############################################################################
+// ###############      FileWidget ###########################################
+// ###############################################################################
 
 FileWidget::FileWidget(DiffView *view, const git::Diff &diff,
                        const git::Patch &patch, const git::Patch &staged,
@@ -372,6 +380,8 @@ FileWidget::FileWidget(DiffView *view, const git::Diff &diff,
   connect(mHeader, &_FileWidget::Header::stageStateChanged, this,
           &FileWidget::headerCheckStateChanged);
   connect(mHeader, &_FileWidget::Header::discard, this, &FileWidget::discard);
+  connect(mHeader->markResolvedButton(), &QToolButton::clicked, this,
+          &FileWidget::markResolved);
   layout->addWidget(mHeader);
 
   DisclosureButton *disclosureButton = mHeader->disclosureButton();
@@ -394,6 +404,8 @@ FileWidget::FileWidget(DiffView *view, const git::Diff &diff,
 
       foreach (HunkWidget *hunk, mHunks)
         hunk->setVisible(visible);
+      if (mResolver)
+        mResolver->setVisible(visible);
     });
 
   if (diff.isStatusDiff()) {
@@ -419,10 +431,10 @@ FileWidget::FileWidget(DiffView *view, const git::Diff &diff,
   const int changedLines = stats.additions + stats.deletions;
   if (changedLines > kMaxDisplayedChangedLines) {
     mDiffSuppressed = true;
-    QLabel *message = new QLabel(
-        tr("Diff not shown because it contains %1 changed lines.")
-            .arg(changedLines),
-        this);
+    QLabel *message =
+        new QLabel(tr("Diff not shown because it contains %1 changed lines.")
+                       .arg(changedLines),
+                   this);
     message->setContentsMargins(8, 8, 8, 8);
     message->setWordWrap(true);
     layout->addWidget(message);
@@ -475,49 +487,7 @@ FileWidget::FileWidget(DiffView *view, const git::Diff &diff,
 
   disclosureButton->setChecked(expand);
 
-  // Handle conflict resolution.
-  if (QToolButton *save = mHeader->saveButton()) {
-    connect(save, &QToolButton::clicked, [this] {
-      git::Repository repo = mPatch.repo();
-
-      auto resolution = mHeader->resolution();
-      if (resolution == git::Patch::ConflictResolution::Unresolved) {
-        return;
-      }
-
-      auto conflict = repo.index().conflict(mPatch.name());
-      auto id = resolution == git::Patch::ConflictResolution::Ours
-                    ? conflict.ours
-                    : conflict.theirs;
-
-      if (id.isNull()) {
-        QFile::remove(repo.workdir().filePath(mPatch.name()));
-        repo.index().setStaged(QStringList{mPatch.name()}, true);
-        return;
-      }
-
-      if (!id.isValid()) {
-        return;
-      }
-
-      auto blob = repo.lookupBlob(id);
-      if (!blob.isValid()) {
-        return;
-      }
-
-      // Write file to disk.
-      QSaveFile file(repo.workdir().filePath(mPatch.name()));
-      if (!file.open(QFile::WriteOnly))
-        return;
-
-      file.write(blob.content());
-      file.commit();
-
-      repo.index().setStaged(QStringList{mPatch.name()}, true);
-
-      RepoView::parentView(this)->refresh();
-    });
-  }
+  updateMarkResolvedState();
 }
 
 void FileWidget::updateHunks(git::Patch stagedPatch) {
@@ -527,7 +497,8 @@ void FileWidget::updateHunks(git::Patch stagedPatch) {
 }
 
 bool FileWidget::isEmpty() {
-  return !mDiffSuppressed && mHunks.isEmpty() && mImages.isEmpty();
+  return !mDiffSuppressed && mHunks.isEmpty() && mImages.isEmpty() &&
+         !mResolver;
 }
 
 void FileWidget::setStageState(git::Index::StagedState state) {
@@ -539,13 +510,13 @@ void FileWidget::setStageState(git::Index::StagedState state) {
 
 QModelIndex FileWidget::modelIndex() { return mModelIndex; }
 
-QToolButton *_FileWidget::Header::saveButton() const { return mSave; }
+QToolButton *_FileWidget::Header::markResolvedButton() const {
+  return mMarkResolved;
+}
 
-QToolButton *_FileWidget::Header::undoButton() const { return mUndo; }
-
-QToolButton *_FileWidget::Header::oursButton() const { return mOurs; }
-
-QToolButton *_FileWidget::Header::theirsButton() const { return mTheirs; }
+void _FileWidget::Header::setMarkResolvedEnabled(bool enabled) {
+  mMarkResolved->setEnabled(enabled);
+}
 
 git::Patch::ConflictResolution _FileWidget::Header::resolution() const {
   return mResolution;
@@ -560,15 +531,30 @@ void FileWidget::updatePatch(const git::Patch &patch, const git::Patch &staged,
 
   bool lfs = patch.isLfsPointer();
 
-  // remove all hunks
+  // Remove all hunks.
   QLayoutItem *child;
   while ((child = mHunkLayout->takeAt(0)) != 0) {
+    if (QWidget *widget = child->widget())
+      widget->deleteLater();
     delete child;
   }
+  mHunks.clear();
+  mResolver = nullptr;
   // Add untracked file content.
   if (patch.isUntracked()) {
     if (!QFileInfo(path).isDir())
       mHunkLayout->addWidget(addHunk(mDiff, patch, staged, -1, lfs, submodule));
+    return;
+  }
+
+  if (patch.isConflicted() && patch.count() > 0 &&
+      !patch.hasMalformedConflicts()) {
+    mResolver = new ConflictResolverWidget(patch, this);
+    mHunkLayout->addWidget(mResolver);
+    connect(
+        mResolver, &ConflictResolverWidget::completenessChanged, this,
+        [this](bool complete) { mHeader->setMarkResolvedEnabled(complete); });
+    updateMarkResolvedState();
     return;
   }
 
@@ -593,6 +579,8 @@ void FileWidget::updatePatch(const git::Patch &patch, const git::Patch &staged,
     if (canFetchMore())
       fetchMore();
   }
+
+  updateMarkResolvedState();
 }
 
 _FileWidget::Header *FileWidget::header() const { return mHeader; }
@@ -626,6 +614,8 @@ HunkWidget *FileWidget::addHunk(const git::Diff &diff, const git::Patch &patch,
             this->stageHunks(hunk, state, false);
           });
   connect(hunk, &HunkWidget::discardSignal, this, &FileWidget::discardHunk);
+  connect(hunk, &HunkWidget::resolutionChanged, this,
+          &FileWidget::updateMarkResolvedState);
   TextEditor *editor = hunk->editor(false);
 
   // Respond to editor diagnostic signal.
@@ -789,6 +779,112 @@ void FileWidget::fetchAll(int index) {
   int hunksCount = mHunks.count();
   while ((index < 0 || hunksCount <= index) && canFetchMore())
     fetchMore();
+}
+
+void FileWidget::updateMarkResolvedState() {
+  if (!mPatch.isConflicted() || mPatch.hasMalformedConflicts()) {
+    mHeader->setMarkResolvedEnabled(false);
+    return;
+  }
+
+  if (mPatch.count() == 0) {
+    const git::Index::Conflict conflict =
+        mPatch.repo().index().conflict(mPatch.name());
+    bool bothDeleted = conflict.ours.isNull() && conflict.theirs.isNull();
+    bool sideSelected = mHeader->resolution() != git::Patch::Unresolved;
+    mHeader->setMarkResolvedEnabled(bothDeleted || sideSelected);
+    return;
+  }
+
+  if (mResolver) {
+    mHeader->setMarkResolvedEnabled(mResolver->isComplete());
+    return;
+  }
+
+  bool complete = mHunks.size() == mPatch.count();
+  for (HunkWidget *hunk : mHunks)
+    complete = complete && hunk->resolution() != git::Patch::Unresolved;
+  mHeader->setMarkResolvedEnabled(complete);
+}
+
+void FileWidget::markResolved() {
+  if (!mPatch.isConflicted() || mPatch.hasMalformedConflicts())
+    return;
+
+  git::Repository repo = mPatch.repo();
+  QString path = repo.workdir().filePath(mPatch.name());
+  RepoView *view = RepoView::parentView(this);
+  if (!mPatch.conflictFileMatches()) {
+    view->refresh();
+    return;
+  }
+  const git::Index::Conflict conflict = mDiff.index().conflict(mPatch.name());
+
+  if (mPatch.count() > 0) {
+    if (!mResolver || !mResolver->isComplete())
+      return;
+    const QByteArray result = mResolver->result();
+    QByteArray original;
+    for (const QByteArray &line : mPatch.conflictFileLines())
+      original.append(line);
+
+    if (!repo.index().conflictMatches(mPatch.name(), conflict)) {
+      view->refresh();
+      return;
+    }
+
+    QSaveFile file(path);
+    if (!file.open(QFile::WriteOnly))
+      return;
+    if (file.write(result) != result.size() || !file.commit())
+      return;
+
+    if (!repo.index().resolveConflict(mPatch.name(), conflict)) {
+      QFile current(path);
+      if (current.open(QFile::ReadOnly) && current.readAll() == result) {
+        current.close();
+        QSaveFile restore(path);
+        if (restore.open(QFile::WriteOnly) &&
+            restore.write(original) == original.size())
+          restore.commit();
+      }
+      view->refresh();
+      return;
+    }
+
+    for (int i = 0; i < mPatch.count(); ++i)
+      mPatch.setConflictResolution(i, git::Patch::Unresolved);
+  } else {
+    const git::Patch::ConflictResolution resolution = mHeader->resolution();
+    git::Id id;
+    git_filemode_t mode = GIT_FILEMODE_UNREADABLE;
+
+    if (resolution == git::Patch::Ours) {
+      id = conflict.ours;
+      mode = conflict.oursMode;
+    } else if (resolution == git::Patch::Theirs) {
+      id = conflict.theirs;
+      mode = conflict.theirsMode;
+    } else if (!conflict.ours.isNull() || !conflict.theirs.isNull()) {
+      return;
+    }
+
+    if (id.isNull()) {
+      if (mode != GIT_FILEMODE_UNREADABLE)
+        return;
+    } else {
+      if (!id.isValid() || mode == GIT_FILEMODE_UNREADABLE)
+        return;
+    }
+
+    if (!repo.index().resolveConflict(mPatch.name(), conflict, id, mode))
+      return;
+
+    view->refresh();
+    return;
+  }
+
+  view->refresh();
 }
 
 void FileWidget::discard() {

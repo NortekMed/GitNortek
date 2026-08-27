@@ -12,10 +12,14 @@
 #include "ui/MainWindow.h"
 #include "ui/DetailView.h"
 #include "ui/DiffView/DiffView.h"
+#include "ui/DiffView/FileWidget.h"
 #include "ui/DoubleTreeWidget.h"
 #include "ui/RepoView.h"
 #include "ui/TreeView.h"
+#include <QCheckBox>
 #include <QFile>
+#include <QPlainTextEdit>
+#include <QProcess>
 #include <QPushButton>
 #include <QTextEdit>
 #include <QToolButton>
@@ -55,7 +59,20 @@ void TestMerge::firstCommit() {
   // Add file and refresh.
   QFile file(mRepo->workdir().filePath("test"));
   QVERIFY(file.open(QFile::WriteOnly));
-  QTextStream(&file) << "This will be a test." << Qt::endl;
+  QTextStream(&file) << "Resolver test\n"
+                        "First shared line\n"
+                        "First base choice\n"
+                        "Spacer 1\n"
+                        "Spacer 2\n"
+                        "Spacer 3\n"
+                        "Spacer 4\n"
+                        "Spacer 5\n"
+                        "Spacer 6\n"
+                        "Spacer 7\n"
+                        "Spacer 8\n"
+                        "Second shared line\n"
+                        "Second base choice\n"
+                        "Resolver end\n";
 
   RepoView *view = mWindow->currentView();
   refresh(view);
@@ -93,7 +110,20 @@ void TestMerge::secondCommit() {
 
   QFile file(mRepo->workdir().filePath("test"));
   QVERIFY(file.open(QFile::WriteOnly));
-  QTextStream(&file) << "This is a conflict." << Qt::endl;
+  QTextStream(&file) << "Resolver test\n"
+                        "First shared line\n"
+                        "FIRST INCOMING\n"
+                        "Spacer 1\n"
+                        "Spacer 2\n"
+                        "Spacer 3\n"
+                        "Spacer 4\n"
+                        "Spacer 5\n"
+                        "Spacer 6\n"
+                        "Spacer 7\n"
+                        "Spacer 8\n"
+                        "Second shared line\n"
+                        "SECOND INCOMING\n"
+                        "Resolver end\n";
 
   refresh(view);
 
@@ -131,7 +161,20 @@ void TestMerge::thirdCommit() {
 
   QFile file(mRepo->workdir().filePath("test"));
   QVERIFY(file.open(QFile::WriteOnly));
-  QTextStream(&file) << "This is a test." << Qt::endl;
+  QTextStream(&file) << "Resolver test\n"
+                        "First shared line\n"
+                        "FIRST CURRENT\n"
+                        "Spacer 1\n"
+                        "Spacer 2\n"
+                        "Spacer 3\n"
+                        "Spacer 4\n"
+                        "Spacer 5\n"
+                        "Spacer 6\n"
+                        "Spacer 7\n"
+                        "Spacer 8\n"
+                        "Second shared line\n"
+                        "SECOND CURRENT\n"
+                        "Resolver end\n";
 
   refresh(view);
 
@@ -197,37 +240,82 @@ void TestMerge::resolve() {
   files->selectionModel()->select(file, QItemSelectionModel::Select);
   QVERIFY(QMetaObject::invokeMethod(files, "fileSelectionRequested"));
 
-  QToolButton *theirs = diffView->findChild<QToolButton *>("ConflictTheirs");
-  QVERIFY(theirs);
-  mouseClick(theirs, Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(),
+  FileWidget *fileWidget = diffView->findChild<FileWidget *>();
+  QVERIFY(fileWidget);
+  QCOMPARE(fileWidget->hunks().size(), 0);
+
+  QToolButton *currentLine =
+      fileWidget->findChild<QToolButton *>("ConflictCurrentBubble_0_0");
+  QCheckBox *firstIncoming =
+      fileWidget->findChild<QCheckBox *>("ConflictIncomingBlock_0");
+  QCheckBox *secondIncoming =
+      fileWidget->findChild<QCheckBox *>("ConflictIncomingBlock_1");
+  QVERIFY(currentLine);
+  QVERIFY(firstIncoming);
+  QVERIFY(secondIncoming);
+  mouseClick(currentLine, Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(),
+             inputDelay);
+  mouseClick(firstIncoming, Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(),
              inputDelay);
 
-  QToolButton *undo =
-      diffView->widget()->findChild<QToolButton *>("ConflictUndo");
-  QVERIFY(undo);
-  mouseClick(undo, Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(),
+  QToolButton *markResolved =
+      fileWidget->findChild<QToolButton *>("ConflictMarkResolved");
+  QVERIFY(markResolved);
+  QVERIFY(!markResolved->isEnabled());
+
+  mouseClick(secondIncoming, Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(),
+             inputDelay);
+  QVERIFY(markResolved->isEnabled());
+
+  QPlainTextEdit *result =
+      fileWidget->findChild<QPlainTextEdit *>("ConflictResult");
+  QVERIFY(result);
+  QVERIFY(result->toPlainText().indexOf("FIRST CURRENT") <
+          result->toPlainText().indexOf("FIRST INCOMING"));
+  QString editedResult = result->toPlainText();
+  editedResult.replace("Resolver end", "Manual result edit\nResolver end");
+  result->setPlainText(editedResult);
+  mouseClick(currentLine, Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(),
+             inputDelay);
+  QCOMPARE(result->toPlainText(), editedResult);
+  QVERIFY(markResolved->isEnabled());
+
+  QFile external(mRepo->workdir().filePath("externally-staged"));
+  QVERIFY(external.open(QFile::WriteOnly));
+  QCOMPARE(external.write("preserve me\n"), 12);
+  external.close();
+  QProcess git;
+  git.setWorkingDirectory(mRepo->workdir().path());
+  git.start(GIT_EXECUTABLE, {"add", "externally-staged"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+
+  mouseClick(markResolved, Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(),
              inputDelay);
 
-  QToolButton *ours =
-      diffView->widget()->findChild<QToolButton *>("ConflictOurs");
-  QVERIFY(ours);
-  mouseClick(ours, Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(),
-             inputDelay);
+  QTRY_VERIFY(!mRepo->index().hasConflicts());
+  QCOMPARE(mRepo->index().isStaged("test"), git::Index::Staged);
+  QCOMPARE(mRepo->index().isStaged("externally-staged"), git::Index::Staged);
 
-  QToolButton *save =
-      diffView->widget()->findChild<QToolButton *>("ConflictSave");
-  QVERIFY(save);
-  mouseClick(save, Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(),
-             inputDelay);
-
-  DetailView *detailView = view->findChild<DetailView *>();
-  QPushButton *stageAll = nullptr;
-  while (stageAll == nullptr) {
-    stageAll = detailView->findChild<QPushButton *>("StageAll");
-    qWait(100);
-  }
-  mouseClick(stageAll, Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(),
-             inputDelay);
+  QFile resolved(mRepo->workdir().filePath("test"));
+  QVERIFY(resolved.open(QFile::ReadOnly));
+  const QByteArray expected = "Resolver test\n"
+                              "First shared line\n"
+                              "FIRST CURRENT\n"
+                              "FIRST INCOMING\n"
+                              "Spacer 1\n"
+                              "Spacer 2\n"
+                              "Spacer 3\n"
+                              "Spacer 4\n"
+                              "Spacer 5\n"
+                              "Spacer 6\n"
+                              "Spacer 7\n"
+                              "Spacer 8\n"
+                              "Second shared line\n"
+                              "SECOND INCOMING\n"
+                              "Manual result edit\n"
+                              "Resolver end\n";
+  QCOMPARE(resolved.readAll(), expected);
 
   // Commit and refresh.
   QTextEdit *editor = view->findChild<QTextEdit *>("MessageEditor");

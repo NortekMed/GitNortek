@@ -14,6 +14,7 @@
 #include "Signature.h"
 #include "Submodule.h"
 #include "Tree.h"
+#include "git2/checkout.h"
 #include "git2/commit.h"
 #include "git2/ignore.h"
 #include "git2/refs.h"
@@ -23,6 +24,7 @@
 #include "git2/attr.h"
 #include <QDateTime>
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
 
 namespace git {
@@ -67,7 +69,92 @@ Index::Conflict Index::conflict(const QString &path) const {
   Id ancestorId = ancestor ? ancestor->id : Id();
   Id oursId = ours ? ours->id : Id();
   Id theirsId = theirs ? theirs->id : Id();
-  return {ancestorId, oursId, theirsId};
+  git_filemode_t ancestorMode =
+      ancestor ? static_cast<git_filemode_t>(ancestor->mode)
+               : GIT_FILEMODE_UNREADABLE;
+  git_filemode_t oursMode =
+      ours ? static_cast<git_filemode_t>(ours->mode) : GIT_FILEMODE_UNREADABLE;
+  git_filemode_t theirsMode = theirs ? static_cast<git_filemode_t>(theirs->mode)
+                                     : GIT_FILEMODE_UNREADABLE;
+  return {ancestorId, oursId, theirsId, ancestorMode, oursMode, theirsMode};
+}
+
+bool Index::conflictMatches(const QString &path, const Conflict &expected) {
+  if (git_index_read(d->index, false))
+    return false;
+
+  const Conflict actual = conflict(path);
+  return actual.ancestor == expected.ancestor && actual.ours == expected.ours &&
+         actual.theirs == expected.theirs &&
+         actual.ancestorMode == expected.ancestorMode &&
+         actual.oursMode == expected.oursMode &&
+         actual.theirsMode == expected.theirsMode;
+}
+
+bool Index::resolveConflict(const QString &path, const Conflict &expected) {
+  if (!conflictMatches(path, expected))
+    return false;
+
+  if (git_index_add_bypath(d->index, path.toUtf8()) ||
+      git_index_write(d->index)) {
+    git_index_read(d->index, true);
+    return false;
+  }
+
+  d->stagedCache.remove(path);
+  Repository repo(git_index_owner(d->index));
+  emit repo.notifier()->indexChanged({path});
+  return true;
+}
+
+bool Index::resolveConflict(const QString &path, const Conflict &expected,
+                            const Id &id, git_filemode_t mode) {
+  if (!conflictMatches(path, expected))
+    return false;
+
+  const QByteArray encodedPath = path.toUtf8();
+  if (git_index_conflict_remove(d->index, encodedPath))
+    return false;
+
+  if (!id.isNull()) {
+    git_index_entry entry = {};
+    entry.path = encodedPath;
+    entry.mode = mode;
+    git_oid_cpy(&entry.id, id);
+    if (git_index_add(d->index, &entry)) {
+      git_index_read(d->index, true);
+      return false;
+    }
+  }
+
+  Repository repo(git_index_owner(d->index));
+  if (id.isNull()) {
+    const QString worktreePath = repo.workdir().filePath(path);
+    QFileInfo info(worktreePath);
+    if ((info.exists() || info.isSymLink()) && !QFile::remove(worktreePath)) {
+      git_index_read(d->index, true);
+      return false;
+    }
+  } else {
+    char *checkoutPath = const_cast<char *>(encodedPath.constData());
+    git_checkout_options options = GIT_CHECKOUT_OPTIONS_INIT;
+    options.checkout_strategy = GIT_CHECKOUT_FORCE;
+    options.paths.strings = &checkoutPath;
+    options.paths.count = 1;
+    if (git_checkout_index(repo, d->index, &options)) {
+      git_index_read(d->index, true);
+      return false;
+    }
+  }
+
+  if (git_index_write(d->index)) {
+    git_index_read(d->index, true);
+    return false;
+  }
+
+  d->stagedCache.remove(path);
+  emit repo.notifier()->indexChanged({path});
+  return true;
 }
 
 git_filemode_t Index::mode(const QString &path) const {
@@ -126,14 +213,14 @@ Index::StagedState Index::isStaged(const QString &path) const {
   if (sm.isValid() && head == workdir)
     return d->stagedCache.insert(path, Disabled).value();
 
+  if (conflict(path).isValid())
+    return d->stagedCache.insert(path, Conflicted).value();
+
   if (index == workdir && indexMode == workdirMode)
     return d->stagedCache.insert(path, Staged).value();
 
   if (head == index && headMode == indexMode)
     return d->stagedCache.insert(path, Unstaged).value();
-
-  if (conflict(path).isValid())
-    return d->stagedCache.insert(path, Conflicted).value();
 
   return d->stagedCache.insert(path, PartiallyStaged).value();
 }
