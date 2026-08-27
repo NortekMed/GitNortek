@@ -233,10 +233,10 @@ Application::Application(int &argc, char **argv, bool haltOnParseError)
 
 #elif defined(Q_OS_LINUX)
   QIcon icon;
-  icon.addPixmap(QPixmap(":/Gittyup.iconset/icon_16x16.png"));
-  icon.addPixmap(QPixmap(":/Gittyup.iconset/icon_32x32.png"));
-  icon.addPixmap(QPixmap(":/Gittyup.iconset/icon_64x64.png"));
-  icon.addPixmap(QPixmap(":/Gittyup.iconset/icon_128x128.png"));
+  icon.addPixmap(QPixmap(":/GitNortek.iconset/icon_16x16.png"));
+  icon.addPixmap(QPixmap(":/GitNortek.iconset/icon_32x32.png"));
+  icon.addPixmap(QPixmap(":/GitNortek.iconset/icon_64x64.png"));
+  icon.addPixmap(QPixmap(":/GitNortek.iconset/icon_128x128.png"));
   setWindowIcon(icon);
 #endif
 

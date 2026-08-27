@@ -4,11 +4,11 @@ set(RSRC_DIR ${CMAKE_SOURCE_DIR}/rsrc)
 option(GENERATE_APPDATA "Create appdata/metadata file" OFF)
 
 if(APPLE)
-  set(ICON ${RSRC_DIR}/Gittyup.icns)
+  set(ICON ${RSRC_DIR}/GitNortek.icns)
   set(APP_IMPL_FILE Application_mac.mm)
   set(THEME_IMPL_FILE CustomTheme_mac.mm)
 elseif(WIN32)
-  set(RC_FILE ${RSRC_DIR}/Gittyup.rc)
+  set(RC_FILE ${RSRC_DIR}/GitNortek.rc)
 endif()
 
 set(EMOJI ${CONF_DIR}/emoji.json)

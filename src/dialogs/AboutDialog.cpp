@@ -63,7 +63,7 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent) {
   setAttribute(Qt::WA_DeleteOnClose);
   setWindowTitle(tr("About %1").arg(name));
 
-  QIcon icon(":/Gittyup.iconset/icon_128x128.png");
+  QIcon icon(":/GitNortek.iconset/icon_128x128.png");
   IconLabel *iconLabel = new IconLabel(icon, 128, 128, this);
 
   QLabel *titleLabel = new QLabel(name, this);
