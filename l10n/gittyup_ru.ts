@@ -508,32 +508,32 @@
 <context>
     <name>CloneDialog</name>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="323"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="339"/>
         <source>Initialize Repository</source>
         <translation>Инициализировать репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="323"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="339"/>
         <source>Clone Repository</source>
         <translation>Клонировать репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="359"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="375"/>
         <source>Initialized empty repository into &apos;%1&apos;</source>
         <translation>Инициализировал пустой репозиторий &apos;%1&apos;</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="360"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="376"/>
         <source>Cloned repository from &apos;%1&apos; into &apos;%2&apos;</source>
         <translation>Клонировал репозиторий из &apos;%1&apos; в &apos;%2&apos;</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="365"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="381"/>
         <source>Initialize</source>
         <translation>Инициализировать</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="365"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="381"/>
         <source>Clone</source>
         <translation>Клонировать</translation>
     </message>
@@ -541,33 +541,33 @@
 <context>
     <name>ClonePage</name>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="240"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="256"/>
         <source>Clone Progress</source>
         <translation>Прогрессклонирования</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="241"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="257"/>
         <source>The new repository will open after the clone finishes.</source>
         <translation>Новый репозиторий откроется когда клонирование завершится.</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="260"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="276"/>
         <source>Clone</source>
         <translation>Клонировать</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="269"/>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="271"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="285"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="287"/>
         <source>clone</source>
         <translation>клонировать</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="269"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="285"/>
         <source>Clone canceled.</source>
         <translation>Клонирование отменено.</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="305"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="321"/>
         <source>Failed to %1 into &apos;%2&apos; - %3</source>
         <translation>Ну не смогла я %1 в &apos;%2&apos; - %3</translation>
     </message>
@@ -1197,22 +1197,22 @@
         <translation>Клонировать репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="54"/>
+        <location filename="../src/ui/TabWidget.cpp" line="57"/>
         <source>Open existing repository</source>
         <translation>Открыть существующий репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="58"/>
+        <location filename="../src/ui/TabWidget.cpp" line="61"/>
         <source>Open Repository</source>
         <translation>Открыть репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="68"/>
+        <location filename="../src/ui/TabWidget.cpp" line="71"/>
         <source>Initialize new repository</source>
         <translation>Инициилизировать новый репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="88"/>
+        <location filename="../src/ui/TabWidget.cpp" line="94"/>
         <source>Add %1 account</source>
         <translation>Добавить аккаунт %1</translation>
     </message>
@@ -1221,7 +1221,7 @@
         <translation type="vanished">Показать вводные видеоролики</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="103"/>
+        <location filename="../src/ui/TabWidget.cpp" line="109"/>
         <source>Contact us for support</source>
         <translation>Обратиться к нам за поддержкой</translation>
     </message>
@@ -2609,57 +2609,62 @@ Examples
 <context>
     <name>LocationPage</name>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="132"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="133"/>
         <source>Repository Location</source>
         <translation>Размещение репозитория</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="133"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="134"/>
         <source>Choose the name and location of the new repository. A new directory will be created if it doesn&apos;t already exist.</source>
         <translation>Выберите имя и размещение нового репозитория. Новая директория будет создана, если она не существует.</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="136"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="137"/>
         <source>Initialize</source>
         <translation>Инициализировать</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="136"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="137"/>
         <source>Clone</source>
         <translation>Клонировать</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="147"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="148"/>
         <source>...</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="149"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="150"/>
         <source>Choose Directory</source>
         <translation>Выберите директорию</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="172"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="174"/>
         <source>Name:</source>
         <translation>Имя:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="173"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="175"/>
         <source>Directory:</source>
         <translation>Директория:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="174"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="176"/>
         <source>Advanced:</source>
         <translation>Дополнительно:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="176"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="178"/>
         <source>Create a bare repository</source>
         <translation>Создать &quot;голый&quot; репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="218"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="180"/>
+        <source>Initialize submodules after cloning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="234"/>
         <source>The new repository will be created at:&lt;p style=&apos;text-indent: 12px&apos;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/p&gt;</source>
         <translation>Новый репозиторий будет создан в:&lt;p style=&apos;text-indent: 12px&apos;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/p&gt;</translation>
     </message>
@@ -2675,84 +2680,84 @@ Examples
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="520"/>
+        <location filename="../src/ui/MainWindow.cpp" line="530"/>
         <source>Invalid Git Repository</source>
         <translation>Неправильный Git-репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="521"/>
+        <location filename="../src/ui/MainWindow.cpp" line="531"/>
         <source>%1 does not contain a valid git repository.</source>
         <translation>%1 не содержит правильный git-репозиторий.</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="526"/>
+        <location filename="../src/ui/MainWindow.cpp" line="536"/>
         <source>Recent Repository Unavailable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="527"/>
+        <location filename="../src/ui/MainWindow.cpp" line="537"/>
         <source>The recent repository &apos;%1&apos; could not be opened.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="528"/>
+        <location filename="../src/ui/MainWindow.cpp" line="538"/>
         <source>It may no longer be a valid Git repository or may be inaccessible. Do you want to remove it from the recent repository list?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="535"/>
+        <location filename="../src/ui/MainWindow.cpp" line="545"/>
         <source>Remove From Recent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="536"/>
+        <location filename="../src/ui/MainWindow.cpp" line="546"/>
         <source>Keep</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="604"/>
-        <location filename="../src/ui/MainWindow.cpp" line="622"/>
+        <location filename="../src/ui/MainWindow.cpp" line="614"/>
+        <location filename="../src/ui/MainWindow.cpp" line="632"/>
         <source>%1 - %2</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="616"/>
+        <location filename="../src/ui/MainWindow.cpp" line="626"/>
         <source>ahead: %1</source>
         <translation>обгоняет: %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="618"/>
+        <location filename="../src/ui/MainWindow.cpp" line="628"/>
         <source>behind: %1</source>
         <translation>отстаёт: %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="620"/>
+        <location filename="../src/ui/MainWindow.cpp" line="630"/>
         <source>up-to-date</source>
         <translation>уже самое новое</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="621"/>
-        <location filename="../src/ui/MainWindow.cpp" line="658"/>
+        <location filename="../src/ui/MainWindow.cpp" line="631"/>
+        <location filename="../src/ui/MainWindow.cpp" line="668"/>
         <source>%1 (%2)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="630"/>
+        <location filename="../src/ui/MainWindow.cpp" line="640"/>
         <source>MERGING</source>
         <translation>СЛИВАЕМ</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="635"/>
+        <location filename="../src/ui/MainWindow.cpp" line="645"/>
         <source>REVERTING</source>
         <translation>ОТКАТЫВАЕМ</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="640"/>
+        <location filename="../src/ui/MainWindow.cpp" line="650"/>
         <source>CHERRY-PICKING</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="649"/>
+        <location filename="../src/ui/MainWindow.cpp" line="659"/>
         <source>REBASING</source>
         <translation>ПЕРЕБАЗИРУЕМ</translation>
     </message>
@@ -2760,469 +2765,469 @@ Examples
 <context>
     <name>MenuBar</name>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="262"/>
+        <location filename="../src/ui/MenuBar.cpp" line="265"/>
         <source>File</source>
         <translation>Файл</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="264"/>
+        <location filename="../src/ui/MenuBar.cpp" line="267"/>
         <source>New File</source>
         <translation>Новый файл</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="278"/>
+        <location filename="../src/ui/MenuBar.cpp" line="281"/>
         <source>New Window</source>
         <translation>Новое окно</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="282"/>
+        <location filename="../src/ui/MenuBar.cpp" line="285"/>
         <source>Clone Repository...</source>
         <translation>Клонировать репозиторий...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="287"/>
+        <location filename="../src/ui/MenuBar.cpp" line="290"/>
         <source>Initialize New Repository...</source>
         <translation>Инициилизировать новый репозиторий...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="294"/>
+        <location filename="../src/ui/MenuBar.cpp" line="297"/>
         <source>Open Repository...</source>
         <translation>Открыть репозиторий...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="299"/>
+        <location filename="../src/ui/MenuBar.cpp" line="302"/>
         <source>Open Repository</source>
         <translation>Открыть репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="306"/>
+        <location filename="../src/ui/MenuBar.cpp" line="309"/>
         <source>Open Recent</source>
         <translation>Открыть недавние</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="322"/>
+        <location filename="../src/ui/MenuBar.cpp" line="325"/>
         <source>Close</source>
         <translation>Закрыть</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="339"/>
+        <location filename="../src/ui/MenuBar.cpp" line="342"/>
         <source>Save</source>
         <translation>Сохранить</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="348"/>
+        <location filename="../src/ui/MenuBar.cpp" line="351"/>
         <source>Exit</source>
         <translation>Выйти</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="355"/>
+        <location filename="../src/ui/MenuBar.cpp" line="358"/>
         <source>Edit</source>
         <translation>Редактировать</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="357"/>
+        <location filename="../src/ui/MenuBar.cpp" line="360"/>
         <source>Undo</source>
         <translation>Отменить</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="370"/>
+        <location filename="../src/ui/MenuBar.cpp" line="373"/>
         <source>Redo</source>
         <translation>Повторить</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="385"/>
+        <location filename="../src/ui/MenuBar.cpp" line="388"/>
         <source>Cut</source>
         <translation>Вырезать</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="398"/>
+        <location filename="../src/ui/MenuBar.cpp" line="401"/>
         <source>Copy</source>
         <translation>Копировать</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="413"/>
+        <location filename="../src/ui/MenuBar.cpp" line="416"/>
         <source>Paste</source>
         <translation>Вставить</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="426"/>
+        <location filename="../src/ui/MenuBar.cpp" line="429"/>
         <source>Select All</source>
         <translation>Выбрать всё</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="441"/>
+        <location filename="../src/ui/MenuBar.cpp" line="444"/>
         <source>Find...</source>
         <translation>Найти...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="453"/>
+        <location filename="../src/ui/MenuBar.cpp" line="456"/>
         <source>Find Next</source>
         <translation>Найти следующий</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="464"/>
+        <location filename="../src/ui/MenuBar.cpp" line="467"/>
         <source>Find Previous</source>
         <translation>Найти пердыдущий</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="475"/>
+        <location filename="../src/ui/MenuBar.cpp" line="478"/>
         <source>Use Selection for Find</source>
         <translation>Поиск по выделению</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1045"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1048"/>
         <source>Show Double Tree View</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="492"/>
+        <location filename="../src/ui/MenuBar.cpp" line="495"/>
         <source>View</source>
         <translation>Вид</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="494"/>
+        <location filename="../src/ui/MenuBar.cpp" line="497"/>
         <source>Refresh</source>
         <translation>Обновить</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="499"/>
+        <location filename="../src/ui/MenuBar.cpp" line="502"/>
         <source>Report Repository Diagnostics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="505"/>
-        <location filename="../src/ui/MenuBar.cpp" line="1043"/>
+        <location filename="../src/ui/MenuBar.cpp" line="508"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1046"/>
         <source>Show Log</source>
         <translation>Показать журнал</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="512"/>
+        <location filename="../src/ui/MenuBar.cpp" line="515"/>
         <source>Normal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="512"/>
+        <location filename="../src/ui/MenuBar.cpp" line="515"/>
         <source>Maximize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="531"/>
-        <location filename="../src/ui/MenuBar.cpp" line="1044"/>
+        <location filename="../src/ui/MenuBar.cpp" line="534"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1047"/>
         <source>Show Tree View</source>
         <translation>Показать обзор дерева</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="539"/>
+        <location filename="../src/ui/MenuBar.cpp" line="542"/>
         <source>Hide Menu Bar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="547"/>
+        <location filename="../src/ui/MenuBar.cpp" line="550"/>
         <source>Repository</source>
         <translation>Репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="549"/>
+        <location filename="../src/ui/MenuBar.cpp" line="552"/>
         <source>Configure Repository...</source>
         <translation>Настроить репозиторий...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="556"/>
+        <location filename="../src/ui/MenuBar.cpp" line="559"/>
         <source>Stage All</source>
         <translation>Добавить всё</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="560"/>
+        <location filename="../src/ui/MenuBar.cpp" line="563"/>
         <source>Unstage All</source>
         <translation>Отменить добавление всего</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="566"/>
+        <location filename="../src/ui/MenuBar.cpp" line="569"/>
         <source>Commit</source>
         <translation>Коммит</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="570"/>
+        <location filename="../src/ui/MenuBar.cpp" line="573"/>
         <source>Amend Commit</source>
         <translation>Дополнить коммит</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="576"/>
+        <location filename="../src/ui/MenuBar.cpp" line="579"/>
         <source>Git LFS</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="577"/>
+        <location filename="../src/ui/MenuBar.cpp" line="580"/>
         <source>Remove all locks</source>
         <translation>Удалить все блокировки</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="585"/>
+        <location filename="../src/ui/MenuBar.cpp" line="588"/>
         <source>Initialize</source>
         <translation>Инициализировать</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="591"/>
+        <location filename="../src/ui/MenuBar.cpp" line="594"/>
         <source>Remote</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="593"/>
+        <location filename="../src/ui/MenuBar.cpp" line="596"/>
         <source>Configure Remotes...</source>
         <translation>Настроить remotes...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="601"/>
+        <location filename="../src/ui/MenuBar.cpp" line="604"/>
         <source>Fetch</source>
         <translation>Забрать</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="605"/>
+        <location filename="../src/ui/MenuBar.cpp" line="608"/>
         <source>Fetch All</source>
         <translation>Забрать всё</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="609"/>
+        <location filename="../src/ui/MenuBar.cpp" line="612"/>
         <source>Fetch From...</source>
         <translation>Забрать из...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="618"/>
+        <location filename="../src/ui/MenuBar.cpp" line="621"/>
         <source>Pull</source>
         <translation>Утянуть</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="622"/>
+        <location filename="../src/ui/MenuBar.cpp" line="625"/>
         <source>Pull From...</source>
         <translation>Утянуть из...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="631"/>
+        <location filename="../src/ui/MenuBar.cpp" line="634"/>
         <source>Push</source>
         <translation>Запушить</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="635"/>
+        <location filename="../src/ui/MenuBar.cpp" line="638"/>
         <source>Force Push...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="640"/>
+        <location filename="../src/ui/MenuBar.cpp" line="643"/>
         <source>Push To...</source>
         <translation>Запушить в...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="648"/>
+        <location filename="../src/ui/MenuBar.cpp" line="651"/>
         <source>Branch</source>
         <translation>Ветка</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="650"/>
+        <location filename="../src/ui/MenuBar.cpp" line="653"/>
         <source>Configure Branches...</source>
         <translation>Настроить ветки...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="656"/>
+        <location filename="../src/ui/MenuBar.cpp" line="659"/>
         <source>New Branch...</source>
         <translation>Новая ветка...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="661"/>
+        <location filename="../src/ui/MenuBar.cpp" line="664"/>
         <source>Rename Branch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="669"/>
+        <location filename="../src/ui/MenuBar.cpp" line="672"/>
         <source>Checkout Current</source>
         <translation>Перейти на текущую</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="680"/>
+        <location filename="../src/ui/MenuBar.cpp" line="683"/>
         <source>Checkout...</source>
         <translation>Перейти...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="687"/>
+        <location filename="../src/ui/MenuBar.cpp" line="690"/>
         <source>Merge...</source>
         <translation>Слить...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="699"/>
+        <location filename="../src/ui/MenuBar.cpp" line="702"/>
         <source>Rebase...</source>
         <translation>Перебазировать...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="711"/>
+        <location filename="../src/ui/MenuBar.cpp" line="714"/>
         <source>Squash...</source>
         <translation>Объединить...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="725"/>
+        <location filename="../src/ui/MenuBar.cpp" line="728"/>
         <source>Abort Merge</source>
         <translation>Прервать слияние</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="730"/>
+        <location filename="../src/ui/MenuBar.cpp" line="733"/>
         <source>Submodule</source>
         <translation>Подмодуль</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="732"/>
+        <location filename="../src/ui/MenuBar.cpp" line="735"/>
         <source>Configure Submodules...</source>
         <translation>Настроить подмодули...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="740"/>
+        <location filename="../src/ui/MenuBar.cpp" line="743"/>
         <source>Check for Updates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="746"/>
+        <location filename="../src/ui/MenuBar.cpp" line="749"/>
         <source>Update All</source>
         <translation>Обновить всё</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="751"/>
+        <location filename="../src/ui/MenuBar.cpp" line="754"/>
         <source>Update...</source>
         <translation>Обновить...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="767"/>
+        <location filename="../src/ui/MenuBar.cpp" line="770"/>
         <source>Open</source>
         <translation>Открыть</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="785"/>
+        <location filename="../src/ui/MenuBar.cpp" line="788"/>
         <source>Stash</source>
         <translation>Схрон</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="787"/>
+        <location filename="../src/ui/MenuBar.cpp" line="790"/>
         <source>Show Stashes</source>
         <translation>Показать схроны</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="796"/>
+        <location filename="../src/ui/MenuBar.cpp" line="799"/>
         <source>Stash...</source>
         <translation>Схоронить...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="800"/>
+        <location filename="../src/ui/MenuBar.cpp" line="803"/>
         <source>Pop Stash</source>
         <translation>Вынуть из схрона</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="805"/>
+        <location filename="../src/ui/MenuBar.cpp" line="808"/>
         <source>History</source>
         <translation>История</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="807"/>
+        <location filename="../src/ui/MenuBar.cpp" line="810"/>
         <source>Back</source>
         <translation>Назад</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="812"/>
+        <location filename="../src/ui/MenuBar.cpp" line="815"/>
         <source>Forward</source>
         <translation>Вперёд</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="818"/>
+        <location filename="../src/ui/MenuBar.cpp" line="821"/>
         <source>Window</source>
         <translation>Окно</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="819"/>
+        <location filename="../src/ui/MenuBar.cpp" line="822"/>
         <source>Show Previous Tab</source>
         <translation>Показать предыдущую вкладку</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="828"/>
+        <location filename="../src/ui/MenuBar.cpp" line="831"/>
         <source>Show Next Tab</source>
         <translation>Показать следующую вкладку</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="839"/>
+        <location filename="../src/ui/MenuBar.cpp" line="842"/>
         <source>Show Repository Chooser...</source>
         <translation>Показать список репозиториев...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="844"/>
+        <location filename="../src/ui/MenuBar.cpp" line="847"/>
         <source>Tools</source>
         <translation>Инструменты</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="845"/>
+        <location filename="../src/ui/MenuBar.cpp" line="848"/>
         <source>Options...</source>
         <translation>Настройки...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="851"/>
+        <location filename="../src/ui/MenuBar.cpp" line="854"/>
         <source>Help</source>
         <translation>Справка</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="853"/>
+        <location filename="../src/ui/MenuBar.cpp" line="856"/>
         <source>About %1</source>
         <translation>О %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="858"/>
+        <location filename="../src/ui/MenuBar.cpp" line="861"/>
         <source>Check For Updates...</source>
         <translation>Проверить обновления...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="862"/>
+        <location filename="../src/ui/MenuBar.cpp" line="865"/>
         <source>Plugin Documentation...</source>
         <translation>Документация по плагинам...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="868"/>
+        <location filename="../src/ui/MenuBar.cpp" line="871"/>
         <source>Support us via Liberapay</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="874"/>
+        <location filename="../src/ui/MenuBar.cpp" line="877"/>
         <source>Debug</source>
         <translation>Отладка</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="875"/>
+        <location filename="../src/ui/MenuBar.cpp" line="878"/>
         <source>Abort</source>
         <translation>Прервать</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="888"/>
+        <location filename="../src/ui/MenuBar.cpp" line="891"/>
         <source>Log Indexer Progress</source>
         <translation>Логгировать прогресс индексатора</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="894"/>
+        <location filename="../src/ui/MenuBar.cpp" line="897"/>
         <source>Log Credential Helper</source>
         <translation>Логировать помощник учётных данных</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="900"/>
+        <location filename="../src/ui/MenuBar.cpp" line="903"/>
         <source>Log Remote Connection</source>
         <translation>Логировать соединения с remote</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="906"/>
+        <location filename="../src/ui/MenuBar.cpp" line="909"/>
         <source>Log Debug Messages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="914"/>
+        <location filename="../src/ui/MenuBar.cpp" line="917"/>
         <source>Load All Diffs</source>
         <translation>Загрузить все различия</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="928"/>
+        <location filename="../src/ui/MenuBar.cpp" line="931"/>
         <source>Walk Commits</source>
         <translation>Обойти коммиты</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1043"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1046"/>
         <source>Hide Log</source>
         <translation>Скрыть журнал</translation>
     </message>
@@ -3231,27 +3236,27 @@ Examples
         <translation type="vanished">Показать просмотрщик диффов</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1094"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1097"/>
         <source>Merge</source>
         <translation>Слить</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1104"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1107"/>
         <source>Revert</source>
         <translation>Откатить</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1110"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1113"/>
         <source>Cherry-pick</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1116"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1119"/>
         <source>Rebase</source>
         <translation>Перебазировать</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1122"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1125"/>
         <source>Abort %1</source>
         <translation>Прервать %1</translation>
     </message>
@@ -3610,7 +3615,8 @@ Examples
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="312"/>
+        <location filename="../src/git/Submodule.cpp" line="321"/>
+        <location filename="../src/git/Submodule.cpp" line="328"/>
         <source>The submodule repository is not initialized.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3636,7 +3642,7 @@ Examples
     </message>
     <message>
         <location filename="../src/git/SubmoduleAvailability.cpp" line="179"/>
-        <location filename="../src/git/Submodule.cpp" line="320"/>
+        <location filename="../src/git/Submodule.cpp" line="336"/>
         <source>Unable to create remote.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3651,128 +3657,123 @@ Examples
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="333"/>
+        <location filename="../src/git/Submodule.cpp" line="309"/>
         <source>No submodule branch is configured.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="338"/>
+        <location filename="../src/git/Submodule.cpp" line="314"/>
         <source>The special &apos;.&apos; submodule branch is not supported by this check.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="344"/>
-        <source>No submodule branch could be resolved.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/git/Submodule.cpp" line="356"/>
+        <location filename="../src/git/Submodule.cpp" line="355"/>
         <source>Unable to fetch submodule target branch.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="363"/>
+        <location filename="../src/git/Submodule.cpp" line="362"/>
         <source>Unable to read fetched submodule branch.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="381"/>
+        <location filename="../src/git/Submodule.cpp" line="380"/>
         <source>Remote target is not a descendant of the pinned commit.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="385"/>
+        <location filename="../src/git/Submodule.cpp" line="384"/>
         <source>Unable to compare submodule commits.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="445"/>
+        <location filename="../src/git/Submodule.cpp" line="444"/>
         <source>Submodule name cannot be empty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="448"/>
+        <location filename="../src/git/Submodule.cpp" line="447"/>
         <source>Submodule path cannot be empty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="451"/>
+        <location filename="../src/git/Submodule.cpp" line="450"/>
         <source>Submodule URL cannot be empty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="455"/>
-        <location filename="../src/git/Submodule.cpp" line="529"/>
+        <location filename="../src/git/Submodule.cpp" line="454"/>
+        <location filename="../src/git/Submodule.cpp" line="528"/>
         <source>Submodule &apos;%1&apos; was not found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="462"/>
+        <location filename="../src/git/Submodule.cpp" line="461"/>
         <source>A submodule named &apos;%1&apos; already exists.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="466"/>
+        <location filename="../src/git/Submodule.cpp" line="465"/>
         <source>A submodule already uses path &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="471"/>
+        <location filename="../src/git/Submodule.cpp" line="470"/>
         <source>Failed to open .gitmodules.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="481"/>
+        <location filename="../src/git/Submodule.cpp" line="480"/>
         <source>Path &apos;%1&apos; already exists.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="491"/>
+        <location filename="../src/git/Submodule.cpp" line="490"/>
         <source>Failed to create parent directory for &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="495"/>
+        <location filename="../src/git/Submodule.cpp" line="494"/>
         <source>Failed to move submodule folder to &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="524"/>
+        <location filename="../src/git/Submodule.cpp" line="523"/>
         <source>Invalid submodule.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="534"/>
+        <location filename="../src/git/Submodule.cpp" line="533"/>
         <source>Submodule path &apos;%1&apos; is outside the repository.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="540"/>
+        <location filename="../src/git/Submodule.cpp" line="539"/>
         <source>Failed to read .gitmodules.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="549"/>
+        <location filename="../src/git/Submodule.cpp" line="548"/>
         <source>.gitmodules has existing changes. Commit or discard them first.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="565"/>
+        <location filename="../src/git/Submodule.cpp" line="564"/>
         <source>Submodule cache path is outside .git/modules.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="570"/>
+        <location filename="../src/git/Submodule.cpp" line="569"/>
         <source>Failed to remove submodule from .gitmodules.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="595"/>
+        <location filename="../src/git/Submodule.cpp" line="594"/>
         <source>Submodule was removed from the project, but its working directory could not be deleted.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="601"/>
+        <location filename="../src/git/Submodule.cpp" line="600"/>
         <source>Submodule was removed from the project, but its cached repository could not be deleted.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4062,42 +4063,42 @@ Would you like to fix the merge conflict and continue?</source>
 <context>
     <name>RemotePage</name>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="41"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="42"/>
         <source>Remote Repository URL</source>
         <translation>URL удаленного репозитория</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="44"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="45"/>
         <source>Choose protocol to authenticate with the remote.</source>
         <translation>Выберите протокол для аутентификации перед remote.</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="45"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="46"/>
         <source>Enter the URL of the remote repository or browse for a local directory</source>
         <translation>Ddtlbnt URL удаленного репозитория или проследуйте в локльную директорию</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="72"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="73"/>
         <source>...</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="74"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="75"/>
         <source>Choose Directory</source>
         <translation>Выберите директорию</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="96"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="97"/>
         <source>Examples of valid URLs include:&lt;table cellspacing=&apos;8&apos;&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;HTTPS&lt;/b&gt;&lt;/td&gt;&lt;td&gt;https://hostname/path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;SSH&lt;/b&gt;&lt;/td&gt;&lt;td&gt;git@hostname:path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;Git&lt;/b&gt;&lt;/td&gt;&lt;td&gt;git://hostname/path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;Local&lt;/b&gt;&lt;/td&gt;&lt;td&gt;/path/to/repo, C:\path\to\repo&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>Примеры валидных URL включают:&lt;table cellspacing=&apos;8&apos;&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;HTTPS&lt;/b&gt;&lt;/td&gt;&lt;td&gt;https://hostname/path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;SSH&lt;/b&gt;&lt;/td&gt;&lt;td&gt;git@hostname:path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;Git&lt;/b&gt;&lt;/td&gt;&lt;td&gt;git://hostname/path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;Local&lt;/b&gt;&lt;/td&gt;&lt;td&gt;/path/to/repo, C:\path\to\repo&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="110"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="111"/>
         <source>Protocol:</source>
         <translation>Протокол:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="111"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="112"/>
         <source>URL:</source>
         <translation></translation>
     </message>
@@ -6078,17 +6079,17 @@ The submodule will be removed from this project. Its working files and cached lo
         <translation>Клонировать репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="70"/>
+        <location filename="../src/ui/SideBar.cpp" line="73"/>
         <source>Open Existing Repository</source>
         <translation>Открыть существующий репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="73"/>
+        <location filename="../src/ui/SideBar.cpp" line="76"/>
         <source>Open Repository</source>
         <translation>Открыть репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="82"/>
+        <location filename="../src/ui/SideBar.cpp" line="85"/>
         <source>Initialize New Repository</source>
         <translation>Инициилизировать новый репозиторий</translation>
     </message>
@@ -6151,93 +6152,93 @@ The submodule will be removed from this project. Its working files and cached lo
         <translation>Клонировать репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="445"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="446"/>
         <source>Open Existing Repository</source>
         <translation>Открыть существующий репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="449"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="450"/>
         <source>Open Repository</source>
         <translation>Открыть репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="457"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="459"/>
         <source>Initialize New Repository</source>
         <translation>Инициализировать новый репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="471"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="474"/>
         <source>Clear All</source>
         <translation>Очистить всё</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="476"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="479"/>
         <source>Show Full Path</source>
         <translation>Показать полный путь</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="486"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="489"/>
         <source>Filter Non-existent Paths</source>
         <translation>Показать несуществующие пути</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="494"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="497"/>
         <source>Repositories:</source>
         <translation>Репозитории:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="542"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="545"/>
         <source>Refresh</source>
         <translation>Обновить</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="549"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="552"/>
         <source>Show Full Name</source>
         <translation>Показать полное имя</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="577"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="580"/>
         <source>Remote:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="595"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="598"/>
         <source>View Getting Started Video</source>
         <translation>Показать вводное видео</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="714"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="726"/>
         <source>Clone</source>
         <translation>Клонировать</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="714"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="726"/>
         <source>Open</source>
         <translation>Открыть</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="780"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="794"/>
         <source>&lt;p&gt;Are you sure you want to remove the %1 account for &apos;%2&apos;?&lt;/p&gt;&lt;p&gt;Only the account association will be removed. Remote configurations and local clones will not be affected.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Вы уверены, что хотите удалить аккаунт %1 для &apos;%2&apos;?&lt;/p&gt;&lt;p&gt;Только ассоциация с аккаунтом будет удалена. Конфигурации remote и локальные клоны не будут затронуты.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="784"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="798"/>
         <source>Remove Account?</source>
         <translation>Удалить аккаунт?</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="787"/>
-        <location filename="../src/dialogs/StartDialog.cpp" line="807"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="801"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="821"/>
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="802"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="816"/>
         <source>&lt;p&gt;Are you sure you want to remove the remote repository association for %1?&lt;/p&gt;&lt;p&gt;The local clone itself will not be affected.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Вы уверены, что хотите удалить ассоциацию с удаленным репозиторием для %1?&lt;/p&gt;&lt;p&gt;Сам по себе локальный клон не будет затронут.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="805"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="819"/>
         <source>Remove Repository Association?</source>
         <translation>Удалить ассоциацию с репозиторием?</translation>
     </message>

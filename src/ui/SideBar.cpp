@@ -60,7 +60,10 @@ SideBar::SideBar(TabWidget *tabs, MainWindow *, QWidget *parent)
   connect(clone, &QAction::triggered, [this] {
     CloneDialog *dialog = new CloneDialog(CloneDialog::Clone, this);
     connect(dialog, &CloneDialog::accepted, [dialog] {
-      if (MainWindow *window = MainWindow::open(dialog->path()))
+      if (MainWindow *window =
+              MainWindow::open(dialog->path(), true,
+                               MainWindow::OpenSource::Other,
+                               dialog->updateSubmodules()))
         window->currentView()->addLogEntry(dialog->message(),
                                            dialog->messageTitle());
     });
@@ -83,7 +86,10 @@ SideBar::SideBar(TabWidget *tabs, MainWindow *, QWidget *parent)
   connect(init, &QAction::triggered, [this] {
     CloneDialog *dialog = new CloneDialog(CloneDialog::Init, this);
     connect(dialog, &CloneDialog::accepted, [dialog] {
-      if (MainWindow *window = MainWindow::open(dialog->path()))
+      if (MainWindow *window =
+              MainWindow::open(dialog->path(), true,
+                               MainWindow::OpenSource::Other,
+                               dialog->updateSubmodules()))
         window->currentView()->addLogEntry(dialog->message(),
                                            dialog->messageTitle());
     });

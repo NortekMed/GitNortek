@@ -65,15 +65,19 @@ void TestSubmodule::updateSubmoduleClone() {
   QCOMPARE(remote.isEmpty(), false);
 
   Settings *settings = Settings::instance();
-  settings->setValue(Setting::Id::UpdateSubmodulesAfterPullAndClone, true);
+  settings->setValue(Setting::Id::UpdateSubmodulesAfterPullAndClone, false);
   CloneDialog *d = new CloneDialog(CloneDialog::Kind::Clone);
+  QVERIFY(!d->findChild<QWidget *>("CloneAdvancedOptions")->isHidden());
+  QCOMPARE(d->field("updateSubmodules").toBool(), false);
 
   RepoView *view = nullptr;
 
   bool cloneFinished = false;
   QObject::connect(d, &CloneDialog::accepted, [d, &view, &cloneFinished] {
     cloneFinished = true;
-    if (MainWindow *window = MainWindow::open(d->path())) {
+    if (MainWindow *window =
+            MainWindow::open(d->path(), true, MainWindow::OpenSource::Other,
+                             d->updateSubmodules())) {
       view = window->currentView();
     }
   });
@@ -84,6 +88,7 @@ void TestSubmodule::updateSubmoduleClone() {
   d->setField("name", "TestrepoSubmodule");
   d->setField("path", tempdir.path());
   d->setField("bare", "false");
+  d->setField("updateSubmodules", true);
   d->page(2)->initializePage(); // start clone
 
   {
@@ -106,15 +111,18 @@ void TestSubmodule::noUpdateSubmoduleClone() {
   QCOMPARE(remote.isEmpty(), false);
 
   Settings *settings = Settings::instance();
-  settings->setValue(Setting::Id::UpdateSubmodulesAfterPullAndClone, false);
+  settings->setValue(Setting::Id::UpdateSubmodulesAfterPullAndClone, true);
   CloneDialog *d = new CloneDialog(CloneDialog::Kind::Clone);
+  QCOMPARE(d->field("updateSubmodules").toBool(), true);
 
   RepoView *view = nullptr;
 
   bool cloneFinished = false;
   QObject::connect(d, &CloneDialog::accepted, [d, &view, &cloneFinished] {
     cloneFinished = true;
-    if (MainWindow *window = MainWindow::open(d->path())) {
+    if (MainWindow *window =
+            MainWindow::open(d->path(), true, MainWindow::OpenSource::Other,
+                             d->updateSubmodules())) {
       view = window->currentView();
     }
   });
@@ -125,6 +133,7 @@ void TestSubmodule::noUpdateSubmoduleClone() {
   d->setField("name", "TestrepoSubmodule");
   d->setField("path", tempdir.path());
   d->setField("bare", "false");
+  d->setField("updateSubmodules", false);
   d->page(2)->initializePage(); // start clone
 
   {
@@ -135,9 +144,20 @@ void TestSubmodule::noUpdateSubmoduleClone() {
 
   QVERIFY(view);
   QCOMPARE(view->repo().submodules().count(), 1);
-  for (const auto &s : view->repo().submodules()) {
+  for (auto s : view->repo().submodules()) {
     QVERIFY(s.isValid());
     QCOMPARE(s.isInitialized(), false);
+
+    git::Submodule::UpdateStatus status = s.checkForUpdates(nullptr);
+    QCOMPARE(status.state, git::Submodule::UpdateStatus::NotTracked);
+    QCOMPARE(status.message, QString("No submodule branch is configured."));
+
+    s.setBranch("main");
+    view->repo().invalidateSubmoduleCache();
+    status = view->repo().lookupSubmodule(s.name()).checkForUpdates(nullptr);
+    QCOMPARE(status.state, git::Submodule::UpdateStatus::Error);
+    QCOMPARE(status.message,
+             QString("The submodule repository is not initialized."));
   }
 }
 

@@ -13,6 +13,7 @@
 #include "host/Repository.h"
 #include <QFutureWatcher>
 #include <QWizard>
+#include <optional>
 
 class LogEntry;
 class LogView;
@@ -38,6 +39,7 @@ public:
   QString path() const;
   QString message() const;
   QString messageTitle() const;
+  std::optional<bool> updateSubmodules() const;
 };
 
 #endif

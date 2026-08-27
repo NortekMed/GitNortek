@@ -74,7 +74,8 @@ private:
 bool MainWindow::sSaveWindowSettings = false;
 
 MainWindow::MainWindow(const git::Repository &repo, QWidget *parent,
-                       Qt::WindowFlags flags)
+                       Qt::WindowFlags flags,
+                       std::optional<bool> updateSubmodules)
     : QMainWindow(parent, flags) {
   setAttribute(Qt::WA_DeleteOnClose);
   setUnifiedTitleAndToolBarOnMac(true);
@@ -162,7 +163,7 @@ MainWindow::MainWindow(const git::Repository &repo, QWidget *parent,
   setCentralWidget(splitter);
 
   if (repo)
-    addTab(repo);
+    addTab(repo, QString(), updateSubmodules);
 
   // Set search completer.
   searchField->setCompleter(new IndexCompleter(this, searchField));
@@ -228,7 +229,8 @@ TabWidget *MainWindow::tabWidget() const {
 }
 
 RepoView *MainWindow::addTab(const QString &path, OpenSource source,
-                             const QString &tabContext) {
+                             const QString &tabContext,
+                             std::optional<bool> updateSubmodules) {
   if (path.isEmpty())
     return nullptr;
 
@@ -254,11 +256,12 @@ RepoView *MainWindow::addTab(const QString &path, OpenSource source,
     return nullptr;
   }
 
-  return addTab(repo, tabContext);
+  return addTab(repo, tabContext, updateSubmodules);
 }
 
 RepoView *MainWindow::addTab(const git::Repository &repo,
-                             const QString &tabContext) {
+                             const QString &tabContext,
+                             std::optional<bool> updateSubmodules) {
   // Update recent repository settings.
   QDir dir = repo.dir(false);
   RecentRepositories::instance()->add(dir.path());
@@ -288,10 +291,14 @@ RepoView *MainWindow::addTab(const git::Repository &repo,
   emit tabs->tabAboutToBeInserted();
   tabs->setCurrentIndex(tabs->addTab(view, dir.dirName()));
 
-  Settings *settings = Settings::instance();
-  bool enable =
-      settings->value(Setting::Id::UpdateSubmodulesAfterPullAndClone).toBool();
-  if (repo.appConfig().value<bool>("autoupdate.enable", enable)) {
+  if (!updateSubmodules.has_value()) {
+    Settings *settings = Settings::instance();
+    bool enable =
+        settings->value(Setting::Id::UpdateSubmodulesAfterPullAndClone).toBool();
+    updateSubmodules =
+        repo.appConfig().value<bool>("autoupdate.enable", enable);
+  }
+  if (*updateSubmodules) {
     // update submodules
     view->updateSubmodules(repo.submodules(), true, true, false, nullptr);
   }
@@ -401,7 +408,8 @@ bool MainWindow::restoreWindows() {
 }
 
 MainWindow *MainWindow::open(const QString &path, bool warnOnInvalid,
-                             OpenSource source) {
+                             OpenSource source,
+                             std::optional<bool> updateSubmodules) {
   DebugRefresh("Open project: " << path);
   if (path.isEmpty())
     return nullptr;
@@ -419,21 +427,23 @@ MainWindow *MainWindow::open(const QString &path, bool warnOnInvalid,
 
   if (Settings::instance()->value(Setting::Id::OpenAllReposInTabs).toBool()) {
     if (MainWindow *win = activeWindow()) {
-      win->addTab(repo);
+      win->addTab(repo, QString(), updateSubmodules);
       return win;
     }
   }
 
-  return open(repo);
+  return open(repo, updateSubmodules);
 }
 
-MainWindow *MainWindow::open(const git::Repository &repo) {
+MainWindow *MainWindow::open(const git::Repository &repo,
+                             std::optional<bool> updateSubmodules) {
   // Update recent repository settings.
   if (repo.isValid())
     RecentRepositories::instance()->add(repo.dir(false).path());
 
   // Create the window.
-  MainWindow *window = new MainWindow(repo);
+  MainWindow *window =
+      new MainWindow(repo, nullptr, Qt::WindowFlags(), updateSubmodules);
 
   const bool showMaximized =
       Settings::instance()->value(Setting::Id::ShowMaximized).toBool();

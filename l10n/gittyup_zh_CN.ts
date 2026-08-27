@@ -508,32 +508,32 @@
 <context>
     <name>CloneDialog</name>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="323"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="339"/>
         <source>Initialize Repository</source>
         <translation>初始化仓库</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="323"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="339"/>
         <source>Clone Repository</source>
         <translation>克隆仓库</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="359"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="375"/>
         <source>Initialized empty repository into &apos;%1&apos;</source>
         <translation>将空仓库初始化为&apos;%1&apos;</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="360"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="376"/>
         <source>Cloned repository from &apos;%1&apos; into &apos;%2&apos;</source>
         <translation>将仓库从&apos;%1&apos;克隆到&apos;%2&apos;</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="365"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="381"/>
         <source>Initialize</source>
         <translation>初始化</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="365"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="381"/>
         <source>Clone</source>
         <translation>克隆</translation>
     </message>
@@ -541,33 +541,33 @@
 <context>
     <name>ClonePage</name>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="240"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="256"/>
         <source>Clone Progress</source>
         <translation>克隆进度</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="241"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="257"/>
         <source>The new repository will open after the clone finishes.</source>
         <translation>克隆完成后，将打开新的仓库。</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="260"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="276"/>
         <source>Clone</source>
         <translation>克隆</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="269"/>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="271"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="285"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="287"/>
         <source>clone</source>
         <translation>克隆</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="269"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="285"/>
         <source>Clone canceled.</source>
         <translation>克隆已取消。</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="305"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="321"/>
         <source>Failed to %1 into &apos;%2&apos; - %3</source>
         <translation>%1克隆到&apos;%2&apos;失败 - %3</translation>
     </message>
@@ -1197,22 +1197,22 @@
         <translation>克隆仓库</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="54"/>
+        <location filename="../src/ui/TabWidget.cpp" line="57"/>
         <source>Open existing repository</source>
         <translation>打开现有仓库</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="58"/>
+        <location filename="../src/ui/TabWidget.cpp" line="61"/>
         <source>Open Repository</source>
         <translation>打开仓库</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="68"/>
+        <location filename="../src/ui/TabWidget.cpp" line="71"/>
         <source>Initialize new repository</source>
         <translation>初始化新的仓库</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="88"/>
+        <location filename="../src/ui/TabWidget.cpp" line="94"/>
         <source>Add %1 account</source>
         <translation>添加%1个帐户</translation>
     </message>
@@ -1221,7 +1221,7 @@
         <translation type="vanished">查看入门视频</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="103"/>
+        <location filename="../src/ui/TabWidget.cpp" line="109"/>
         <source>Contact us for support</source>
         <translation>联系我们以获得支持</translation>
     </message>
@@ -2611,57 +2611,62 @@ Examples
 <context>
     <name>LocationPage</name>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="132"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="133"/>
         <source>Repository Location</source>
         <translation>仓库位置</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="133"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="134"/>
         <source>Choose the name and location of the new repository. A new directory will be created if it doesn&apos;t already exist.</source>
         <translation>选择新仓库的名称和位置。如果尚不存在新目录，则会创建一个新目录。</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="136"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="137"/>
         <source>Initialize</source>
         <translation>初始化</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="136"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="137"/>
         <source>Clone</source>
         <translation>克隆</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="147"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="148"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="149"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="150"/>
         <source>Choose Directory</source>
         <translation>选择目录</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="172"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="174"/>
         <source>Name:</source>
         <translation>名称：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="173"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="175"/>
         <source>Directory:</source>
         <translation>目录：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="174"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="176"/>
         <source>Advanced:</source>
         <translation>高级：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="176"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="178"/>
         <source>Create a bare repository</source>
         <translation>创建一个纯仓库</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="218"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="180"/>
+        <source>Initialize submodules after cloning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="234"/>
         <source>The new repository will be created at:&lt;p style=&apos;text-indent: 12px&apos;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/p&gt;</source>
         <translation>新的仓库将在以下位置创建：&lt;p style=&apos;text-indent：12px&apos;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/p&gt;</translation>
     </message>
@@ -2677,84 +2682,84 @@ Examples
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="520"/>
+        <location filename="../src/ui/MainWindow.cpp" line="530"/>
         <source>Invalid Git Repository</source>
         <translation>无效的Git仓库</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="521"/>
+        <location filename="../src/ui/MainWindow.cpp" line="531"/>
         <source>%1 does not contain a valid git repository.</source>
         <translation>%1没有包含有效的git仓库。</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="526"/>
+        <location filename="../src/ui/MainWindow.cpp" line="536"/>
         <source>Recent Repository Unavailable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="527"/>
+        <location filename="../src/ui/MainWindow.cpp" line="537"/>
         <source>The recent repository &apos;%1&apos; could not be opened.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="528"/>
+        <location filename="../src/ui/MainWindow.cpp" line="538"/>
         <source>It may no longer be a valid Git repository or may be inaccessible. Do you want to remove it from the recent repository list?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="535"/>
+        <location filename="../src/ui/MainWindow.cpp" line="545"/>
         <source>Remove From Recent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="536"/>
+        <location filename="../src/ui/MainWindow.cpp" line="546"/>
         <source>Keep</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="604"/>
-        <location filename="../src/ui/MainWindow.cpp" line="622"/>
+        <location filename="../src/ui/MainWindow.cpp" line="614"/>
+        <location filename="../src/ui/MainWindow.cpp" line="632"/>
         <source>%1 - %2</source>
         <translation>%1 - %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="616"/>
+        <location filename="../src/ui/MainWindow.cpp" line="626"/>
         <source>ahead: %1</source>
         <translation>前进：%1</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="618"/>
+        <location filename="../src/ui/MainWindow.cpp" line="628"/>
         <source>behind: %1</source>
         <translation>后面：%1</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="620"/>
+        <location filename="../src/ui/MainWindow.cpp" line="630"/>
         <source>up-to-date</source>
         <translation>最新</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="621"/>
-        <location filename="../src/ui/MainWindow.cpp" line="658"/>
+        <location filename="../src/ui/MainWindow.cpp" line="631"/>
+        <location filename="../src/ui/MainWindow.cpp" line="668"/>
         <source>%1 (%2)</source>
         <translation>%1 (%2)</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="630"/>
+        <location filename="../src/ui/MainWindow.cpp" line="640"/>
         <source>MERGING</source>
         <translation>合并</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="635"/>
+        <location filename="../src/ui/MainWindow.cpp" line="645"/>
         <source>REVERTING</source>
         <translation>还原</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="640"/>
+        <location filename="../src/ui/MainWindow.cpp" line="650"/>
         <source>CHERRY-PICKING</source>
         <translation>拣选操作</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="649"/>
+        <location filename="../src/ui/MainWindow.cpp" line="659"/>
         <source>REBASING</source>
         <translation>变基</translation>
     </message>
@@ -2762,17 +2767,17 @@ Examples
 <context>
     <name>MenuBar</name>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="262"/>
+        <location filename="../src/ui/MenuBar.cpp" line="265"/>
         <source>File</source>
         <translation>文件</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="264"/>
+        <location filename="../src/ui/MenuBar.cpp" line="267"/>
         <source>New File</source>
         <translation>新建文件</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="278"/>
+        <location filename="../src/ui/MenuBar.cpp" line="281"/>
         <source>New Window</source>
         <translation>新建窗口</translation>
     </message>
@@ -2781,7 +2786,7 @@ Examples
         <translation type="vanished">Ctrl+Meta+N</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="282"/>
+        <location filename="../src/ui/MenuBar.cpp" line="285"/>
         <source>Clone Repository...</source>
         <translation>克隆仓库...</translation>
     </message>
@@ -2790,7 +2795,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+N</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="287"/>
+        <location filename="../src/ui/MenuBar.cpp" line="290"/>
         <source>Initialize New Repository...</source>
         <translation>初始化新仓库...</translation>
     </message>
@@ -2799,107 +2804,107 @@ Examples
         <translation type="vanished">Ctrl+Alt+N</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="294"/>
+        <location filename="../src/ui/MenuBar.cpp" line="297"/>
         <source>Open Repository...</source>
         <translation>打开仓库...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="299"/>
+        <location filename="../src/ui/MenuBar.cpp" line="302"/>
         <source>Open Repository</source>
         <translation>打开仓库</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="306"/>
+        <location filename="../src/ui/MenuBar.cpp" line="309"/>
         <source>Open Recent</source>
         <translation>打开最近</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="322"/>
+        <location filename="../src/ui/MenuBar.cpp" line="325"/>
         <source>Close</source>
         <translation>关闭</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="339"/>
+        <location filename="../src/ui/MenuBar.cpp" line="342"/>
         <source>Save</source>
         <translation>保存</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="348"/>
+        <location filename="../src/ui/MenuBar.cpp" line="351"/>
         <source>Exit</source>
         <translation>退出</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="355"/>
+        <location filename="../src/ui/MenuBar.cpp" line="358"/>
         <source>Edit</source>
         <translation>编辑</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="357"/>
+        <location filename="../src/ui/MenuBar.cpp" line="360"/>
         <source>Undo</source>
         <translation>撤消</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="370"/>
+        <location filename="../src/ui/MenuBar.cpp" line="373"/>
         <source>Redo</source>
         <translation>重做</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="385"/>
+        <location filename="../src/ui/MenuBar.cpp" line="388"/>
         <source>Cut</source>
         <translation>剪切</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="398"/>
+        <location filename="../src/ui/MenuBar.cpp" line="401"/>
         <source>Copy</source>
         <translation>复制</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="413"/>
+        <location filename="../src/ui/MenuBar.cpp" line="416"/>
         <source>Paste</source>
         <translation>粘贴</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="426"/>
+        <location filename="../src/ui/MenuBar.cpp" line="429"/>
         <source>Select All</source>
         <translation>全选</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="441"/>
+        <location filename="../src/ui/MenuBar.cpp" line="444"/>
         <source>Find...</source>
         <translation>查找...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="453"/>
+        <location filename="../src/ui/MenuBar.cpp" line="456"/>
         <source>Find Next</source>
         <translation>查找下一个</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="464"/>
+        <location filename="../src/ui/MenuBar.cpp" line="467"/>
         <source>Find Previous</source>
         <translation>查找上一个</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="475"/>
+        <location filename="../src/ui/MenuBar.cpp" line="478"/>
         <source>Use Selection for Find</source>
         <translation>查找选择的内容</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="499"/>
+        <location filename="../src/ui/MenuBar.cpp" line="502"/>
         <source>Report Repository Diagnostics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="635"/>
+        <location filename="../src/ui/MenuBar.cpp" line="638"/>
         <source>Force Push...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="740"/>
+        <location filename="../src/ui/MenuBar.cpp" line="743"/>
         <source>Check for Updates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1045"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1048"/>
         <source>Show Double Tree View</source>
         <translation>显示双树视图</translation>
     </message>
@@ -2908,54 +2913,54 @@ Examples
         <translation type="vanished">Ctrl+E</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="492"/>
+        <location filename="../src/ui/MenuBar.cpp" line="495"/>
         <source>View</source>
         <translation>查看</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="494"/>
+        <location filename="../src/ui/MenuBar.cpp" line="497"/>
         <source>Refresh</source>
         <translation>刷新</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="505"/>
-        <location filename="../src/ui/MenuBar.cpp" line="1043"/>
+        <location filename="../src/ui/MenuBar.cpp" line="508"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1046"/>
         <source>Show Log</source>
         <translation>显示日志</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="512"/>
+        <location filename="../src/ui/MenuBar.cpp" line="515"/>
         <source>Normal</source>
         <translation>正常</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="512"/>
+        <location filename="../src/ui/MenuBar.cpp" line="515"/>
         <source>Maximize</source>
         <translation>最大化</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="531"/>
-        <location filename="../src/ui/MenuBar.cpp" line="1044"/>
+        <location filename="../src/ui/MenuBar.cpp" line="534"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1047"/>
         <source>Show Tree View</source>
         <translation>显示树状视图</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="539"/>
+        <location filename="../src/ui/MenuBar.cpp" line="542"/>
         <source>Hide Menu Bar</source>
         <translation>隐藏菜单栏</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="547"/>
+        <location filename="../src/ui/MenuBar.cpp" line="550"/>
         <source>Repository</source>
         <translation>仓库</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="549"/>
+        <location filename="../src/ui/MenuBar.cpp" line="552"/>
         <source>Configure Repository...</source>
         <translation>配置仓库...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="556"/>
+        <location filename="../src/ui/MenuBar.cpp" line="559"/>
         <source>Stage All</source>
         <translation>暂存全部</translation>
     </message>
@@ -2964,7 +2969,7 @@ Examples
         <translation type="vanished">Ctrl++</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="560"/>
+        <location filename="../src/ui/MenuBar.cpp" line="563"/>
         <source>Unstage All</source>
         <translation>取消暂存全部</translation>
     </message>
@@ -2973,7 +2978,7 @@ Examples
         <translation type="vanished">Ctrl+-</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="566"/>
+        <location filename="../src/ui/MenuBar.cpp" line="569"/>
         <source>Commit</source>
         <translation>提交</translation>
     </message>
@@ -2982,7 +2987,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+C</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="570"/>
+        <location filename="../src/ui/MenuBar.cpp" line="573"/>
         <source>Amend Commit</source>
         <translation>修改提交</translation>
     </message>
@@ -2991,32 +2996,32 @@ Examples
         <translation type="vanished">Ctrl+Shift+A</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="576"/>
+        <location filename="../src/ui/MenuBar.cpp" line="579"/>
         <source>Git LFS</source>
         <translation>Git LFS</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="577"/>
+        <location filename="../src/ui/MenuBar.cpp" line="580"/>
         <source>Remove all locks</source>
         <translation>移除所有锁定</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="585"/>
+        <location filename="../src/ui/MenuBar.cpp" line="588"/>
         <source>Initialize</source>
         <translation>初始化</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="591"/>
+        <location filename="../src/ui/MenuBar.cpp" line="594"/>
         <source>Remote</source>
         <translation>远程</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="593"/>
+        <location filename="../src/ui/MenuBar.cpp" line="596"/>
         <source>Configure Remotes...</source>
         <translation>配置远程...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="601"/>
+        <location filename="../src/ui/MenuBar.cpp" line="604"/>
         <source>Fetch</source>
         <translation>获取</translation>
     </message>
@@ -3025,7 +3030,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+Alt+F</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="605"/>
+        <location filename="../src/ui/MenuBar.cpp" line="608"/>
         <source>Fetch All</source>
         <translation>获取全部</translation>
     </message>
@@ -3034,7 +3039,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+Alt+A</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="609"/>
+        <location filename="../src/ui/MenuBar.cpp" line="612"/>
         <source>Fetch From...</source>
         <translation>获取自...</translation>
     </message>
@@ -3043,7 +3048,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+F</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="618"/>
+        <location filename="../src/ui/MenuBar.cpp" line="621"/>
         <source>Pull</source>
         <translation>拉取</translation>
     </message>
@@ -3052,7 +3057,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+Alt+L</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="622"/>
+        <location filename="../src/ui/MenuBar.cpp" line="625"/>
         <source>Pull From...</source>
         <translation>拉取自...</translation>
     </message>
@@ -3061,7 +3066,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+L</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="631"/>
+        <location filename="../src/ui/MenuBar.cpp" line="634"/>
         <source>Push</source>
         <translation>推送</translation>
     </message>
@@ -3070,7 +3075,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+Alt+P</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="640"/>
+        <location filename="../src/ui/MenuBar.cpp" line="643"/>
         <source>Push To...</source>
         <translation>推送至...</translation>
     </message>
@@ -3079,27 +3084,27 @@ Examples
         <translation type="vanished">Ctrl+Shift+P</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="648"/>
+        <location filename="../src/ui/MenuBar.cpp" line="651"/>
         <source>Branch</source>
         <translation>分支</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="650"/>
+        <location filename="../src/ui/MenuBar.cpp" line="653"/>
         <source>Configure Branches...</source>
         <translation>配置分支...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="656"/>
+        <location filename="../src/ui/MenuBar.cpp" line="659"/>
         <source>New Branch...</source>
         <translation>新建分支...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="661"/>
+        <location filename="../src/ui/MenuBar.cpp" line="664"/>
         <source>Rename Branch</source>
         <translation>重命名分支</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="669"/>
+        <location filename="../src/ui/MenuBar.cpp" line="672"/>
         <source>Checkout Current</source>
         <translation>检出（Checkout）当前</translation>
     </message>
@@ -3108,7 +3113,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+Alt+H</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="680"/>
+        <location filename="../src/ui/MenuBar.cpp" line="683"/>
         <source>Checkout...</source>
         <translation>检出（Checkout）...</translation>
     </message>
@@ -3117,7 +3122,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+H</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="687"/>
+        <location filename="../src/ui/MenuBar.cpp" line="690"/>
         <source>Merge...</source>
         <translation>合并（Merge）...</translation>
     </message>
@@ -3126,7 +3131,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+M</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="699"/>
+        <location filename="../src/ui/MenuBar.cpp" line="702"/>
         <source>Rebase...</source>
         <translation>变基（Rebase）...</translation>
     </message>
@@ -3135,7 +3140,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+R</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="711"/>
+        <location filename="../src/ui/MenuBar.cpp" line="714"/>
         <source>Squash...</source>
         <translation>聚合（Squash）...</translation>
     </message>
@@ -3144,22 +3149,22 @@ Examples
         <translation type="vanished">Ctrl+Shift+Q</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="725"/>
+        <location filename="../src/ui/MenuBar.cpp" line="728"/>
         <source>Abort Merge</source>
         <translation>中止合并（Merge）</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="730"/>
+        <location filename="../src/ui/MenuBar.cpp" line="733"/>
         <source>Submodule</source>
         <translation>子模块</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="732"/>
+        <location filename="../src/ui/MenuBar.cpp" line="735"/>
         <source>Configure Submodules...</source>
         <translation>配置子模块...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="746"/>
+        <location filename="../src/ui/MenuBar.cpp" line="749"/>
         <source>Update All</source>
         <translation>更新全部</translation>
     </message>
@@ -3168,7 +3173,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+Alt+U</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="751"/>
+        <location filename="../src/ui/MenuBar.cpp" line="754"/>
         <source>Update...</source>
         <translation>更新...</translation>
     </message>
@@ -3177,22 +3182,22 @@ Examples
         <translation type="vanished">Ctrl+Shift+U</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="767"/>
+        <location filename="../src/ui/MenuBar.cpp" line="770"/>
         <source>Open</source>
         <translation>打开</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="785"/>
+        <location filename="../src/ui/MenuBar.cpp" line="788"/>
         <source>Stash</source>
         <translation>贮藏</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="787"/>
+        <location filename="../src/ui/MenuBar.cpp" line="790"/>
         <source>Show Stashes</source>
         <translation>显示贮藏区备份</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="796"/>
+        <location filename="../src/ui/MenuBar.cpp" line="799"/>
         <source>Stash...</source>
         <translation>备份未提交修改到贮藏区</translation>
     </message>
@@ -3201,7 +3206,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+T</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="800"/>
+        <location filename="../src/ui/MenuBar.cpp" line="803"/>
         <source>Pop Stash</source>
         <translation>应用备份并从贮藏区删除</translation>
     </message>
@@ -3210,37 +3215,37 @@ Examples
         <translation type="vanished">Ctrl+Shift+Alt+T</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="805"/>
+        <location filename="../src/ui/MenuBar.cpp" line="808"/>
         <source>History</source>
         <translation>历史</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="807"/>
+        <location filename="../src/ui/MenuBar.cpp" line="810"/>
         <source>Back</source>
         <translation>退回</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="812"/>
+        <location filename="../src/ui/MenuBar.cpp" line="815"/>
         <source>Forward</source>
         <translation>前进</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="818"/>
+        <location filename="../src/ui/MenuBar.cpp" line="821"/>
         <source>Window</source>
         <translation>窗口</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="819"/>
+        <location filename="../src/ui/MenuBar.cpp" line="822"/>
         <source>Show Previous Tab</source>
         <translation>显示上一个标签页</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="828"/>
+        <location filename="../src/ui/MenuBar.cpp" line="831"/>
         <source>Show Next Tab</source>
         <translation>显示下一个标签页</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="839"/>
+        <location filename="../src/ui/MenuBar.cpp" line="842"/>
         <source>Show Repository Chooser...</source>
         <translation>显示仓库选择器...</translation>
     </message>
@@ -3249,82 +3254,82 @@ Examples
         <translation type="vanished">Ctrl+Shift+O</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="844"/>
+        <location filename="../src/ui/MenuBar.cpp" line="847"/>
         <source>Tools</source>
         <translation>工具</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="845"/>
+        <location filename="../src/ui/MenuBar.cpp" line="848"/>
         <source>Options...</source>
         <translation>选项...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="851"/>
+        <location filename="../src/ui/MenuBar.cpp" line="854"/>
         <source>Help</source>
         <translation>帮助</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="853"/>
+        <location filename="../src/ui/MenuBar.cpp" line="856"/>
         <source>About %1</source>
         <translation>关于%1</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="858"/>
+        <location filename="../src/ui/MenuBar.cpp" line="861"/>
         <source>Check For Updates...</source>
         <translation>检查更新...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="862"/>
+        <location filename="../src/ui/MenuBar.cpp" line="865"/>
         <source>Plugin Documentation...</source>
         <translation>插件文档...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="868"/>
+        <location filename="../src/ui/MenuBar.cpp" line="871"/>
         <source>Support us via Liberapay</source>
         <translation>通过Liberapay支持我们</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="874"/>
+        <location filename="../src/ui/MenuBar.cpp" line="877"/>
         <source>Debug</source>
         <translation>除错</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="875"/>
+        <location filename="../src/ui/MenuBar.cpp" line="878"/>
         <source>Abort</source>
         <translation>中止</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="888"/>
+        <location filename="../src/ui/MenuBar.cpp" line="891"/>
         <source>Log Indexer Progress</source>
         <translation>日志索引器进度</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="894"/>
+        <location filename="../src/ui/MenuBar.cpp" line="897"/>
         <source>Log Credential Helper</source>
         <translation>日志凭证助手</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="900"/>
+        <location filename="../src/ui/MenuBar.cpp" line="903"/>
         <source>Log Remote Connection</source>
         <translation>记录远程连接</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="906"/>
+        <location filename="../src/ui/MenuBar.cpp" line="909"/>
         <source>Log Debug Messages</source>
         <translation>日志调试消息</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="914"/>
+        <location filename="../src/ui/MenuBar.cpp" line="917"/>
         <source>Load All Diffs</source>
         <translation>加载所有差异</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="928"/>
+        <location filename="../src/ui/MenuBar.cpp" line="931"/>
         <source>Walk Commits</source>
         <translation>遍历提交</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1043"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1046"/>
         <source>Hide Log</source>
         <translation>隐藏日志</translation>
     </message>
@@ -3333,27 +3338,27 @@ Examples
         <translation type="vanished">显示差异视图</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1094"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1097"/>
         <source>Merge</source>
         <translation>合并</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1104"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1107"/>
         <source>Revert</source>
         <translation>还原</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1110"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1113"/>
         <source>Cherry-pick</source>
         <translation>拣选操作</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1116"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1119"/>
         <source>Rebase</source>
         <translation>变基</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1122"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1125"/>
         <source>Abort %1</source>
         <translation>中止%1</translation>
     </message>
@@ -3712,7 +3717,8 @@ Examples
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="312"/>
+        <location filename="../src/git/Submodule.cpp" line="321"/>
+        <location filename="../src/git/Submodule.cpp" line="328"/>
         <source>The submodule repository is not initialized.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3738,7 +3744,7 @@ Examples
     </message>
     <message>
         <location filename="../src/git/SubmoduleAvailability.cpp" line="179"/>
-        <location filename="../src/git/Submodule.cpp" line="320"/>
+        <location filename="../src/git/Submodule.cpp" line="336"/>
         <source>Unable to create remote.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3753,128 +3759,123 @@ Examples
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="333"/>
+        <location filename="../src/git/Submodule.cpp" line="309"/>
         <source>No submodule branch is configured.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="338"/>
+        <location filename="../src/git/Submodule.cpp" line="314"/>
         <source>The special &apos;.&apos; submodule branch is not supported by this check.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="344"/>
-        <source>No submodule branch could be resolved.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/git/Submodule.cpp" line="356"/>
+        <location filename="../src/git/Submodule.cpp" line="355"/>
         <source>Unable to fetch submodule target branch.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="363"/>
+        <location filename="../src/git/Submodule.cpp" line="362"/>
         <source>Unable to read fetched submodule branch.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="381"/>
+        <location filename="../src/git/Submodule.cpp" line="380"/>
         <source>Remote target is not a descendant of the pinned commit.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="385"/>
+        <location filename="../src/git/Submodule.cpp" line="384"/>
         <source>Unable to compare submodule commits.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="445"/>
+        <location filename="../src/git/Submodule.cpp" line="444"/>
         <source>Submodule name cannot be empty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="448"/>
+        <location filename="../src/git/Submodule.cpp" line="447"/>
         <source>Submodule path cannot be empty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="451"/>
+        <location filename="../src/git/Submodule.cpp" line="450"/>
         <source>Submodule URL cannot be empty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="455"/>
-        <location filename="../src/git/Submodule.cpp" line="529"/>
+        <location filename="../src/git/Submodule.cpp" line="454"/>
+        <location filename="../src/git/Submodule.cpp" line="528"/>
         <source>Submodule &apos;%1&apos; was not found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="462"/>
+        <location filename="../src/git/Submodule.cpp" line="461"/>
         <source>A submodule named &apos;%1&apos; already exists.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="466"/>
+        <location filename="../src/git/Submodule.cpp" line="465"/>
         <source>A submodule already uses path &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="471"/>
+        <location filename="../src/git/Submodule.cpp" line="470"/>
         <source>Failed to open .gitmodules.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="481"/>
+        <location filename="../src/git/Submodule.cpp" line="480"/>
         <source>Path &apos;%1&apos; already exists.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="491"/>
+        <location filename="../src/git/Submodule.cpp" line="490"/>
         <source>Failed to create parent directory for &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="495"/>
+        <location filename="../src/git/Submodule.cpp" line="494"/>
         <source>Failed to move submodule folder to &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="524"/>
+        <location filename="../src/git/Submodule.cpp" line="523"/>
         <source>Invalid submodule.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="534"/>
+        <location filename="../src/git/Submodule.cpp" line="533"/>
         <source>Submodule path &apos;%1&apos; is outside the repository.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="540"/>
+        <location filename="../src/git/Submodule.cpp" line="539"/>
         <source>Failed to read .gitmodules.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="549"/>
+        <location filename="../src/git/Submodule.cpp" line="548"/>
         <source>.gitmodules has existing changes. Commit or discard them first.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="565"/>
+        <location filename="../src/git/Submodule.cpp" line="564"/>
         <source>Submodule cache path is outside .git/modules.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="570"/>
+        <location filename="../src/git/Submodule.cpp" line="569"/>
         <source>Failed to remove submodule from .gitmodules.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="595"/>
+        <location filename="../src/git/Submodule.cpp" line="594"/>
         <source>Submodule was removed from the project, but its working directory could not be deleted.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/Submodule.cpp" line="601"/>
+        <location filename="../src/git/Submodule.cpp" line="600"/>
         <source>Submodule was removed from the project, but its cached repository could not be deleted.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4164,42 +4165,42 @@ Would you like to fix the merge conflict and continue?</source>
 <context>
     <name>RemotePage</name>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="41"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="42"/>
         <source>Remote Repository URL</source>
         <translation>远程仓库URL</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="44"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="45"/>
         <source>Choose protocol to authenticate with the remote.</source>
         <translation>选择协议以对远程进行身份验证。</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="45"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="46"/>
         <source>Enter the URL of the remote repository or browse for a local directory</source>
         <translation>输入远程仓库的URL或浏览本地目录</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="72"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="73"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="74"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="75"/>
         <source>Choose Directory</source>
         <translation>选择目录</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="96"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="97"/>
         <source>Examples of valid URLs include:&lt;table cellspacing=&apos;8&apos;&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;HTTPS&lt;/b&gt;&lt;/td&gt;&lt;td&gt;https://hostname/path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;SSH&lt;/b&gt;&lt;/td&gt;&lt;td&gt;git@hostname:path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;Git&lt;/b&gt;&lt;/td&gt;&lt;td&gt;git://hostname/path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;Local&lt;/b&gt;&lt;/td&gt;&lt;td&gt;/path/to/repo, C:\path\to\repo&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>有效URL的示例包括：&lt;table cellspacing=&apos;8&apos;&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;HTTPS&lt;/b&gt;&lt;/td&gt;&lt;td&gt;https://hostname/path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align =&apos;right&apos;&gt;&lt;b&gt;SSH&lt;/b&gt;&lt;/td&gt;&lt;td&gt;git@hostname:path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;Git&lt;/b&gt;&lt;/td&gt;&lt;td&gt;git://hostname/path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;本地&lt;/b&gt;&lt;/td&gt;&lt;td&gt;/path/to/repo, C:\path\to\repo&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="110"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="111"/>
         <source>Protocol:</source>
         <translation>协议：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/CloneDialog.cpp" line="111"/>
+        <location filename="../src/dialogs/CloneDialog.cpp" line="112"/>
         <source>URL:</source>
         <translation>地址URL：</translation>
     </message>
@@ -6188,17 +6189,17 @@ The submodule will be removed from this project. Its working files and cached lo
         <translation>克隆仓库</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="70"/>
+        <location filename="../src/ui/SideBar.cpp" line="73"/>
         <source>Open Existing Repository</source>
         <translation>打开现有仓库</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="73"/>
+        <location filename="../src/ui/SideBar.cpp" line="76"/>
         <source>Open Repository</source>
         <translation>打开仓库</translation>
     </message>
     <message>
-        <location filename="../src/ui/SideBar.cpp" line="82"/>
+        <location filename="../src/ui/SideBar.cpp" line="85"/>
         <source>Initialize New Repository</source>
         <translation>初始化新仓库</translation>
     </message>
@@ -6261,93 +6262,93 @@ The submodule will be removed from this project. Its working files and cached lo
         <translation>克隆仓库</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="445"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="446"/>
         <source>Open Existing Repository</source>
         <translation>打开现有仓库</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="449"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="450"/>
         <source>Open Repository</source>
         <translation>打开仓库</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="457"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="459"/>
         <source>Initialize New Repository</source>
         <translation>初始化新仓库</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="471"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="474"/>
         <source>Clear All</source>
         <translation>全部清除</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="476"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="479"/>
         <source>Show Full Path</source>
         <translation>显示完整路径</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="486"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="489"/>
         <source>Filter Non-existent Paths</source>
         <translation>过滤不存在​​的路径</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="494"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="497"/>
         <source>Repositories:</source>
         <translation>仓库：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="542"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="545"/>
         <source>Refresh</source>
         <translation>刷新</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="549"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="552"/>
         <source>Show Full Name</source>
         <translation>显示全名</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="577"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="580"/>
         <source>Remote:</source>
         <translation>远程：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="595"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="598"/>
         <source>View Getting Started Video</source>
         <translation>查看入门视频</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="714"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="726"/>
         <source>Clone</source>
         <translation>克隆</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="714"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="726"/>
         <source>Open</source>
         <translation>打开</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="780"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="794"/>
         <source>&lt;p&gt;Are you sure you want to remove the %1 account for &apos;%2&apos;?&lt;/p&gt;&lt;p&gt;Only the account association will be removed. Remote configurations and local clones will not be affected.&lt;/p&gt;</source>
         <translation>&lt;p&gt;确定要删除“%2”的%1个帐户吗？&lt;/p&gt;&lt;p&gt;仅会删除帐户关联。远程配置和本地克隆将不受影响。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="784"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="798"/>
         <source>Remove Account?</source>
         <translation>删除帐户？</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="787"/>
-        <location filename="../src/dialogs/StartDialog.cpp" line="807"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="801"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="821"/>
         <source>Remove</source>
         <translation>删除</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="802"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="816"/>
         <source>&lt;p&gt;Are you sure you want to remove the remote repository association for %1?&lt;/p&gt;&lt;p&gt;The local clone itself will not be affected.&lt;/p&gt;</source>
         <translation>&lt;p&gt;确定要删除%1的远程仓库关联吗？&lt;/p&gt;&lt;p&gt;本地克隆本身不会受到影响。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="805"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="819"/>
         <source>Remove Repository Association?</source>
         <translation>删除仓库关联？</translation>
     </message>
