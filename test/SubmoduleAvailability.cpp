@@ -4,6 +4,7 @@
 //
 
 #include "Test.h"
+#include "git/Config.h"
 #include "git/Reference.h"
 #include "git/Submodule.h"
 #include "git/SubmoduleAvailability.h"
@@ -72,6 +73,8 @@ void TestSubmoduleAvailability::advertisedAndUnknownCommits() {
   runGit(parentPath, {"config", "user.email", "test@example.com"});
   runGit(parentPath, {"-c", "protocol.file.allow=always", "submodule", "add",
                       "-b", "main", remote, "child"});
+  runGit(parentPath, {"-c", "protocol.file.allow=always", "submodule", "add",
+                      "-b", "main", remote, "child-ok"});
   runGit(parentPath, {"commit", "-m", "add child"});
   runGit(parentPath, {"remote", "add", "origin", parentRemote});
   runGit(parentPath, {"push", "-u", "origin", "HEAD"});
@@ -80,8 +83,15 @@ void TestSubmoduleAvailability::advertisedAndUnknownCommits() {
   git::Repository publishedParent = git::Repository::open(parentRemote);
   QVERIFY(parent.isValid());
   QVERIFY(publishedParent.isValid());
-  QCOMPARE(parent.submodules().size(), 1);
-  QVERIFY(parent.submodules().first().isInitialized());
+  QCOMPARE(parent.submodules().size(), 2);
+  git::Submodule checkedSubmodule = parent.lookupSubmodule("child");
+  QVERIFY(checkedSubmodule.isInitialized());
+  git::Repository checkedChild = checkedSubmodule.open();
+  QVERIFY(checkedChild.isValid());
+  checkedChild.gitConfig().setValue<QString>("http.followRedirects", "invalid");
+  QVERIFY(git::SubmoduleAvailability::check(parent, parent.head().target())
+              .isEmpty());
+  QVERIFY(checkedChild.gitConfig().remove("http.followRedirects"));
   QVERIFY(git::SubmoduleAvailability::check(parent, parent.head().target())
               .isEmpty());
   const git::Id initialParent = parent.head().target().id();
@@ -98,6 +108,8 @@ void TestSubmoduleAvailability::advertisedAndUnknownCommits() {
   QCOMPARE(issues.size(), 1);
   QCOMPARE(issues.first().reason,
            git::SubmoduleAvailability::Issue::NotAdvertised);
+  QCOMPARE(issues.first().path, QString("child"));
+  QVERIFY(!issues.first().message.contains("no error", Qt::CaseInsensitive));
 
   MainWindow window(parent);
   window.show();
@@ -108,6 +120,10 @@ void TestSubmoduleAvailability::advertisedAndUnknownCommits() {
   QTRY_VERIFY_WITH_TIMEOUT(view->findChild<QMessageBox *>(), 10000);
   QMessageBox *dialog = view->findChild<QMessageBox *>();
   QCOMPARE(dialog->windowTitle(), QString("Submodule Commits May Be Missing"));
+  QCOMPARE(dialog->detailedText().count("Pinned commit:"), 1);
+  QVERIFY(dialog->detailedText().contains("child (child)"));
+  QVERIFY(!dialog->detailedText().contains("child-ok"));
+  QVERIFY(!dialog->detailedText().contains("no error", Qt::CaseInsensitive));
   dialog->button(QMessageBox::Cancel)->click();
   QTRY_VERIFY(!view->findChild<QMessageBox *>());
   QCOMPARE(publishedParent.head().target().id(), initialParent);
@@ -137,16 +153,15 @@ void TestSubmoduleAvailability::advertisedAndUnknownCommits() {
   commitFile(seed, "four\n", "four");
   runGit(seed, {"push"});
   issues = git::SubmoduleAvailability::check(parent, parent.head().target());
-  QCOMPARE(issues.size(), 1);
-  QCOMPARE(issues.first().reason,
-           git::SubmoduleAvailability::Issue::ComparisonUnavailable);
+  QVERIFY(issues.isEmpty());
 
-  git::Submodule submodule = parent.submodules().first();
+  git::Submodule submodule = parent.lookupSubmodule("child");
   submodule.setUrl(root.filePath("missing.git"));
   issues = git::SubmoduleAvailability::check(parent, parent.head().target());
   QCOMPARE(issues.size(), 1);
   QCOMPARE(issues.first().reason,
            git::SubmoduleAvailability::Issue::RemoteError);
+  QVERIFY(!issues.first().message.contains("http.followRedirects"));
 
   runGit(parentPath, {"submodule", "deinit", "-f", "child"});
   issues = git::SubmoduleAvailability::check(parent, parent.head().target());

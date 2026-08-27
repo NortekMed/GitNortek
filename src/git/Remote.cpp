@@ -318,11 +318,13 @@ int Remote::Callbacks::credentials(git_credential **out, const char *url,
   Remote::Callbacks *cbs = reinterpret_cast<Remote::Callbacks *>(payload);
   if (types & GIT_CREDENTIAL_SSH_KEY) {
     const git_error *error = git_error_last();
+    const QString remoteUrl = cbs->url();
+    const QString agentKey = remoteUrl + "\n" + QString::fromUtf8(name);
 
     // First try to get key from agent.
-    if (!cbs->mAgentNames.contains(name)) {
+    if (!cbs->mAgentNames.contains(agentKey)) {
       log(QString("agent: %1").arg(name));
-      cbs->mAgentNames.insert(name);
+      cbs->mAgentNames.insert(agentKey);
       if (cbs->connectToAgent())
         return git_credential_ssh_key_from_agent(out, name);
 
@@ -336,9 +338,10 @@ int Remote::Callbacks::credentials(git_credential **out, const char *url,
     if (configFile.isValid()) {
       // Extract hostname from the unresolved URL.
       configFile.apply(parseUrl(cbs->url()).host(),
-                       [&key, cbs](const ConfigFile::Host &host) {
+                       [&key, remoteUrl, cbs](const ConfigFile::Host &host) {
+                         QString attempt = remoteUrl + "\n" + host.file;
                          if (!host.file.isEmpty() &&
-                             !cbs->mKeyFiles.contains(host.file)) {
+                             !cbs->mKeyFiles.contains(attempt)) {
                            key = host.file;
                          }
                        });
@@ -346,13 +349,13 @@ int Remote::Callbacks::credentials(git_credential **out, const char *url,
 
     if (key.isEmpty()) {
       key = keyFile(cbs->keyFilePath());
-      if (cbs->mKeyFiles.contains(key))
+      if (cbs->mKeyFiles.contains(remoteUrl + "\n" + key))
         key = "";
     }
 
     // Search for default keys.
     if (!key.isEmpty()) {
-      cbs->mKeyFiles.insert(key);
+      cbs->mKeyFiles.insert(remoteUrl + "\n" + key);
 
       if (!QFile::exists(key)) {
         QString err = QString("identity file not found: %1").arg(key);

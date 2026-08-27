@@ -43,6 +43,7 @@ Bug Fix and Feature release
 * Connect dotted stash ancestry from the side of its base commit node
 * Keep the operation log open until manually collapsed and leave its toggle bar visible
 * Avoid repeating destination commit IDs in generated submodule update messages
+* Report only genuinely unavailable submodules in pre-push warnings with actionable error details
 * Confirm before creating or tracking a remote branch on the first push, and remove automatic pushing after each commit
 * Prevent transient false submodule changes during branch renames and repository scans
 * Report local repository diagnostics and avoid reporting dirty worktrees or status errors as clean

@@ -11,7 +11,9 @@
 #include "git/Remote.h"
 #include "git2/buffer.h"
 #include "git2/remote.h"
+#include "git2/sys/errors.h"
 #include "qtestcase.h"
+#include <QTemporaryDir>
 
 class Callbacks : public git::Remote::Callbacks {
 private:
@@ -26,6 +28,21 @@ public:
   }
 };
 
+class CredentialCallbacks : public git::Remote::Callbacks {
+public:
+  CredentialCallbacks(const QString &url, const QString &key)
+      : git::Remote::Callbacks(url), mKey(key) {}
+
+  bool connectToAgent() const override { return false; }
+  QString keyFilePath() const override { return mKey; }
+
+  int agentAttempts() const { return mAgentNames.size(); }
+  int keyAttempts() const { return mKeyFiles.size(); }
+
+private:
+  QString mKey;
+};
+
 class TestSshConfig : public QObject {
   Q_OBJECT
 
@@ -36,6 +53,7 @@ private slots:
   void resolveGitUrl();
   void resolveHttpUrl();
   void resolvePath();
+  void retryCredentialsForDifferentRemotes();
 
 private:
   static QString transformUrl(const QString &url, const QString config) {
@@ -52,6 +70,33 @@ private:
     return u;
   }
 };
+
+void TestSshConfig::retryCredentialsForDifferentRemotes() {
+  QTemporaryDir root;
+  QVERIFY(root.isValid());
+
+  const QString first = "ssh://git@example.com/first.git";
+  const QString second = "ssh://git@example.com/second.git";
+  CredentialCallbacks callbacks(first, root.filePath("missing-key"));
+  git_credential *credential = nullptr;
+
+  QByteArray url = first.toUtf8();
+  Callbacks::credentials(&credential, url, "git", GIT_CREDENTIAL_SSH_KEY,
+                         &callbacks);
+  git_credential_free(credential);
+  git_error_clear();
+
+  callbacks.setUrl(second);
+  credential = nullptr;
+  url = second.toUtf8();
+  Callbacks::credentials(&credential, url, "git", GIT_CREDENTIAL_SSH_KEY,
+                         &callbacks);
+  git_credential_free(credential);
+  git_error_clear();
+
+  QCOMPARE(callbacks.agentAttempts(), 2);
+  QCOMPARE(callbacks.keyAttempts(), 2);
+}
 
 void TestSshConfig::resolveSsh() {
   QCOMPARE(transformUrl("testhost:repo", "ssh_config"),

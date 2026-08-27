@@ -12,6 +12,8 @@
 #include "Tree.h"
 #include "git2/buffer.h"
 #include "git2/graph.h"
+#include "git2/object.h"
+#include "git2/refs.h"
 #include "git2/remote.h"
 #include "git2/sys/errors.h"
 #include <QObject>
@@ -23,7 +25,54 @@ namespace {
 
 QString lastError(const QString &fallback) {
   const git_error *error = git_error_last();
-  return error && error->message ? QString::fromUtf8(error->message) : fallback;
+  if (!error || error->klass == GIT_ERROR_NONE || !error->message)
+    return fallback;
+
+  QString message = QString::fromUtf8(error->message);
+  return message.compare("no error", Qt::CaseInsensitive) == 0 ? fallback
+                                                               : message;
+}
+
+const QByteArray kCheckRefPrefix = "refs/gitnortek/submodule-push-check/";
+
+void removeCheckRefs(git_repository *repo) {
+  git_strarray refs = {};
+  if (git_reference_list(&refs, repo))
+    return;
+
+  for (size_t i = 0; i < refs.count; ++i) {
+    QByteArray name(refs.strings[i]);
+    if (name.startsWith(kCheckRefPrefix))
+      git_reference_remove(repo, name);
+  }
+  git_strarray_dispose(&refs);
+}
+
+bool isReachableFromCheckRefs(git_repository *repo, const git_oid *pinned) {
+  git_strarray refs = {};
+  if (git_reference_list(&refs, repo))
+    return false;
+
+  bool available = false;
+  for (size_t i = 0; i < refs.count && !available; ++i) {
+    QByteArray name(refs.strings[i]);
+    if (!name.startsWith(kCheckRefPrefix))
+      continue;
+
+    git_reference *ref = nullptr;
+    git_object *commit = nullptr;
+    if (!git_reference_lookup(&ref, repo, name) &&
+        !git_reference_peel(&commit, ref, GIT_OBJECT_COMMIT)) {
+      const git_oid *advertised = git_object_id(commit);
+      available = git_oid_equal(advertised, pinned) ||
+                  git_graph_descendant_of(repo, advertised, pinned) == 1;
+    }
+    git_object_free(commit);
+    git_reference_free(ref);
+    git_error_clear();
+  }
+  git_strarray_dispose(&refs);
+  return available;
 }
 
 SubmoduleAvailability::Issue issue(const Submodule &submodule, const Id &pinned,
@@ -119,6 +168,8 @@ SubmoduleAvailability::check(const Repository &repo, const Commit &parent,
               "The initialized submodule repository could not be opened.")));
       continue;
     }
+    git_repository *childRepo = child;
+    const git_oid *pinnedOid = pinned;
 
     git_remote *rawRemote = nullptr;
     int error = git_remote_create_anonymous(&rawRemote, child, url.toUtf8());
@@ -129,62 +180,43 @@ SubmoduleAvailability::check(const Repository &repo, const Commit &parent,
       continue;
     }
 
-    git_remote_callbacks remoteCallbacks = GIT_REMOTE_CALLBACKS_INIT;
+    removeCheckRefs(childRepo);
+
+    git_fetch_options fetchOptions = GIT_FETCH_OPTIONS_INIT;
     if (callbacks)
       callbacks->setUrl(url);
-    configureCallbacks(remoteCallbacks, callbacks);
-    git_proxy_options proxyOptions = GIT_PROXY_OPTIONS_INIT;
-    QByteArray proxy = Remote::proxyUrl(url, proxyOptions.type);
-    proxyOptions.url = proxy;
+    configureCallbacks(fetchOptions.callbacks, callbacks);
+    fetchOptions.callbacks.update_tips = nullptr;
+    fetchOptions.follow_redirects = GIT_REMOTE_REDIRECT_INITIAL;
+    fetchOptions.update_fetchhead = 0;
+    QByteArray proxy = Remote::proxyUrl(url, fetchOptions.proxy_opts.type);
+    fetchOptions.proxy_opts.url = proxy;
+
+    QByteArray heads =
+        "+refs/heads/*:refs/gitnortek/submodule-push-check/heads/*";
+    QByteArray tags = "+refs/tags/*:refs/gitnortek/submodule-push-check/tags/*";
+    char *rawRefspecs[] = {heads.data(), tags.data()};
+    git_strarray refspecs = {rawRefspecs, 2};
 
     git_error_clear();
-    error = git_remote_connect(remote.data(), GIT_DIRECTION_FETCH,
-                               &remoteCallbacks, &proxyOptions, nullptr);
+    error = git_remote_fetch(remote.data(), &refspecs, &fetchOptions,
+                             "submodule push check");
     if (error) {
       issues.append(
           issue(submodule, pinned, url, Issue::RemoteError,
-                lastError(QObject::tr(
-                    "Unable to read advertised remote references."))));
+                lastError(QObject::tr("Unable to fetch advertised remote "
+                                      "branches and tags."))));
+      removeCheckRefs(childRepo);
       continue;
     }
 
-    const git_remote_head **heads = nullptr;
-    size_t count = 0;
-    error = git_remote_ls(&heads, &count, remote.data());
-    bool available = false;
-    QString comparisonError;
-    if (!error) {
-      for (size_t i = 0; i < count && !available; ++i) {
-        const Id advertised(heads[i]->oid);
-        if (advertised == pinned) {
-          available = true;
-          break;
-        }
-
-        git_error_clear();
-        int descendant = git_graph_descendant_of(child, advertised, pinned);
-        if (descendant == 1)
-          available = true;
-        else if (descendant < 0)
-          comparisonError = lastError(QObject::tr(
-              "Advertised commits are not available locally for comparison."));
-      }
-    }
-    if (error) {
-      issues.append(
-          issue(submodule, pinned, url, Issue::RemoteError,
-                lastError(QObject::tr(
-                    "Unable to read advertised remote references."))));
-    } else if (!available) {
-      issues.append(
-          issue(submodule, pinned, url,
-                comparisonError.isEmpty() ? Issue::NotAdvertised
-                                          : Issue::ComparisonUnavailable,
-                comparisonError.isEmpty()
-                    ? QObject::tr("The pinned commit is not reachable from an "
-                                  "advertised remote reference.")
-                    : comparisonError));
-    }
+    bool available = isReachableFromCheckRefs(childRepo, pinnedOid);
+    removeCheckRefs(childRepo);
+    if (!available)
+      issues.append(issue(
+          submodule, pinned, url, Issue::NotAdvertised,
+          QObject::tr("The pinned commit is not reachable from any advertised "
+                      "branch or tag. Push the submodule commit first.")));
   }
 
   return issues;

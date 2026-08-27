@@ -3467,45 +3467,39 @@ Examples
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/SubmoduleAvailability.cpp" line="86"/>
+        <location filename="../src/git/SubmoduleAvailability.cpp" line="135"/>
         <source>Submodule configuration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/SubmoduleAvailability.cpp" line="88"/>
+        <location filename="../src/git/SubmoduleAvailability.cpp" line="137"/>
         <source>The pushed commit uses a different submodule configuration from the checked-out branch and cannot be checked safely.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/SubmoduleAvailability.cpp" line="109"/>
+        <location filename="../src/git/SubmoduleAvailability.cpp" line="158"/>
         <source>The submodule is not initialized and cannot be checked.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/SubmoduleAvailability.cpp" line="118"/>
+        <location filename="../src/git/SubmoduleAvailability.cpp" line="167"/>
         <source>The initialized submodule repository could not be opened.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/SubmoduleAvailability.cpp" line="128"/>
+        <location filename="../src/git/SubmoduleAvailability.cpp" line="179"/>
         <location filename="../src/git/Submodule.cpp" line="320"/>
         <source>Unable to create remote.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/SubmoduleAvailability.cpp" line="146"/>
-        <location filename="../src/git/SubmoduleAvailability.cpp" line="176"/>
-        <source>Unable to read advertised remote references.</source>
+        <location filename="../src/git/SubmoduleAvailability.cpp" line="207"/>
+        <source>Unable to fetch advertised remote branches and tags.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/SubmoduleAvailability.cpp" line="169"/>
-        <source>Advertised commits are not available locally for comparison.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/git/SubmoduleAvailability.cpp" line="184"/>
-        <source>The pinned commit is not reachable from an advertised remote reference.</source>
+        <location filename="../src/git/SubmoduleAvailability.cpp" line="218"/>
+        <source>The pinned commit is not reachable from any advertised branch or tag. Push the submodule commit first.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
