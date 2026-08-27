@@ -81,6 +81,7 @@ public:
 
   void resetSettings();
   void resetReference(const git::Reference &ref);
+  void preserveSelectionOnRefresh();
 
   void setModel(QAbstractItemModel *model) override;
 
@@ -149,6 +150,8 @@ private:
   int mGraphPreferredWidth = 0;
 
   bool mRestoreSelection{true};
+  bool mPreserveSelectionDetails = false;
+  bool mSuppressSelectionNotification = false;
 
   QString mSelectedRange;
 };

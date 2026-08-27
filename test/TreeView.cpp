@@ -53,6 +53,7 @@ private slots:
   void dirtySubmoduleAndStagedSubmodule();
   void conflictedAndStagedFile();
   void stageAllChangesButton();
+  void externalRefreshPreservesSelection();
 
 private:
 };
@@ -454,6 +455,61 @@ void TestTreeView::stageAllChangesButton() {
   commits->selectionModel()->select(commitIndex,
                                     QItemSelectionModel::ClearAndSelect);
   QTRY_VERIFY(!button->isVisible());
+}
+
+void TestTreeView::externalRefreshPreservesSelection() {
+  INIT_REPO("TestRepository.zip", true);
+
+  auto *commits = repoView->findChild<CommitList *>();
+  QVERIFY(commits);
+  commits->cancelStatus();
+  refresh(repoView, false);
+
+  QModelIndex commitIndex;
+  for (int row = 0; row < commits->model()->rowCount(); ++row) {
+    QModelIndex candidate = commits->model()->index(row, 0);
+    if (candidate.data(CommitList::CommitRole).isValid()) {
+      commitIndex = candidate;
+      break;
+    }
+  }
+  QVERIFY(commitIndex.isValid());
+  commits->selectionModel()->select(commitIndex,
+                                    QItemSelectionModel::ClearAndSelect);
+  QString selectedCommit = commits->selectedRange();
+  QVERIFY(!selectedCommit.isEmpty());
+
+  int detailRefreshes = 0;
+  int invalidDetails = 0;
+  connect(commits, &CommitList::diffSelected,
+          [&detailRefreshes, &invalidDetails](const git::Diff &diff) {
+            ++detailRefreshes;
+            if (!diff.isValid())
+              ++invalidDetails;
+          });
+
+  QSignalSpy cleanStatus(repoView, &RepoView::statusChanged);
+  emit repo.notifier()->workdirChanged();
+  QTRY_VERIFY(!cleanStatus.isEmpty());
+  QCOMPARE(commits->selectedRange(), selectedCommit);
+  QCOMPARE(invalidDetails, 0);
+  QCOMPARE(detailRefreshes, 0);
+
+  QFile file(repo.workdir().filePath("file.txt"));
+  QVERIFY(file.open(QFile::WriteOnly | QFile::Truncate));
+  QCOMPARE(file.write("External refresh test\n"), 22);
+  file.close();
+  refresh(repoView);
+  QCOMPARE(commits->selectedRange(), QString("status"));
+
+  detailRefreshes = 0;
+  invalidDetails = 0;
+  QSignalSpy dirtyStatus(repoView, &RepoView::statusChanged);
+  emit repo.notifier()->workdirChanged();
+  QTRY_VERIFY(!dirtyStatus.isEmpty());
+  QCOMPARE(commits->selectedRange(), QString("status"));
+  QCOMPARE(detailRefreshes, 1);
+  QCOMPARE(invalidDetails, 0);
 }
 
 TEST_MAIN(TestTreeView)

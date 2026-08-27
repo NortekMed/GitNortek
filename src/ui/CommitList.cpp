@@ -1656,14 +1656,18 @@ CommitList::CommitList(Index *index, CommitAvatarProvider *avatars,
             qOverload<>(&QWidget::update));
   }
 
-  connect(mModel, &QAbstractItemModel::modelAboutToBeReset, this,
-          &CommitList::storeSelection);
-  connect(mModel, &QAbstractItemModel::modelReset, this,
-           &CommitList::restoreSelection);
-  connect(mList, &QAbstractItemModel::modelAboutToBeReset, this,
-          &CommitList::storeSelection);
-  connect(mList, &QAbstractItemModel::modelReset, this,
-           &CommitList::restoreSelection);
+  for (QAbstractItemModel *sourceModel : {mModel, mList}) {
+    connect(sourceModel, &QAbstractItemModel::modelAboutToBeReset, this,
+            [this, sourceModel] {
+              if (model() == sourceModel)
+                storeSelection();
+            });
+    connect(sourceModel, &QAbstractItemModel::modelReset, this,
+            [this, sourceModel] {
+              if (model() == sourceModel)
+                restoreSelection();
+            });
+  }
   for (QAbstractItemModel *model : {mModel, mList}) {
     connect(model, &QAbstractItemModel::rowsInserted, this,
             [this] { updateGraphColumnWidth(); });
@@ -1705,10 +1709,6 @@ CommitList::CommitList(Index *index, CommitAvatarProvider *avatars,
             static_cast<CommitModel *>(mModel)->resetReference(ref,
                                                                refreshStatus);
           });
-  connect(notifier, &git::RepositoryNotifier::workdirChanged, [this] {
-    resetReference(static_cast<const CommitModel *>(mModel)->reference());
-  });
-
   connect(this, &CommitList::entered,
           [this](const QModelIndex &index) { update(index); });
 
@@ -2160,8 +2160,6 @@ void CommitList::selectFirstCommit(bool spontaneous) {
     DebugRefresh("Invalid commit");
   if (index.isValid()) {
     selectIndexes(QItemSelection(index, index), QString(), spontaneous);
-  } else {
-    emit diffSelected(git::Diff());
   }
 }
 
@@ -2183,6 +2181,10 @@ bool CommitList::selectRange(const QString &range, const QString &file,
   // Try to select the "status" index.
   QModelIndex index = model()->index(0, 0);
   if (range == "status" && !index.data(CommitRole).isValid()) {
+    bool alreadySelected = selectionModel()->isSelected(index);
+    selectIndexes(QItemSelection(index, index), file, spontaneous);
+    if (alreadySelected)
+      notifySelectionChanged();
     return true;
   }
 
@@ -2203,7 +2205,7 @@ bool CommitList::selectRange(const QString &range, const QString &file,
     git::Commit last = indexes.last().data(CommitRole).value<git::Commit>();
     if (first.isValid() && first == firstCommit && last.isValid() &&
         last == lastCommit)
-      return false;
+      return true;
   }
 
   // Find indexes.
@@ -2230,6 +2232,10 @@ void CommitList::suppressResetWalker(bool suppress) {
 
 void CommitList::resetReference(const git::Reference &ref) {
   static_cast<CommitModel *>(mModel)->resetReference(ref);
+}
+
+void CommitList::preserveSelectionOnRefresh() {
+  mPreserveSelectionDetails = true;
 }
 
 bool CommitList::isResetWalkerSuppressed() {
@@ -2636,6 +2642,8 @@ bool CommitList::eventFilter(QObject *watched, QEvent *event) {
 
 void CommitList::storeSelection() {
   mSelectedRange = selectedRange();
+  if (mPreserveSelectionDetails)
+    mSuppressSelectionNotification = true;
   DebugRefresh("Selected Range: " << mSelectedRange);
   Debug(mSelectedRange);
 }
@@ -2643,12 +2651,18 @@ void CommitList::storeSelection() {
 void CommitList::restoreSelection() {
   // Restore selection.
   DebugRefresh(mSelectedRange);
-  if (!mRestoreSelection ||
-      (!mSelectedRange.isEmpty() && mSelectedRange != "status" &&
-       !selectRange(mSelectedRange))) {
+  bool preserveDetails =
+      mPreserveSelectionDetails && mSelectedRange != "status";
+  bool restoreSelection = mRestoreSelection || mPreserveSelectionDetails;
+  mSuppressSelectionNotification = preserveDetails;
+  bool selectionFailed =
+      restoreSelection && !mSelectedRange.isEmpty() &&
+      !selectRange(mSelectedRange) && selectedRange() != mSelectedRange;
+  if (!restoreSelection || selectionFailed) {
     DebugRefresh("Failed to restore");
-    emit diffSelected(git::Diff());
   }
+  mSuppressSelectionNotification = false;
+  mPreserveSelectionDetails = false;
 
   mSelectedRange = QString();
   mRestoreSelection = true;
@@ -2724,6 +2738,9 @@ void CommitList::selectIndexes(const QItemSelection &selection,
 }
 
 void CommitList::notifySelectionChanged() {
+  if (mSuppressSelectionNotification)
+    return;
+
   // Multiple selection means that the selected parameter
   // could be empty when there are still indexes selected.
   QModelIndexList indexes = selectedIndexes();
