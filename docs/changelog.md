@@ -21,7 +21,7 @@ Bug Fix and Feature release
 * Warn before pushing a parent commit whose initialized submodule pins cannot be proven available from their clone URLs
 * Add a green Stage All Changes button above the working-directory file tree
 * Checkout the latest fetched configured branch from behind-origin submodule context menus
-* Resolve conflicts inline with Current, Incoming, or Both previews, file-level completion, unresolved filtering, and conflict navigation
+* Resolve conflicts inline with editable Current and Incoming text, dedicated binary and delete/modify choosers, file-level completion, unresolved filtering, and conflict navigation
 
 #### Changed
 

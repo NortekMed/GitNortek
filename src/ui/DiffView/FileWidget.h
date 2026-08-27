@@ -23,6 +23,7 @@ class Badge;
 class FileLabel;
 class DiffView;
 class ConflictResolverWidget;
+class FileConflictResolverWidget;
 
 namespace _FileWidget {
 class Header : public QFrame {
@@ -41,6 +42,7 @@ public:
 
   QToolButton *markResolvedButton() const;
   void setMarkResolvedEnabled(bool enabled);
+  void hideFileSolverButtons();
   git::Patch::ConflictResolution resolution() const;
 
 signals:
@@ -152,6 +154,7 @@ private:
   QList<QWidget *> mImages;
   QList<HunkWidget *> mHunks;
   ConflictResolverWidget *mResolver{nullptr};
+  FileConflictResolverWidget *mFileResolver{nullptr};
   QVBoxLayout *mHunkLayout{nullptr};
   bool mDiffSuppressed{false};
   bool mSuppressUpdate{false};

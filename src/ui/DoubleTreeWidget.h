@@ -94,6 +94,8 @@ private:
   QCheckBox *mUnresolvedOnly{nullptr};
   QToolButton *mPreviousConflict{nullptr};
   QToolButton *mNextConflict{nullptr};
+  QPushButton *mBlameButton{nullptr};
+  QPushButton *mDiffButton{nullptr};
 
   struct SelectedFile {
     QString filename;

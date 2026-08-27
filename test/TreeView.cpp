@@ -430,6 +430,16 @@ void TestTreeView::conflictedAndStagedFile() {
   QVERIFY(next);
   mouseClick(next, Qt::LeftButton);
   QTRY_COMPARE(doubleTree->selectedFile(), QString("conflictedFile.txt"));
+
+  auto *blame = doubleTree->mBlameButton;
+  auto *diff = doubleTree->mDiffButton;
+  QVERIFY(blame);
+  QVERIFY(diff);
+  QVERIFY(!blame->isEnabled());
+  QVERIFY(blame->toolTip().contains("unavailable"));
+  QVERIFY(diff->isChecked());
+  QCOMPARE(stagedTree->selectionMode(), QAbstractItemView::ExtendedSelection);
+  QCOMPARE(unstagedTree->selectionMode(), QAbstractItemView::ExtendedSelection);
 }
 
 void TestTreeView::stageAllChangesButton() {

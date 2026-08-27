@@ -90,10 +90,12 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   // first column
   // top (Buttons to switch between Blame editor and DiffView)
   SegmentedButton *segmentedButton = new SegmentedButton(this);
-  QPushButton *blameView = new QPushButton(tr("Blame"), this);
-  segmentedButton->addButton(blameView, tr("Show Blame Editor"), true);
-  QPushButton *diffView = new QPushButton(tr("Diff"), this);
-  segmentedButton->addButton(diffView, tr("Show Diff View"), true);
+  mBlameButton = new QPushButton(tr("Blame"), this);
+  mBlameButton->setObjectName("BlameViewButton");
+  segmentedButton->addButton(mBlameButton, tr("Show Blame Editor"), true);
+  mDiffButton = new QPushButton(tr("Diff"), this);
+  mDiffButton->setObjectName("DiffViewButton");
+  segmentedButton->addButton(mDiffButton, tr("Show Diff View"), true);
 
   // Context button.
   ContextMenuButton *contextButton = new ContextMenuButton(this);
@@ -823,6 +825,7 @@ void DoubleTreeWidget::loadEditorContent(const QModelIndexList &indexes) {
   QString name;
   git::Blob blob;
   git::Commit commit;
+  bool unresolvedConflict = false;
 
   if (indexes.count() == 1) {
     RepoView *view = RepoView::parentView(this);
@@ -830,11 +833,25 @@ void DoubleTreeWidget::loadEditorContent(const QModelIndexList &indexes) {
     QList<git::Commit> commits = view->commits();
     commit = !commits.isEmpty() ? commits.first() : git::Commit();
     int idx = mDiff.isValid() ? mDiff.indexOf(name) : -1;
+    unresolvedConflict = idx >= 0 && mDiff.patch(idx).isConflicted();
     blob = idx < 0 ? commit.blob(name)
                    : view->repo().lookupBlob(mDiff.id(idx, git::Diff::NewFile));
   }
 
-  mEditor->load(name, blob, std::move(commit));
+  mBlameButton->setEnabled(!unresolvedConflict);
+  mBlameButton->setToolTip(unresolvedConflict
+                               ? tr("Blame is unavailable until this conflict "
+                                    "is resolved.")
+                               : tr("Show Blame Editor"));
+  if (unresolvedConflict) {
+    mEditor->clear();
+    mFileView->setCurrentWidget(mDiffView);
+    mDiffButton->setChecked(true);
+    stagedFiles->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    unstagedFiles->setSelectionMode(QAbstractItemView::ExtendedSelection);
+  } else {
+    mEditor->load(name, blob, std::move(commit));
+  }
 
   mDiffView->enable(true);
   mDiffView->updateFiles();

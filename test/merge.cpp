@@ -18,11 +18,14 @@
 #include "ui/TreeView.h"
 #include <QCheckBox>
 #include <QFile>
+#include <QMessageBox>
 #include <QPlainTextEdit>
 #include <QProcess>
 #include <QPushButton>
 #include <QTextEdit>
+#include <QTimer>
 #include <QToolButton>
+#include <functional>
 
 using namespace Test;
 using namespace QTest;
@@ -37,6 +40,7 @@ private slots:
   void thirdCommit();
   void mergeConflict();
   void resolve();
+  void fileLevelConflicts();
   void cleanupTestCase();
 
 private:
@@ -253,15 +257,25 @@ void TestMerge::resolve() {
   QVERIFY(currentLine);
   QVERIFY(firstIncoming);
   QVERIFY(secondIncoming);
+
+  QToolButton *markResolved =
+      fileWidget->findChild<QToolButton *>("ConflictMarkResolved");
+  QVERIFY(markResolved);
+  QVERIFY(markResolved->isEnabled());
+
   mouseClick(currentLine, Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(),
              inputDelay);
   mouseClick(firstIncoming, Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(),
              inputDelay);
 
-  QToolButton *markResolved =
-      fileWidget->findChild<QToolButton *>("ConflictMarkResolved");
-  QVERIFY(markResolved);
-  QVERIFY(!markResolved->isEnabled());
+  QTimer::singleShot(0, [] {
+    if (auto *message =
+            qobject_cast<QMessageBox *>(QApplication::activeModalWidget()))
+      message->button(QMessageBox::Cancel)->click();
+  });
+  mouseClick(markResolved, Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(),
+             inputDelay);
+  QVERIFY(mRepo->index().hasConflicts());
 
   mouseClick(secondIncoming, Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(),
              inputDelay);
@@ -328,6 +342,134 @@ void TestMerge::resolve() {
   // Diff is not in a conflicted state
   git::Diff diff = mRepo->diffIndexToWorkdir();
   QVERIFY(!diff.isConflicted());
+}
+
+void TestMerge::fileLevelConflicts() {
+  RepoView *view = mWindow->currentView();
+  auto runGit = [this](const QStringList &arguments) {
+    QProcess git;
+    git.setWorkingDirectory(mRepo->workdir().path());
+    git.start(GIT_EXECUTABLE, arguments);
+    if (!git.waitForFinished())
+      return -1;
+    return git.exitCode();
+  };
+  auto writeFile = [this](const QString &name, const QByteArray &content) {
+    QFile file(mRepo->workdir().filePath(name));
+    if (!file.open(QFile::WriteOnly | QFile::Truncate))
+      return false;
+    return file.write(content) == content.size();
+  };
+
+  QVERIFY(writeFile("binary-conflict.bin", QByteArray("\0base", 5)));
+  QVERIFY(writeFile("current-deleted.txt", "base\n"));
+  QVERIFY(writeFile("incoming-deleted.txt", "base\n"));
+  QCOMPARE(runGit({"add", "binary-conflict.bin", "current-deleted.txt",
+                   "incoming-deleted.txt"}),
+           0);
+  QCOMPARE(runGit({"commit", "-m", "add file-level conflict fixtures"}), 0);
+  QCOMPARE(runGit({"checkout", "-b", "file-conflicts"}), 0);
+
+  QVERIFY(writeFile("binary-conflict.bin", QByteArray("\0incoming", 9)));
+  QVERIFY(writeFile("current-deleted.txt", "incoming modified\n"));
+  QCOMPARE(runGit({"rm", "incoming-deleted.txt"}), 0);
+  QCOMPARE(runGit({"add", "binary-conflict.bin", "current-deleted.txt"}), 0);
+  QCOMPARE(runGit({"commit", "-m", "modify incoming fixtures"}), 0);
+  QCOMPARE(runGit({"checkout", mMainBranch}), 0);
+
+  QVERIFY(writeFile("binary-conflict.bin", QByteArray("\0current", 8)));
+  QVERIFY(writeFile("incoming-deleted.txt", "current modified\n"));
+  QCOMPARE(runGit({"add", "binary-conflict.bin"}), 0);
+  QCOMPARE(runGit({"add", "incoming-deleted.txt"}), 0);
+  QCOMPARE(runGit({"rm", "current-deleted.txt"}), 0);
+  QCOMPARE(runGit({"commit", "-m", "modify and delete current fixtures"}), 0);
+  QCOMPARE(runGit({"merge", "file-conflicts"}), 1);
+
+  mRepo->index().read();
+  refresh(view);
+  QVERIFY(mRepo->index().hasConflicts());
+
+  auto *doubleTree = view->findChild<DoubleTreeWidget *>();
+  auto *files = doubleTree->findChild<TreeView *>("Unstaged");
+  auto *diffView = view->findChild<DiffView *>();
+  QVERIFY(files);
+  QVERIFY(diffView);
+
+  auto findFile = [](QAbstractItemModel *model, const QString &name) {
+    std::function<QModelIndex(const QModelIndex &)> find =
+        [&](const QModelIndex &parent) -> QModelIndex {
+      for (int row = 0; row < model->rowCount(parent); ++row) {
+        QModelIndex index = model->index(row, 0, parent);
+        if (index.data(Qt::EditRole).toString() == name)
+          return index;
+        QModelIndex child = find(index);
+        if (child.isValid())
+          return child;
+      }
+      return QModelIndex();
+    };
+    return find(QModelIndex());
+  };
+  auto openFile = [&](const QString &name) {
+    QModelIndex index = findFile(files->model(), name);
+    if (!index.isValid())
+      return static_cast<FileWidget *>(nullptr);
+    files->selectionModel()->setCurrentIndex(
+        index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    QMetaObject::invokeMethod(files, "fileSelectionRequested");
+    return diffView->widget()->findChild<FileWidget *>();
+  };
+
+  FileWidget *fileWidget = openFile("binary-conflict.bin");
+  QVERIFY(fileWidget);
+  QVERIFY(fileWidget->findChild<QWidget *>("FileConflictResolver"));
+  auto *incoming =
+      fileWidget->findChild<QToolButton *>("ConflictFileIncomingChoice");
+  auto *markResolved =
+      fileWidget->findChild<QToolButton *>("ConflictMarkResolved");
+  QVERIFY(incoming);
+  QVERIFY(markResolved);
+  QVERIFY(!markResolved->isEnabled());
+  mouseClick(incoming, Qt::LeftButton);
+  QVERIFY(markResolved->isEnabled());
+  mouseClick(markResolved, Qt::LeftButton);
+
+  QTRY_COMPARE(mRepo->index().isStaged("binary-conflict.bin"),
+               git::Index::Staged);
+  QFile binary(mRepo->workdir().filePath("binary-conflict.bin"));
+  QVERIFY(binary.open(QFile::ReadOnly));
+  QCOMPARE(binary.readAll(), QByteArray("\0incoming", 9));
+
+  QTRY_VERIFY(!findFile(files->model(), "binary-conflict.bin").isValid());
+  QTRY_VERIFY(findFile(files->model(), "current-deleted.txt").isValid());
+  fileWidget = openFile("current-deleted.txt");
+  QVERIFY(fileWidget);
+  auto *current =
+      fileWidget->findChild<QToolButton *>("ConflictFileCurrentChoice");
+  markResolved = fileWidget->findChild<QToolButton *>("ConflictMarkResolved");
+  QVERIFY(current);
+  QVERIFY(markResolved);
+  mouseClick(current, Qt::LeftButton);
+  QVERIFY(markResolved->isEnabled());
+  mouseClick(markResolved, Qt::LeftButton);
+
+  QTRY_VERIFY(!findFile(files->model(), "current-deleted.txt").isValid());
+  QVERIFY(!QFileInfo::exists(mRepo->workdir().filePath("current-deleted.txt")));
+
+  QTRY_VERIFY(findFile(files->model(), "incoming-deleted.txt").isValid());
+  fileWidget = openFile("incoming-deleted.txt");
+  QVERIFY(fileWidget);
+  incoming = fileWidget->findChild<QToolButton *>("ConflictFileIncomingChoice");
+  markResolved = fileWidget->findChild<QToolButton *>("ConflictMarkResolved");
+  QVERIFY(incoming);
+  QVERIFY(markResolved);
+  mouseClick(incoming, Qt::LeftButton);
+  QVERIFY(markResolved->isEnabled());
+  mouseClick(markResolved, Qt::LeftButton);
+
+  QTRY_VERIFY(!mRepo->index().hasConflicts());
+  QVERIFY(
+      !QFileInfo::exists(mRepo->workdir().filePath("incoming-deleted.txt")));
 }
 
 void TestMerge::cleanupTestCase() {

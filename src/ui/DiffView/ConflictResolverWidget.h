@@ -18,6 +18,7 @@ public:
                                   QWidget *parent = nullptr);
 
   bool isComplete() const;
+  int untouchedBlockCount() const;
   QByteArray result() const;
 
 signals:

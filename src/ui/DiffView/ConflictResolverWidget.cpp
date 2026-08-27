@@ -370,12 +370,15 @@ ConflictResolverWidget::ConflictResolverWidget(const git::Patch &patch,
   }
 }
 
-bool ConflictResolverWidget::isComplete() const {
+bool ConflictResolverWidget::isComplete() const { return !mBlocks.isEmpty(); }
+
+int ConflictResolverWidget::untouchedBlockCount() const {
+  int count = 0;
   for (const BlockState &state : mBlocks) {
     if (state.selections.isEmpty())
-      return false;
+      ++count;
   }
-  return !mBlocks.isEmpty();
+  return count;
 }
 
 QByteArray ConflictResolverWidget::result() const {

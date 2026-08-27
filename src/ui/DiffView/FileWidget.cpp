@@ -6,6 +6,7 @@
 #include "LineStats.h"
 #include "FileLabel.h"
 #include "ConflictResolverWidget.h"
+#include "FileConflictResolverWidget.h"
 #include "HunkWidget.h"
 #include "Images.h"
 #include "conf/Constants.h"
@@ -406,6 +407,8 @@ FileWidget::FileWidget(DiffView *view, const git::Diff &diff,
         hunk->setVisible(visible);
       if (mResolver)
         mResolver->setVisible(visible);
+      if (mFileResolver)
+        mFileResolver->setVisible(visible);
     });
 
   if (diff.isStatusDiff()) {
@@ -419,6 +422,17 @@ FileWidget::FileWidget(DiffView *view, const git::Diff &diff,
 #endif
                 mHeader->disclosureButton()->setChecked(state != Qt::Checked);
               });
+  }
+
+  if (patch.isConflicted() && patch.count() == 0) {
+    mHeader->hideFileSolverButtons();
+    mFileResolver = new FileConflictResolverWidget(
+        patch, mDiff.index().conflict(patch.name()), this);
+    layout->addWidget(mFileResolver, 1);
+    connect(mFileResolver, &FileConflictResolverWidget::resolutionChanged, this,
+            &FileWidget::updateMarkResolvedState);
+    updateMarkResolvedState();
+    return;
   }
 
   // Try to load an image from the file.
@@ -498,7 +512,7 @@ void FileWidget::updateHunks(git::Patch stagedPatch) {
 
 bool FileWidget::isEmpty() {
   return !mDiffSuppressed && mHunks.isEmpty() && mImages.isEmpty() &&
-         !mResolver;
+         !mResolver && !mFileResolver;
 }
 
 void FileWidget::setStageState(git::Index::StagedState state) {
@@ -516,6 +530,12 @@ QToolButton *_FileWidget::Header::markResolvedButton() const {
 
 void _FileWidget::Header::setMarkResolvedEnabled(bool enabled) {
   mMarkResolved->setEnabled(enabled);
+}
+
+void _FileWidget::Header::hideFileSolverButtons() {
+  mClear->hide();
+  mCurrent->hide();
+  mIncoming->hide();
 }
 
 git::Patch::ConflictResolution _FileWidget::Header::resolution() const {
@@ -540,6 +560,7 @@ void FileWidget::updatePatch(const git::Patch &patch, const git::Patch &staged,
   }
   mHunks.clear();
   mResolver = nullptr;
+  mFileResolver = nullptr;
   // Add untracked file content.
   if (patch.isUntracked()) {
     if (!QFileInfo(path).isDir())
@@ -791,7 +812,8 @@ void FileWidget::updateMarkResolvedState() {
     const git::Index::Conflict conflict =
         mPatch.repo().index().conflict(mPatch.name());
     bool bothDeleted = conflict.ours.isNull() && conflict.theirs.isNull();
-    bool sideSelected = mHeader->resolution() != git::Patch::Unresolved;
+    bool sideSelected =
+        mFileResolver && mFileResolver->resolution() != git::Patch::Unresolved;
     mHeader->setMarkResolvedEnabled(bothDeleted || sideSelected);
     return;
   }
@@ -822,6 +844,16 @@ void FileWidget::markResolved() {
 
   if (mPatch.count() > 0) {
     if (!mResolver || !mResolver->isComplete())
+      return;
+    const int untouched = mResolver->untouchedBlockCount();
+    if (untouched > 0 &&
+        QMessageBox::warning(
+            this, tr("Resolve blocks without source selections?"),
+            tr("%n conflict block(s) have no Current or Incoming selection. "
+               "The Result will be used exactly as shown.",
+               nullptr, untouched),
+            QMessageBox::Ok | QMessageBox::Cancel,
+            QMessageBox::Cancel) != QMessageBox::Ok)
       return;
     const QByteArray result = mResolver->result();
     QByteArray original;
@@ -855,7 +887,8 @@ void FileWidget::markResolved() {
     for (int i = 0; i < mPatch.count(); ++i)
       mPatch.setConflictResolution(i, git::Patch::Unresolved);
   } else {
-    const git::Patch::ConflictResolution resolution = mHeader->resolution();
+    const git::Patch::ConflictResolution resolution =
+        mFileResolver ? mFileResolver->resolution() : git::Patch::Unresolved;
     git::Id id;
     git_filemode_t mode = GIT_FILEMODE_UNREADABLE;
 
