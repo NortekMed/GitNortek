@@ -233,6 +233,8 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   hBoxLayout->addWidget(mStageAllChanges);
   collapseButtonUnstagedFiles =
       new StatePushButton(kCollapseAll, kExpandAll, this);
+  mStageAllChanges->setFixedHeight(
+      collapseButtonUnstagedFiles->sizeHint().height());
   hBoxLayout->addWidget(collapseButtonUnstagedFiles);
 
   vBoxLayout->addLayout(hBoxLayout);

@@ -294,9 +294,12 @@ void CommitAvatarProvider::startDownloads() {
     request.setTransferTimeout(10000);
     QNetworkReply *reply = mManager.get(request);
     connect(reply, &QNetworkReply::finished, this, [this, reply, key] {
-      QByteArray data = reply->readAll();
-      bool success = reply->error() == QNetworkReply::NoError &&
-                     data.size() <= kMaximumResponseSize;
+      bool success =
+          reply->error() == QNetworkReply::NoError && reply->isOpen();
+      QByteArray data;
+      if (success)
+        data = reply->readAll();
+      success = success && data.size() <= kMaximumResponseSize;
       QImage image;
       if (success) {
         QBuffer buffer(&data);

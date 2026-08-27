@@ -434,6 +434,8 @@ void TestTreeView::stageAllChangesButton() {
 
   QTRY_VERIFY(button->isVisible());
   QTRY_VERIFY(button->isEnabled());
+  QTRY_COMPARE(button->height(),
+               doubleTree->collapseButtonUnstagedFiles->height());
   QCOMPARE(button->isEnabled(), repoView->isStageEnabled());
 
   mouseClick(button, Qt::LeftButton);

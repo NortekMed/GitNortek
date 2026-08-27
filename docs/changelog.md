@@ -47,6 +47,8 @@ Bug Fix and Feature release
 * Report only genuinely unavailable submodules in pre-push warnings with actionable error details
 * Show the parent repository in tabs opened for submodules
 * Display commit branch and tag badges on a separate line in the details panel while omitting remote HEAD aliases
+* Match the Stage All Changes button height to the adjacent Collapse all button
+* Stop repository indexers cleanly and avoid reading closed avatar network replies during shutdown
 * Confirm before creating or tracking a remote branch on the first push, and remove automatic pushing after each commit
 * Prevent transient false submodule changes during branch renames and repository scans
 * Report local repository diagnostics and avoid reporting dirty worktrees or status errors as clean

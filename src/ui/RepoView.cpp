@@ -562,6 +562,8 @@ void RepoView::diffSelected(const git::Diff diff, const QString &file,
 }
 
 RepoView::~RepoView() {
+  cancelIndexing();
+
   // Work around crash caused by clearing focus from the commit list
   // when it's destroyed. If it gets destroyed after the detail view
   // then the focus change may trigger the menu bar to query the mode
@@ -1009,6 +1011,7 @@ void RepoView::startIndexing() {
 }
 
 void RepoView::cancelIndexing() {
+  mRestartIndexer = false;
   if (mIndexer.state() == QProcess::NotRunning)
     return;
 
