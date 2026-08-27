@@ -17,7 +17,7 @@ if(NOT USE_SYSTEM_GIT)
       install(
         TARGETS ${TARGET}
         DESTINATION ${CMAKE_INSTALL_BINDIR}/credential-helpers
-        COMPONENT ${GITTYUP_NAME})
+        COMPONENT ${GITNORTEK_NAME})
     endif()
   endmacro()
 

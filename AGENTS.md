@@ -1,15 +1,15 @@
 # AGENTS.md
 
 ## Repo Shape
-- GitNortek is a C++17 Qt 6.6+ desktop Git client built with CMake; the main executable is `gitnortek` from `src/app/Gittyup.cpp`.
+- GitNortek is a C++17 Qt 6.6+ desktop Git client built with CMake; the main executable is `gitnortek` from `src/app/GitNortek.cpp`.
 - Build outputs belong under ignored `build*` directories; do not edit vendored code under `dep/` unless the task explicitly targets a dependency.
-- `src/app` wires the GUI app, `src/index/Indexer` builds the `gitnortek-indexer` helper, and `src/update` builds `gitnortek-relauncher`.
+- `src/app` wires the GUI app, and `src/index/Indexer` builds the `gitnortek-indexer` helper.
 
 ## Setup And Build
 - Initialize dependencies before configuring: `git submodule update --init --recursive`.
 - Standard local configure/build from repo root: `mkdir -p build/release && cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -S . -B build/release && ninja -C build/release`.
 - If Qt is outside the default search path, pass `-DCMAKE_PREFIX_PATH=<qt-install-prefix>`.
-- CI configures with `-DUPDATE_TRANSLATIONS=ON -DGITTYUP_CI_TESTS=ON`; keep this in mind when changing translations or tests that touch global settings.
+- CI configures with `-DUPDATE_TRANSLATIONS=ON -DGITNORTEK_CI_TESTS=ON`; keep this in mind when changing translations or tests that touch global settings.
 - Default CMake uses bundled libgit2/cmark/lua/hunspell/git but system OpenSSL, libssh2, and Qt unless options such as `-DUSE_SYSTEM_LIBSSH2=OFF` are changed.
 
 ## Tests
@@ -32,7 +32,7 @@
 - Skip changelog entries for purely internal refactors only when they do not affect users, packages, CI artifacts, or maintainers.
 
 ## Packaging CI
-- `.github/workflows/package.yml` builds release artifacts for the NortekMed fork: Fedora RPM via `-DGITTYUP_LINUX_PACKAGE_GENERATOR=RPM` and Windows NSIS `.exe` via CPack.
-- Linux package generation defaults to `TGZ`; pass `-DGITTYUP_LINUX_PACKAGE_GENERATOR=RPM` when an RPM is required.
+- `.github/workflows/package.yml` builds release artifacts for the NortekMed fork: Fedora RPM via `-DGITNORTEK_LINUX_PACKAGE_GENERATOR=RPM` and Windows NSIS `.exe` via CPack.
+- Linux package generation defaults to `TGZ`; pass `-DGITNORTEK_LINUX_PACKAGE_GENERATOR=RPM` when an RPM is required.
 - Package versions are resolved in CMake from Git tags using `git describe`; local and CI builds should not duplicate version parsing.
 - RPM `Version` uses the app version with `-` converted to `_`, and RPM `Release` uses the UTC package build timestamp `YYYYMMDD.HHmm`.

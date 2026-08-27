@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="771" height="540" viewBox="0 0 771 540">
+  <rect width="771" height="540" fill="#061a3a"/>
+  <g fill="none" stroke="#24aef5" stroke-width="10" opacity="0.08">
+    <path d="M-40 470 L130 300 L260 300 L410 150 L590 150 L760 -20"/>
+    <path d="M60 560 L230 390 L370 390 L520 240 L680 240 L830 90"/>
+  </g>
+  <g transform="translate(34 30)" fill="none" stroke-linecap="round" stroke-width="8">
+    <path d="M28 74 V42" stroke="#24aef5"/>
+    <path d="M28 60 C28 45 7 45 7 28" stroke="#43d17a"/>
+    <path d="M28 60 C28 45 49 45 49 28" stroke="#9b6df5"/>
+    <path d="M28 42 V10" stroke="#ff6546"/>
+    <circle cx="7" cy="24" r="7" stroke="#43d17a"/>
+    <circle cx="49" cy="24" r="7" stroke="#9b6df5"/>
+    <circle cx="28" cy="7" r="7" stroke="#ff6546"/>
+    <circle cx="28" cy="63" r="7" stroke="#24aef5"/>
+  </g>
+  <text x="105" y="84" fill="#ffffff" font-family="DejaVu Sans, sans-serif" font-size="42" font-weight="700">Git<tspan fill="#24aef5">Nortek</tspan></text>
+  <path d="M310 270 H455" fill="none" stroke="#24aef5" stroke-width="8"/>
+  <path d="M455 270 L420 248 V292 Z" fill="#24aef5"/>
+  <text x="285" y="505" fill="#9db7d5" font-family="DejaVu Sans, sans-serif" font-size="18">Drag GitNortek to Applications</text>
+</svg>

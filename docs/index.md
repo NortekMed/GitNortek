@@ -8,7 +8,7 @@ GitNortek can be built from source by following the directions in the [GitNortek
 
 To see the changes of the current version please have a look at the <A href="#changelog">changelog</A> section
 
-![GitNortek](/rsrc/screenshots/main_dark_orig.png)
+> Screenshot needed: current GitNortek main window showing a representative repository on the dark theme.
 
 Multi language support
 ======================
@@ -34,7 +34,7 @@ Features
 
 ### Single branch view to focus on your work
 Select "Show Selected Branch" in the drop down menu above the commit list
-![Single branch](/rsrc/screenshots/main_show_selected_branch.png)
+> Screenshot needed: GitNortek displaying the selected-branch history view.
 
 ### Fullscreen
 of the history or the change dialog by pressing Ctrl+M
@@ -44,27 +44,27 @@ to be able to switch fast between repositories
 
 ### Diff View
 Staging and unstaging changes, viewing Blame
-![Diff View](/rsrc/screenshots/DiffView.png)
+> Screenshot needed: GitNortek displaying a representative text diff.
 
 ### Tree View
 To visit the blame with its history for unchanged files
 
-![Tree View](/rsrc/screenshots/treeview.png)
+> Screenshot needed: GitNortek displaying the repository tree view.
 
 ### Blame View
 See blame of the current version with an integrated timeline to see who changed which line
 
-![Blame View](/rsrc/screenshots/BlameView.png)
+> Screenshot needed: GitNortek displaying blame with its integrated timeline.
 
 ### Dynamic Line Wrapping
 Courtesy of Scintilla.
 
-![Line Wrapping](/rsrc/screenshots/line-wrap-demo-2.gif)
+> Recording needed: GitNortek demonstrating dynamic line wrapping.
 
 ### Single line staging 
 by eighter clicking on the checkboxes next to each line or by selecting the relevant code and pressing "S". For unstaging you can uncheck the checkboxes or press "U". To revert changes, select the text and press "R".
 
-![Single line staging](/rsrc/screenshots/double_treeview_single_line_staging.png)
+> Screenshot needed: GitNortek staging selected lines in the double tree view.
 
 ### Amending commits
 Editing properties of a commit
@@ -77,19 +77,19 @@ Solving rebase conflicts and continuing after conflicts are solved
 
 ### Starring commits
 to find specific commits much faster
-![Starring commits](/rsrc/screenshots/starring_commits.png)
+> Screenshot needed: GitNortek displaying starred commits.
 
 ### Tag selection
 Use an existing tag as template for your next tag. So you never have to look which is your latest tag
 
-![Tag selection](/rsrc/screenshots/tag_selection.png)
+> Screenshot needed: GitNortek using an existing tag as a template.
 
 ### Commit message template
 Create you commit messages according a defined template. The first template is automatically applied to the commit message editor.
 
 ![Commit message template selection](/rsrc/screenshots/CommitMessageTemplateSelection.png)
 
-![Commit message template editor](/rsrc/screenshots/CommitMessageTemplateEditor.png)
+> Screenshot needed: GitNortek displaying the commit message template editor.
 
 ### And a lot more ...
 

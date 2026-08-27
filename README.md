@@ -7,7 +7,7 @@ This fork is maintained at [NortekMed/GitNortek](https://github.com/NortekMed/Gi
 
 GitNortek is based on Gittyup, which is a continuation of the [GitAhead](https://github.com/gitahead/gitahead) client.
 
-![GitNortek](rsrc/screenshots/main_dark_orig.png)
+> Screenshot needed: current GitNortek main window showing a representative repository on the dark theme.
 
 Table of contents
 =================

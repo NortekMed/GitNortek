@@ -11,7 +11,7 @@ else()
       OFF
       CACHE BOOL "" FORCE)
 
-  # Gittyup sets BUILD_SHARED_LIBS OFF at the top level; Qt may also set this
+  # GitNortek sets BUILD_SHARED_LIBS OFF at the top level; Qt may also set this
   # cache variable. Bundled libssh2 still needs a Windows DLL + import libs for
   # pack/CMakeLists.txt and the ssh2.lib/libssh2.lib copy in libssh2/src.
   if(WIN32)

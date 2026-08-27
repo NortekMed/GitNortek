@@ -36,9 +36,9 @@ set(ACKNOWLEDGMENTS_HTML ${DOC_BINARY_DIR}/acknowledgments.html)
 set(PRIVACY_HTML ${DOC_BINARY_DIR}/privacy.html)
 set(PLUGIN_HTML ${DOC_BINARY_DIR}/plugin.html)
 set(APPDATA_CONF
-    ${CMAKE_SOURCE_DIR}/rsrc/linux/com.github.Murmele.Gittyup.appdata.xml.in)
+    ${CMAKE_SOURCE_DIR}/rsrc/linux/com.nortekmed.GitNortek.metainfo.xml.in)
 set(APPDATA
-    ${CMAKE_BINARY_DIR}/rsrc/linux/com.github.Murmele.Gittyup.appdata.xml)
+    ${CMAKE_BINARY_DIR}/rsrc/linux/com.nortekmed.GitNortek.metainfo.xml)
 add_custom_command(
   OUTPUT ${CHANGELOG_HTML} ${ACKNOWLEDGMENTS_HTML} ${PRIVACY_HTML}
          ${PLUGIN_HTML}
@@ -59,12 +59,12 @@ endif()
 
 target_compile_definitions(
   app
-  PUBLIC GITTYUP_NAME="${GITTYUP_NAME}"
-         GITTYUP_VERSION="${GITTYUP_VERSION}"
-         GITTYUP_IDENTIFIER="${GITTYUP_IDENTIFIER}"
-         GITTYUP_ORGANIZATION_DOMAIN="${GITTYUP_ORGANIZATION_DOMAIN}"
-         GITTYUP_DBUS_INTERFACE_NAME="${GITTYUP_IDENTIFIER}.Application"
-         GITTYUP_DBUS_OBJECT_PATH="/com/nortekmed/GitNortek/Application"
+  PUBLIC GITNORTEK_NAME="${GITNORTEK_NAME}"
+         GITNORTEK_VERSION="${GITNORTEK_VERSION}"
+         GITNORTEK_IDENTIFIER="${GITNORTEK_IDENTIFIER}"
+         GITNORTEK_ORGANIZATION_DOMAIN="${GITNORTEK_ORGANIZATION_DOMAIN}"
+         GITNORTEK_DBUS_INTERFACE_NAME="${GITNORTEK_IDENTIFIER}.Application"
+         GITNORTEK_DBUS_OBJECT_PATH="/com/nortekmed/GitNortek/Application"
   PRIVATE QT_TRANSLATIONS_DIR="${QT_TRANSLATIONS_DIR}"
           BUILD_DESCRIPTION="${BUILD_DESCRIPTION}")
 
@@ -85,7 +85,7 @@ endif()
 # Add main executable.
 add_executable(
   gitnortek WIN32 MACOSX_BUNDLE
-  Gittyup.cpp
+  GitNortek.cpp
   ${ICON}
   ${RC_FILE}
   ${CONFIG_FILES}
@@ -106,8 +106,8 @@ if(GENERATE_APPDATA)
     COMMAND
       ${CMAKE_COMMAND} -DCHANGELOG_HTML:STRING=${CHANGELOG_HTML}
       -DAPPDATA_CONF:STRING=${APPDATA_CONF} -DAPPDATA:STRING=${APPDATA}
-      -DGITTYUP_IDENTIFIER:STRING=${GITTYUP_IDENTIFIER}
-      -DGITTYUP_EXECUTABLE_NAME:STRING=${GITTYUP_EXECUTABLE_NAME} -P
+      -DGITNORTEK_IDENTIFIER:STRING=${GITNORTEK_IDENTIFIER}
+      -DGITNORTEK_EXECUTABLE_NAME:STRING=${GITNORTEK_EXECUTABLE_NAME} -P
       "${CMAKE_SOURCE_DIR}/cmake/generate_appdata.cmake"
     DEPENDS ${CHANGELOG_HTML}
     COMMENT "Create appdata file")
@@ -117,8 +117,8 @@ target_link_libraries(gitnortek app)
 
 set_target_properties(
   gitnortek
-  PROPERTIES OUTPUT_NAME ${GITTYUP_EXECUTABLE_NAME}
-             MACOSX_BUNDLE_BUNDLE_NAME ${GITTYUP_NAME}
+  PROPERTIES OUTPUT_NAME ${GITNORTEK_EXECUTABLE_NAME}
+             MACOSX_BUNDLE_BUNDLE_NAME ${GITNORTEK_NAME}
              RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 if(WIN32)
@@ -128,12 +128,12 @@ elseif(APPLE)
     gitnortek
     PROPERTIES INSTALL_RPATH "/usr/local/qt;@loader_path/../Frameworks"
                MACOSX_BUNDLE_INFO_PLIST ${RSRC_DIR}/Info.plist.in
-               MACOSX_BUNDLE_ICON_FILE ${GITTYUP_NAME}
-               MACOSX_BUNDLE_BUNDLE_NAME ${GITTYUP_NAME}
-               MACOSX_BUNDLE_BUNDLE_VERSION ${GITTYUP_VERSION}
-               MACOSX_BUNDLE_LONG_VERSION_STRING ${GITTYUP_VERSION}
-               MACOSX_BUNDLE_SHORT_VERSION_STRING ${GITTYUP_VERSION}
-               MACOSX_BUNDLE_GUI_IDENTIFIER ${GITTYUP_IDENTIFIER})
+               MACOSX_BUNDLE_ICON_FILE ${GITNORTEK_NAME}
+               MACOSX_BUNDLE_BUNDLE_NAME ${GITNORTEK_NAME}
+               MACOSX_BUNDLE_BUNDLE_VERSION ${GITNORTEK_VERSION}
+               MACOSX_BUNDLE_LONG_VERSION_STRING ${GITNORTEK_VERSION}
+               MACOSX_BUNDLE_SHORT_VERSION_STRING ${GITNORTEK_VERSION}
+               MACOSX_BUNDLE_GUI_IDENTIFIER ${GITNORTEK_IDENTIFIER})
 
   # Copy config files into bundle.
   set_source_files_properties(
@@ -170,7 +170,7 @@ add_dependencies(gitnortek gitnortek-indexer)
 install(
   TARGETS gitnortek
   DESTINATION $<IF:$<PLATFORM_ID:Darwin>,.,${CMAKE_INSTALL_BINDIR}>
-  COMPONENT ${GITTYUP_NAME})
+  COMPONENT ${GITNORTEK_NAME})
 
 if(APPLE)
   get_target_property(QT_LIBRARY Qt6::Core LOCATION)
@@ -192,21 +192,21 @@ execute_process(COMMAND
 	${CMAKE_INSTALL_NAME_TOOL} -add_rpath \"@loader_path/../Frameworks\"
 	  \"\${CMAKE_INSTALL_PREFIX}/${INDEXER}\"
   )"
-    COMPONENT ${GITTYUP_NAME})
+    COMPONENT ${GITNORTEK_NAME})
 else()
   # Windows and UNIX must be ./ otherwise it is interpreted as absolute path
   if(UNIX)
     install(
-      FILES ${CMAKE_SOURCE_DIR}/rsrc/linux/com.github.Murmele.Gittyup.desktop
+      FILES ${CMAKE_SOURCE_DIR}/rsrc/linux/com.nortekmed.GitNortek.desktop
       DESTINATION ${CMAKE_INSTALL_DATADIR}/applications
-      COMPONENT ${GITTYUP_NAME}
-      RENAME ${GITTYUP_IDENTIFIER}.desktop)
+      COMPONENT ${GITNORTEK_NAME}
+      RENAME ${GITNORTEK_IDENTIFIER}.desktop)
     if(${GENERATE_APPDATA})
       install(
         FILES ${APPDATA}
         DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo
-        COMPONENT ${GITTYUP_NAME}
-        RENAME ${GITTYUP_EXECUTABLE_NAME}.appdata.xml)
+        COMPONENT ${GITNORTEK_NAME}
+        RENAME ${GITNORTEK_IDENTIFIER}.metainfo.xml)
     endif()
   endif()
 
@@ -219,13 +219,13 @@ else()
       FILES ${CHANGELOG_HTML} ${ACKNOWLEDGMENTS_HTML} ${PRIVACY_HTML}
             ${PLUGIN_HTML}
       DESTINATION ${RESOURCES_DIR}
-      COMPONENT ${GITTYUP_NAME})
+      COMPONENT ${GITNORTEK_NAME})
   endif()
 
   install(
     FILES ${EMOJI} ${MERGETOOLS}
     DESTINATION ${RESOURCES_DIR}
-    COMPONENT ${GITTYUP_NAME})
+    COMPONENT ${GITNORTEK_NAME})
 
   execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different ${EMOJI}
                           ${CMAKE_BINARY_DIR}/Resources/emoji.json)
@@ -236,7 +236,7 @@ else()
     install(
       FILES ${CONFIG_FILE}
       DESTINATION ${RESOURCES_DIR}
-      COMPONENT ${GITTYUP_NAME})
+      COMPONENT ${GITNORTEK_NAME})
 
     file(RELATIVE_PATH CONFIG_FILE_DEST ${CONF_DIR} ${CONFIG_FILE})
     execute_process(
@@ -247,7 +247,7 @@ else()
   install(
     FILES ${DICTIONARIES}
     DESTINATION ${RESOURCES_DIR}/dictionaries
-    COMPONENT ${GITTYUP_NAME})
+    COMPONENT ${GITNORTEK_NAME})
 
   foreach(DICTIONARY ${DICTIONARIES})
     file(RELATIVE_PATH DICTIONARY_DEST ${CONF_DIR} ${DICTIONARY})
@@ -258,7 +258,7 @@ else()
   install(
     FILES ${THEMES}
     DESTINATION ${RESOURCES_DIR}/themes
-    COMPONENT ${GITTYUP_NAME})
+    COMPONENT ${GITNORTEK_NAME})
 
   foreach(THEME ${THEMES})
     file(RELATIVE_PATH THEME_DEST ${CONF_DIR} ${THEME})
@@ -269,7 +269,7 @@ else()
   install(
     FILES ${LUA_PLUGINS}
     DESTINATION ${RESOURCES_DIR}/plugins
-    COMPONENT ${GITTYUP_NAME})
+    COMPONENT ${GITNORTEK_NAME})
 
   foreach(LUA_PLUGIN ${LUA_PLUGINS})
     file(RELATIVE_PATH LUA_PLUGIN_DEST ${CONF_DIR} ${LUA_PLUGIN})
@@ -281,7 +281,7 @@ else()
     install(
       FILES ${SCINTILLUA_LEXER}
       DESTINATION ${RESOURCES_DIR}/lexers
-      COMPONENT ${GITTYUP_NAME})
+      COMPONENT ${GITNORTEK_NAME})
 
     get_filename_component(SCINTILLUA_LEXER_DEST ${SCINTILLUA_LEXER} NAME)
     execute_process(

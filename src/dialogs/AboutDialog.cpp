@@ -80,8 +80,8 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent) {
   left->addWidget(subtitle);
   left->addStretch();
 
-  QString revision = GITTYUP_BUILD_REVISION;
-  QDateTime dateTime = QDateTime::fromString(GITTYUP_BUILD_DATE, Qt::ISODate);
+  QString revision = GITNORTEK_BUILD_REVISION;
+  QDateTime dateTime = QDateTime::fromString(GITNORTEK_BUILD_DATE, Qt::ISODate);
   QString date =
       dateTime.date().toString(QLocale().dateFormat(QLocale::LongFormat));
   QString text = kTextFmt.arg(name, version, date, revision, kIssueTracker);

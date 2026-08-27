@@ -54,7 +54,7 @@
         <string>Open in GitNortek</string>
       </dict>
       <key>NSMessage</key>
-      <string>openInGittyup</string>
+      <string>openInGitNortek</string>
       <key>NSRequiredContext</key>
       <dict>
         <key>NSTextContent</key>

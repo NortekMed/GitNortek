@@ -4417,7 +4417,7 @@ Exemplos
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/app/Gittyup.cpp" line="25"/>
+        <location filename="../src/app/GitNortek.cpp" line="25"/>
         <source>Your global Git configuration is invalid. GitNortek won&apos;t run properly until this is fixed</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6911,80 +6911,84 @@ The submodule will be removed from this project. Its working files and cached lo
 <context>
     <name>TemplateDialog</name>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="32"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="35"/>
         <source>Name</source>
         <translation type="unfinished">Nome</translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="38"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="41"/>
         <source>Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="43"/>
-        <location filename="../src/ui/TemplateDialog.cpp" line="327"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="46"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="331"/>
         <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="52"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="55"/>
         <source>use %1 to declare the position of the cursor.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="56"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="59"/>
         <source>use ${files:x} to add all updated file names,
 x (number) determines the number of maximum files shown</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="66"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="69"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="72"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="75"/>
         <source>First template will be applied automatically</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="79"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="82"/>
         <source>Up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="80"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="83"/>
         <source>Down</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="95"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="98"/>
         <source>Import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="96"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="99"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="243"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="246"/>
         <source>Open File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="244"/>
-        <location filename="../src/ui/TemplateDialog.cpp" line="297"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="247"/>
+        <source>GitNortek Templates (*%1 *%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/TemplateDialog.cpp" line="301"/>
         <source>GitNortek Templates (*%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="294"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="298"/>
         <source>Save Templates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="323"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="327"/>
         <source>Replace</source>
         <translation type="unfinished">Substituir</translation>
     </message>
@@ -7147,53 +7151,53 @@ x (number) determines the number of maximum files shown</source>
         <translation>Descartar Stash</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="857"/>
+        <location filename="../src/ui/ToolBar.cpp" line="858"/>
         <source>Open Terminal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="869"/>
+        <location filename="../src/ui/ToolBar.cpp" line="870"/>
         <source>Open file manager</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="881"/>
+        <location filename="../src/ui/ToolBar.cpp" line="882"/>
         <source>Configure Settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="889"/>
+        <location filename="../src/ui/ToolBar.cpp" line="890"/>
         <source>Repository settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="893"/>
+        <location filename="../src/ui/ToolBar.cpp" line="894"/>
         <source>Application settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="900"/>
-        <location filename="../src/ui/ToolBar.cpp" line="1029"/>
+        <location filename="../src/ui/ToolBar.cpp" line="901"/>
+        <location filename="../src/ui/ToolBar.cpp" line="1030"/>
         <source>Show Log</source>
         <translation type="unfinished">Mostrar log</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="918"/>
+        <location filename="../src/ui/ToolBar.cpp" line="919"/>
         <source>Double Tree View</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="923"/>
+        <location filename="../src/ui/ToolBar.cpp" line="924"/>
         <source>Tree View</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="936"/>
+        <location filename="../src/ui/ToolBar.cpp" line="937"/>
         <source>Show Starred Commits</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="1029"/>
+        <location filename="../src/ui/ToolBar.cpp" line="1030"/>
         <source>Hide Log</source>
         <translation type="unfinished">Ocultar Log</translation>
     </message>

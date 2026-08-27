@@ -53,10 +53,9 @@ jobs:
     - name: Configure
       run: >
         cmake -G Ninja -DCMAKE_BUILD_TYPE=Release
-        -DGITTYUP_LINUX_PACKAGE_GENERATOR=RPM
+        -DGITNORTEK_LINUX_PACKAGE_GENERATOR=RPM
         -DGENERATE_APPDATA=ON
         -DCMAKE_INSTALL_PREFIX=/usr
-        -DENABLE_UPDATE_OVER_GUI=OFF
         -S . -B build/release
 
     - name: Build RPM

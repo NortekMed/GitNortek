@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
 
   if (!git::Config::global().isValid()) {
     QMessageBox::warning(
-        nullptr, GITTYUP_NAME,
+        nullptr, GITNORTEK_NAME,
         QObject::tr("Your global Git configuration is invalid. GitNortek won't "
                     "run properly until this is fixed"));
   }

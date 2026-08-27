@@ -13,13 +13,13 @@
 #include <QUrl>
 
 @interface Launcher : NSObject
-- (void)openInGittyup:(NSPasteboard *)pboard
+- (void)openInGitNortek:(NSPasteboard *)pboard
              userData:(NSString *)userData
                 error:(NSString **)error;
 @end
 
 @implementation Launcher
-- (void)openInGittyup:(NSPasteboard *)pboard
+- (void)openInGitNortek:(NSPasteboard *)pboard
              userData:(NSString *)userData
                 error:(NSString **)error {
   NSArray *classes = [NSArray arrayWithObject:[NSURL class]];

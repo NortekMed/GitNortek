@@ -9,12 +9,15 @@
 #include <QVBoxLayout>
 #include <QSpacerItem>
 #include <QDialogButtonBox>
+#include <QDir>
 #include <QFileDialog>
 #include <QFile>
 #include <QTextStream>
 
 namespace {
 const QString kTemplateFileExtension =
+    QStringLiteral(".GitNortekCommitMessageTemplate");
+const QString kLegacyTemplateFileExtension =
     QStringLiteral(".GittyupCommitMessageTemplate");
 }
 
@@ -240,8 +243,9 @@ void TemplateDialog::moveTemplateDown() {
 void TemplateDialog::importTemplates(QString filename) {
   if (filename.isEmpty()) {
     filename = QFileDialog::getOpenFileName(
-        this, tr("Open File"), "/home",
-        tr("GitNortek Templates (*%1)").arg(kTemplateFileExtension));
+        this, tr("Open File"), QDir::homePath(),
+        tr("GitNortek Templates (*%1 *%2)")
+            .arg(kTemplateFileExtension, kLegacyTemplateFileExtension));
   }
 
   mNew.clear();
@@ -292,8 +296,8 @@ void TemplateDialog::exportTemplates(QString filename) {
   if (filename.isEmpty()) {
     filename = QFileDialog::getSaveFileName(
         this, tr("Save Templates"),
-        QStringLiteral("/home/%1%2")
-            .arg("GittyupTemplates", kTemplateFileExtension),
+        QDir::home().filePath(
+            QStringLiteral("GitNortekTemplates%1").arg(kTemplateFileExtension)),
         tr("GitNortek Templates (*%1)").arg(kTemplateFileExtension));
   }
 

@@ -11,7 +11,7 @@ add_executable(
   idstorage.cpp)
 target_link_libraries(gitnortek-indexer index)
 target_compile_definitions(gitnortek-indexer
-                           PRIVATE GITTYUP_VERSION="${GITTYUP_VERSION}")
+                           PRIVATE GITNORTEK_VERSION="${GITNORTEK_VERSION}")
 
 set_target_properties(gitnortek-indexer PROPERTIES RUNTIME_OUTPUT_DIRECTORY
                                                    $<TARGET_FILE_DIR:gitnortek>)
@@ -30,5 +30,5 @@ else()
   install(
     TARGETS gitnortek-indexer
     DESTINATION ${CMAKE_INSTALL_BINDIR}
-    COMPONENT ${GITTYUP_NAME})
+    COMPONENT ${GITNORTEK_NAME})
 endif()

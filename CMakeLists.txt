@@ -3,88 +3,96 @@ cmake_minimum_required(VERSION 3.19)
 project(GitNortek)
 
 # Set name and version.
-set(GITTYUP_NAME "GitNortek")
-set(GITTYUP_EXECUTABLE_NAME "gitnortek")
-set(GITTYUP_IDENTIFIER "com.nortekmed.GitNortek")
-set(GITTYUP_ORGANIZATION_DOMAIN "nortekmed.com")
-set(GITTYUP_VERSION_MAJOR 2)
-set(GITTYUP_VERSION_MINOR 0)
-set(GITTYUP_VERSION_PATCH 0)
-set(GITTYUP_VERSION
-    "${GITTYUP_VERSION_MAJOR}.${GITTYUP_VERSION_MINOR}.${GITTYUP_VERSION_PATCH}"
+set(GITNORTEK_NAME "GitNortek")
+set(GITNORTEK_EXECUTABLE_NAME "gitnortek")
+set(GITNORTEK_IDENTIFIER "com.nortekmed.GitNortek")
+set(GITNORTEK_ORGANIZATION_DOMAIN "nortekmed.com")
+set(GITNORTEK_VERSION_MAJOR 2)
+set(GITNORTEK_VERSION_MINOR 0)
+set(GITNORTEK_VERSION_PATCH 0)
+set(GITNORTEK_VERSION
+    "${GITNORTEK_VERSION_MAJOR}.${GITNORTEK_VERSION_MINOR}.${GITNORTEK_VERSION_PATCH}"
 )
 
-set(GITTYUP_VERSION_OVERRIDE
-    ""
+set(_GITNORTEK_VERSION_OVERRIDE_DEFAULT "")
+if(GITTYUP_VERSION_OVERRIDE AND NOT DEFINED GITNORTEK_VERSION_OVERRIDE)
+  message(
+    DEPRECATION
+      "GITTYUP_VERSION_OVERRIDE is deprecated; use GITNORTEK_VERSION_OVERRIDE")
+  set(_GITNORTEK_VERSION_OVERRIDE_DEFAULT "${GITTYUP_VERSION_OVERRIDE}")
+endif()
+set(GITNORTEK_VERSION_OVERRIDE
+    "${_GITNORTEK_VERSION_OVERRIDE_DEFAULT}"
     CACHE STRING "Override full GitNortek version, e.g. MAJOR.MINOR.PATCH-pre0-SHA")
+unset(_GITNORTEK_VERSION_OVERRIDE_DEFAULT)
 
 find_package(Git)
 
-if(GITTYUP_VERSION_OVERRIDE)
-  set(GITTYUP_VERSION "${GITTYUP_VERSION_OVERRIDE}")
-  set(GITTYUP_VERSION_SOURCE "override")
+if(GITNORTEK_VERSION_OVERRIDE)
+  set(GITNORTEK_VERSION "${GITNORTEK_VERSION_OVERRIDE}")
+  set(GITNORTEK_VERSION_SOURCE "override")
 elseif(GIT_FOUND)
   execute_process(
     COMMAND ${GIT_EXECUTABLE} -C ${CMAKE_SOURCE_DIR} describe --tags --long
             --abbrev=8 --dirty --match "v[0-9]*.[0-9]*.[0-9]*"
-    RESULT_VARIABLE GITTYUP_DESCRIBE_RESULT
-    OUTPUT_VARIABLE GITTYUP_DESCRIBE
+    RESULT_VARIABLE GITNORTEK_DESCRIBE_RESULT
+    OUTPUT_VARIABLE GITNORTEK_DESCRIBE
     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-  if(GITTYUP_DESCRIBE_RESULT EQUAL 0)
+  if(GITNORTEK_DESCRIBE_RESULT EQUAL 0)
     string(
       REGEX MATCH
             "^v([0-9]+)\\.([0-9]+)\\.([0-9]+)(-(pre\\.?[0-9]+))?-([0-9]+)-g([0-9A-Fa-f]+)(-dirty)?$"
-            GITTYUP_DESCRIBE_MATCH "${GITTYUP_DESCRIBE}")
-    if(GITTYUP_DESCRIBE_MATCH)
-      set(GITTYUP_VERSION_MAJOR ${CMAKE_MATCH_1})
-      set(GITTYUP_VERSION_MINOR ${CMAKE_MATCH_2})
-      set(GITTYUP_VERSION_PATCH ${CMAKE_MATCH_3})
-      set(GITTYUP_TAG_SUFFIX "${CMAKE_MATCH_5}")
-      set(GITTYUP_DESCRIBE_DISTANCE "${CMAKE_MATCH_6}")
-      set(GITTYUP_DESCRIBE_SHA "${CMAKE_MATCH_7}")
-      set(GITTYUP_DESCRIBE_DIRTY "${CMAKE_MATCH_8}")
-      set(GITTYUP_VERSION
-          "${GITTYUP_VERSION_MAJOR}.${GITTYUP_VERSION_MINOR}.${GITTYUP_VERSION_PATCH}"
+            GITNORTEK_DESCRIBE_MATCH "${GITNORTEK_DESCRIBE}")
+    if(GITNORTEK_DESCRIBE_MATCH)
+      set(GITNORTEK_VERSION_MAJOR ${CMAKE_MATCH_1})
+      set(GITNORTEK_VERSION_MINOR ${CMAKE_MATCH_2})
+      set(GITNORTEK_VERSION_PATCH ${CMAKE_MATCH_3})
+      set(GITNORTEK_TAG_SUFFIX "${CMAKE_MATCH_5}")
+      set(GITNORTEK_DESCRIBE_DISTANCE "${CMAKE_MATCH_6}")
+      set(GITNORTEK_DESCRIBE_SHA "${CMAKE_MATCH_7}")
+      set(GITNORTEK_DESCRIBE_DIRTY "${CMAKE_MATCH_8}")
+      set(GITNORTEK_VERSION
+          "${GITNORTEK_VERSION_MAJOR}.${GITNORTEK_VERSION_MINOR}.${GITNORTEK_VERSION_PATCH}"
       )
 
-      if(GITTYUP_TAG_SUFFIX)
-        string(APPEND GITTYUP_VERSION "-${GITTYUP_TAG_SUFFIX}")
+      if(GITNORTEK_TAG_SUFFIX)
+        string(APPEND GITNORTEK_VERSION "-${GITNORTEK_TAG_SUFFIX}")
       endif()
 
-      if(NOT GITTYUP_DESCRIBE_DISTANCE STREQUAL "0")
-        set(GITTYUP_COMMIT_SHA "${GITTYUP_DESCRIBE_SHA}")
-        string(APPEND GITTYUP_VERSION "-${GITTYUP_COMMIT_SHA}")
+      if(NOT GITNORTEK_DESCRIBE_DISTANCE STREQUAL "0")
+        set(GITNORTEK_COMMIT_SHA "${GITNORTEK_DESCRIBE_SHA}")
+        string(APPEND GITNORTEK_VERSION "-${GITNORTEK_COMMIT_SHA}")
       endif()
 
-      if(GITTYUP_DESCRIBE_DIRTY)
-        string(APPEND GITTYUP_VERSION "-dirty")
+      if(GITNORTEK_DESCRIBE_DIRTY)
+        string(APPEND GITNORTEK_VERSION "-dirty")
       endif()
 
-      set(GITTYUP_VERSION_SOURCE "git describe: ${GITTYUP_DESCRIBE}")
+      set(GITNORTEK_VERSION_SOURCE "git describe: ${GITNORTEK_DESCRIBE}")
     endif()
   endif()
 endif()
 
 string(REGEX MATCH
              "^([0-9]+)\\.([0-9]+)\\.([0-9]+)(-(pre\\.?[0-9]+))?(-([0-9A-Fa-f]+))?(-dirty)?$"
-             GITTYUP_VERSION_MATCH "${GITTYUP_VERSION}")
+             GITNORTEK_VERSION_MATCH "${GITNORTEK_VERSION}")
 
-if(NOT GITTYUP_VERSION_MATCH)
+if(NOT GITNORTEK_VERSION_MATCH)
   message(FATAL_ERROR "GitNortek version must match MAJOR.MINOR.PATCH[-preN][-SHA][-dirty]")
 endif()
 
-set(GITTYUP_VERSION_MAJOR ${CMAKE_MATCH_1})
-set(GITTYUP_VERSION_MINOR ${CMAKE_MATCH_2})
-set(GITTYUP_VERSION_PATCH ${CMAKE_MATCH_3})
-string(REPLACE "-" "_" GITTYUP_RPM_VERSION "${GITTYUP_VERSION}")
-string(TIMESTAMP GITTYUP_RPM_PACKAGE_BUILD_TIME "%Y%m%d.%H%M" UTC)
-if(NOT GITTYUP_VERSION_SOURCE)
-  set(GITTYUP_VERSION_SOURCE "default")
+set(GITNORTEK_VERSION_MAJOR ${CMAKE_MATCH_1})
+set(GITNORTEK_VERSION_MINOR ${CMAKE_MATCH_2})
+set(GITNORTEK_VERSION_PATCH ${CMAKE_MATCH_3})
+string(REPLACE "-" "_" GITNORTEK_RPM_VERSION "${GITNORTEK_VERSION}")
+string(TIMESTAMP GITNORTEK_RPM_PACKAGE_BUILD_TIME "%Y%m%d.%H%M" UTC)
+if(NOT GITNORTEK_VERSION_SOURCE)
+  set(GITNORTEK_VERSION_SOURCE "default")
 endif()
-message(STATUS "GitNortek version: ${GITTYUP_VERSION} (${GITTYUP_VERSION_SOURCE})")
-message(STATUS "GitNortek RPM version: ${GITTYUP_RPM_VERSION}")
-message(STATUS "GitNortek RPM package build time: ${GITTYUP_RPM_PACKAGE_BUILD_TIME} UTC")
+message(STATUS "GitNortek version: ${GITNORTEK_VERSION} (${GITNORTEK_VERSION_SOURCE})")
+message(STATUS "GitNortek RPM version: ${GITNORTEK_RPM_VERSION}")
+message(STATUS "GitNortek RPM package build time: ${GITNORTEK_RPM_PACKAGE_BUILD_TIME} UTC")
 
 string(TIMESTAMP CURR_YEAR "%Y")
 add_compile_definitions(CURR_YEAR=${CURR_YEAR})
@@ -93,7 +101,7 @@ configure_file(${CMAKE_SOURCE_DIR}/LICENSE.md.in ${CMAKE_SOURCE_DIR}/LICENSE.md
 
 # Write version to file so it can be used also from external, for example in the
 # github manifest
-file(WRITE "${CMAKE_BINARY_DIR}/Version.txt" ${GITTYUP_VERSION})
+file(WRITE "${CMAKE_BINARY_DIR}/Version.txt" ${GITNORTEK_VERSION})
 
 set(DEV_BUILD
     ""
@@ -107,17 +115,17 @@ else()
 endif()
 
 # Generate build date.
-string(TIMESTAMP GITTYUP_BUILD_DATE)
+string(TIMESTAMP GITNORTEK_BUILD_DATE)
 
 # Lookup git revision.
 if(GIT_FOUND)
   execute_process(
     COMMAND ${GIT_EXECUTABLE} --git-dir=${CMAKE_SOURCE_DIR}/.git show -s
             --format=%h HEAD
-    OUTPUT_VARIABLE GITTYUP_BUILD_REVISION
+    OUTPUT_VARIABLE GITNORTEK_BUILD_REVISION
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 else()
-  set(GITTYUP_BUILD_REVISION "unknown")
+  set(GITNORTEK_BUILD_REVISION "unknown")
 endif()
 
 # Explicitly disable shared libraries.
@@ -125,11 +133,10 @@ set(BUILD_SHARED_LIBS OFF)
 
 option(FLATPAK "Building for flatpak" OFF)
 option(DEBUG_FLATPAK "Building but using flatpak urls for testing" OFF)
-option(ENABLE_UPDATE_OVER_GUI "Enable updating from the Gittyup gui" ON)
 option(USE_SYSTEM_OPENSSL "Use the system-wide OpenSSL installation" ON)
 option(
   USE_SYSTEM_LIBGIT2
-  "Use the system-wide libgit2 installation (Gittyup requires the current development branch)"
+  "Use the system-wide libgit2 installation (GitNortek requires the current development branch)"
   OFF)
 option(USE_SYSTEM_LIBSSH2 "Use the system-wide libssh2 installation" ON)
 option(USE_SYSTEM_GIT "Use the system-wide GIT installation" OFF)
@@ -137,7 +144,7 @@ option(USE_SYSTEM_QT "Don't copy QT files into the installation directory" ON)
 option(USE_SYSTEM_LUA "Use the system-wide Lua installation" OFF)
 option(USE_SYSTEM_HUNSPELL "Use the system-wide hunspell installation" OFF)
 option(USE_SYSTEM_CMARK "Use the system-wide cmark installation" OFF)
-option(ENABLE_TESTS "Enable Gittyup Unittests" ON)
+option(ENABLE_TESTS "Enable GitNortek unit tests" ON)
 
 # Typically system libgit2 does NOT have experimental settings enabled, hence we
 # need to disable SHA256 support
@@ -146,7 +153,7 @@ if(USE_SYSTEM_LIBGIT2)
 else()
   set(_DEFAULT_ENABLE_SHA256 ON)
 endif()
-option(ENABLE_SHA256 "Enable SHA256 support within Gittyup"
+option(ENABLE_SHA256 "Enable SHA256 support within GitNortek"
        ${_DEFAULT_ENABLE_SHA256})
 
 set(LUA_MODULES_PATH
@@ -220,10 +227,6 @@ if(FLATPAK)
   add_compile_definitions(FLATPAK)
 endif()
 
-if(ENABLE_UPDATE_OVER_GUI)
-  add_compile_definitions(ENABLE_UPDATE_OVER_GUI)
-endif()
-
 if(DEBUG_FLATPAK)
   add_compile_definitions(DEBUG_FLATPAK)
 endif()
@@ -255,12 +258,12 @@ if(APPLE)
 endif()
 
 if(APPLE)
-  set(CONTENTS_DIR ${GITTYUP_EXECUTABLE_NAME}.app/Contents)
+  set(CONTENTS_DIR ${GITNORTEK_EXECUTABLE_NAME}.app/Contents)
   set(RESOURCES_DIR ${CONTENTS_DIR}/Resources)
   set(L10N_INSTALL_DIR ${RESOURCES_DIR}/l10n)
 elseif(UNIX)
-  set(L10N_INSTALL_DIR ${CMAKE_INSTALL_LOCALEDIR}/${GITTYUP_NAME})
-  set(RESOURCES_DIR ${CMAKE_INSTALL_DATADIR}/${GITTYUP_NAME})
+  set(L10N_INSTALL_DIR ${CMAKE_INSTALL_LOCALEDIR}/${GITNORTEK_NAME})
+  set(RESOURCES_DIR ${CMAKE_INSTALL_DATADIR}/${GITNORTEK_NAME})
 else()
   set(L10N_INSTALL_DIR Resources/l10n)
   set(RESOURCES_DIR Resources)

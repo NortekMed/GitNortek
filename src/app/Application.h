@@ -42,11 +42,11 @@ private:
 };
 
 #ifdef Q_OS_LINUX
-class DBusGittyup : public QObject {
+class DBusGitNortek : public QObject {
   Q_OBJECT
 
 public:
-  DBusGittyup(QObject *parent = nullptr);
+  DBusGitNortek(QObject *parent = nullptr);
 
 public slots:
   Q_SCRIPTABLE void openRepository(const QString &repo);

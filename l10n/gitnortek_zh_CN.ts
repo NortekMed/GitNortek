@@ -1,40 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="ja_JP">
+<TS version="2.1" language="zh_CN" sourcelanguage="en_US">
 <context>
     <name>AboutDialog</name>
     <message>
         <location filename="../src/dialogs/AboutDialog.cpp" line="64"/>
         <source>About %1</source>
-        <translation>%1 について</translation>
+        <translation>关于 %1</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AboutDialog.cpp" line="73"/>
         <source>Understand your history!</source>
-        <translation>Git の履歴を見やすく管理</translation>
+        <translation>了解您的提交历史！</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AboutDialog.cpp" line="94"/>
         <source>Changelog</source>
-        <translation>変更履歴</translation>
+        <translation>变更日志</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AboutDialog.cpp" line="95"/>
         <source>Acknowledgments</source>
-        <translation>謝辞</translation>
+        <translation>致谢</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AboutDialog.cpp" line="97"/>
         <source>Privacy</source>
-        <translation>プライバシー</translation>
+        <translation>隐私</translation>
     </message>
     <message>
         <source>Usage reporting has been disabled. Restart the application for changes to take effect.</source>
-        <translation type="vanished">使用状況の調査を無効にしました。アプリケーションを再起動してください。</translation>
+        <translation type="vanished">使用情况报告已被禁用。请重启应用程序以使更改生效。</translation>
     </message>
     <message>
         <source>Usage Reporting Disabled</source>
-        <translation type="vanished">使用状況の調査の無効化</translation>
+        <translation type="vanished">使用情况报告已禁用</translation>
     </message>
 </context>
 <context>
@@ -42,27 +42,27 @@
     <message>
         <location filename="../src/host/Account.cpp" line="128"/>
         <source>Connection failed</source>
-        <translation type="unfinished">接続失敗</translation>
+        <translation>连接失败</translation>
     </message>
     <message>
         <location filename="../src/host/Account.cpp" line="187"/>
         <source>&lt;b&gt;Note:&lt;/b&gt; Basic authentication is not supported if you have two-factor authentication enabled. Use a &lt;a href=&apos;https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/&apos;&gt;personal access token&lt;/a&gt; in the password field instead.</source>
-        <translation>&lt;b&gt;注:&lt;/b&gt; 2 段階認証が有効な場合、Basic 認証は使用できません。パスワードのフィールドには代わりに&lt;a href=&apos;https://help.github.com/ja/articles/creating-a-personal-access-token-for-the-command-line/&apos;&gt;個人アクセストークン&lt;/a&gt;を指定してください。</translation>
+        <translation>&lt;b&gt;注意：&lt;/b&gt; 如果启用了双重身份验证，则不支持基本身份验证。在密码字段中使用&lt;a href=&apos;https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/&apos;&gt;个人访问令牌&lt;/a&gt;代替。</translation>
     </message>
     <message>
         <location filename="../src/host/Account.cpp" line="195"/>
         <source>&lt;b&gt;Note:&lt;/b&gt; Only Basic authentication is currently supported </source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Note:&lt;/b&gt; 目前仅支持基本认证 </translation>
     </message>
     <message>
         <location filename="../src/host/Account.cpp" line="199"/>
         <source>&lt;b&gt;Note:&lt;/b&gt; Basic authentication is not supported. Use a &lt;a href=&apos;https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html&apos;&gt;personal access token&lt;/a&gt; in the password field instead.</source>
-        <translation>&lt;b&gt;注:&lt;/b&gt; Basic 認証は使用できません。パスワードのフィールドには代わりに&lt;a href=&apos;https://gitlab-docs.creationline.com/ee/user/profile/personal_access_tokens.html&apos;&gt;個人アクセストークン&lt;/a&gt;を指定してください。</translation>
+        <translation>&lt;b&gt;注意：&lt;/b&gt; 不支持基本身份验证。在密码字段中使用&lt;a href=&apos;https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html&apos;&gt;个人访问令牌&lt;/a&gt;代替。</translation>
     </message>
     <message>
         <location filename="../src/host/Account.cpp" line="289"/>
         <source>Authentication failed</source>
-        <translation>認証失敗</translation>
+        <translation>验证失败</translation>
     </message>
 </context>
 <context>
@@ -70,62 +70,62 @@
     <message>
         <location filename="../src/dialogs/AccountDialog.cpp" line="22"/>
         <source>Add Remote Account</source>
-        <translation>リモートアカウントを追加</translation>
+        <translation>添加远程帐户</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AccountDialog.cpp" line="64"/>
         <source>Host:</source>
-        <translation>ホスト:</translation>
+        <translation>主机：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AccountDialog.cpp" line="65"/>
         <source>Username:</source>
-        <translation>ユーザー名:</translation>
+        <translation>用户名：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AccountDialog.cpp" line="66"/>
         <source>Password:</source>
-        <translation>パスワード:</translation>
+        <translation>密码：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AccountDialog.cpp" line="68"/>
         <source>Advanced:</source>
-        <translation>詳細設定:</translation>
+        <translation>高级：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AccountDialog.cpp" line="83"/>
         <source>URL:</source>
-        <translation>URL:</translation>
+        <translation>地址URL：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AccountDialog.cpp" line="114"/>
         <source>Replace?</source>
-        <translation>置き換えますか？</translation>
+        <translation>确定替换吗？</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AccountDialog.cpp" line="115"/>
         <source>An account of this type already exists.</source>
-        <translation>この種類のアカウントは既に存在します。</translation>
+        <translation>此类型的帐户已存在。</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AccountDialog.cpp" line="117"/>
         <source>Would you like to replace the previous account?</source>
-        <translation>以前のアカウントと置き換えますか？</translation>
+        <translation>您要替换以前的帐户吗？</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AccountDialog.cpp" line="118"/>
         <source>Replace</source>
-        <translation>置換</translation>
+        <translation>替换</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AccountDialog.cpp" line="119"/>
         <source>Cancel</source>
-        <translation>キャンセル</translation>
+        <translation>取消</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AccountDialog.cpp" line="135"/>
         <source>Connection Failed</source>
-        <translation>接続失敗</translation>
+        <translation>连接失败</translation>
     </message>
 </context>
 <context>
@@ -134,17 +134,17 @@
         <location filename="../src/dialogs/AddRemoteDialog.cpp" line="18"/>
         <location filename="../src/dialogs/AddRemoteDialog.cpp" line="31"/>
         <source>Add Remote</source>
-        <translation>リモートを追加</translation>
+        <translation>添加远程仓库</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AddRemoteDialog.cpp" line="34"/>
         <source>Name:</source>
-        <translation>名前:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AddRemoteDialog.cpp" line="35"/>
         <source>URL:</source>
-        <translation>URL:</translation>
+        <translation>地址URL：</translation>
     </message>
 </context>
 <context>
@@ -163,12 +163,12 @@
     <message>
         <location filename="../src/dialogs/AddSubmoduleDialog.cpp" line="53"/>
         <source>URL:</source>
-        <translation type="unfinished">URL:</translation>
+        <translation type="unfinished">地址URL：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AddSubmoduleDialog.cpp" line="54"/>
         <source>Path:</source>
-        <translation type="unfinished">パス:</translation>
+        <translation type="unfinished">路径：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AddSubmoduleDialog.cpp" line="55"/>
@@ -181,7 +181,7 @@
     <message>
         <location filename="../src/ui/SearchField.cpp" line="43"/>
         <source>Advanced Search</source>
-        <translation>高度な検索</translation>
+        <translation>高级搜索</translation>
     </message>
 </context>
 <context>
@@ -189,162 +189,162 @@
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="84"/>
         <source>Author:</source>
-        <translation>作者:</translation>
+        <translation>作者：</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="84"/>
         <source>Author name</source>
-        <translation>作者の名前</translation>
+        <translation>作者姓名</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="85"/>
         <source>Email:</source>
-        <translation>E メール:</translation>
+        <translation>电子邮件：</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="85"/>
         <source>Author email</source>
-        <translation>作者の E メール</translation>
+        <translation>作者电子邮件</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="86"/>
         <source>Message:</source>
-        <translation>メッセージ:</translation>
+        <translation>信息：</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="86"/>
         <source>Commit message</source>
-        <translation>コミットに添えられた説明</translation>
+        <translation>提交讯息</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="90"/>
         <source>Date:</source>
-        <translation>日付:</translation>
+        <translation>日期：</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="90"/>
         <source>Specific commit date</source>
-        <translation>特定のコミット日からのみ検索</translation>
+        <translation>具体提交日期</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="91"/>
         <source>After:</source>
-        <translation>日付 - 開始:</translation>
+        <translation>之后：</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="91"/>
         <source>Commits after date</source>
-        <translation>特定のコミット日以降からのみ検索</translation>
+        <translation>在此日期之后提交</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="92"/>
         <source>Before:</source>
-        <translation>日付 - 終了:</translation>
+        <translation>之前：</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="92"/>
         <source>Commits before date</source>
-        <translation>特定のコミット日以前からのみ検索</translation>
+        <translation>在此日期之前提交</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="96"/>
         <source>File:</source>
-        <translation>ファイル:</translation>
+        <translation>文件：</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="96"/>
         <source>File name</source>
-        <translation>ファイル名</translation>
+        <translation>文件名称</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="97"/>
         <source>Path:</source>
-        <translation>パス:</translation>
+        <translation>路径：</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="97"/>
         <source>File path</source>
-        <translation>ファイルの場所</translation>
+        <translation>文件路径</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="98"/>
         <source>Scope:</source>
-        <translation>範囲:</translation>
+        <translation>范围：</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="98"/>
         <source>Hunk header text</source>
-        <translation>差分場所を示すヘッダーのテキスト</translation>
+        <translation>补丁片段的头信息</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="103"/>
         <source>Context:</source>
-        <translation>差分周辺:</translation>
+        <translation>内容：</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="103"/>
         <source>Diff context (white)</source>
-        <translation>変更した箇所の周辺 (白)</translation>
+        <translation>差异内容（白色）</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="104"/>
         <source>Addition:</source>
-        <translation>追加部分:</translation>
+        <translation>追加：</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="104"/>
         <source>Diff addition (green)</source>
-        <translation>追加した箇所の差分 (緑)</translation>
+        <translation>差异追加（绿色）</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="105"/>
         <source>Deletion:</source>
-        <translation>削除部分:</translation>
+        <translation>删除：</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="105"/>
         <source>Diff deletion (red)</source>
-        <translation>削除した箇所の差分 (赤)</translation>
+        <translation>差异删除（红色）</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="110"/>
         <source>Comment:</source>
-        <translation>コメント:</translation>
+        <translation>注释：</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="110"/>
         <source>Source code comment</source>
-        <translation>ソースコードのコメント</translation>
+        <translation>源代码注释</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="111"/>
         <source>String:</source>
-        <translation>文字列:</translation>
+        <translation>字符串：</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="111"/>
         <source>Source code string literal</source>
-        <translation>ソースコードの文字列リテラル</translation>
+        <translation>源代码字符串文字</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="112"/>
         <source>Identifier:</source>
-        <translation>識別子:</translation>
+        <translation>识别：</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="112"/>
         <source>Source code identifier</source>
-        <translation>ソースコードの識別子</translation>
+        <translation>源代码标识符</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="114"/>
         <source>Search</source>
-        <translation>検索</translation>
+        <translation>搜索</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="122"/>
         <source>Return</source>
-        <translation>Return</translation>
+        <translation>返回</translation>
     </message>
 </context>
 <context>
@@ -352,38 +352,38 @@
     <message>
         <location filename="../src/dialogs/AmendDialog.cpp" line="168"/>
         <source>Author</source>
-        <translation type="unfinished"></translation>
+        <translation>作者</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AmendDialog.cpp" line="171"/>
         <source>Committer</source>
-        <translation type="unfinished"></translation>
+        <translation>提交者</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AmendDialog.cpp" line="174"/>
         <source>Commit Message:</source>
-        <translation type="unfinished"></translation>
+        <translation>提交说明：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AmendDialog.cpp" line="181"/>
         <source>Amend</source>
-        <translation type="unfinished">修正</translation>
+        <translation>修改</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AmendDialog.cpp" line="182"/>
         <source>Cancel</source>
-        <translation type="unfinished">キャンセル</translation>
+        <translation>取消</translation>
     </message>
 </context>
 <context>
     <name>Application</name>
     <message>
         <source>SSL Errors</source>
-        <translation type="vanished">SSL エラー</translation>
+        <translation type="vanished">SSL错误</translation>
     </message>
     <message>
         <source>Failed to set up SSL session. Do you want to ignore these errors?</source>
-        <translation type="vanished">SSL セッションのセットアップに失敗しました。これらのエラーを無視しますか？</translation>
+        <translation type="vanished">无法设置SSL会话。您要忽略这些错误吗？</translation>
     </message>
 </context>
 <context>
@@ -391,31 +391,31 @@
     <message>
         <location filename="../src/ui/DetailView.cpp" line="188"/>
         <source>Author/Committer: </source>
-        <translation type="unfinished"></translation>
+        <translation>作者/提交者：</translation>
     </message>
     <message>
         <location filename="../src/ui/DetailView.cpp" line="192"/>
         <source>Author: </source>
-        <translation type="unfinished"></translation>
+        <translation>作者：</translation>
     </message>
     <message>
         <location filename="../src/ui/DetailView.cpp" line="194"/>
         <source>Committer: </source>
-        <translation type="unfinished"></translation>
+        <translation>提交者：</translation>
     </message>
 </context>
 <context>
     <name>Beanstalk</name>
     <message>
         <source>Connection failed</source>
-        <translation type="vanished">接続失敗</translation>
+        <translation type="vanished">连接失败</translation>
     </message>
 </context>
 <context>
     <name>Bitbucket</name>
     <message>
         <source>Connection failed</source>
-        <translation type="vanished">接続失敗</translation>
+        <translation type="vanished">连接失败</translation>
     </message>
 </context>
 <context>
@@ -423,27 +423,27 @@
     <message>
         <location filename="../src/ui/BlameEditor.cpp" line="104"/>
         <source>Untitled</source>
-        <translation>無題</translation>
+        <translation>无标题</translation>
     </message>
     <message>
         <location filename="../src/ui/BlameEditor.cpp" line="118"/>
         <source>Not Tracked</source>
-        <translation>未追跡</translation>
+        <translation>未追踪</translation>
     </message>
     <message>
         <location filename="../src/ui/BlameEditor.cpp" line="136"/>
         <source>HEAD</source>
-        <translation>リビジョン情報なし</translation>
+        <translation>头</translation>
     </message>
     <message>
         <location filename="../src/ui/BlameEditor.cpp" line="140"/>
         <source>Working Copy</source>
-        <translation>作業コピー</translation>
+        <translation>工作副本</translation>
     </message>
     <message>
         <location filename="../src/ui/BlameEditor.cpp" line="197"/>
         <source>Save File</source>
-        <translation>ファイルを保存</translation>
+        <translation>保存文件</translation>
     </message>
 </context>
 <context>
@@ -451,12 +451,12 @@
     <message>
         <location filename="../src/ui/BlameMargin.cpp" line="385"/>
         <source>Not Committed</source>
-        <translation>未コミット</translation>
+        <translation>未提交</translation>
     </message>
     <message>
         <location filename="../src/ui/BlameMargin.cpp" line="388"/>
         <source>Invalid Signature</source>
-        <translation>無効な署名</translation>
+        <translation>签名无效</translation>
     </message>
 </context>
 <context>
@@ -464,17 +464,17 @@
     <message>
         <location filename="../src/dialogs/BranchTableModel.cpp" line="76"/>
         <source>Name</source>
-        <translation>名前</translation>
+        <translation>名称</translation>
     </message>
     <message>
         <location filename="../src/dialogs/BranchTableModel.cpp" line="78"/>
         <source>Upstream</source>
-        <translation>上流</translation>
+        <translation>上游</translation>
     </message>
     <message>
         <location filename="../src/dialogs/BranchTableModel.cpp" line="80"/>
         <source>Rebase</source>
-        <translation>リベース</translation>
+        <translation>变基（Rebase）</translation>
     </message>
 </context>
 <context>
@@ -482,17 +482,17 @@
     <message>
         <location filename="../src/dialogs/CheckoutDialog.cpp" line="28"/>
         <source>Detach HEAD</source>
-        <translation>このリビジョンで作業し続ける</translation>
+        <translation>游离的头</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CheckoutDialog.cpp" line="37"/>
         <source>References:</source>
-        <translation>参照先:</translation>
+        <translation>参考文献：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CheckoutDialog.cpp" line="42"/>
         <source>Checkout</source>
-        <translation>チェックアウト</translation>
+        <translation>检出</translation>
     </message>
 </context>
 <context>
@@ -500,7 +500,7 @@
     <message>
         <location filename="../src/ui/SearchField.cpp" line="68"/>
         <source>Clear</source>
-        <translation>消去</translation>
+        <translation>清除</translation>
     </message>
 </context>
 <context>
@@ -508,32 +508,32 @@
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="323"/>
         <source>Initialize Repository</source>
-        <translation>リポジトリを作成</translation>
+        <translation>初始化仓库</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="323"/>
         <source>Clone Repository</source>
-        <translation>リポジトリをクローン</translation>
+        <translation>克隆仓库</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="359"/>
         <source>Initialized empty repository into &apos;%1&apos;</source>
-        <translation>空のリポジトリを &apos;%1&apos; に作成しました</translation>
+        <translation>将空仓库初始化为&apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="360"/>
         <source>Cloned repository from &apos;%1&apos; into &apos;%2&apos;</source>
-        <translation>リポジトリ &apos;%1&apos; を &apos;%2&apos; にクローンしました</translation>
+        <translation>将仓库从&apos;%1&apos;克隆到&apos;%2&apos;</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="365"/>
         <source>Initialize</source>
-        <translation>作成</translation>
+        <translation>初始化</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="365"/>
         <source>Clone</source>
-        <translation>クローン</translation>
+        <translation>克隆</translation>
     </message>
 </context>
 <context>
@@ -541,33 +541,33 @@
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="240"/>
         <source>Clone Progress</source>
-        <translation>クローンの進行状況</translation>
+        <translation>克隆进度</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="241"/>
         <source>The new repository will open after the clone finishes.</source>
-        <translation>クローンの完了後に、新しいリポジトリが開かれます。</translation>
+        <translation>克隆完成后，将打开新的仓库。</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="260"/>
         <source>Clone</source>
-        <translation>クローン</translation>
+        <translation>克隆</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="269"/>
         <location filename="../src/dialogs/CloneDialog.cpp" line="271"/>
         <source>clone</source>
-        <translation>クローン</translation>
+        <translation>克隆</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="269"/>
         <source>Clone canceled.</source>
-        <translation>クローンをキャンセルしました。</translation>
+        <translation>克隆已取消。</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="305"/>
         <source>Failed to %1 into &apos;%2&apos; - %3</source>
-        <translation>&apos;%2&apos; への%1に失敗しました - %3</translation>
+        <translation>%1克隆到&apos;%2&apos;失败 - %3</translation>
     </message>
 </context>
 <context>
@@ -575,27 +575,27 @@
     <message>
         <location filename="../src/ui/DetailView.cpp" line="244"/>
         <source>Copy</source>
-        <translation>コピー</translation>
+        <translation>复制</translation>
     </message>
     <message>
         <location filename="../src/ui/DetailView.cpp" line="402"/>
         <source>Range:</source>
-        <translation>範囲:</translation>
+        <translation>范围：</translation>
     </message>
     <message>
         <location filename="../src/ui/DetailView.cpp" line="423"/>
         <source>Id:</source>
-        <translation>ID:</translation>
+        <translation>ID：</translation>
     </message>
     <message>
         <location filename="../src/ui/DetailView.cpp" line="438"/>
         <source>initial commit</source>
-        <translation>初回コミット</translation>
+        <translation>初次提交</translation>
     </message>
     <message>
         <location filename="../src/ui/DetailView.cpp" line="440"/>
         <source>Parents:</source>
-        <translation type="unfinished"></translation>
+        <translation>父级：</translation>
     </message>
 </context>
 <context>
@@ -603,49 +603,49 @@
     <message>
         <location filename="../src/dialogs/CommitDialog.cpp" line="29"/>
         <source>Merge commit message</source>
-        <translation>マージコミットの説明</translation>
+        <translation>合并提交消息</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CommitDialog.cpp" line="33"/>
         <source>Stash commit message</source>
-        <translation>スタッシュ収納コミットの説明</translation>
+        <translation>隐藏提交消息</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CommitDialog.cpp" line="37"/>
         <source>Revert commit message</source>
-        <translation>取り消しコミットの説明</translation>
+        <translation>还原提交消息</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CommitDialog.cpp" line="41"/>
         <source>Cherry-pick commit message</source>
-        <translation>取り込みコミットの説明</translation>
+        <translation>拣选操作提交消息</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CommitDialog.cpp" line="71"/>
         <source>Merge</source>
-        <translation>マージ</translation>
+        <translation>合并</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CommitDialog.cpp" line="72"/>
         <location filename="../src/dialogs/CommitDialog.cpp" line="82"/>
         <location filename="../src/dialogs/CommitDialog.cpp" line="87"/>
         <source>Abort</source>
-        <translation>中断</translation>
+        <translation>中止</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CommitDialog.cpp" line="76"/>
         <source>Stash</source>
-        <translation>スタッシュへ預ける</translation>
+        <translation>进度保存</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CommitDialog.cpp" line="81"/>
         <source>Revert</source>
-        <translation>取り消す</translation>
+        <translation>还原</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CommitDialog.cpp" line="86"/>
         <source>Cherry-pick</source>
-        <translation>取り込む</translation>
+        <translation>拣选操作</translation>
     </message>
 </context>
 <context>
@@ -653,181 +653,181 @@
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="260"/>
         <source>T</source>
-        <translation type="unfinished"></translation>
+        <translation>提示</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="284"/>
         <source>&lt;b&gt;Commit Message:&lt;/b&gt;</source>
-        <translation>&lt;b&gt;コミットの説明:&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;提交消息：&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="395"/>
         <location filename="../src/ui/CommitEditor.cpp" line="421"/>
         <source>Spell Check Language</source>
-        <translation>スペルチェックの言語</translation>
+        <translation>拼写检查语言</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="396"/>
         <source>The dictionary &apos;%1&apos; is invalid</source>
-        <translation>辞書 &apos;%1&apos; が無効です</translation>
+        <translation>字典 &apos;%1&apos; 无效</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="397"/>
         <source>Spell checking is disabled.</source>
-        <translation>スペルチェックは無効化されました。</translation>
+        <translation>拼写检查被禁用。</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="398"/>
         <source>The choosen dictionary &apos;%1.dic&apos; is not a valid hunspell dictionary.</source>
-        <translation>指定された辞書 &apos;%1.dic&apos; は有効な hunspell 辞書ではありません。</translation>
+        <translation>选定的字典 &apos;%1.dic&apos; 不是有效的 hunspell 字典。</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="405"/>
         <location filename="../src/ui/CommitEditor.cpp" line="463"/>
         <source>Invalid dictionary &apos;%1.dic&apos;</source>
-        <translation>無効な辞書 &apos;%1.dic&apos;</translation>
+        <translation>无效的字典 &apos;%1.dic&apos;</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="427"/>
         <source>Edit User Dictionary</source>
-        <translation>ユーザー辞書を編集</translation>
+        <translation>编辑用户字典</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="484"/>
         <source>Stage All</source>
-        <translation>全てステージに上げる</translation>
+        <translation>全部暂存</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="488"/>
         <source>Unstage All</source>
-        <translation>全てステージから降ろす</translation>
+        <translation>全部取消暂存</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="491"/>
         <location filename="../src/ui/CommitEditor.cpp" line="818"/>
         <source>Commit</source>
-        <translation>コミット</translation>
+        <translation>提交</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="495"/>
         <source>Abort rebasing</source>
-        <translation type="unfinished"></translation>
+        <translation>中止变基操作（rebasing）</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="500"/>
         <source>Continue rebasing</source>
-        <translation type="unfinished"></translation>
+        <translation>继续变基操作（rebasing）</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="505"/>
         <source>Abort Merge</source>
-        <translation type="unfinished">マージを中断</translation>
+        <translation>中止合并（Merge）</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="583"/>
         <source>%1</source>
-        <translation type="unfinished">%1</translation>
+        <translation>%1</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="585"/>
         <source>%1 and %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 和 %2</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="587"/>
         <source>%1, %2, and %3</source>
-        <translation type="unfinished"></translation>
+        <translation>%1, %2, 和 %3</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="694"/>
         <source>Merge</source>
-        <translation type="unfinished">マージ</translation>
+        <translation>合并</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="704"/>
         <source>Revert</source>
-        <translation type="unfinished"></translation>
+        <translation>还原</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="710"/>
         <source>Cherry-pick</source>
-        <translation type="unfinished"></translation>
+        <translation>拣选操作</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="716"/>
         <source>Rebase</source>
-        <translation type="unfinished">リベース</translation>
+        <translation>变基（Rebase）</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="724"/>
         <source>Abort %1</source>
-        <translation type="unfinished">%1を中断</translation>
+        <translation>中止%1</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="813"/>
         <source>Commit Rebase</source>
-        <translation type="unfinished"></translation>
+        <translation>提交变基（Rebase）</translation>
     </message>
     <message>
         <source>Update %1</source>
-        <translation type="vanished">%1 の更新</translation>
+        <translation type="vanished">更新%1</translation>
     </message>
     <message>
         <source>Update %1 and %2</source>
-        <translation type="vanished">%1 と %2 の更新</translation>
+        <translation type="vanished">更新%1和%2</translation>
     </message>
     <message>
         <source>Update %1, %2, and %3</source>
-        <translation type="vanished">%1, %2, %3 の更新</translation>
+        <translation type="vanished">更新%1，%2和%3</translation>
     </message>
     <message>
         <source>Update %1, %2, and %3 more files...</source>
-        <translation type="vanished">%1, %2, 他 %3 個のファイルの更新...</translation>
+        <translation type="vanished">更新%1，%2和%3多个文件...</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="777"/>
         <source>Nothing staged</source>
-        <translation>ステージ上に項目なし</translation>
+        <translation>没有暂存</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="779"/>
         <source>%1 of %2 file staged</source>
-        <translation>%1 / %2 個のファイルをステージに上げました</translation>
+        <translation>已暂存%2个文件中的%1个</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="780"/>
         <source>%1 of %2 files staged</source>
-        <translation>%1 / %2 個のファイルをステージに上げました</translation>
+        <translation>已暂存%2个文件中的%1个</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="784"/>
         <source>%1 file partially staged</source>
-        <translation>%1 個のファイル一部分をステージに上げました</translation>
+        <translation>%1文件已部分暂存</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="785"/>
         <source>%1 files partially staged</source>
-        <translation>%1 個のファイル一部分をステージに上げました</translation>
+        <translation>部分暂存了%1个文件</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="790"/>
         <source>%1 unresolved conflict</source>
-        <translation>%1 件の衝突が未解決です</translation>
+        <translation>%1个未解决的冲突</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="791"/>
         <source>%1 unresolved conflicts</source>
-        <translation>%1 件の衝突が未解決です</translation>
+        <translation>%1个未解决的冲突</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="794"/>
         <source>all conflicts resolved</source>
-        <translation>全ての衝突を解決しました</translation>
+        <translation>所有冲突已解决</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="807"/>
         <source>Commit Merge</source>
-        <translation>マージをコミット</translation>
+        <translation>提交合并</translation>
     </message>
 </context>
 <context>
@@ -835,50 +835,50 @@
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2322"/>
         <source>Remove Untracked Files</source>
-        <translation>未追跡のファイルを削除</translation>
+        <translation>删除未跟踪的文件</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2340"/>
         <source>Apply</source>
-        <translation>適用</translation>
+        <translation>应用</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2343"/>
         <source>Pop</source>
-        <translation>引き出す</translation>
+        <translation>填充（Pop）</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2346"/>
         <source>Drop</source>
-        <translation>削除</translation>
+        <translation>丢弃（Drop）</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2360"/>
         <source>Unstar</source>
-        <translation>スターを外す</translation>
+        <translation>取消星标</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2360"/>
         <source>Star</source>
-        <translation>スターを付ける</translation>
+        <translation>星标</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2375"/>
         <source>Add Tag...</source>
-        <translation>タグを追加...</translation>
+        <translation>添加标签...</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2378"/>
         <source>New Branch...</source>
-        <translation>新しいブランチ...</translation>
+        <translation>新建分支...</translation>
     </message>
     <message>
         <source>Delete Tag %1</source>
-        <translation type="vanished">タグ %1 を削除</translation>
+        <translation type="vanished">删除标签%1</translation>
     </message>
     <message>
         <source>Delete Branch %1</source>
-        <translation type="vanished">ブランチ %1 を削除</translation>
+        <translation type="vanished">删除分支%1</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="1729"/>
@@ -898,7 +898,7 @@
     <message>
         <location filename="../src/ui/CommitList.cpp" line="1733"/>
         <source>Author</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">作者</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="1734"/>
@@ -923,83 +923,83 @@
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2407"/>
         <source>Rename Branch</source>
-        <translation type="unfinished"></translation>
+        <translation>重命名分支</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2411"/>
         <source>Delete Branch</source>
-        <translation type="unfinished"></translation>
+        <translation>删除分支</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2416"/>
         <source>Delete Tag</source>
-        <translation type="unfinished">タグを削除</translation>
+        <translation>删除标签</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2420"/>
         <source>Merge...</source>
-        <translation>マージ...</translation>
+        <translation>合并...</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2435"/>
         <source>Rebase...</source>
-        <translation>リベース...</translation>
+        <translation>变基...</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2450"/>
         <source>Squash...</source>
-        <translation>スカッシュ...</translation>
+        <translation>聚合（Squash）...</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2467"/>
         <source>Revert</source>
-        <translation>取り消す</translation>
+        <translation>还原</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2469"/>
         <source>Cherry-pick</source>
-        <translation>取り込む</translation>
+        <translation>拣选操作</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2476"/>
         <location filename="../src/ui/CommitList.cpp" line="2509"/>
         <source>Checkout %1</source>
-        <translation>%1 をチェックアウト</translation>
+        <translation>检出%1</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2478"/>
         <source>Checkout</source>
-        <translation type="unfinished">チェックアウト</translation>
+        <translation>检出</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2499"/>
         <source>Local branch is already checked out</source>
-        <translation>ローカルブランチは既にチェックアウトされています</translation>
+        <translation>本地分支已检出</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2502"/>
         <source>This is a bare repository</source>
-        <translation>これはベアリポジトリです</translation>
+        <translation>这是一个纯仓库</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2517"/>
         <source>Reset</source>
-        <translation>リセット</translation>
+        <translation>重置</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2518"/>
         <source>Soft</source>
-        <translation>作業対象のリビジョンのみ</translation>
+        <translation>软性</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2519"/>
         <source>Mixed</source>
-        <translation>作業対象のリビジョンとステージ上の項目</translation>
+        <translation>混合</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2520"/>
         <source>Hard</source>
-        <translation>作業ツリーを含む全て</translation>
+        <translation>硬性</translation>
     </message>
 </context>
 <context>
@@ -1012,12 +1012,12 @@
     <message>
         <location filename="../src/ui/CommitList.cpp" line="495"/>
         <source>Uncommitted changes</source>
-        <translation>コミットされていない変更</translation>
+        <translation>未提交的更改</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="496"/>
         <source>Checking for uncommitted changes</source>
-        <translation>コミットされていない変更を確認しています</translation>
+        <translation>检查未提交的更改</translation>
     </message>
 </context>
 <context>
@@ -1025,12 +1025,12 @@
     <message>
         <location filename="../src/ui/CommitToolBar.cpp" line="121"/>
         <source>Show All Branches</source>
-        <translation>全てのブランチを表示</translation>
+        <translation>显示所有分支</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitToolBar.cpp" line="124"/>
         <source>Show Selected Branch</source>
-        <translation>選択したブランチのみを表示</translation>
+        <translation>显示选定的分支</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitToolBar.cpp" line="126"/>
@@ -1040,42 +1040,42 @@
     <message>
         <location filename="../src/ui/CommitToolBar.cpp" line="133"/>
         <source>Sort by Date</source>
-        <translation>日時順に並べる</translation>
+        <translation>按日期排序</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitToolBar.cpp" line="134"/>
         <source>Sort Topologically</source>
-        <translation>関連順に並べる</translation>
+        <translation>拓扑排序</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitToolBar.cpp" line="151"/>
         <source>Show Graph</source>
-        <translation>グラフを表示</translation>
+        <translation>显示图</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitToolBar.cpp" line="161"/>
         <source>Show Clean Status</source>
-        <translation>空の状態を表示</translation>
+        <translation>显示清理状态</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitToolBar.cpp" line="172"/>
         <source>Compact Mode</source>
-        <translation>コンパクトモード</translation>
+        <translation>紧凑模式</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitToolBar.cpp" line="185"/>
         <source>Show Author</source>
-        <translation type="unfinished"></translation>
+        <translation>显示作者</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitToolBar.cpp" line="195"/>
         <source>Show Date</source>
-        <translation type="unfinished"></translation>
+        <translation>显示日期</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitToolBar.cpp" line="204"/>
         <source>Show Id</source>
-        <translation type="unfinished"></translation>
+        <translation>显示Id号</translation>
     </message>
 </context>
 <context>
@@ -1083,7 +1083,7 @@
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="779"/>
         <source>Esc</source>
-        <translation>Esc</translation>
+        <translation>退出</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="803"/>
@@ -1093,32 +1093,32 @@
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="811"/>
         <source>Diff</source>
-        <translation>差分</translation>
+        <translation>比较</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="819"/>
         <source>Remotes</source>
-        <translation>リモート</translation>
+        <translation>远程</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="827"/>
         <source>Branches</source>
-        <translation>ブランチ</translation>
+        <translation>分支</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="835"/>
         <source>Submodules</source>
-        <translation>サブモジュール</translation>
+        <translation>子模块</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="842"/>
         <source>Search</source>
-        <translation>検索</translation>
+        <translation>搜索</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="849"/>
         <source>Plugins</source>
-        <translation>プラグイン</translation>
+        <translation>插件</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="856"/>
@@ -1128,7 +1128,7 @@
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="870"/>
         <source>Edit Config File...</source>
-        <translation>設定ファイルを編集...</translation>
+        <translation>编辑配置文件...</translation>
     </message>
 </context>
 <context>
@@ -1169,22 +1169,22 @@
     <message>
         <location filename="../src/dialogs/AmendDialog.cpp" line="21"/>
         <source>Datetime source</source>
-        <translation type="unfinished"></translation>
+        <translation>日期时间源</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AmendDialog.cpp" line="24"/>
         <source>Current</source>
-        <translation type="unfinished"></translation>
+        <translation>当前</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AmendDialog.cpp" line="26"/>
         <source>Manual</source>
-        <translation type="unfinished"></translation>
+        <translation>手册</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AmendDialog.cpp" line="28"/>
         <source>Original</source>
-        <translation type="unfinished"></translation>
+        <translation>原始</translation>
     </message>
 </context>
 <context>
@@ -1192,27 +1192,27 @@
     <message>
         <location filename="../src/ui/TabWidget.cpp" line="41"/>
         <source>Clone repository</source>
-        <translation>リポジトリをクローン</translation>
+        <translation>克隆仓库</translation>
     </message>
     <message>
         <location filename="../src/ui/TabWidget.cpp" line="53"/>
         <source>Open existing repository</source>
-        <translation>既存のリポジトリを開く</translation>
+        <translation>打开现有仓库</translation>
     </message>
     <message>
         <location filename="../src/ui/TabWidget.cpp" line="57"/>
         <source>Open Repository</source>
-        <translation>リポジトリを開く</translation>
+        <translation>打开仓库</translation>
     </message>
     <message>
         <location filename="../src/ui/TabWidget.cpp" line="67"/>
         <source>Initialize new repository</source>
-        <translation>新しいリポジトリを作成</translation>
+        <translation>初始化新的仓库</translation>
     </message>
     <message>
         <location filename="../src/ui/TabWidget.cpp" line="87"/>
         <source>Add %1 account</source>
-        <translation>%1 アカウントを追加</translation>
+        <translation>添加%1个帐户</translation>
     </message>
     <message>
         <location filename="../src/ui/TabWidget.cpp" line="99"/>
@@ -1221,11 +1221,11 @@
     </message>
     <message>
         <source>View getting started videos</source>
-        <translation type="vanished">解説動画を観る</translation>
+        <translation type="vanished">查看入门视频</translation>
     </message>
     <message>
         <source>Contact us for support</source>
-        <translation type="vanished">サポートに関するお問い合わせ</translation>
+        <translation type="vanished">联系我们以获得支持</translation>
     </message>
 </context>
 <context>
@@ -1233,47 +1233,47 @@
     <message>
         <location filename="../src/dialogs/DeleteBranchDialog.cpp" line="31"/>
         <source>Are you sure you want to delete local branch &apos;%1&apos;?</source>
-        <translation>ローカルブランチ &apos;%1&apos; を削除しますか？</translation>
+        <translation>您确定要删除本地分支&apos;%1&apos;吗？</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteBranchDialog.cpp" line="32"/>
         <source>Delete Branch?</source>
-        <translation>ブランチを削除しますか？</translation>
+        <translation>删除分支？</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteBranchDialog.cpp" line="38"/>
         <source>Also delete the upstream branch from its remote</source>
-        <translation>リモートの上流ブランチも削除</translation>
+        <translation>同时删除其远程上游分支</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteBranchDialog.cpp" line="42"/>
         <source>Delete</source>
-        <translation>削除</translation>
+        <translation>删除</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteBranchDialog.cpp" line="54"/>
         <source>delete &apos;%1&apos; from &apos;%2&apos;</source>
-        <translation>&apos;%2&apos; から &apos;%1&apos; を削除</translation>
+        <translation>从&apos;%2&apos;中删除&apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteBranchDialog.cpp" line="55"/>
         <source>Push</source>
-        <translation>プッシュ</translation>
+        <translation>推送</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteBranchDialog.cpp" line="73"/>
         <source>Push canceled.</source>
-        <translation>プッシュをキャンセルしました。</translation>
+        <translation>推送已取消。</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteBranchDialog.cpp" line="76"/>
         <source>Unable to push to %1 - %2</source>
-        <translation>%1 にプッシュできませんでした - %2</translation>
+        <translation>无法推送到%1-%2</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteBranchDialog.cpp" line="90"/>
         <source>The branch is not fully merged. Deleting it may cause some commits to be lost.</source>
-        <translation>ブランチが完全にマージされていません。このまま削除すると、一部のコミットが失われる可能性があります。</translation>
+        <translation>分支未完全合并。删除它可能会导致某些提交丢失。</translation>
     </message>
 </context>
 <context>
@@ -1281,52 +1281,52 @@
     <message>
         <location filename="../src/dialogs/DeleteTagDialog.cpp" line="24"/>
         <source>Are you sure you want to delete tag &apos;%1&apos;?</source>
-        <translation>タグ &apos;%1&apos; を削除しますか？</translation>
+        <translation>您确定要删除标签&apos;%1&apos;吗？</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteTagDialog.cpp" line="25"/>
         <source>Delete Tag?</source>
-        <translation>タグを削除しますか？</translation>
+        <translation>删除标签？</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteTagDialog.cpp" line="32"/>
         <source>Also delete the upstream tag from %1</source>
-        <translation>%1 の上流タグも削除</translation>
+        <translation>同时从%1删除上游标签</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteTagDialog.cpp" line="36"/>
         <source>Delete</source>
-        <translation>削除</translation>
+        <translation>删除</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteTagDialog.cpp" line="45"/>
         <source>delete &apos;%1&apos; from &apos;%2&apos;</source>
-        <translation>&apos;%2&apos; から &apos;%1&apos; を削除</translation>
+        <translation>从&apos;%2&apos;中删除&apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteTagDialog.cpp" line="46"/>
         <source>Push</source>
-        <translation>プッシュ</translation>
+        <translation>推送</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteTagDialog.cpp" line="65"/>
         <source>Push canceled.</source>
-        <translation>プッシュをキャンセルしました。</translation>
+        <translation>推送已取消。</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteTagDialog.cpp" line="68"/>
         <source>Unable to push to %1 - %2</source>
-        <translation>%1 にプッシュできませんでした - %2</translation>
+        <translation>无法推送到%1-%2</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteTagDialog.cpp" line="77"/>
         <source>Delete Tag</source>
-        <translation>タグを削除</translation>
+        <translation>删除标签</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteTagDialog.cpp" line="78"/>
         <source>delete tag</source>
-        <translation>タグを削除</translation>
+        <translation>删除标签</translation>
     </message>
 </context>
 <context>
@@ -1335,23 +1335,24 @@
         <location filename="../src/ui/DetailView.cpp" line="637"/>
         <location filename="../src/ui/DetailView.cpp" line="666"/>
         <source>Author:</source>
-        <translation type="unfinished">作者:</translation>
+        <translation>作者：</translation>
     </message>
     <message>
         <location filename="../src/ui/DetailView.cpp" line="651"/>
         <source>reset</source>
-        <translation type="unfinished">リセット</translation>
+        <translation>重置</translation>
     </message>
     <message>
         <location filename="../src/ui/DetailView.cpp" line="662"/>
         <source>Here you can set the author used for committing
 These settings will not be saved permanently</source>
-        <translation type="unfinished"></translation>
+        <translation>在这里，您可以设置用于提交的作者
+这些设置不会永久保存</translation>
     </message>
     <message>
         <location filename="../src/ui/DetailView.cpp" line="669"/>
         <source>Email:</source>
-        <translation type="unfinished">E メール:</translation>
+        <translation>电子邮件：</translation>
     </message>
 </context>
 <context>
@@ -1359,57 +1360,57 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/dialogs/DiffPanel.cpp" line="30"/>
         <source>lines</source>
-        <translation>行</translation>
+        <translation>线</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DiffPanel.cpp" line="54"/>
         <source>System Locale</source>
-        <translation>システム既定のロケールを使用</translation>
+        <translation>系统区域设置</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DiffPanel.cpp" line="78"/>
         <source>Wrap lines</source>
-        <translation type="unfinished"></translation>
+        <translation>自动换行</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DiffPanel.cpp" line="85"/>
         <source>Context lines:</source>
-        <translation>周辺の行数:</translation>
+        <translation>内容行：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DiffPanel.cpp" line="86"/>
         <source>Wrap lines:</source>
-        <translation type="unfinished"></translation>
+        <translation>自动换行：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DiffPanel.cpp" line="87"/>
         <source>Character Encoding:</source>
-        <translation>文字エンコード:</translation>
+        <translation>字符编码：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DiffPanel.cpp" line="96"/>
         <source>Ignore Whitespace (-w)</source>
-        <translation>空白を無視 (-w)</translation>
+        <translation>忽略空格（-w）</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DiffPanel.cpp" line="104"/>
         <source>Added files</source>
-        <translation>追加されたファイル</translation>
+        <translation>添加的文件</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DiffPanel.cpp" line="111"/>
         <source>Deleted files</source>
-        <translation>削除されたファイル</translation>
+        <translation>删除的文件</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DiffPanel.cpp" line="118"/>
         <source>Whitespace:</source>
-        <translation>空白:</translation>
+        <translation>空格：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DiffPanel.cpp" line="119"/>
         <source>Auto Collapse:</source>
-        <translation>自動折り畳み:</translation>
+        <translation>自动收合：</translation>
     </message>
 </context>
 <context>
@@ -1417,7 +1418,7 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/tools/DiffTool.cpp" line="31"/>
         <source>External Diff</source>
-        <translation>外部差分ツール</translation>
+        <translation>外部比较</translation>
     </message>
     <message>
         <location filename="../src/tools/DiffTool.cpp" line="32"/>
@@ -1430,7 +1431,7 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/DiffTreeModel.cpp" line="311"/>
         <source>Submodule</source>
-        <translation type="unfinished">サブモジュール</translation>
+        <translation>子模块</translation>
     </message>
 </context>
 <context>
@@ -1438,12 +1439,12 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/DiffView/DiffView.cpp" line="146"/>
         <source>Add new file</source>
-        <translation>新しいファイルを追加</translation>
+        <translation>追加新文件</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/DiffView.cpp" line="156"/>
         <source>Or drag files here to copy into the repository</source>
-        <translation>または、ここにファイルをドラッグして、リポジトリへコピーします</translation>
+        <translation>或将文件拖到此处以复制到仓库中</translation>
     </message>
 </context>
 <context>
@@ -1451,22 +1452,22 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/DoubleTreeWidget.cpp" line="91"/>
         <source>Blame</source>
-        <translation type="unfinished"></translation>
+        <translation>追溯</translation>
     </message>
     <message>
         <location filename="../src/ui/DoubleTreeWidget.cpp" line="92"/>
         <source>Show Blame Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>显示追溯编辑器</translation>
     </message>
     <message>
         <location filename="../src/ui/DoubleTreeWidget.cpp" line="93"/>
         <source>Diff</source>
-        <translation type="unfinished">差分</translation>
+        <translation>比较</translation>
     </message>
     <message>
         <location filename="../src/ui/DoubleTreeWidget.cpp" line="94"/>
         <source>Show Diff View</source>
-        <translation type="unfinished">差分ビューを表示</translation>
+        <translation>显示差异视图</translation>
     </message>
     <message>
         <location filename="../src/ui/DoubleTreeWidget.cpp" line="103"/>
@@ -1476,7 +1477,7 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/DoubleTreeWidget.cpp" line="104"/>
         <source>Close</source>
-        <translation type="unfinished">閉じる</translation>
+        <translation type="unfinished">关闭</translation>
     </message>
     <message>
         <location filename="../src/ui/DoubleTreeWidget.cpp" line="214"/>
@@ -1493,19 +1494,19 @@ These settings will not be saved permanently</source>
     <name>DownloadDialog</name>
     <message>
         <source>Update %1</source>
-        <translation type="vanished">%1 を更新</translation>
+        <translation type="vanished">更新%1</translation>
     </message>
     <message>
         <source>Downloading %1...</source>
-        <translation type="vanished">%1 をダウンロードしています...</translation>
+        <translation type="vanished">正在下载%1 ...</translation>
     </message>
     <message>
         <source>Download Complete!</source>
-        <translation type="vanished">ダウンロードが完了しました！</translation>
+        <translation type="vanished">下载完成！</translation>
     </message>
     <message>
         <source>Install and Restart</source>
-        <translation type="vanished">インストールと再起動を行う</translation>
+        <translation type="vanished">安装并重启</translation>
     </message>
 </context>
 <context>
@@ -1513,17 +1514,17 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/DiffView/EditButton.cpp" line="13"/>
         <source>Edit Working Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>编辑工作副本</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/EditButton.cpp" line="14"/>
         <source>Edit New Revision</source>
-        <translation type="unfinished"></translation>
+        <translation>编辑新修订</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/EditButton.cpp" line="15"/>
         <source>Edit Old Revision</source>
-        <translation type="unfinished"></translation>
+        <translation>编辑旧修订</translation>
     </message>
 </context>
 <context>
@@ -1531,7 +1532,7 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/tools/EditTool.cpp" line="26"/>
         <source>Edit in External Editor</source>
-        <translation>外部エディターで編集</translation>
+        <translation>在外部编辑器中编辑</translation>
     </message>
 </context>
 <context>
@@ -1539,57 +1540,57 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="681"/>
         <source>Show whitespace</source>
-        <translation type="unfinished"></translation>
+        <translation>显示空白字符</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="690"/>
         <source>Tabs</source>
-        <translation>タブ</translation>
+        <translation>标签页</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="691"/>
         <source>Spaces</source>
-        <translation>スペース</translation>
+        <translation>空间</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="712"/>
         <source>Show heat map</source>
-        <translation>ヒートマップを表示</translation>
+        <translation>显示热图</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="721"/>
         <source>Font:</source>
-        <translation>フォント:</translation>
+        <translation>字体：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="722"/>
         <source>Font size:</source>
-        <translation>フォントの大きさ:</translation>
+        <translation>字体大小：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="723"/>
         <source>Whitespace:</source>
-        <translation type="unfinished">空白:</translation>
+        <translation>空格：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="724"/>
         <source>Indent using:</source>
-        <translation>インデント文字:</translation>
+        <translation>缩进使用：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="725"/>
         <source>Indent width:</source>
-        <translation>インデントの幅:</translation>
+        <translation>缩进宽度：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="726"/>
         <source>Tab width:</source>
-        <translation>タブの幅:</translation>
+        <translation>标签页宽度：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="727"/>
         <source>Blame margin:</source>
-        <translation>執筆者の履歴:</translation>
+        <translation>追踪边际：</translation>
     </message>
 </context>
 <context>
@@ -1597,12 +1598,12 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/EditorWindow.cpp" line="89"/>
         <source>&apos;%1&apos; has been modified. Do you want to save your changes?</source>
-        <translation>&apos;%1&apos; は変更されています。保存しますか？</translation>
+        <translation>&apos;%1&apos;已被修改。您要保存更改吗？</translation>
     </message>
     <message>
         <location filename="../src/ui/EditorWindow.cpp" line="91"/>
         <source>Save Changes?</source>
-        <translation>変更を保存しますか？</translation>
+        <translation>您要保存更改吗？</translation>
     </message>
 </context>
 <context>
@@ -1610,22 +1611,22 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/dialogs/ExternalToolsDialog.cpp" line="24"/>
         <source>Configure External Tools</source>
-        <translation>外部ツールの構成</translation>
+        <translation>配置外部工具</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ExternalToolsDialog.cpp" line="40"/>
         <source>Detected Tools</source>
-        <translation>自動検出されたツール</translation>
+        <translation>检测工具</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ExternalToolsDialog.cpp" line="64"/>
         <source>User Defined Tools</source>
-        <translation>ユーザーが定義したツール</translation>
+        <translation>用户定义工具</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ExternalToolsDialog.cpp" line="83"/>
         <source>Select Executable</source>
-        <translation>実行ファイルを選択</translation>
+        <translation>选择可执行文件</translation>
     </message>
 </context>
 <context>
@@ -1633,17 +1634,17 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/dialogs/ExternalToolsModel.cpp" line="56"/>
         <source>Name</source>
-        <translation>名前</translation>
+        <translation>名称</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ExternalToolsModel.cpp" line="58"/>
         <source>Command</source>
-        <translation>コマンド</translation>
+        <translation>命令</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ExternalToolsModel.cpp" line="60"/>
         <source>Arguments</source>
-        <translation>引数</translation>
+        <translation>参数</translation>
     </message>
 </context>
 <context>
@@ -1651,314 +1652,314 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="36"/>
         <source>Revision Not Found</source>
-        <translation>リビジョンが見つかりませんでした</translation>
+        <translation>找不到修订</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="38"/>
         <source>The selected file doesn&apos;t have a %1 revision.</source>
-        <translation>選択したファイルには%1のリビジョンがありません。</translation>
+        <translation>所选文件没有%1版本。</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="124"/>
         <location filename="../src/ui/FileContextMenu.cpp" line="155"/>
         <source>Bash Not Found</source>
-        <translation>Bash が見つかりませんでした</translation>
+        <translation>找不到Bash</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="125"/>
         <location filename="../src/ui/FileContextMenu.cpp" line="156"/>
         <source>Bash was not found on your PATH.</source>
-        <translation>Bash がどの PATH にも見つかりませんでした。</translation>
+        <translation>在您的PATH上找不到Bash。</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="129"/>
         <location filename="../src/ui/FileContextMenu.cpp" line="160"/>
         <source>Bash is required to execute external tools.</source>
-        <translation>外部ツールを起動するには Bash が必要です。</translation>
+        <translation>Bash是执行外部工具所必需的。</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="268"/>
         <source>Stage</source>
-        <translation>ステージに上げる</translation>
+        <translation>暂存</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="272"/>
         <source>Unstage</source>
-        <translation>ステージから降ろす</translation>
+        <translation>取消暂存</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="335"/>
         <location filename="../src/ui/FileContextMenu.cpp" line="356"/>
         <source>Discard Changes</source>
-        <translation>変更を破棄</translation>
+        <translation>放弃更改</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="337"/>
         <source>Discard Changes?</source>
-        <translation>変更を破棄しますか？</translation>
+        <translation>您确定要放弃更改吗？</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="338"/>
         <source>Are you sure you want to discard changes in the selected files?</source>
-        <translation>選択したファイルへの変更を破棄しますか？</translation>
+        <translation>您确定要放弃所选文件中的更改吗？</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="342"/>
         <source>This action cannot be undone.</source>
-        <translation>この操作は元に戻せません。</translation>
+        <translation>此操作无法撤消。</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="345"/>
         <source>(Submodule)</source>
-        <translation type="unfinished"></translation>
+        <translation>（子模块）</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="364"/>
         <source>%1 files</source>
-        <translation>%1 個のファイル</translation>
+        <translation>%1个文件</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="365"/>
         <source>Discard</source>
-        <translation>破棄</translation>
+        <translation>丢弃</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="366"/>
         <source>discard</source>
-        <translation>破棄</translation>
+        <translation>丢弃</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="378"/>
         <source>Remove Untracked Files</source>
-        <translation>未追跡のファイルを削除</translation>
+        <translation>删除未跟踪的文件</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="384"/>
         <source>Ignore</source>
-        <translation>無視</translation>
+        <translation>忽略</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="407"/>
         <source>Checkout</source>
-        <translation>チェックアウト</translation>
+        <translation>检出</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="197"/>
         <source>Unlock</source>
-        <translation>ロック解除</translation>
+        <translation>解除锁定</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="197"/>
         <source>Lock</source>
-        <translation>ロック</translation>
+        <translation>锁定</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="211"/>
         <source>Copy File Name</source>
-        <translation>ファイル名をコピー</translation>
+        <translation>复制文件名</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="222"/>
         <source>Filter History</source>
-        <translation>履歴を絞り込む</translation>
+        <translation>筛选记录</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="225"/>
         <source>Navigate to</source>
-        <translation>ジャンプ</translation>
+        <translation>导航至</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="226"/>
         <source>Next Revision</source>
-        <translation>次のリビジョン</translation>
+        <translation>下一个修订</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="231"/>
         <source>next</source>
-        <translation>次</translation>
+        <translation>下一个</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="235"/>
         <source>Previous Revision</source>
-        <translation>前のリビジョン</translation>
+        <translation>上一个修订</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="240"/>
         <source>previous</source>
-        <translation>前</translation>
+        <translation>上一个</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="250"/>
         <source>Unset Executable</source>
-        <translation>実行可能を解除</translation>
+        <translation>未设置可执行文件</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="250"/>
         <source>Set Executable</source>
-        <translation>実行可能に設定</translation>
+        <translation>设置可执行</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="414"/>
         <source>Save Selected Version as ...</source>
-        <translation type="unfinished"></translation>
+        <translation>将所选版本另存为...</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="418"/>
         <source>Select new file directory</source>
-        <translation type="unfinished"></translation>
+        <translation>选择新文件目录</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="422"/>
         <source>Saving files</source>
-        <translation type="unfinished"></translation>
+        <translation>正在保存文件</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="423"/>
         <source>Saving files of selected version to disk</source>
-        <translation type="unfinished"></translation>
+        <translation>将所选版本的文件保存到磁盘上</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="426"/>
         <source>Save file </source>
-        <translation type="unfinished"></translation>
+        <translation>保存文件 </translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="429"/>
         <source>Invalid Blob</source>
-        <translation type="unfinished"></translation>
+        <translation>无效的二进制对象</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="436"/>
         <source>Open this version</source>
-        <translation type="unfinished"></translation>
+        <translation>打开此版本</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="442"/>
         <source>Opening file</source>
-        <translation type="unfinished"></translation>
+        <translation>正在打开文件</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="442"/>
         <source>Open </source>
-        <translation type="unfinished"></translation>
+        <translation>打开 </translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="448"/>
         <source>open file</source>
-        <translation type="unfinished"></translation>
+        <translation>打开文件</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="448"/>
         <source>Blob is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>二进制对象是无效的。</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="474"/>
         <location filename="../src/ui/FileContextMenu.cpp" line="477"/>
         <source>Unable to checkout bare repositories</source>
-        <translation type="unfinished"></translation>
+        <translation>无法检出裸仓库</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="480"/>
         <source>Unable to open files from bare repository</source>
-        <translation type="unfinished"></translation>
+        <translation>无法从裸存储库中打开文件</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="490"/>
         <source>The file is already in the current working directory</source>
-        <translation type="unfinished"></translation>
+        <translation>文件已在当前工作目录中</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="546"/>
         <source>edit</source>
-        <translation>編集</translation>
+        <translation>编辑</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="550"/>
         <source>diff</source>
-        <translation>差分</translation>
+        <translation>比较</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="554"/>
         <source>merge</source>
-        <translation>マージ</translation>
+        <translation>合并</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="558"/>
         <source>External Tool Not Found</source>
-        <translation>外部ツールが見つかりませんでした</translation>
+        <translation>找不到外部工具</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="559"/>
         <source>Failed to execute external %1 tool.</source>
-        <translation>外部%1ツールの起動に失敗しました。</translation>
+        <translation>无法执行外部%1工具。</translation>
     </message>
 </context>
 <context>
     <name>FileList</name>
     <message>
         <source>Sort By</source>
-        <translation type="vanished">並べ替え順</translation>
+        <translation type="vanished">排序方式</translation>
     </message>
     <message>
         <source>Select</source>
-        <translation type="vanished">選択</translation>
+        <translation type="vanished">选择</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="vanished">名前</translation>
+        <translation type="vanished">名称</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="vanished">状態</translation>
+        <translation type="vanished">状态</translation>
     </message>
     <message>
         <source>Ignore Whitespace (-w)</source>
-        <translation type="vanished">空白を無視 (-w)</translation>
+        <translation type="vanished">忽略空格（-w）</translation>
     </message>
     <message>
         <source>Added</source>
-        <translation type="vanished">追加された部分</translation>
+        <translation type="vanished">添加的</translation>
     </message>
     <message>
         <source>Deleted</source>
-        <translation type="vanished">削除された部分</translation>
+        <translation type="vanished">删除的</translation>
     </message>
     <message>
         <source>Modified</source>
-        <translation type="vanished">変更された部分</translation>
+        <translation type="vanished">修改的</translation>
     </message>
     <message>
         <source>Renamed</source>
-        <translation type="vanished">リネームされた部分</translation>
+        <translation type="vanished">更名的</translation>
     </message>
     <message>
         <source>Copied</source>
-        <translation type="vanished">コピーされた部分</translation>
+        <translation type="vanished">复制的</translation>
     </message>
     <message>
         <source>Ignored</source>
-        <translation type="vanished">無視された部分</translation>
+        <translation type="vanished">忽略的</translation>
     </message>
     <message>
         <source>Untracked</source>
-        <translation type="vanished">未追跡の部分</translation>
+        <translation type="vanished">未追踪的</translation>
     </message>
     <message>
         <source>Unreadable</source>
-        <translation type="vanished">読み取りできない部分</translation>
+        <translation type="vanished">不可读</translation>
     </message>
     <message>
         <source>Conflicted</source>
-        <translation type="vanished">衝突している部分</translation>
+        <translation type="vanished">矛盾的</translation>
     </message>
     <message>
         <source>Unmodified</source>
-        <translation type="vanished">未変更の部分</translation>
+        <translation type="vanished">未修改的</translation>
     </message>
     <message>
         <source>Type Change</source>
-        <translation type="vanished">種類が変更された部分</translation>
+        <translation type="vanished">类型变更</translation>
     </message>
 </context>
 <context>
@@ -1972,29 +1973,29 @@ These settings will not be saved permanently</source>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="80"/>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="93"/>
         <source>Unlock</source>
-        <translation>ロック解除</translation>
+        <translation>解除锁定</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="81"/>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="94"/>
         <source>Lock</source>
-        <translation>ロック</translation>
+        <translation>锁定</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="98"/>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="447"/>
         <source>Show Object</source>
-        <translation>オブジェクトを表示</translation>
+        <translation>显示对象</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="107"/>
         <source>Edit File</source>
-        <translation>ファイルを編集</translation>
+        <translation>编辑文件</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="113"/>
         <source>Discard File</source>
-        <translation>ファイルを破棄</translation>
+        <translation>丢弃文件</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="423"/>
@@ -2004,74 +2005,74 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="798"/>
         <source>Directory</source>
-        <translation>ディレクトリ</translation>
+        <translation>目录</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="799"/>
         <source>File</source>
-        <translation>ファイル</translation>
+        <translation>文件</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="800"/>
         <source>Remove %1?</source>
-        <translation>%1を削除しますか？</translation>
+        <translation>删除%1？</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="801"/>
         <source>Discard Changes?</source>
-        <translation>変更を破棄しますか？</translation>
+        <translation>您确定要放弃更改吗？</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="803"/>
         <source>Are you sure you want to remove &apos;%1&apos;?</source>
-        <translation>&apos;%1&apos; を削除しますか？</translation>
+        <translation>您确定要删除&apos;%1&apos;吗？</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="804"/>
         <source>Are you sure you want to discard all changes in &apos;%1&apos;?</source>
-        <translation>&apos;%1&apos; への全ての変更を破棄しますか？</translation>
+        <translation>您确定要放弃&apos;%1&apos;中的所有更改吗？</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="809"/>
         <source>This action cannot be undone.</source>
-        <translation>この操作は元に戻せません。</translation>
+        <translation>此操作无法撤消。</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="811"/>
         <source>Remove %1</source>
-        <translation>%1を削除</translation>
+        <translation>删除%1</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="812"/>
         <source>Discard Changes</source>
-        <translation>変更を破棄</translation>
+        <translation>放弃更改</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/DiffView.cpp" line="489"/>
         <source>Discard</source>
-        <translation>破棄</translation>
+        <translation>丢弃</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/DiffView.cpp" line="490"/>
         <source>discard</source>
-        <translation>破棄</translation>
+        <translation>丢弃</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="120"/>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="124"/>
         <source>Collapse File</source>
-        <translation>ファイルを折り畳む</translation>
+        <translation>收合文件</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="121"/>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="125"/>
         <source>Expand File</source>
-        <translation>ファイルを広げる</translation>
+        <translation>展开文件</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="446"/>
         <source>Show Pointer</source>
-        <translation>ポインターを表示</translation>
+        <translation>显示指针</translation>
     </message>
 </context>
 <context>
@@ -2079,32 +2080,32 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/FindWidget.cpp" line="102"/>
         <source>Search</source>
-        <translation>検索</translation>
+        <translation>搜索</translation>
     </message>
     <message>
         <location filename="../src/ui/FindWidget.cpp" line="107"/>
         <source>Done</source>
-        <translation>完了</translation>
+        <translation>完成</translation>
     </message>
     <message>
         <location filename="../src/ui/FindWidget.cpp" line="135"/>
         <source>Esc</source>
-        <translation>Esc</translation>
+        <translation>退出</translation>
     </message>
     <message>
         <location filename="../src/ui/FindWidget.cpp" line="156"/>
         <source>Not found</source>
-        <translation>見つかりませんでした</translation>
+        <translation>未找到</translation>
     </message>
     <message>
         <location filename="../src/ui/FindWidget.cpp" line="160"/>
         <source>%1 match</source>
-        <translation>%1 件の一致</translation>
+        <translation>%1个匹配</translation>
     </message>
     <message>
         <location filename="../src/ui/FindWidget.cpp" line="164"/>
         <source>%1 matches</source>
-        <translation>%1 件の一致</translation>
+        <translation>%1个匹配</translation>
     </message>
 </context>
 <context>
@@ -2112,17 +2113,17 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/Footer.cpp" line="90"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">添加</translation>
     </message>
     <message>
         <location filename="../src/ui/Footer.cpp" line="95"/>
         <source>Remove</source>
-        <translation type="unfinished">削除</translation>
+        <translation type="unfinished">删除</translation>
     </message>
     <message>
         <location filename="../src/ui/Footer.cpp" line="101"/>
         <source>Options</source>
-        <translation type="unfinished">オプション</translation>
+        <translation type="unfinished">选项</translation>
     </message>
 </context>
 <context>
@@ -2131,47 +2132,47 @@ These settings will not be saved permanently</source>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="95"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="78"/>
         <source>Fetch every</source>
-        <translation>毎回</translation>
+        <translation>获取每个</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="102"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="85"/>
         <source>minutes</source>
-        <translation>分おきにフェッチ</translation>
+        <translation>分</translation>
     </message>
     <message>
         <source>Push after each commit</source>
-        <translation type="vanished">各コミット直後にプッシュを実行</translation>
+        <translation type="vanished">每次提交后推送</translation>
     </message>
     <message>
         <source>Update submodules after pull</source>
-        <translation type="vanished">プル後にサブモジュールを更新</translation>
+        <translation type="vanished">拉取后更新子模块</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="109"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="90"/>
         <source>Prune when fetching</source>
-        <translation>フェッチ時、既に存在しないブランチへの参照を解除</translation>
+        <translation>获取时清除</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="110"/>
         <source>No translation</source>
-        <translation>翻訳を無効化</translation>
+        <translation>没有翻译</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="120"/>
         <source>Store credentials in secure storage</source>
-        <translation>資格情報を安全なストレージに保管</translation>
+        <translation>将凭证存储在安全存储中</translation>
     </message>
     <message>
         <source>Allow collection of usage data</source>
-        <translation type="vanished">使用状況の収集を許可</translation>
+        <translation type="vanished">允许收集使用情况数据</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="106"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="89"/>
         <source>Update submodules after pull and clone</source>
-        <translation type="unfinished"></translation>
+        <translation>在拉取和克隆后更新子模块</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="108"/>
@@ -2181,41 +2182,41 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="124"/>
         <source>&lt;a href=&apos;view&apos;&gt;View privacy policy&lt;/a&gt;</source>
-        <translation>&lt;a href=&apos;view&apos;&gt;プライバシーポリシーについて&lt;/a&gt;</translation>
+        <translation>&lt;a href=&apos;view&apos;&gt;查看隐私政策&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="131"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="93"/>
         <source>User name:</source>
-        <translation>ユーザー名:</translation>
+        <translation>用户名：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="132"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="94"/>
         <source>User email:</source>
-        <translation>ユーザーの E メール:</translation>
+        <translation>用户电子邮件：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="133"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="95"/>
         <source>Automatic actions:</source>
-        <translation>自動アクション:</translation>
+        <translation>自动动作：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="137"/>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="138"/>
         <source>Language:</source>
-        <translation>言語:</translation>
+        <translation>语言：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="139"/>
         <source>Credentials:</source>
-        <translation>資格情報:</translation>
+        <translation>证书：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="140"/>
         <source>Credential store type:</source>
-        <translation type="unfinished"></translation>
+        <translation>凭据存储类型：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="141"/>
@@ -2225,12 +2226,12 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="146"/>
         <source>Only allow a single running instance</source>
-        <translation type="unfinished"></translation>
+        <translation>仅允许单个正在运行的实例</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="149"/>
         <source>Single instance:</source>
-        <translation type="unfinished"></translation>
+        <translation>单个实例：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="271"/>
@@ -2254,34 +2255,34 @@ These settings will not be saved permanently</source>
     </message>
     <message>
         <source>Usage reporting:</source>
-        <translation type="vanished">使用状況の送信:</translation>
+        <translation type="vanished">使用情况报告：</translation>
     </message>
 </context>
 <context>
     <name>GitHub</name>
     <message>
         <source>Connection failed</source>
-        <translation type="vanished">接続失敗</translation>
+        <translation type="vanished">连接失败</translation>
     </message>
     <message>
         <source>Failed to authenticate with GitHub!</source>
-        <translation type="vanished">GitHub への認証に失敗しました！</translation>
+        <translation type="vanished">无法通过GitHub进行身份验证！</translation>
     </message>
     <message>
         <source>Successfully authenticated with GitHub!</source>
-        <translation type="vanished">GitHub への認証に成功しました！</translation>
+        <translation type="vanished">已通过GitHub成功认证！</translation>
     </message>
 </context>
 <context>
     <name>GitLab</name>
     <message>
         <source>Connection failed</source>
-        <translation type="vanished">接続失敗</translation>
+        <translation type="vanished">连接失败</translation>
     </message>
     <message>
         <location filename="../src/host/GitLab.cpp" line="97"/>
         <source>Authentication failed</source>
-        <translation>認証失敗</translation>
+        <translation>验证失败</translation>
     </message>
 </context>
 <context>
@@ -2289,7 +2290,7 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/ReferenceView.cpp" line="79"/>
         <source>Filter %1</source>
-        <translation>%1を絞り込む</translation>
+        <translation>筛选%1</translation>
     </message>
 </context>
 <context>
@@ -2297,7 +2298,7 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="282"/>
         <source>Connecting</source>
-        <translation>接続しています</translation>
+        <translation>连接中</translation>
     </message>
 </context>
 <context>
@@ -2305,12 +2306,12 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/dialogs/HotkeysPanel.cpp" line="266"/>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translation>操作</translation>
     </message>
     <message>
         <location filename="../src/dialogs/HotkeysPanel.cpp" line="269"/>
         <source>Keys</source>
-        <translation type="unfinished"></translation>
+        <translation>快捷键</translation>
     </message>
 </context>
 <context>
@@ -2325,94 +2326,94 @@ These settings will not be saved permanently</source>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="71"/>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="136"/>
         <source>Undo</source>
-        <translation>元に戻す</translation>
+        <translation>撤消</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="83"/>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="214"/>
         <source>Use Ours</source>
-        <translation>手元のものを使う</translation>
+        <translation>使用我们的</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="95"/>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="215"/>
         <source>Use Theirs</source>
-        <translation>向こうのものを使う</translation>
+        <translation>用他们的</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="105"/>
         <source>Edit Hunk</source>
-        <translation>差分を編集</translation>
+        <translation>编辑补丁片段</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="111"/>
         <source>Discard Hunk</source>
-        <translation>差分を破棄</translation>
+        <translation>放弃补丁片段</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="513"/>
         <source>Discard selected lines?</source>
-        <translation type="unfinished"></translation>
+        <translation>放弃所选行？</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="517"/>
         <source>Are you sure you want to discard the changes in hunk from line %1 to %2 in &apos;%3&apos;?</source>
-        <translation type="unfinished"></translation>
+        <translation>你是否确认要放弃&apos;%3&apos;中从%1到%2行的片段更改?</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="529"/>
         <source>Discard selected lines</source>
-        <translation type="unfinished"></translation>
+        <translation>放弃所选行</translation>
     </message>
     <message>
         <source>Discard Hunk?</source>
-        <translation type="vanished">差分を破棄しますか？</translation>
+        <translation type="vanished">您确定要放弃补丁片段吗？</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="516"/>
         <source>Are you sure you want to remove &apos;%1&apos;?</source>
-        <translation>&apos;%1&apos; を削除しますか？</translation>
+        <translation>您确定要删除&apos;%1&apos;吗？</translation>
     </message>
     <message>
         <source>Are you sure you want to discard the hunk starting at line %1 in &apos;%2&apos;?</source>
-        <translation type="vanished">&apos;%2&apos; の差分内容 (開始行 %1) を破棄しますか？</translation>
+        <translation type="vanished">您确定要舍弃&apos;%2&apos;中从行%1开始的块吗？</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="526"/>
         <source>This action cannot be undone.</source>
-        <translation>この操作は元に戻せません。</translation>
+        <translation>此操作无法撤消。</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="118"/>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="121"/>
         <source>Collapse Hunk</source>
-        <translation>差分内容を折り畳む</translation>
+        <translation>收合补丁片段</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="119"/>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="122"/>
         <source>Expand Hunk</source>
-        <translation>差分内容を広げる</translation>
+        <translation>展开补丁片段</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="344"/>
         <source>Esc</source>
-        <translation>Esc</translation>
+        <translation>退出</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="371"/>
         <source>Fix</source>
-        <translation>修正</translation>
+        <translation>固定</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="424"/>
         <source>Edit</source>
-        <translation>編集</translation>
+        <translation>编辑</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="36"/>
         <source>No newline at end of file</source>
-        <translation>ファイル終端に改行なし</translation>
+        <translation>文件末尾没有换行符</translation>
     </message>
 </context>
 <context>
@@ -2420,7 +2421,7 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/IgnoreDialog.cpp" line="10"/>
         <source>Ignore Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>忽略规则</translation>
     </message>
 </context>
 <context>
@@ -2428,7 +2429,7 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/DiffView/Images.cpp" line="128"/>
         <source>&lt;b&gt;Size:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;容量:&lt;/b&gt; %1</translation>
+        <translation>&lt;b&gt;大小：&lt;/b&gt;%1</translation>
     </message>
 </context>
 <context>
@@ -2436,17 +2437,17 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/dialogs/AmendDialog.cpp" line="76"/>
         <source>Name:</source>
-        <translation type="unfinished">名前:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AmendDialog.cpp" line="83"/>
         <source>Email:</source>
-        <translation type="unfinished">E メール:</translation>
+        <translation>电子邮件：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AmendDialog.cpp" line="92"/>
         <source>Commit date:</source>
-        <translation type="unfinished"></translation>
+        <translation>提交日期：</translation>
     </message>
 </context>
 <context>
@@ -2455,12 +2456,13 @@ These settings will not be saved permanently</source>
         <location filename="../src/dialogs/HotkeysPanel.cpp" line="333"/>
         <source>The selected key is the same for the following actions:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>所选键与以下操作相同：
+%1</translation>
     </message>
     <message>
         <location filename="../src/dialogs/HotkeysPanel.cpp" line="339"/>
         <source>Please press the desired hotkey</source>
-        <translation type="unfinished"></translation>
+        <translation>请按所需快捷键</translation>
     </message>
 </context>
 <context>
@@ -2468,7 +2470,7 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="504"/>
         <source>Initialize LFS</source>
-        <translation>LFS を初期化</translation>
+        <translation>初始化LFS</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="553"/>
@@ -2483,108 +2485,107 @@ Examples
 *.[pP][nN][gG]
 /images/*
 </source>
-        <translation>大きなファイルの追跡に使う、グロブパターンを指定してください。
+        <translation>指定用于跟踪大文件的全局模式。
 
-一般的には、ファイルの容量が 500 KB を超えていて、頻繁に
-変更され、Git で上手く圧縮できないものが、大きなファイルと
-して扱われます。バイナリや動画ファイルなど、既に高い圧縮が
-施されているファイルも、同じように扱われます。
+通常，大文件大于500kB，经常更改，
+并且用 git 不能很好地压缩。这包括二进制或视频
+已经高度压缩的文件。
 
-例
-*.png
-*.[pP][nN][gG]
+例：
+* .png
+*.[pP] [nN] [gG]
 /images/*
 </translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="568"/>
         <source>Pattern:</source>
-        <translation>パターン:</translation>
+        <translation>模式：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="573"/>
         <source>Track</source>
-        <translation>追跡</translation>
+        <translation>跟踪</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="658"/>
         <source>days</source>
-        <translation>日</translation>
+        <translation>天</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="663"/>
         <source>Fetch LFS objects from all references for the past</source>
-        <translation>特定の期間内に参照された LFS オブジェクトを全てフェッチ</translation>
+        <translation>从过去的所有引用中获取LFS对象</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="685"/>
         <source>reference days or</source>
-        <translation>日以内に参照されたブランチ、或いは</translation>
+        <translation>参照天数或</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="704"/>
         <source>commit days</source>
-        <translation>日以内に行われたコミット全て</translation>
+        <translation>提交天数</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="708"/>
         <source>View Environment</source>
-        <translation>環境を表示</translation>
+        <translation>查看环境</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="713"/>
         <source>git-lfs env (read only)</source>
-        <translation>git-lfs env (読み取り専用)</translation>
+        <translation>git-lfs env（只读）</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="729"/>
         <source>Deinitialize LFS</source>
-        <translation>LFS を解除</translation>
+        <translation>取消初始化LFS</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="731"/>
         <source>Deinitialize LFS?</source>
-        <translation>LFS を解除しますか？</translation>
+        <translation>您确定要取消初始化LFS吗？</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="733"/>
         <source>Are you sure you want uninstall LFS from this repository?</source>
-        <translation>リポジトリから LFS を解除しますか？</translation>
+        <translation>您确定要从此仓库卸载LFS吗？</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="739"/>
         <source>Deinitialize</source>
-        <translation>解除</translation>
+        <translation>取消初始化</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="750"/>
         <source>Server URL:</source>
-        <translation>サーバーの URL:</translation>
+        <translation>服务器地址URL：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="751"/>
         <source>Prune Offset:</source>
-        <translation>保管日数:</translation>
+        <translation>清除偏移：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="752"/>
         <source>Fetch Recent:</source>
-        <translation>フェッチの日数設定:</translation>
+        <translation>获取最近：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="755"/>
         <source>Advanced:</source>
-        <translation>詳細設定:</translation>
+        <translation>高级：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="759"/>
         <source>Included patterns:</source>
-        <translation type="unfinished"></translation>
+        <translation>包含的规则：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="761"/>
         <source>Excluded patterns:</source>
-        <translation type="unfinished"></translation>
+        <translation>忽略的规则：</translation>
     </message>
 </context>
 <context>
@@ -2597,12 +2598,12 @@ Examples
     <message>
         <location filename="../src/ui/Location.cpp" line="25"/>
         <source>NC</source>
-        <translation>未コミット</translation>
+        <translation>NC</translation>
     </message>
     <message>
         <location filename="../src/ui/Location.cpp" line="25"/>
         <source>Not Committed</source>
-        <translation>コミットされていません</translation>
+        <translation>未提交</translation>
     </message>
 </context>
 <context>
@@ -2610,22 +2611,22 @@ Examples
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="132"/>
         <source>Repository Location</source>
-        <translation>リポジトリの場所</translation>
+        <translation>仓库位置</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="133"/>
         <source>Choose the name and location of the new repository. A new directory will be created if it doesn&apos;t already exist.</source>
-        <translation>新しいリポジトリの名前と場所を選択してください。ディレクトリが存在しない場合は、新しく作成されます。</translation>
+        <translation>选择新仓库的名称和位置。如果尚不存在新目录，则会创建一个新目录。</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="136"/>
         <source>Initialize</source>
-        <translation>作成</translation>
+        <translation>初始化</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="136"/>
         <source>Clone</source>
-        <translation>クローン</translation>
+        <translation>克隆</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="147"/>
@@ -2635,32 +2636,32 @@ Examples
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="149"/>
         <source>Choose Directory</source>
-        <translation>ディレクトリを選択</translation>
+        <translation>选择目录</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="172"/>
         <source>Name:</source>
-        <translation>名前:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="173"/>
         <source>Directory:</source>
-        <translation>ディレクトリ:</translation>
+        <translation>目录：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="174"/>
         <source>Advanced:</source>
-        <translation>詳細設定:</translation>
+        <translation>高级：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="176"/>
         <source>Create a bare repository</source>
-        <translation>ベアリポジトリを作成</translation>
+        <translation>创建一个纯仓库</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="218"/>
         <source>The new repository will be created at:&lt;p style=&apos;text-indent: 12px&apos;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/p&gt;</source>
-        <translation>新しいリポジトリは &lt;p style=&apos;text-indent: 12px&apos;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/p&gt; に作成されます</translation>
+        <translation>新的仓库将在以下位置创建：&lt;p style=&apos;text-indent：12px&apos;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -2668,7 +2669,7 @@ Examples
     <message>
         <location filename="../src/log/LogView.cpp" line="51"/>
         <source>Copy</source>
-        <translation>コピー</translation>
+        <translation>复制</translation>
     </message>
 </context>
 <context>
@@ -2676,12 +2677,12 @@ Examples
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="520"/>
         <source>Invalid Git Repository</source>
-        <translation>無効な Git リポジトリ</translation>
+        <translation>无效的Git仓库</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="521"/>
         <source>%1 does not contain a valid git repository.</source>
-        <translation>%1 には有効な Git リポジトリが含まれていません。</translation>
+        <translation>%1没有包含有效的git仓库。</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="526"/>
@@ -2717,12 +2718,12 @@ Examples
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="616"/>
         <source>ahead: %1</source>
-        <translation>手元のブランチに %1 コミット済み</translation>
+        <translation>前进：%1</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="618"/>
         <source>behind: %1</source>
-        <translation>向こうのブランチに新しく %1 コミットあり</translation>
+        <translation>后面：%1</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="620"/>
@@ -2738,22 +2739,22 @@ Examples
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="630"/>
         <source>MERGING</source>
-        <translation>マージ作業中</translation>
+        <translation>合并</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="635"/>
         <source>REVERTING</source>
-        <translation>コミットの取り消し作業中</translation>
+        <translation>还原</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="640"/>
         <source>CHERRY-PICKING</source>
-        <translation>コミットの取り込み作業中</translation>
+        <translation>拣选操作</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="649"/>
         <source>REBASING</source>
-        <translation>リベース作業中</translation>
+        <translation>变基</translation>
     </message>
 </context>
 <context>
@@ -2761,17 +2762,17 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="259"/>
         <source>File</source>
-        <translation>ファイル</translation>
+        <translation>文件</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="261"/>
         <source>New File</source>
-        <translation>新しいファイル</translation>
+        <translation>新建文件</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="275"/>
         <source>New Window</source>
-        <translation>新しいウィンドウ</translation>
+        <translation>新建窗口</translation>
     </message>
     <message>
         <source>Ctrl+Meta+N</source>
@@ -2780,7 +2781,7 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="279"/>
         <source>Clone Repository...</source>
-        <translation>リポジトリをクローン...</translation>
+        <translation>克隆仓库...</translation>
     </message>
     <message>
         <source>Ctrl+Shift+N</source>
@@ -2789,7 +2790,7 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="284"/>
         <source>Initialize New Repository...</source>
-        <translation>新しいリポジトリを作成...</translation>
+        <translation>初始化新仓库...</translation>
     </message>
     <message>
         <source>Ctrl+Alt+N</source>
@@ -2798,22 +2799,22 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="291"/>
         <source>Open Repository...</source>
-        <translation>リポジトリを開く...</translation>
+        <translation>打开仓库...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="296"/>
         <source>Open Repository</source>
-        <translation>リポジトリを開く</translation>
+        <translation>打开仓库</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="303"/>
         <source>Open Recent</source>
-        <translation>最近使ったリポジトリを開く</translation>
+        <translation>打开最近</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="319"/>
         <source>Close</source>
-        <translation>閉じる</translation>
+        <translation>关闭</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="336"/>
@@ -2823,62 +2824,62 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="345"/>
         <source>Exit</source>
-        <translation>終了</translation>
+        <translation>退出</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="352"/>
         <source>Edit</source>
-        <translation>編集</translation>
+        <translation>编辑</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="354"/>
         <source>Undo</source>
-        <translation>元に戻す</translation>
+        <translation>撤消</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="367"/>
         <source>Redo</source>
-        <translation>やり直す</translation>
+        <translation>重做</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="382"/>
         <source>Cut</source>
-        <translation>切り取り</translation>
+        <translation>剪切</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="395"/>
         <source>Copy</source>
-        <translation>コピー</translation>
+        <translation>复制</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="410"/>
         <source>Paste</source>
-        <translation>貼り付け</translation>
+        <translation>粘贴</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="423"/>
         <source>Select All</source>
-        <translation>全て選択</translation>
+        <translation>全选</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="438"/>
         <source>Find...</source>
-        <translation>検索...</translation>
+        <translation>查找...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="450"/>
         <source>Find Next</source>
-        <translation>次を検索</translation>
+        <translation>查找下一个</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="461"/>
         <source>Find Previous</source>
-        <translation>前を検索</translation>
+        <translation>查找上一个</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="472"/>
         <source>Use Selection for Find</source>
-        <translation>選択したテキストで検索</translation>
+        <translation>查找选择的内容</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="496"/>
@@ -2898,7 +2899,7 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="1042"/>
         <source>Show Double Tree View</source>
-        <translation type="unfinished"></translation>
+        <translation>显示双树视图</translation>
     </message>
     <message>
         <source>Ctrl+E</source>
@@ -2907,54 +2908,54 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="489"/>
         <source>View</source>
-        <translation>表示</translation>
+        <translation>查看</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="491"/>
         <source>Refresh</source>
-        <translation>再読み込み</translation>
+        <translation>刷新</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="502"/>
         <location filename="../src/ui/MenuBar.cpp" line="1040"/>
         <source>Show Log</source>
-        <translation>ログを表示</translation>
+        <translation>显示日志</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="509"/>
         <source>Normal</source>
-        <translation type="unfinished"></translation>
+        <translation>正常</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="509"/>
         <source>Maximize</source>
-        <translation type="unfinished"></translation>
+        <translation>最大化</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="528"/>
         <location filename="../src/ui/MenuBar.cpp" line="1041"/>
         <source>Show Tree View</source>
-        <translation>ツリービューを表示</translation>
+        <translation>显示树状视图</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="536"/>
         <source>Hide Menu Bar</source>
-        <translation type="unfinished"></translation>
+        <translation>隐藏菜单栏</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="544"/>
         <source>Repository</source>
-        <translation>リポジトリ</translation>
+        <translation>仓库</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="546"/>
         <source>Configure Repository...</source>
-        <translation>リポジトリの設定...</translation>
+        <translation>配置仓库...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="553"/>
         <source>Stage All</source>
-        <translation>全てステージに上げる</translation>
+        <translation>暂存全部</translation>
     </message>
     <message>
         <source>Ctrl++</source>
@@ -2963,7 +2964,7 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="557"/>
         <source>Unstage All</source>
-        <translation>全てステージから降ろす</translation>
+        <translation>取消暂存全部</translation>
     </message>
     <message>
         <source>Ctrl+-</source>
@@ -2972,7 +2973,7 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="563"/>
         <source>Commit</source>
-        <translation>コミット</translation>
+        <translation>提交</translation>
     </message>
     <message>
         <source>Ctrl+Shift+C</source>
@@ -2981,7 +2982,7 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="567"/>
         <source>Amend Commit</source>
-        <translation>最後のコミットを修正</translation>
+        <translation>修改提交</translation>
     </message>
     <message>
         <source>Ctrl+Shift+A</source>
@@ -2995,27 +2996,27 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="574"/>
         <source>Remove all locks</source>
-        <translation>全てのロックを解除</translation>
+        <translation>移除所有锁定</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="582"/>
         <source>Initialize</source>
-        <translation>初期化</translation>
+        <translation>初始化</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="588"/>
         <source>Remote</source>
-        <translation>リモート</translation>
+        <translation>远程</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="590"/>
         <source>Configure Remotes...</source>
-        <translation>リモートの設定...</translation>
+        <translation>配置远程...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="598"/>
         <source>Fetch</source>
-        <translation>フェッチ</translation>
+        <translation>获取</translation>
     </message>
     <message>
         <source>Ctrl+Shift+Alt+F</source>
@@ -3024,7 +3025,7 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="602"/>
         <source>Fetch All</source>
-        <translation>全てフェッチ</translation>
+        <translation>获取全部</translation>
     </message>
     <message>
         <source>Ctrl+Shift+Alt+A</source>
@@ -3033,7 +3034,7 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="606"/>
         <source>Fetch From...</source>
-        <translation>指定先からフェッチ...</translation>
+        <translation>获取自...</translation>
     </message>
     <message>
         <source>Ctrl+Shift+F</source>
@@ -3042,7 +3043,7 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="615"/>
         <source>Pull</source>
-        <translation>プル</translation>
+        <translation>拉取</translation>
     </message>
     <message>
         <source>Ctrl+Shift+Alt+L</source>
@@ -3051,7 +3052,7 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="619"/>
         <source>Pull From...</source>
-        <translation>指定先からプル...</translation>
+        <translation>拉取自...</translation>
     </message>
     <message>
         <source>Ctrl+Shift+L</source>
@@ -3060,7 +3061,7 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="628"/>
         <source>Push</source>
-        <translation>プッシュ</translation>
+        <translation>推送</translation>
     </message>
     <message>
         <source>Ctrl+Shift+Alt+P</source>
@@ -3069,7 +3070,7 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="637"/>
         <source>Push To...</source>
-        <translation>指定先へプッシュ...</translation>
+        <translation>推送至...</translation>
     </message>
     <message>
         <source>Ctrl+Shift+P</source>
@@ -3078,27 +3079,27 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="645"/>
         <source>Branch</source>
-        <translation>ブランチ</translation>
+        <translation>分支</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="647"/>
         <source>Configure Branches...</source>
-        <translation>ブランチの設定...</translation>
+        <translation>配置分支...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="653"/>
         <source>New Branch...</source>
-        <translation>新しいブランチ...</translation>
+        <translation>新建分支...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="658"/>
         <source>Rename Branch</source>
-        <translation type="unfinished"></translation>
+        <translation>重命名分支</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="666"/>
         <source>Checkout Current</source>
-        <translation>選択中のブランチをチェックアウト</translation>
+        <translation>检出（Checkout）当前</translation>
     </message>
     <message>
         <source>Ctrl+Shift+Alt+H</source>
@@ -3107,7 +3108,7 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="677"/>
         <source>Checkout...</source>
-        <translation>チェックアウト...</translation>
+        <translation>检出（Checkout）...</translation>
     </message>
     <message>
         <source>Ctrl+Shift+H</source>
@@ -3116,7 +3117,7 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="684"/>
         <source>Merge...</source>
-        <translation>マージ...</translation>
+        <translation>合并（Merge）...</translation>
     </message>
     <message>
         <source>Ctrl+Shift+M</source>
@@ -3125,7 +3126,7 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="696"/>
         <source>Rebase...</source>
-        <translation>リベース...</translation>
+        <translation>变基（Rebase）...</translation>
     </message>
     <message>
         <source>Ctrl+Shift+R</source>
@@ -3134,7 +3135,7 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="708"/>
         <source>Squash...</source>
-        <translation>スカッシュ...</translation>
+        <translation>聚合（Squash）...</translation>
     </message>
     <message>
         <source>Ctrl+Shift+Q</source>
@@ -3143,22 +3144,22 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="722"/>
         <source>Abort Merge</source>
-        <translation>マージを中断</translation>
+        <translation>中止合并（Merge）</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="727"/>
         <source>Submodule</source>
-        <translation>サブモジュール</translation>
+        <translation>子模块</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="729"/>
         <source>Configure Submodules...</source>
-        <translation>サブモジュールの設定...</translation>
+        <translation>配置子模块...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="743"/>
         <source>Update All</source>
-        <translation>全て更新</translation>
+        <translation>更新全部</translation>
     </message>
     <message>
         <source>Ctrl+Shift+Alt+U</source>
@@ -3176,22 +3177,22 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="764"/>
         <source>Open</source>
-        <translation>開く</translation>
+        <translation>打开</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="782"/>
         <source>Stash</source>
-        <translation>スタッシュ</translation>
+        <translation>贮藏</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="784"/>
         <source>Show Stashes</source>
-        <translation>スタッシュを表示</translation>
+        <translation>显示贮藏区备份</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="793"/>
         <source>Stash...</source>
-        <translation>スタッシュへ預ける...</translation>
+        <translation>备份未提交修改到贮藏区</translation>
     </message>
     <message>
         <source>Ctrl+Shift+T</source>
@@ -3200,7 +3201,7 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="797"/>
         <source>Pop Stash</source>
-        <translation>スタッシュから引き出す</translation>
+        <translation>应用备份并从贮藏区删除</translation>
     </message>
     <message>
         <source>Ctrl+Shift+Alt+T</source>
@@ -3209,37 +3210,37 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="802"/>
         <source>History</source>
-        <translation>履歴</translation>
+        <translation>历史</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="804"/>
         <source>Back</source>
-        <translation>戻る</translation>
+        <translation>退回</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="809"/>
         <source>Forward</source>
-        <translation>進む</translation>
+        <translation>前进</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="815"/>
         <source>Window</source>
-        <translation>ウィンドウ</translation>
+        <translation>窗口</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="816"/>
         <source>Show Previous Tab</source>
-        <translation>前のタブを表示</translation>
+        <translation>显示上一个标签页</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="825"/>
         <source>Show Next Tab</source>
-        <translation>次のタブを表示</translation>
+        <translation>显示下一个标签页</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="836"/>
         <source>Show Repository Chooser...</source>
-        <translation>リポジトリ選択画面を表示...</translation>
+        <translation>显示仓库选择器...</translation>
     </message>
     <message>
         <source>Ctrl+Shift+O</source>
@@ -3248,105 +3249,109 @@ Examples
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="841"/>
         <source>Tools</source>
-        <translation>ツール</translation>
+        <translation>工具</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="842"/>
         <source>Options...</source>
-        <translation>オプション...</translation>
+        <translation>选项...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="848"/>
         <source>Help</source>
-        <translation>ヘルプ</translation>
+        <translation>帮助</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="850"/>
         <source>About %1</source>
-        <translation>%1 について</translation>
+        <translation>关于%1</translation>
     </message>
     <message>
         <source>Check For Updates...</source>
-        <translation type="vanished">新しいバージョンを確認...</translation>
+        <translation type="vanished">检查更新...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="855"/>
         <source>Plugin Documentation...</source>
-        <translation>プラグインについてのドキュメント...</translation>
+        <translation>插件文档...</translation>
+    </message>
+    <message>
+        <source>Support us via Liberapay</source>
+        <translation type="vanished">通过Liberapay支持我们</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="863"/>
         <source>Debug</source>
-        <translation>デバッグ</translation>
+        <translation>除错</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="864"/>
         <source>Abort</source>
-        <translation>中断</translation>
+        <translation>中止</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="877"/>
         <source>Log Indexer Progress</source>
-        <translation>インデックス構築状況のログを取る</translation>
+        <translation>日志索引器进度</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="883"/>
         <source>Log Credential Helper</source>
-        <translation>資格情報ヘルパーのログを取る</translation>
+        <translation>日志凭证助手</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="889"/>
         <source>Log Remote Connection</source>
-        <translation>リモート接続のログを取る</translation>
+        <translation>记录远程连接</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="895"/>
         <source>Log Debug Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>日志调试消息</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="903"/>
         <source>Load All Diffs</source>
-        <translation>全ての差分を読み込む</translation>
+        <translation>加载所有差异</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="917"/>
         <source>Walk Commits</source>
-        <translation>コミットを走査</translation>
+        <translation>遍历提交</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="1040"/>
         <source>Hide Log</source>
-        <translation>ログを隠す</translation>
+        <translation>隐藏日志</translation>
     </message>
     <message>
         <source>Show Diff View</source>
-        <translation type="vanished">差分ビューを表示</translation>
+        <translation type="vanished">显示差异视图</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="1091"/>
         <source>Merge</source>
-        <translation>マージ</translation>
+        <translation>合并</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="1101"/>
         <source>Revert</source>
-        <translation>取り消し</translation>
+        <translation>还原</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="1107"/>
         <source>Cherry-pick</source>
-        <translation>取り込み</translation>
+        <translation>拣选操作</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="1113"/>
         <source>Rebase</source>
-        <translation>リベース</translation>
+        <translation>变基</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="1119"/>
         <source>Abort %1</source>
-        <translation>%1を中断</translation>
+        <translation>中止%1</translation>
     </message>
 </context>
 <context>
@@ -3355,59 +3360,59 @@ Examples
         <location filename="../src/dialogs/MergeDialog.cpp" line="42"/>
         <location filename="../src/dialogs/MergeDialog.cpp" line="138"/>
         <source>Merge</source>
-        <translation>マージ</translation>
+        <translation>合并</translation>
     </message>
     <message>
         <location filename="../src/dialogs/MergeDialog.cpp" line="43"/>
         <location filename="../src/dialogs/MergeDialog.cpp" line="140"/>
         <source>Rebase</source>
-        <translation>リベース</translation>
+        <translation>变基</translation>
     </message>
     <message>
         <location filename="../src/dialogs/MergeDialog.cpp" line="44"/>
         <location filename="../src/dialogs/MergeDialog.cpp" line="140"/>
         <source>Squash</source>
-        <translation>スカッシュ</translation>
+        <translation>聚合（Squash）</translation>
     </message>
     <message>
         <location filename="../src/dialogs/MergeDialog.cpp" line="45"/>
         <source>Merge (No Fast-forward)</source>
-        <translation>マージ (高速転送しない)</translation>
+        <translation>合并（无快进）</translation>
     </message>
     <message>
         <location filename="../src/dialogs/MergeDialog.cpp" line="46"/>
         <source>Merge (Fast-forward Only)</source>
-        <translation>マージ (高速転送のみ)</translation>
+        <translation>合并（仅快进）</translation>
     </message>
     <message>
         <location filename="../src/dialogs/MergeDialog.cpp" line="51"/>
         <source>No commit</source>
-        <translation>コミットしない</translation>
+        <translation>没有提交</translation>
     </message>
     <message>
         <location filename="../src/dialogs/MergeDialog.cpp" line="76"/>
         <source>Reference:</source>
-        <translation>参照先:</translation>
+        <translation>引用：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/MergeDialog.cpp" line="77"/>
         <source>Action:</source>
-        <translation>アクション:</translation>
+        <translation>动作：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/MergeDialog.cpp" line="124"/>
         <source>Choose a reference to merge into &apos;%1&apos;.</source>
-        <translation>&apos;%1&apos; へマージする参照先を指定してください。</translation>
+        <translation>选择一个引用合并到&apos;%1&apos;。</translation>
     </message>
     <message>
         <location filename="../src/dialogs/MergeDialog.cpp" line="126"/>
         <source>Choose a reference to rebase &apos;%1&apos; on.</source>
-        <translation>&apos;%1&apos; をリベースする参照先を指定してください。</translation>
+        <translation>选择一个引用&apos;%1&apos;变基。</translation>
     </message>
     <message>
         <location filename="../src/dialogs/MergeDialog.cpp" line="128"/>
         <source>Choose a reference to squash into &apos;%1&apos;.</source>
-        <translation>&apos;%1&apos; へスカッシュする参照先を指定してください。</translation>
+        <translation>选择一个引用以聚合（Squash）入&apos;%1&apos;。</translation>
     </message>
 </context>
 <context>
@@ -3415,7 +3420,7 @@ Examples
     <message>
         <location filename="../src/tools/MergeTool.cpp" line="35"/>
         <source>External Merge</source>
-        <translation>外部マージツール</translation>
+        <translation>外部合并</translation>
     </message>
 </context>
 <context>
@@ -3423,12 +3428,12 @@ Examples
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="751"/>
         <source>Path to SSH config file:</source>
-        <translation>SSH 構成ファイルへのパス:</translation>
+        <translation>SSH配置文件的路径：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="752"/>
         <source>Path to default / fallback SSH key file:</source>
-        <translation>既定 / フォールバックの SSH 鍵ファイルへのパス:</translation>
+        <translation>默认/后备SSH密钥文件的路径：</translation>
     </message>
 </context>
 <context>
@@ -3451,17 +3456,17 @@ Examples
     <message>
         <location filename="../src/dialogs/ModifySubmoduleDialog.cpp" line="58"/>
         <source>Name:</source>
-        <translation type="unfinished">名前:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/dialogs/ModifySubmoduleDialog.cpp" line="59"/>
         <source>Path:</source>
-        <translation type="unfinished">パス:</translation>
+        <translation type="unfinished">路径：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ModifySubmoduleDialog.cpp" line="60"/>
         <source>URL:</source>
-        <translation type="unfinished">URL:</translation>
+        <translation type="unfinished">地址URL：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ModifySubmoduleDialog.cpp" line="61"/>
@@ -3474,32 +3479,32 @@ Examples
     <message>
         <location filename="../src/dialogs/NewBranchDialog.cpp" line="41"/>
         <source>Checkout branch</source>
-        <translation>ブランチをチェックアウト</translation>
+        <translation>检出分支</translation>
     </message>
     <message>
         <location filename="../src/dialogs/NewBranchDialog.cpp" line="48"/>
         <source>Name:</source>
-        <translation>名前:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/NewBranchDialog.cpp" line="50"/>
         <source>Start Point:</source>
-        <translation>開始地点:</translation>
+        <translation>起点：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/NewBranchDialog.cpp" line="53"/>
         <source>Advanced:</source>
-        <translation>詳細設定:</translation>
+        <translation>高级：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/NewBranchDialog.cpp" line="61"/>
         <source>Upstream:</source>
-        <translation>上流:</translation>
+        <translation>上游：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/NewBranchDialog.cpp" line="72"/>
         <source>Create Branch</source>
-        <translation>ブランチを作成</translation>
+        <translation>新建分支</translation>
     </message>
 </context>
 <context>
@@ -3507,7 +3512,7 @@ Examples
     <message>
         <location filename="../src/ui/PathspecWidget.cpp" line="105"/>
         <source>Filter by Path</source>
-        <translation>パスで絞り込む</translation>
+        <translation>按路径过滤</translation>
     </message>
 </context>
 <context>
@@ -3515,27 +3520,27 @@ Examples
     <message>
         <location filename="../src/dialogs/PluginsPanel.cpp" line="25"/>
         <source>Name</source>
-        <translation>名前</translation>
+        <translation>名称</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PluginsPanel.cpp" line="25"/>
         <source>Kind</source>
-        <translation>部類</translation>
+        <translation>类</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PluginsPanel.cpp" line="25"/>
         <source>Description</source>
-        <translation>説明</translation>
+        <translation>描述</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PluginsPanel.cpp" line="60"/>
         <source>Options</source>
-        <translation>オプション</translation>
+        <translation>选项</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PluginsPanel.cpp" line="71"/>
         <source>%1 Options</source>
-        <translation>%1 のオプション</translation>
+        <translation>%1选项</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PluginsPanel.cpp" line="152"/>
@@ -3550,7 +3555,7 @@ Examples
     <message>
         <location filename="../src/dialogs/PluginsPanel.cpp" line="154"/>
         <source>Error</source>
-        <translation>エラー</translation>
+        <translation>错误</translation>
     </message>
 </context>
 <context>
@@ -3558,7 +3563,7 @@ Examples
     <message>
         <location filename="../src/ui/IndexCompleter.cpp" line="89"/>
         <source>Show Advanced Search</source>
-        <translation>高度な検索を表示</translation>
+        <translation>显示高级搜索</translation>
     </message>
 </context>
 <context>
@@ -3566,12 +3571,12 @@ Examples
     <message>
         <location filename="../src/ui/ColumnView.cpp" line="67"/>
         <source>Added</source>
-        <translation>追加されたリビジョン</translation>
+        <translation>添加</translation>
     </message>
     <message>
         <location filename="../src/ui/ColumnView.cpp" line="68"/>
         <source>Modified</source>
-        <translation>変更されたリビジョン</translation>
+        <translation>修改</translation>
     </message>
 </context>
 <context>
@@ -3579,7 +3584,7 @@ Examples
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="414"/>
         <source>Create Pull Request</source>
-        <translation>プルリクエストを作成</translation>
+        <translation>新建拉取请求</translation>
     </message>
 </context>
 <context>
@@ -3587,47 +3592,47 @@ Examples
     <message>
         <location filename="../src/dialogs/PullRequestDialog.cpp" line="24"/>
         <source>Create Pull Request</source>
-        <translation>プルリクエストを作成</translation>
+        <translation>新建拉取请求</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PullRequestDialog.cpp" line="28"/>
         <source>Title</source>
-        <translation>タイトル</translation>
+        <translation>标题</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PullRequestDialog.cpp" line="31"/>
         <source>Body</source>
-        <translation>本文</translation>
+        <translation>内容</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PullRequestDialog.cpp" line="35"/>
         <source>Maintainer can modify</source>
-        <translation>メンテナーによる編集を許可</translation>
+        <translation>维护者可以修改</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PullRequestDialog.cpp" line="49"/>
         <source>From:</source>
-        <translation>要求元:</translation>
+        <translation>从：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PullRequestDialog.cpp" line="57"/>
         <source>owner/repository</source>
-        <translation>オーナー / リポジトリ</translation>
+        <translation>所有者/仓库</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PullRequestDialog.cpp" line="61"/>
         <source>branch</source>
-        <translation>ブランチ</translation>
+        <translation>分支</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PullRequestDialog.cpp" line="76"/>
         <source>To:</source>
-        <translation>統合先:</translation>
+        <translation>至：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PullRequestDialog.cpp" line="87"/>
         <source>Create</source>
-        <translation>作成</translation>
+        <translation>新建</translation>
     </message>
 </context>
 <context>
@@ -3635,47 +3640,47 @@ Examples
     <message>
         <location filename="../src/ui/DoubleTreeWidget.cpp" line="38"/>
         <source>Expand all</source>
-        <translation type="unfinished"></translation>
+        <translation>全部展开</translation>
     </message>
     <message>
         <location filename="../src/ui/DoubleTreeWidget.cpp" line="39"/>
         <source>Collapse all</source>
-        <translation type="unfinished"></translation>
+        <translation>全部折叠</translation>
     </message>
     <message>
         <location filename="../src/ui/DoubleTreeWidget.cpp" line="40"/>
         <source>Staged Files</source>
-        <translation type="unfinished"></translation>
+        <translation>暂存的文件</translation>
     </message>
     <message>
         <location filename="../src/ui/DoubleTreeWidget.cpp" line="41"/>
         <source>Unstaged Files</source>
-        <translation type="unfinished"></translation>
+        <translation>未暂存的文件</translation>
     </message>
     <message>
         <location filename="../src/ui/DoubleTreeWidget.cpp" line="42"/>
         <source>Committed Files</source>
-        <translation type="unfinished"></translation>
+        <translation>提交的文件</translation>
     </message>
     <message>
         <location filename="../src/ui/DoubleTreeWidget.cpp" line="43"/>
         <source>Workdir Files</source>
-        <translation type="unfinished"></translation>
+        <translation>工作区文件</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffTreeModel.cpp" line="27"/>
         <source>File Name</source>
-        <translation type="unfinished"></translation>
+        <translation>文件名</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffTreeModel.cpp" line="28"/>
         <source>Relative Path</source>
-        <translation type="unfinished"></translation>
+        <translation>相对路径</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffTreeModel.cpp" line="29"/>
         <source>State</source>
-        <translation type="unfinished"></translation>
+        <translation>状态</translation>
     </message>
     <message>
         <location filename="../src/git/Submodule.cpp" line="106"/>
@@ -3875,7 +3880,7 @@ Examples
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/app/Gittyup.cpp" line="25"/>
+        <location filename="../src/app/GitNortek.cpp" line="25"/>
         <source>Your global Git configuration is invalid. GitNortek won&apos;t run properly until this is fixed</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3885,17 +3890,17 @@ Examples
     <message>
         <location filename="../src/dialogs/RebaseConflictDialog.cpp" line="17"/>
         <source>Rebase conflict</source>
-        <translation type="unfinished"></translation>
+        <translation>变基冲突</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RebaseConflictDialog.cpp" line="21"/>
         <source>Abort rebase</source>
-        <translation type="unfinished"></translation>
+        <translation>终止变基</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RebaseConflictDialog.cpp" line="27"/>
         <source>Continue</source>
-        <translation type="unfinished"></translation>
+        <translation>继续</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RebaseConflictDialog.cpp" line="35"/>
@@ -3909,7 +3914,7 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/git/Reference.cpp" line="70"/>
         <source>HEAD detached at %1</source>
-        <translation>リビジョン %1 で作業中</translation>
+        <translation>HEAD在%1处分离</translation>
     </message>
 </context>
 <context>
@@ -3917,7 +3922,7 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/ui/ReferenceList.cpp" line="163"/>
         <source>Commit</source>
-        <translation>コミット</translation>
+        <translation>提交</translation>
     </message>
 </context>
 <context>
@@ -3925,17 +3930,17 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/ui/ReferenceModel.cpp" line="116"/>
         <source>Branches</source>
-        <translation>ブランチ</translation>
+        <translation>分支</translation>
     </message>
     <message>
         <location filename="../src/ui/ReferenceModel.cpp" line="135"/>
         <source>Remotes</source>
-        <translation>リモート</translation>
+        <translation>远程</translation>
     </message>
     <message>
         <location filename="../src/ui/ReferenceModel.cpp" line="152"/>
         <source>Tags</source>
-        <translation>タグ</translation>
+        <translation>标签</translation>
     </message>
 </context>
 <context>
@@ -3943,49 +3948,49 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/ui/ReferenceView.cpp" line="253"/>
         <source>Branch</source>
-        <translation>ブランチ</translation>
+        <translation>分支</translation>
     </message>
     <message>
         <location filename="../src/ui/ReferenceView.cpp" line="256"/>
         <source>Remote</source>
-        <translation>リモート</translation>
+        <translation>远程</translation>
     </message>
     <message>
         <location filename="../src/ui/ReferenceView.cpp" line="259"/>
         <source>Tag</source>
-        <translation>タグ</translation>
+        <translation>标签</translation>
     </message>
     <message>
         <source>Checkout</source>
-        <translation type="vanished">チェックアウト</translation>
+        <translation type="vanished">检出</translation>
     </message>
     <message>
         <source>Rename</source>
-        <translation type="vanished">名前を変更</translation>
+        <translation type="vanished">重命名</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="vanished">削除</translation>
+        <translation type="vanished">删除</translation>
     </message>
     <message>
         <source>Push Tag to %1</source>
-        <translation type="vanished">タグを %1 へプッシュ</translation>
+        <translation type="vanished">将标签推送到%1</translation>
     </message>
     <message>
         <source>New Local Branch</source>
-        <translation type="vanished">新しいローカルブランチ</translation>
+        <translation type="vanished">新建本地分支</translation>
     </message>
     <message>
         <source>Merge...</source>
-        <translation type="vanished">マージ...</translation>
+        <translation type="vanished">合并...</translation>
     </message>
     <message>
         <source>Rebase...</source>
-        <translation type="vanished">リベース...</translation>
+        <translation type="vanished">变基...</translation>
     </message>
     <message>
         <source>Squash...</source>
-        <translation type="vanished">スカッシュ...</translation>
+        <translation type="vanished">聚合（Squash）...</translation>
     </message>
 </context>
 <context>
@@ -3993,7 +3998,7 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="361"/>
         <source>Refresh</source>
-        <translation>再読み込み</translation>
+        <translation>刷新</translation>
     </message>
 </context>
 <context>
@@ -4009,59 +4014,59 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="163"/>
         <source>remote: %1</source>
-        <translation>リモート: %1</translation>
+        <translation>远程：%1</translation>
     </message>
     <message>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="213"/>
         <source>failed to execute pre-push hook: bash not found</source>
-        <translation>プッシュ前フックの実行に失敗しました: Bash が見つかりません</translation>
+        <translation>无法执行pre-push钩子：未找到bash</translation>
     </message>
     <message>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="248"/>
         <source>failed to execute pre-push hook: %1</source>
-        <translation>プッシュ前フックの実行に失敗しました: %1</translation>
+        <translation>无法执行pre-push钩子：%1</translation>
     </message>
     <message>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="296"/>
         <source>HTTPS Credentials</source>
-        <translation>HTTPS の資格情報</translation>
+        <translation>HTTPS凭证</translation>
     </message>
     <message>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="296"/>
         <source>SSH Passphrase</source>
-        <translation>SSH のパスフレーズ</translation>
+        <translation>SSH密码</translation>
     </message>
     <message>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="311"/>
         <source>Username:</source>
-        <translation>ユーザー名:</translation>
+        <translation>用户名：</translation>
     </message>
     <message>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="312"/>
         <source>Password:</source>
-        <translation>パスワード:</translation>
+        <translation>密码：</translation>
     </message>
     <message>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="312"/>
         <source>Passphrase:</source>
-        <translation>パスフレーズ:</translation>
+        <translation>密码短语：</translation>
     </message>
     <message>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="327"/>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="375"/>
         <source>authentication canceled</source>
-        <translation>認証をキャンセルしました</translation>
+        <translation>身份验证已取消</translation>
     </message>
     <message>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="460"/>
         <source>From %1</source>
-        <translation>%1 から</translation>
+        <translation>从%1</translation>
     </message>
     <message>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="460"/>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="502"/>
         <source>To %1</source>
-        <translation>%1 へ</translation>
+        <translation>至%1</translation>
     </message>
 </context>
 <context>
@@ -4069,87 +4074,87 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="44"/>
         <source>Push all tags</source>
-        <translation>全てのタグをプッシュ</translation>
+        <translation>推送所有标签</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="44"/>
         <source>Update existing tags</source>
-        <translation>既存のタグを更新</translation>
+        <translation>更新现有标签</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="52"/>
         <source>Merge</source>
-        <translation>マージ</translation>
+        <translation>合并</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="53"/>
         <source>Rebase</source>
-        <translation>リベース</translation>
+        <translation>变基</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="54"/>
         <source>Merge (No Fast-forward)</source>
-        <translation>マージ (高速転送しない)</translation>
+        <translation>合并（无快进）</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="55"/>
         <source>Merge (Fast-forward Only)</source>
-        <translation>マージ (高速転送のみ)</translation>
+        <translation>合并（仅快进）</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="65"/>
         <source>Set upstream</source>
-        <translation>上流を設定</translation>
+        <translation>设置上游</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="66"/>
         <source>Force</source>
-        <translation>強制</translation>
+        <translation>强制</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="79"/>
         <source>Remote Reference:</source>
-        <translation>リモートの参照先:</translation>
+        <translation>远程引用：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="106"/>
         <source>Prune references</source>
-        <translation>不要ブランチの参照解除</translation>
+        <translation>清除引用</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="113"/>
         <source>Fetch</source>
-        <translation>フェッチ</translation>
+        <translation>获取</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="117"/>
         <source>Pull</source>
-        <translation>プル</translation>
+        <translation>拉取</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="121"/>
         <source>Push</source>
-        <translation>プッシュ</translation>
+        <translation>推送</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="127"/>
         <source>Remote:</source>
-        <translation>リモート:</translation>
+        <translation>远程：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="129"/>
         <source>Reference:</source>
-        <translation>参照先:</translation>
+        <translation>引用：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="131"/>
         <source>Action:</source>
-        <translation>アクション:</translation>
+        <translation>动作：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="140"/>
         <source>Advanced:</source>
-        <translation>詳細設定:</translation>
+        <translation>高级：</translation>
     </message>
 </context>
 <context>
@@ -4157,17 +4162,17 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="41"/>
         <source>Remote Repository URL</source>
-        <translation>リモートリポジトリの URL</translation>
+        <translation>远程仓库URL</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="44"/>
         <source>Choose protocol to authenticate with the remote.</source>
-        <translation>リモートへの認証に使うプロトコルを指定します。</translation>
+        <translation>选择协议以对远程进行身份验证。</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="45"/>
         <source>Enter the URL of the remote repository or browse for a local directory</source>
-        <translation>リモートリポジトリの URL を入力するか、ローカルディレクトリを参照します</translation>
+        <translation>输入远程仓库的URL或浏览本地目录</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="72"/>
@@ -4177,22 +4182,22 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="74"/>
         <source>Choose Directory</source>
-        <translation>ディレクトリを選択</translation>
+        <translation>选择目录</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="96"/>
         <source>Examples of valid URLs include:&lt;table cellspacing=&apos;8&apos;&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;HTTPS&lt;/b&gt;&lt;/td&gt;&lt;td&gt;https://hostname/path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;SSH&lt;/b&gt;&lt;/td&gt;&lt;td&gt;git@hostname:path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;Git&lt;/b&gt;&lt;/td&gt;&lt;td&gt;git://hostname/path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;Local&lt;/b&gt;&lt;/td&gt;&lt;td&gt;/path/to/repo, C:\path\to\repo&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
-        <translation>有効な URL の例:&lt;table cellspacing=&apos;8&apos;&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;HTTPS&lt;/b&gt;&lt;/td&gt;&lt;td&gt;https://hostname/path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;SSH&lt;/b&gt;&lt;/td&gt;&lt;td&gt;git@hostname:path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;Git&lt;/b&gt;&lt;/td&gt;&lt;td&gt;git://hostname/path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;ローカル&lt;/b&gt;&lt;/td&gt;&lt;td&gt;/path/to/repo, C:\path\to\repo&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
+        <translation>有效URL的示例包括：&lt;table cellspacing=&apos;8&apos;&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;HTTPS&lt;/b&gt;&lt;/td&gt;&lt;td&gt;https://hostname/path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align =&apos;right&apos;&gt;&lt;b&gt;SSH&lt;/b&gt;&lt;/td&gt;&lt;td&gt;git@hostname:path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;Git&lt;/b&gt;&lt;/td&gt;&lt;td&gt;git://hostname/path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;本地&lt;/b&gt;&lt;/td&gt;&lt;td&gt;/path/to/repo, C:\path\to\repo&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="110"/>
         <source>Protocol:</source>
-        <translation>プロトコル:</translation>
+        <translation>协议：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="111"/>
         <source>URL:</source>
-        <translation>URL:</translation>
+        <translation>地址URL：</translation>
     </message>
 </context>
 <context>
@@ -4200,12 +4205,12 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/dialogs/RemoteTableModel.cpp" line="57"/>
         <source>Name</source>
-        <translation>名前</translation>
+        <translation>名称</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteTableModel.cpp" line="59"/>
         <source>URL</source>
-        <translation>URL</translation>
+        <translation>地址URL</translation>
     </message>
 </context>
 <context>
@@ -4213,17 +4218,17 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="194"/>
         <source>Delete Remote?</source>
-        <translation>リモートを削除しますか？</translation>
+        <translation>您确定要删除远程吗？</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="195"/>
         <source>Are you sure you want to delete &apos;%1&apos;?</source>
-        <translation>&apos;%1&apos; を削除しますか？</translation>
+        <translation>您确定要删除&apos;%1&apos;吗？</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="200"/>
         <source>Delete</source>
-        <translation>削除</translation>
+        <translation>删除</translation>
     </message>
 </context>
 <context>
@@ -4231,50 +4236,50 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/dialogs/RenameBranchDialog.cpp" line="33"/>
         <source>Name:</source>
-        <translation type="unfinished">名前:</translation>
+        <translation>名称：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RenameBranchDialog.cpp" line="38"/>
         <source>Rename Branch</source>
-        <translation type="unfinished"></translation>
+        <translation>重命名分支</translation>
     </message>
 </context>
 <context>
     <name>RepoModel</name>
     <message>
         <source>Connecting</source>
-        <translation type="vanished">接続しています</translation>
+        <translation type="vanished">连接中</translation>
     </message>
     <message>
         <source>open</source>
-        <translation type="vanished">開く</translation>
+        <translation type="vanished">打开</translation>
     </message>
     <message>
         <source>recent</source>
-        <translation type="vanished">最近使ったリポジトリ</translation>
+        <translation type="vanished">最近</translation>
     </message>
     <message>
         <source>remote</source>
-        <translation type="vanished">リモート</translation>
+        <translation type="vanished">远程</translation>
     </message>
     <message>
         <source>none</source>
-        <translation type="vanished">なし</translation>
+        <translation type="vanished">无</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="95"/>
         <source>Clone Repository</source>
-        <translation>リポジトリをクローン</translation>
+        <translation>克隆仓库</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="97"/>
         <source>Open Existing Repository</source>
-        <translation>既存のリポジトリを開く</translation>
+        <translation>打开现有仓库</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="99"/>
         <source>Initialize New Repository</source>
-        <translation>新しいリポジトリを作成</translation>
+        <translation>初始化新仓库</translation>
     </message>
 </context>
 <context>
@@ -4282,86 +4287,86 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="227"/>
         <source>Indexing...</source>
-        <translation>インデックスを構築しています...</translation>
+        <translation>索引...</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="235"/>
         <source>Search</source>
-        <translation>検索</translation>
+        <translation>搜索</translation>
     </message>
     <message>
         <source>The indexer worker process crashed. If this problem persists please contact us at support@gitahead.com.</source>
-        <translation type="vanished">インデックスを構築する作業プロセスがクラッシュしました。問題が立て続けに起こる場合は、support@gitahead.com へ報告をお願いします。</translation>
+        <translation type="vanished">索引器工作进程崩溃。如果此问题仍然存在，请通过support@gitahead.com与我们联系。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="241"/>
         <source>Indexer Crashed</source>
-        <translation>インデクサーがクラッシュしました</translation>
+        <translation>索引器崩溃</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="329"/>
         <source>Status</source>
-        <translation type="unfinished">状態</translation>
+        <translation type="unfinished">状态</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="411"/>
         <source>Stage Directory?</source>
-        <translation>ディレクトリをステージに上げますか？</translation>
+        <translation>您确定要暂存目录吗？</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="412"/>
         <source>Are you sure you want to stage &apos;%1&apos;?</source>
-        <translation>&apos;%1&apos; をステージに上げますか？</translation>
+        <translation>您确定要暂存&apos;%1&apos;吗？</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="413"/>
         <source>This will result in the addition of %1 files.</source>
-        <translation>%1 個のファイルが追加されます。</translation>
+        <translation>这将导致添加%1个文件。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="415"/>
         <source>more than 100</source>
-        <translation>100+</translation>
+        <translation>超过100</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="419"/>
         <source>Stage Directory</source>
-        <translation>ディレクトリをステージに上げる</translation>
+        <translation>暂存目录</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="422"/>
         <source>Stop prompting to stage directories</source>
-        <translation>ディレクトリのステージについて質問しない</translation>
+        <translation>停止提示暂存目录</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="438"/>
         <source>Stage Large File?</source>
-        <translation>大きなファイルをステージに上げますか？</translation>
+        <translation>暂存大文件？</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="440"/>
         <source>Are you sure you want to stage &apos;%1&apos; with a size of %2?</source>
-        <translation>&apos;%1&apos; (容量 %2) をステージに上げますか？</translation>
+        <translation>您确定要暂存大小为%2的&apos;%1&apos;吗？</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="445"/>
         <source>Stage</source>
-        <translation>ステージに上げる</translation>
+        <translation>暂存</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="449"/>
         <source>Track with LFS</source>
-        <translation>LFS で追跡</translation>
+        <translation>使用LFS跟踪</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="452"/>
         <source>This repository has LFS enabled. Do you want to track the file with LFS instead?</source>
-        <translation>このリポジトリは LFS を使用しています。ファイルを代わりに LFS で追跡させますか？</translation>
+        <translation>该仓库已启用LFS。您是否要使用LFS跟踪文件？</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="456"/>
         <source>Stop prompting to stage large files</source>
-        <translation>大きなファイルのステージについて質問しない</translation>
+        <translation>停止提示暂存大文件</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="499"/>
@@ -4371,58 +4376,58 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="524"/>
         <source>Esc</source>
-        <translation>Esc</translation>
+        <translation>退出</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="530"/>
         <source>stage</source>
-        <translation type="unfinished"></translation>
+        <translation>暂存</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="535"/>
         <source>Git LFS was not found on the PATH. &lt;a href=&apos;https://git-lfs.github.com&apos;&gt;Install Git LFS&lt;/a&gt; to use LFS integration.</source>
-        <translation>Git LFS がどの PATH にも見つかりませんでした。LFS 統合機能を使うには、&lt;a href=&apos;https://git-lfs.github.com&apos;&gt;Git LFS をインストール&lt;/a&gt;してください。</translation>
+        <translation>在PATH上找不到Git LFS。 &lt;a href=&apos;https://git-lfs.github.com&apos;&gt;安装Git LFS &lt;/a&gt;以使用LFS集成。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="599"/>
         <source>untracked file</source>
-        <translation>未追跡のファイル</translation>
+        <translation>未跟踪的文件</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="600"/>
         <source>untracked files</source>
-        <translation>未追跡のファイル</translation>
+        <translation>未跟踪的文件</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="603"/>
         <source>Remove Untracked Files</source>
-        <translation>未追跡のファイルを削除</translation>
+        <translation>删除未跟踪的文件</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="604"/>
         <source>Remove %1 %2?</source>
-        <translation>%2 %1 個を削除しますか？</translation>
+        <translation>移除 %1 %2?</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="607"/>
         <source>This action cannot be undone.</source>
-        <translation>この操作は元に戻せません。</translation>
+        <translation>此操作无法撤消。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="610"/>
         <source>Remove</source>
-        <translation>削除</translation>
+        <translation>删除</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="885"/>
         <location filename="../src/ui/RepoView.cpp" line="901"/>
         <source>Certificate Error</source>
-        <translation type="unfinished"></translation>
+        <translation>证书错误</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="886"/>
         <source>SSL verification disabled for this repository</source>
-        <translation type="unfinished"></translation>
+        <translation>已对此存储库禁用SSL验证</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="888"/>
@@ -4430,12 +4435,15 @@ Would you like to fix the merge conflict and continue?</source>
   sslVerify = false
 
 was added to %1/config</source>
-        <translation type="unfinished"></translation>
+        <translation>[http]
+  sslVerify = false
+
+已添加到 %1/config</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="902"/>
         <source>SSL verification disabled for all git repositories</source>
-        <translation type="unfinished"></translation>
+        <translation>对所有git存储库禁用SSL验证</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="904"/>
@@ -4443,22 +4451,25 @@ was added to %1/config</source>
   sslVerify = false
 
 was added to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>[http]
+  sslVerify = false
+
+已添加到 %1</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="928"/>
         <source>Pull Request</source>
-        <translation>プルリクエスト</translation>
+        <translation>拉取请求</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="928"/>
         <source>Create</source>
-        <translation>作成</translation>
+        <translation>新建</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="929"/>
         <source>create pull request</source>
-        <translation>プルリクエストを作成</translation>
+        <translation>新建拉取请求</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="943"/>
@@ -4470,58 +4481,58 @@ was added to %1</source>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="943"/>
         <source>Initialize</source>
-        <translation>初期化</translation>
+        <translation>初始化</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="945"/>
         <source>initialize</source>
-        <translation type="unfinished"></translation>
+        <translation>初始化</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="949"/>
         <source>Git LFS initialized.</source>
-        <translation>Git LFS を初期化しました。</translation>
+        <translation>Git LFS已初始化。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="953"/>
         <source>Deinitialize</source>
-        <translation>解除</translation>
+        <translation>取消初始化</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="955"/>
         <source>deinitialize</source>
-        <translation type="unfinished"></translation>
+        <translation>取消初始化</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="959"/>
         <source>Git LFS Deinitialized.</source>
-        <translation>Git LFS を解除しました。</translation>
+        <translation>Git LFS已初始化。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="964"/>
         <source>Lock</source>
-        <translation>ロック</translation>
+        <translation>锁定</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="964"/>
         <source>Unlock</source>
-        <translation>ロック解除</translation>
+        <translation>解除锁定</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="969"/>
         <location filename="../src/ui/RepoView.cpp" line="1175"/>
         <source>Unable to %1 &apos;%2&apos; - %3</source>
-        <translation>%1できませんでした: &apos;%2&apos; - %3</translation>
+        <translation>无法%1&apos;%2&apos;-%3</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1056"/>
         <source>Hide Log</source>
-        <translation type="unfinished">ログを隠す</translation>
+        <translation type="unfinished">隐藏日志</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1056"/>
         <source>Show Log</source>
-        <translation type="unfinished">ログを表示</translation>
+        <translation type="unfinished">显示日志</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1124"/>
@@ -4546,148 +4557,148 @@ was added to %1</source>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1174"/>
         <source>Unable to %1 - %2</source>
-        <translation>%1できませんでした - %2</translation>
+        <translation>无法%1-%2</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1219"/>
         <source>%1 remotes</source>
-        <translation>%1 個のリモート</translation>
+        <translation>%1个远程</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1220"/>
         <source>Fetch All</source>
-        <translation>全てフェッチ</translation>
+        <translation>获取全部</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1248"/>
         <source>Fetch</source>
-        <translation>フェッチ</translation>
+        <translation>获取</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1250"/>
         <location filename="../src/ui/RepoView.cpp" line="1346"/>
         <location filename="../src/ui/RepoView.cpp" line="1931"/>
         <source>&lt;i&gt;no remote&lt;/i&gt;</source>
-        <translation>&lt;i&gt;リモートなし&lt;/i&gt;</translation>
+        <translation>&lt;i&gt;没有远程&lt;/i&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1257"/>
         <source>Unable to fetch. No upstream is configured for the current branch, and there isn&apos;t a remote called &apos;origin&apos;.</source>
-        <translation>フェッチできませんでした。現在のブランチに上流が設定されておらず、&apos;origin&apos; というリモートもありません。</translation>
+        <translation>无法获取。当前分支未配置上游，也没有名为“origin”的远程服务器。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1271"/>
         <location filename="../src/ui/RepoView.cpp" line="2992"/>
         <source>Fetch canceled.</source>
-        <translation>フェッチをキャンセルしました。</translation>
+        <translation>获取已取消。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1273"/>
         <source>fetch from</source>
-        <translation>リモートからフェッチ</translation>
+        <translation>获取自</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1280"/>
         <source>You may disable ssl verification &lt;a href=&apos;action:sslverifyrepo&apos;&gt;for this repository&lt;/a&gt; or overall disable ssl verification &lt;a href=&apos;action:sslverifygit&apos;&gt;for all repositories&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>你可以针对此仓库禁用SSL验证&lt;a href=&apos;action:sslverifyrepo&apos;&gt;for this repository&lt;/a&gt;，或对所有仓库全局禁用SSL验证&lt;a href=&apos;action:sslverifygit&apos;&gt;for all repositories&lt;/a&gt;。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1290"/>
         <location filename="../src/ui/RepoView.cpp" line="2030"/>
         <location filename="../src/ui/RepoView.cpp" line="2197"/>
         <source>Everything up-to-date.</source>
-        <translation>全て最新です。</translation>
+        <translation>一切都是最新的。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1345"/>
         <location filename="../src/ui/RepoView.cpp" line="1450"/>
         <location filename="../src/ui/RepoView.cpp" line="2705"/>
         <source>&lt;i&gt;no branch&lt;/i&gt;</source>
-        <translation>&lt;i&gt;ブランチなし&lt;/i&gt;</translation>
+        <translation>&lt;i&gt;没有分支&lt;/i&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1347"/>
         <source>%1 from %2</source>
-        <translation>%2 から %1 へ</translation>
+        <translation>来自%2的%1</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1348"/>
         <location filename="../src/ui/RepoView.cpp" line="2481"/>
         <source>Pull</source>
-        <translation>プル</translation>
+        <translation>拉取</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1417"/>
         <source>&lt;i&gt;no upstream&lt;/i&gt;</source>
-        <translation>&lt;i&gt;上流なし&lt;/i&gt;</translation>
+        <translation>&lt;i&gt;没有上游&lt;/i&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1440"/>
         <source>Merge</source>
-        <translation>マージ</translation>
+        <translation>合并</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1441"/>
         <source>%1 into %2</source>
-        <translation>%1 を %2 へ</translation>
+        <translation>%1到%2</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1443"/>
         <source>Fast-forward</source>
-        <translation>高速転送</translation>
+        <translation>快进</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1444"/>
         <source>%2 to %1</source>
-        <translation>%2 を %1 へ</translation>
+        <translation>%2至%1</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1446"/>
         <location filename="../src/ui/RepoView.cpp" line="1762"/>
         <source>Rebase</source>
-        <translation>リベース</translation>
+        <translation>变基</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1447"/>
         <source>%2 on %1</source>
-        <translation>%2 を %1 で</translation>
+        <translation>%1上的%2</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1456"/>
         <source>The repository is empty.</source>
-        <translation>リポジトリが空です。</translation>
+        <translation>该库为空。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1464"/>
         <location filename="../src/ui/RepoView.cpp" line="2014"/>
         <source>The current branch &apos;%1&apos; has no upstream branch.</source>
-        <translation>現在のブランチ &apos;%1&apos; には上流のブランチがありません。</translation>
+        <translation>当前分支&apos;%1&apos;没有上游分支。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1470"/>
         <location filename="../src/ui/RepoView.cpp" line="2960"/>
         <source>Already up-to-date.</source>
-        <translation>既に最新です。</translation>
+        <translation>已经是最新的。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1475"/>
         <source>Unable to fast-forward.</source>
-        <translation>高速転送できませんでした。</translation>
+        <translation>无法快进。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1511"/>
         <source>fast-forward</source>
-        <translation>高速転送</translation>
+        <translation>快进</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1524"/>
         <source>You may be able to reconcile your changes with the conflicting files by &lt;a href=&apos;action:stash&apos;&gt;stashing&lt;/a&gt; before you &lt;a href=&apos;%1&apos;&gt;fast-forward&lt;/a&gt;. Then &lt;a href=&apos;action:unstash&apos;&gt;unstash&lt;/a&gt; to restore your changes.</source>
-        <translation>&lt;a href=&apos;%1&apos;&gt;高速転送&lt;/a&gt;する前に&lt;a href=&apos;action:stash&apos;&gt;スタッシュへ預ける&lt;/a&gt;ことで、衝突したファイルへの変更を調整できるかもしれません。今までに行った変更は、後で&lt;a href=&apos;action:unstash&apos;&gt;スタッシュから引き出して&lt;/a&gt;復元できます。</translation>
+        <translation>在&lt;a href=&apos;%1&apos;&gt;快进&lt;/a&gt;之前，您可以通过&lt;a href=&apos;action:stash&apos;&gt;备份未提交修改到贮藏区&lt;/a&gt;来协调更改与冲突的文件。然后用&lt;a href=&apos;action:unstash&apos;&gt;应用备份并从贮藏区删除&lt;/a&gt;来恢复您的更改。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1536"/>
         <source>If you want to create a new merge commit instead of fast-forwarding, you can &lt;a href=&apos;%1&apos;&gt;merge without fast-forwarding &lt;/a&gt; instead.</source>
-        <translation>新しいマージコミットを、高速転送せずに作成したい場合は、代わりに&lt;a href=&apos;%1&apos;&gt;マージ (高速転送しない)&lt;/a&gt;を使用できます。</translation>
+        <translation>如果要创建新的合并提交而不是快进，则可用&lt;a href=&apos;%1&apos;&gt;合并而不快进&lt;/a&gt;代替。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1556"/>
@@ -4695,56 +4706,56 @@ was added to %1</source>
         <location filename="../src/ui/RepoView.cpp" line="1634"/>
         <location filename="../src/ui/RepoView.cpp" line="1646"/>
         <source>merge</source>
-        <translation>マージ</translation>
+        <translation>合并</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1563"/>
         <location filename="../src/ui/RepoView.cpp" line="1779"/>
         <source>You may be able to rebase by &lt;a href=&apos;action:stash&apos;&gt;stashing&lt;/a&gt; before trying to &lt;a href=&apos;action:merge&apos;&gt;merge&lt;/a&gt;. Then &lt;a href=&apos;action:unstash&apos;&gt;unstash&lt;/a&gt; to restore your changes.</source>
-        <translation>&lt;a href=&apos;action:merge&apos;&gt;マージ&lt;/a&gt;する前に&lt;a href=&apos;action:stash&apos;&gt;スタッシュへ預ける&lt;/a&gt;ことで、リベースできるかもしれません。今までに行った変更は、後で&lt;a href=&apos;action:unstash&apos;&gt;スタッシュから引き出して&lt;/a&gt;復元できます。</translation>
+        <translation>在尝试&lt;a href=&apos;action:mash&apos;&gt;合并&lt;/a&gt;之前，您可以通过&lt;a href=&apos;action:stash&apos;&gt;备份未提交修改到贮藏区&lt;/a&gt;进行调整。然后用&lt;a href=&apos;action:unstash&apos;&gt;应用备份并从贮藏区删除&lt;/a&gt;来恢复您的更改。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1634"/>
         <location filename="../src/ui/RepoView.cpp" line="1665"/>
         <location filename="../src/ui/RepoView.cpp" line="1688"/>
         <source>Abort</source>
-        <translation>中断</translation>
+        <translation>中止</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1635"/>
         <source>Some merged files have unstaged changes</source>
-        <translation>マージしたファイルのいくつかの変更が、まだステージに上がっていません</translation>
+        <translation>某些合并的文件具有未暂存的更改</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1636"/>
         <source>abort merge</source>
-        <translation>マージを中断</translation>
+        <translation>中止</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1650"/>
         <location filename="../src/ui/RepoView.cpp" line="1804"/>
         <location filename="../src/ui/RepoView.cpp" line="1809"/>
         <source>revert</source>
-        <translation>取り消し</translation>
+        <translation>还原</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1655"/>
         <location filename="../src/ui/RepoView.cpp" line="1850"/>
         <location filename="../src/ui/RepoView.cpp" line="1855"/>
         <source>cherry-pick</source>
-        <translation>取り込み</translation>
+        <translation>拣选操作</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1661"/>
         <location filename="../src/ui/RepoView.cpp" line="1700"/>
         <location filename="../src/ui/RepoView.cpp" line="1716"/>
         <source>rebase</source>
-        <translation>リベース</translation>
+        <translation>变基</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1680"/>
         <source>Continue ongoing rebase</source>
-        <translation type="unfinished"></translation>
+        <translation>继续正在进行的变基</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1680"/>
@@ -4754,12 +4765,12 @@ was added to %1</source>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1688"/>
         <source>Invalid head.</source>
-        <translation type="unfinished"></translation>
+        <translation>头部无效。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1706"/>
         <source>You may be able to rebase by &lt;a href=&apos;action:stash&apos;&gt;stashing&lt;/a&gt; before trying to &lt;a href=&apos;action:rebase&apos;&gt;rebase&lt;/a&gt;. Then &lt;a href=&apos;action:unstash&apos;&gt;unstash&lt;/a&gt; to restore your changes.</source>
-        <translation>&lt;a href=&apos;action:rebase&apos;&gt;リベース&lt;/a&gt;する前に&lt;a href=&apos;action:stash&apos;&gt;スタッシュへ預ける&lt;/a&gt;ことで、リベースできるかもしれません。今までに行った変更は、後で&lt;a href=&apos;action:unstash&apos;&gt;スタッシュから引き出して&lt;/a&gt;復元できます。</translation>
+        <translation>在尝试&lt;a href=&apos;action:rebase&apos;&gt;变基&lt;/a&gt;之前，您可以通过&lt;a href=&apos;action:stash&apos;&gt;备份未提交修改到贮藏区&lt;/a&gt;进行调整。然后用&lt;a href=&apos;action:unstash&apos;&gt;应用备份并从贮藏区删除&lt;/a&gt;来恢复您的更改。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1723"/>
@@ -4775,146 +4786,146 @@ was added to %1</source>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1725"/>
         <source>Apply</source>
-        <translation>適用</translation>
+        <translation>应用</translation>
     </message>
     <message>
         <source>There was a merge conflict. The rebase has been aborted</source>
-        <translation type="vanished">マージに衝突があります。リベースを中断しました</translation>
+        <translation type="vanished">有合并冲突。 变基已中止</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1749"/>
         <source>%1 - %2 &lt;i&gt;already applied&lt;/i&gt;</source>
-        <translation>%1 - %2 &lt;i&gt;既に適用されています&lt;/i&gt;</translation>
+        <translation>%1 - %2 &lt;i&gt;已应用&lt;/i&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1750"/>
         <source>%1 - %2 as %3</source>
-        <translation>%1 - %2 を %3 として</translation>
+        <translation>%1 - %2作为%3</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1772"/>
         <location filename="../src/ui/RepoView.cpp" line="1792"/>
         <location filename="../src/ui/RepoView.cpp" line="3865"/>
         <source>squash</source>
-        <translation>スカッシュ</translation>
+        <translation>聚合（Squash）</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1800"/>
         <source>Revert</source>
-        <translation>取り消し</translation>
+        <translation>还原</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1817"/>
         <source>Revert &quot;%1&quot;
 
 This reverts commit %2.</source>
-        <translation>&quot;%1&quot; の取り消し
+        <translation>还原&quot;%1&quot;
 
-コミット %2 を取り消しました。</translation>
+这将还原提交%2。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1844"/>
         <source>&lt;i&gt;detached HEAD&lt;/i&gt;</source>
-        <translation>&lt;i&gt;作業中のリビジョン&lt;/i&gt;</translation>
+        <translation>&lt;i&gt;游离的头&lt;/i&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1845"/>
         <source>%1 on %2</source>
-        <translation>%2 に %1 を</translation>
+        <translation>%2上的%1</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1846"/>
         <source>Cherry-pick</source>
-        <translation>取り込み</translation>
+        <translation>拣选操作</translation>
     </message>
     <message>
         <source>Force Push?</source>
-        <translation type="vanished">強制プッシュしますか？</translation>
+        <translation type="vanished">强制推送？</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1892"/>
         <source>Are you sure you want to force push?</source>
-        <translation>強制的にプッシュしますか？</translation>
+        <translation>您确定要强制推送吗？</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1898"/>
         <source>The remote will lose any commits that are reachable only from the overwritten reference. Dropped commits may be unexpectedly reintroduced by clones that already contain those commits locally.</source>
-        <translation>上書きされた参照からでしか辿ることのできないコミットは、リモート上で一切利用できなくなります。また、ここでコミットを削除したとしても、クローンされた他のリポジトリにはコミットが残っているかもしれないため、不意に再度混入することもあり得ます。</translation>
+        <translation>远程将丢失所有只能从覆盖的引用访问的提交。已在本地包含那些提交的克隆可能会意外地重新引入已删除的提交。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1903"/>
         <source>Force Push</source>
-        <translation>強制プッシュ</translation>
+        <translation>强制推送</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1928"/>
         <source>&lt;i&gt;no reference&lt;/i&gt;</source>
-        <translation>&lt;i&gt;参照なし&lt;/i&gt;</translation>
+        <translation>&lt;i&gt;没有引用&lt;/i&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1970"/>
         <location filename="../src/ui/RepoView.cpp" line="2482"/>
         <source>Push</source>
-        <translation>プッシュ</translation>
+        <translation>推送</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1970"/>
         <source>Push (Force)</source>
-        <translation>プッシュ (強制)</translation>
+        <translation>推送（强制）</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1971"/>
         <location filename="../src/ui/RepoView.cpp" line="2764"/>
         <source>%1 to %2</source>
-        <translation>%1 を %2 へ</translation>
+        <translation>%1至%2</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1975"/>
         <location filename="../src/ui/RepoView.cpp" line="2706"/>
         <source>You are not currently on a branch.</source>
-        <translation>現在どのブランチも選択されていません。</translation>
+        <translation>您目前不在一个分支上。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1978"/>
         <source>Create a commit to add the default &apos;%1&apos; branch.</source>
-        <translation>既定のブランチ &apos;%1&apos; を追加するには、コミットを作成します。</translation>
+        <translation>新建一个提交以添加默认的&apos;%1&apos;分支。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1982"/>
         <source>You can &lt;a href=&apos;action:checkout&apos;&gt;checkout&lt;/a&gt; a branch then &lt;a href=&apos;action:push&apos;&gt;push&lt;/a&gt; again, or &lt;a href=&apos;action:push-to&apos;&gt;push to an explicit branch&lt;/a&gt;.</source>
-        <translation>ブランチを&lt;a href=&apos;action:checkout&apos;&gt;チェックアウト&lt;/a&gt;した後に、再度&lt;a href=&apos;action:push&apos;&gt;プッシュ&lt;/a&gt;できます。また、&lt;a href=&apos;action:push-to&apos;&gt;明示的なブランチへプッシュ&lt;/a&gt;することもできます。</translation>
+        <translation>您可以先&lt;a href=&apos;action:checkout&apos;&gt;检出&lt;/a&gt;分支，然后再次&lt;a href=&apos;action:push&apos;&gt;推送&lt;/a&gt;，或&lt;a href=&apos;action:push-to&apos;&gt;推送到显式分支&lt;/a&gt;。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1992"/>
         <source>The current branch &apos;%1&apos; has no default remote.</source>
-        <translation>現在のブランチ &apos;%1&apos; には既定のリモートがありません。</translation>
+        <translation>当前分支&apos;%1&apos;没有默认的远程分支。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1995"/>
         <source>You may want to &lt;a href=&apos;action:add-remote?name=origin&apos;&gt;add a remote named &apos;origin&apos;&lt;/a&gt;. Then &lt;a href=&apos;action:push?set-upstream=true&apos;&gt;push and set the current branch&apos;s upstream&lt;/a&gt; to begin tracking a remote branch called &apos;origin/%1&apos;.</source>
-        <translation>&lt;a href=&apos;action:add-remote?name=origin&apos;&gt;&apos;origin&apos; という名前のリモートを追加&lt;/a&gt;して、&lt;a href=&apos;action:push?set-upstream=true&apos;&gt;現在のブランチをプッシュ、上流を設定&lt;/a&gt;することにより、リモートブランチ &apos;origin/%1&apos; の追跡を開始できます。</translation>
+        <translation>您可能想要执行&lt;a href=&apos;action:add-remote?name=origin&apos;&gt;添加一个名为“origin”的远程仓库&lt;/a&gt;。然后&lt;a href=&apos;action:push?set-upstream=true&apos;&gt;推送并设置为当前分支的上游&lt;/a&gt;，以开始跟踪名为“origin/%1”的远程分支。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2002"/>
         <source>You can also &lt;a href=&apos;action:push-to&apos;&gt;push to an explicit URL&lt;/a&gt; if you don&apos;t want to track a remote branch.</source>
-        <translation>また、&lt;a href=&apos;action:push-to&apos;&gt;明示的な URL へプッシュ&lt;/a&gt;して、リモートブランチを追跡しないようにもできます。</translation>
+        <translation>如果您不想跟踪远程分支，也可以&lt;a href=&apos;action:push-to&apos;&gt;推送到显式URL &lt;/a&gt;。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2015"/>
         <source>To begin tracking a remote branch called &apos;%1&apos;, &lt;a href=&apos;action:push?set-upstream=true&apos;&gt;push and set the current branch&apos;s upstream&lt;/a&gt;.</source>
-        <translation>&apos;%1&apos; というリモートブランチの追跡を開始するには、&lt;a href=&apos;action:push?set-upstream=true&apos;&gt;現在のブランチをプッシュ、上流を設定&lt;/a&gt;します。</translation>
+        <translation>要开始跟踪名为&apos;%1&apos;的远程分支，请&lt;a href=&apos;action:push?set-upstream=true&apos;&gt; 推送并设置当前分支的上游&lt;/a&gt;。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2019"/>
         <source>To push without setting up tracking information, &lt;a href=&apos;action:push?ref=%1&apos;&gt;push &apos;%2&apos;&lt;/a&gt; explicitly.</source>
-        <translation>追跡情報を設定せずにプッシュするには、明示的に &lt;a href=&apos;action:push?ref=%1&apos;&gt;&apos;%2&apos; をプッシュ&lt;/a&gt;します。</translation>
+        <translation>要在不设置跟踪信息的情况下进行推送，请显式地&lt;a href=&apos;action:push?ref=%1&apos;&gt;推送&apos;%2&apos;&lt;/a&gt;。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2074"/>
         <location filename="../src/ui/RepoView.cpp" line="2117"/>
         <location filename="../src/ui/RepoView.cpp" line="2159"/>
         <source>Push canceled.</source>
-        <translation>プッシュをキャンセルしました。</translation>
+        <translation>推送已取消。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2087"/>
@@ -4936,277 +4947,277 @@ URL: %1</source>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2163"/>
         <source>push to</source>
-        <translation>リモートへプッシュ</translation>
+        <translation>推送到</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2167"/>
         <source>The tag update may cause the remote to lose commits.</source>
-        <translation>タグを更新すると、リモート上のコミットが失われるかもしれません。</translation>
+        <translation>标签更新可能会导致远程分支丢失提交。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2169"/>
         <source>If you want to risk the remote losing commits, you can &lt;a href=&apos;action:push?ref=%1&amp;to=%2&amp;force=true&apos;&gt;force push&lt;/a&gt;.</source>
-        <translation>リモート上のコミット損失を覚悟しているなら、&lt;a href=&apos;action:push?ref=%1&amp;to=%2&amp;force=true&apos;&gt;強制プッシュ&lt;/a&gt;できます。</translation>
+        <translation>如果您想冒远程分支丢失提交的风险，可以&lt;a href=&apos;action:push?ref=%1&amp;to=%2&amp;force=true&apos;&gt;强制推送&lt;/a&gt;。</translation>
     </message>
     <message>
         <source>You may want to integrate remote commits first by &lt;a href=&apos;action:pull&apos;&gt;pulling&lt;/a&gt;. Then &lt;a href=&apos;action:push&apos;&gt;push&lt;/a&gt; again.</source>
-        <translation type="vanished">リモートのコミットをまず&lt;a href=&apos;action:pull&apos;&gt;プル&lt;/a&gt;で統合してから、再度&lt;a href=&apos;action:push&apos;&gt;プッシュ&lt;/a&gt;してください。</translation>
+        <translation type="vanished">您可能想先通过&lt;a href=&apos;action:pull&apos;&gt; pulling &lt;/a&gt;集成远程分支上的提交。然后再次&lt;a href=&apos;action:push&apos;&gt; 推送 &lt;/a&gt;。</translation>
     </message>
     <message>
         <source>If you really want the remote to lose commits, you may be able to &lt;a href=&apos;action:push?force=true&apos;&gt;force push&lt;/a&gt;.</source>
-        <translation type="vanished">リモート上のコミットが損失しても問題ないなら、&lt;a href=&apos;action:push?force=true&apos;&gt;強制プッシュ&lt;/a&gt;できます。</translation>
+        <translation type="vanished">如果您确实希望远程分支丢失提交，则可以&lt;a href=&apos;action:push?force=true&apos;&gt;强制推送&lt;/a&gt;。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2247"/>
         <source>Commit?</source>
-        <translation>コミットしますか？</translation>
+        <translation>提交？</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2248"/>
         <source>Are you sure you want to commit on a detached HEAD?</source>
-        <translation>作業中のリビジョンへコミットしますか？</translation>
+        <translation>您确定要提交到游离的HEAD吗？</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2254"/>
         <source>&lt;p&gt;You are in a detached HEAD state. You can still commit, but the new commit will not be reachable from any branch. If you want to commit to an existing branch, checkout the branch first.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;現在、どのブランチにも所属していない状態です。如何なるブランチを辿っても、ここで行ったコミットには到達できません。既存のブランチにコミットしたい場合は、まずそのブランチをチェックアウトしてください。&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;您处于分离的HEAD状态。您仍然可以提交，但是新的提交将无法从任何分支访问。如果要提交到现有分支，请首先检出该分支。&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2259"/>
         <location filename="../src/ui/RepoView.cpp" line="2270"/>
         <source>Commit</source>
-        <translation>コミット</translation>
+        <translation>提交</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2269"/>
         <location filename="../src/ui/RepoView.cpp" line="2396"/>
         <location filename="../src/ui/RepoView.cpp" line="3444"/>
         <source>&lt;i&gt;no commit&lt;/i&gt;</source>
-        <translation>&lt;i&gt;コミットなし&lt;/i&gt;</translation>
+        <translation>&lt;i&gt;没有提交&lt;/i&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2275"/>
         <source>commit</source>
-        <translation>コミット</translation>
+        <translation>提交</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2283"/>
         <source>This commit was signed with a generated user name and email.</source>
-        <translation>このコミットは、自動生成されたユーザー名と E メールで署名されました。</translation>
+        <translation>该提交已使用生成的用户名和电子邮件进行了签名。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2285"/>
         <source>Consider setting the user name and email in &lt;a href=&apos;action:config?global=true&apos;&gt;global settings&lt;/a&gt;.</source>
-        <translation>&lt;a href=&apos;action:config?global=true&apos;&gt;グローバル設定&lt;/a&gt;で、ユーザー名と E メールを設定することをおすすめします。</translation>
+        <translation>请考虑在&lt;a href=&apos;action:config?global=true&apos;&gt;全局设置&lt;/a&gt;中设置用户名和电子邮件。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2287"/>
         <source>If you want to limit the name and email settings to this repository, &lt;a href=&apos;action:config&apos;&gt;edit repository settings&lt;/a&gt; instead.</source>
-        <translation>このリポジトリ固有のユーザー名と E メールを設定したい場合は、代わりに&lt;a href=&apos;action:config&apos;&gt;リポジトリの設定を編集&lt;/a&gt;します。</translation>
+        <translation>如果要限制此仓库的名称和电子邮件设置，请&lt;a href=&apos;action:config&apos;&gt;编辑仓库设置&lt;/a&gt;。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2291"/>
         <source>After settings have been updated, &lt;a href=&apos;action:amend&apos;&gt; amend this commit&lt;/a&gt; to record the new user name and email.</source>
-        <translation>設定を更新したら、&lt;a href=&apos;action:amend&apos;&gt;最後のコミットを修正&lt;/a&gt;して、新しいユーザー名と E メールで記録し直します。</translation>
+        <translation>设置更新后，&lt;a href=&apos;action:amend&apos;&gt;修改此提交&lt;/a&gt;以记录新的用户名和电子邮件。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2326"/>
         <source>file</source>
-        <translation>ファイル</translation>
+        <translation>文件</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2326"/>
         <source>files</source>
-        <translation>ファイル</translation>
+        <translation>多个文件</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2327"/>
         <source>%1 - %2 %3</source>
-        <translation>%1 - %2 個の%3</translation>
+        <translation>%1 - %2 %3</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2328"/>
         <location filename="../src/ui/RepoView.cpp" line="2403"/>
         <location filename="../src/ui/RepoView.cpp" line="2496"/>
         <source>Checkout</source>
-        <translation>チェックアウト</translation>
+        <translation>检出</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2350"/>
         <source>Checkout Detached HEAD?</source>
-        <translation>独立したリビジョンとしてチェックアウトしますか？</translation>
+        <translation>检出游离的HEAD？</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2352"/>
         <source>Checkout Detached HEAD</source>
-        <translation>独立したリビジョンとしてチェックアウト</translation>
+        <translation>检出游离的HEAD</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2361"/>
         <source>Checking out remote branch &apos;%1&apos; will result in a detached HEAD state. Do you want to reset the existing local branch &apos;%2&apos; to this commit instead?</source>
-        <translation>リモートブランチ &apos;%1&apos; をチェックアウトすると、どのブランチにも所属しない状態となります。代わりに既存のローカルブランチ &apos;%2&apos; を、このコミットに合わせてリセットしますか？</translation>
+        <translation>检出远程分支&apos;%1&apos;将导致游离的HEAD状态。您是否想将现有的本地分支&apos;%2&apos;重置为此提交？</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2367"/>
         <source>Reset Local Branch</source>
-        <translation>ローカルブランチをリセット</translation>
+        <translation>重置本地分支</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2373"/>
         <source>Checking out remote branch &apos;%1&apos; will result in a detached HEAD state. Do you want to create a new local branch called &apos;%2&apos; to track it instead?</source>
-        <translation>リモートブランチ &apos;%1&apos; をチェックアウトすると、どのブランチにも所属しない状態となります。代わりに新しい &apos;%2&apos; というローカルブランチを作成・追跡しますか？</translation>
+        <translation>检出远程分支&apos;%1&apos;将导致游离的HEAD状态。您是否要新建一个名为&apos;%2&apos;的新本地分支来跟踪它？</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2378"/>
         <source>Create a local branch to start tracking remote changes and make new commits. Check out the detached HEAD to temporarily put your working directory into the state of the remote branch.</source>
-        <translation>新しいローカルブランチを作成すると、リモートの変更の追跡や、コミットなどの作業を開始できます。独立したリビジョンとしてチェックアウトすると、リモートブランチの状態を、一時的に作業ディレクトリへ展開します。</translation>
+        <translation>新建本地分支以开始跟踪远程更改并进行新的提交。检出游离的HEAD，以将您的工作目录暂时置于远程分支的状态。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2383"/>
         <source>Create Local Branch</source>
-        <translation>ローカルブランチを作成</translation>
+        <translation>新建本地分支</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2408"/>
         <source>checkout</source>
-        <translation>チェックアウト</translation>
+        <translation>检出</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2420"/>
         <source>You may be able to reconcile your changes with the conflicting files by &lt;a href=&apos;action:stash&apos;&gt;stashing&lt;/a&gt; before you &lt;a href=&apos;action:checkout?%1&apos;&gt;checkout &apos;%2&apos;&lt;/a&gt;. Then &lt;a href=&apos;action:unstash&apos;&gt;unstash&lt;/a&gt; to restore your changes.</source>
-        <translation>&lt;a href=&apos;action:checkout?%1&apos;&gt;&apos;%2&apos; をチェックアウト&lt;/a&gt;する前に&lt;a href=&apos;action:stash&apos;&gt;スタッシュへ預ける&lt;/a&gt;ことで、衝突したファイルへの変更を調整できるかもしれません。今までに行った変更は、後で&lt;a href=&apos;action:unstash&apos;&gt;スタッシュから引き出して&lt;/a&gt;復元できます。</translation>
+        <translation>在执行&lt;a href=&apos;action:checkout?%1&apos;&gt;检出&apos;%2&apos;&lt;/a&gt;之前，您可以通过&lt;a href=&apos;action:stash&apos;&gt;备份未提交修改到贮藏区&lt;/a&gt;使协调更改与冲突的文件。然后用&lt;a href=&apos;action:unstash&apos;&gt;应用备份并从贮藏区删除&lt;/a&gt;来恢复您的更改。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2447"/>
         <source>New Branch</source>
-        <translation>新しいブランチ</translation>
+        <translation>新建分支</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2450"/>
         <source>create new branch</source>
-        <translation>新しいブランチを作成</translation>
+        <translation>创建新的分支</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2502"/>
         <source>Rename</source>
-        <translation type="unfinished">名前を変更</translation>
+        <translation type="unfinished">重命名</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2509"/>
         <source>Delete</source>
-        <translation type="unfinished">削除</translation>
+        <translation type="unfinished">删除</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2521"/>
         <source>Push Tag to %1</source>
-        <translation type="unfinished">タグを %1 へプッシュ</translation>
+        <translation type="unfinished">将标签推送到%1</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2527"/>
         <source>New Local Branch</source>
-        <translation type="unfinished">新しいローカルブランチ</translation>
+        <translation type="unfinished">新建本地分支</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2545"/>
         <source>Merge...</source>
-        <translation type="unfinished">マージ...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2546"/>
         <source>Rebase...</source>
-        <translation type="unfinished">リベース...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2547"/>
         <source>Squash...</source>
-        <translation type="unfinished">スカッシュ...</translation>
+        <translation type="unfinished">聚合（Squash）...</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2561"/>
         <source>(no branch)</source>
-        <translation>(ブランチなし)</translation>
+        <translation>（无分支）</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2562"/>
         <source>WIP on %1: %2 %3</source>
-        <translation>作業途中の %1: %2 %3</translation>
+        <translation>WIP 在 %1：%2 %3</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2573"/>
         <source>&lt;i&gt;working directory&lt;/i&gt;</source>
-        <translation>&lt;i&gt;作業ディレクトリ&lt;/i&gt;</translation>
+        <translation>&lt;i&gt;工作目录&lt;/i&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2574"/>
         <source>Stash</source>
-        <translation>スタッシュへ預ける</translation>
+        <translation>贮藏</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2578"/>
         <source>stash</source>
-        <translation>スタッシュへ収納</translation>
+        <translation>贮藏</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2591"/>
         <source>Apply Stash</source>
-        <translation>スタッシュを適用</translation>
+        <translation>应用备份</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2593"/>
         <source>apply stash</source>
-        <translation>スタッシュを適用</translation>
+        <translation>应用备份</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2605"/>
         <source>Drop Stash</source>
-        <translation>スタッシュから削除</translation>
+        <translation>从贮藏区删除备份</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2607"/>
         <source>drop stash</source>
-        <translation>スタッシュから削除</translation>
+        <translation>从贮藏区删除备份</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2622"/>
         <source>Pop Stash</source>
-        <translation>スタッシュから引き出す</translation>
+        <translation>应用备份并从贮藏区删除</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2624"/>
         <source>pop stash</source>
-        <translation>スタッシュから引き出し</translation>
+        <translation>应用备份并从贮藏区删除</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2647"/>
         <source>%1 as %2</source>
-        <translation>%1 を %2 として</translation>
+        <translation>%1作为%2</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2648"/>
         <source>Tag</source>
-        <translation>タグ付け</translation>
+        <translation>标签</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2650"/>
         <source>tag</source>
-        <translation>タグを追加</translation>
+        <translation>标签</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2686"/>
         <location filename="../src/ui/RepoView.cpp" line="2763"/>
         <source>Amend</source>
-        <translation>修正</translation>
+        <translation>修改</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2689"/>
         <source>Amending commit %1</source>
-        <translation type="unfinished"></translation>
+        <translation>修改提交%1</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2696"/>
         <source>%1 to %2</source>
         <comment>update ref</comment>
-        <translation type="unfinished">%1 を %2 へ</translation>
+        <translation>%1至%2</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2704"/>
@@ -5216,56 +5227,56 @@ URL: %1</source>
         <location filename="../src/ui/RepoView.cpp" line="2821"/>
         <location filename="../src/ui/RepoView.cpp" line="2893"/>
         <source>Reset</source>
-        <translation>リセット</translation>
+        <translation>重置</translation>
     </message>
     <message>
         <source>Amend?</source>
-        <translation type="vanished">修正しますか？</translation>
+        <translation type="vanished">修改？</translation>
     </message>
     <message>
         <source>Reset?</source>
-        <translation type="vanished">リセットしますか？</translation>
+        <translation type="vanished">重置？</translation>
     </message>
     <message>
         <source>Are you sure you want to amend &apos;%1&apos;?</source>
-        <translation type="vanished">&apos;%1&apos; を修正しますか？</translation>
+        <translation type="vanished">您确定要修改&apos;%1&apos;吗？</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2726"/>
         <source>Are you sure you want to reset &apos;%1&apos; to &apos;%2&apos;?</source>
-        <translation>&apos;%1&apos; を &apos;%2&apos; にリセットしますか？</translation>
+        <translation>您确定要将“%1”重置为“%2”吗？</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2733"/>
         <source>&lt;p&gt;Some commits may become unreachable from the current branch.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;現在のブランチからは、一部のコミットに辿り着けなくなるかもしれません。&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;某些提交可能会从当前分支变为不可访问。&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2739"/>
         <source>&lt;p&gt;Resetting will cause you to lose uncommitted changes. Untracked and ignored files will not be affected.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;リセットすると、コミットされていない変更が失われます。未追跡のファイルや、無視されているファイルには影響しません。&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;重置将导致您丢失未提交的更改。未跟踪和忽略的文件不会受到影响。&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2743"/>
         <source>&lt;p&gt;Your branch appears to be up-to-date with its upstream branch. Resetting may cause your branch history to diverge from the remote branch history.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;手元のブランチは既に、上流のブランチの最新版のようです。リセットすると、手元のブランチとリモートブランチとの履歴が分立するかもしれません。&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;您的分支似乎是其上游分支的最新信息。重置可能会导致您的分支历史记录与远程分支历史记录有所不同。&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2690"/>
         <location filename="../src/ui/RepoView.cpp" line="2768"/>
         <source>amend</source>
-        <translation>修正</translation>
+        <translation>修改</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2768"/>
         <source>reset</source>
-        <translation>リセット</translation>
+        <translation>重置</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2892"/>
         <location filename="../src/ui/RepoView.cpp" line="2956"/>
         <source>%1 of %2 submodules</source>
-        <translation>%1 / %2 個のサブモジュール</translation>
+        <translation>%1个子模块（共%2个）</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2957"/>
@@ -5277,7 +5288,7 @@ URL: %1</source>
         <location filename="../src/ui/RepoView.cpp" line="2833"/>
         <location filename="../src/ui/RepoView.cpp" line="2995"/>
         <source>update submodule</source>
-        <translation>サブモジュールを更新</translation>
+        <translation>更新子模块</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="107"/>
@@ -5312,27 +5323,27 @@ URL: %1</source>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="238"/>
         <source>The indexer worker process crashed. If this problem persists please contact us at &lt;TODO: replace.support@gitahead.com&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>索引器工作进程已崩溃。如果此问题持续出现，请通过&lt;TODO: replace.support@gitahead.com&gt;联系我们。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1730"/>
         <source>Please resolve conflicts before continue</source>
-        <translation type="unfinished"></translation>
+        <translation>请在继续之前解决冲突</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1731"/>
         <source>Conflict</source>
-        <translation type="unfinished"></translation>
+        <translation>冲突</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1761"/>
         <source>Rebase finished</source>
-        <translation type="unfinished"></translation>
+        <translation>变基已完成</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1891"/>
         <source>Force Push to %1?</source>
-        <translation type="unfinished"></translation>
+        <translation>是否强制推送到%1？</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1944"/>
@@ -5372,7 +5383,7 @@ URL: %1</source>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1960"/>
         <source>Create Branch</source>
-        <translation type="unfinished">ブランチを作成</translation>
+        <translation type="unfinished">新建分支</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2051"/>
@@ -5402,12 +5413,12 @@ URL: %1</source>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2181"/>
         <source>You may want to integrate remote commits first by &lt;a href=&apos;action:pull&apos;&gt;pulling&lt;/a&gt;. Then &lt;a href=&apos;action:push?to=%1&apos;&gt;push&lt;/a&gt; again.</source>
-        <translation type="unfinished"></translation>
+        <translation>你可以先点击&lt;a href=&apos;action:pull&apos;&gt;拉取&lt;/a&gt;合并远程提交，然后再次点击 &lt;a href=&apos;action:push?to=%1&apos;&gt;推送&lt;/a&gt;。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2186"/>
         <source>If you really want the remote to lose commits, you may be able to &lt;a href=&apos;action:push?to=%1&amp;force=true&apos;&gt;force push&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>如果你真的想让远程仓库丢失提交记录，也许可以&lt;a href=&apos;action:push?to=%1&amp;force=true&apos;&gt;强制推送&lt;/a&gt;.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2483"/>
@@ -5417,12 +5428,12 @@ URL: %1</source>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2830"/>
         <source>Reset canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>重置已取消。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2896"/>
         <source>Untouched</source>
-        <translation type="unfinished"></translation>
+        <translation>未修改</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3053"/>
@@ -5621,72 +5632,72 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3465"/>
         <source>Invalid Submodule Repository</source>
-        <translation>無効なサブモジュールのリポジトリ</translation>
+        <translation>无效的子模块仓库</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3467"/>
         <source>The submodule &apos;%1&apos; doesn&apos;t have a valid repository. You may need to init and/or update the submodule to check out a repository.</source>
-        <translation>サブモジュール &apos;%1&apos; には有効なリポジトリがありません。リポジトリをチェックアウトする前に、サブモジュールの初期化や更新が必要かもしれません。</translation>
+        <translation>子模块&apos;%1&apos;没有有效的仓库。您可能需要初始化和/或更新子模块以检出仓库。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3608"/>
         <source>No terminal executable found</source>
-        <translation type="unfinished"></translation>
+        <translation>未找到终端可执行程序</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3609"/>
         <source>No terminal executable was found. Please configure a terminal in the configuration.</source>
-        <translation type="unfinished"></translation>
+        <translation>未找到终端可执行文件。请在配置中配置终端。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3612"/>
         <source>Open Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>打开配置</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3839"/>
         <source>There was a merge conflict.</source>
-        <translation>マージする際に衝突がありました。</translation>
+        <translation>发生合并冲突。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3842"/>
         <source>Resolve conflicts, then commit to conclude the %1. See &lt;a href=&apos;expand&apos;&gt;details&lt;/a&gt;.</source>
-        <translation>衝突している部分を解決した後に、改めてコミットを行い、%1を確定させてください。詳細は&lt;a href=&apos;expand&apos;&gt;こちら&lt;/a&gt;。</translation>
+        <translation>解决冲突，然后提交以结束%1。请参见&lt;a href=&apos;expand&apos;&gt;详细信息&lt;/a&gt;。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3844"/>
         <source>Resolve conflicts in each conflicted (!) file in one of the following ways:</source>
-        <translation>これらの方法を使用して、衝突しているファイル (!) それぞれを解決できます:</translation>
+        <translation>通过以下方式中任意一种来解决每个冲突（！）文件中的冲突：</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3846"/>
         <source>1. Click the &apos;Ours&apos; or &apos;Theirs&apos; button to choose the correct change. Then click the &apos;Save&apos; button to apply.</source>
-        <translation>1. &apos;手元のものを使う&apos; か &apos;向こうのものを使う&apos; ボタンをクリックして、正しい変更を選びます。&apos;保存&apos; ボタンをクリックすると、選択を反映します。</translation>
+        <translation>1.点击“我们的”或“他们的”按钮以选择正确的更改。然后点击“保存”按钮以应用。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3848"/>
         <source>2. Edit the file in the editor to make a different change. Remember to remove conflict markers.</source>
-        <translation>2. ファイルをエディターで開き、必要な修正を行います。衝突部分に付けられている印も、忘れずに取り除いてください。</translation>
+        <translation>2.在编辑器中编辑文件以进行其他更改。记住要删除冲突标记。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3850"/>
         <source>3. Use an external merge tool. Right-click on the files in the list and choose &apos;External Merge&apos;.</source>
-        <translation>3. 外部マージツールを使います。ファイル一覧の項目を右クリックし、&apos;外部マージツール&apos; を選びます。</translation>
+        <translation>3.使用外部合并工具。右键单击列表中的文件，然后选择“外部合并”。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3852"/>
         <source>After all conflicts in the file are resolved, click the check box to mark it as resolved.</source>
-        <translation>ファイルの衝突が全て解決できたら、チェックボックスをクリックし、解決済みとしてマークします。</translation>
+        <translation>解决文件中的所有冲突后，单击复选框将其标记为已解决。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3854"/>
         <source>After all conflicted files are staged, commit to conclude the %1.</source>
-        <translation>衝突している全てのファイルをステージに上げたら、コミットを実行して%1を確定させます。</translation>
+        <translation>暂存所有有冲突的文件后，提交以结束%1。</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3866"/>
         <source>You can &lt;a href=&apos;action:abort&apos;&gt;abort&lt;/a&gt; the %1 to return the repository to its previous state.</source>
-        <translation>%1を&lt;a href=&apos;action:abort&apos;&gt;中断&lt;/a&gt;して、リポジトリを元の状態に戻すこともできます。</translation>
+        <translation>您可以&lt;a href=&apos;action:abort&apos;&gt;中止&lt;/a&gt;%1以便将仓库恢复到之前的状态。</translation>
     </message>
 </context>
 <context>
@@ -5694,12 +5705,12 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/git/Repository.cpp" line="1317"/>
         <source>Unknown error</source>
-        <translation>不明なエラー</translation>
+        <translation>未知错误</translation>
     </message>
     <message>
         <location filename="../src/git/Repository.cpp" line="1387"/>
         <source>git-lfs not found</source>
-        <translation>git-lfs が見つかりませんでした</translation>
+        <translation>找不到git-lfs</translation>
     </message>
 </context>
 <context>
@@ -5727,7 +5738,7 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/ui/RepositoryNavigator.cpp" line="397"/>
         <source>Open</source>
-        <translation type="unfinished">開く</translation>
+        <translation type="unfinished">打开</translation>
     </message>
     <message>
         <location filename="../src/ui/RepositoryNavigator.cpp" line="403"/>
@@ -5762,17 +5773,17 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/ui/RepositoryNavigator.cpp" line="456"/>
         <source>Apply Stash</source>
-        <translation type="unfinished">スタッシュを適用</translation>
+        <translation type="unfinished">应用备份</translation>
     </message>
     <message>
         <location filename="../src/ui/RepositoryNavigator.cpp" line="461"/>
         <source>Pop Stash</source>
-        <translation type="unfinished">スタッシュから引き出す</translation>
+        <translation type="unfinished">应用备份并从贮藏区删除</translation>
     </message>
     <message>
         <location filename="../src/ui/RepositoryNavigator.cpp" line="466"/>
         <source>Drop Stash</source>
-        <translation type="unfinished">スタッシュから削除</translation>
+        <translation type="unfinished">从贮藏区删除备份</translation>
     </message>
 </context>
 <context>
@@ -5820,7 +5831,7 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="287"/>
         <source>Remote</source>
-        <translation type="unfinished">リモート</translation>
+        <translation type="unfinished">远程</translation>
     </message>
     <message>
         <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="288"/>
@@ -5870,12 +5881,12 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="297"/>
         <source>Tags</source>
-        <translation type="unfinished">タグ</translation>
+        <translation type="unfinished">标签</translation>
     </message>
     <message>
         <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="298"/>
         <source>Submodules</source>
-        <translation type="unfinished">サブモジュール</translation>
+        <translation type="unfinished">子模块</translation>
     </message>
     <message>
         <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="339"/>
@@ -5993,7 +6004,7 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/ui/SearchField.cpp" line="92"/>
         <source>Search</source>
-        <translation>検索</translation>
+        <translation>搜索</translation>
     </message>
 </context>
 <context>
@@ -6001,12 +6012,12 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="418"/>
         <source>Enable indexing</source>
-        <translation>インデックスを構築</translation>
+        <translation>启用索引</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="433"/>
         <source>terms</source>
-        <translation>句</translation>
+        <translation>条款</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="449"/>
@@ -6016,17 +6027,17 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="463"/>
         <source>Limit commits to:</source>
-        <translation>コミットの語句上限数:</translation>
+        <translation>限制提交到：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="464"/>
         <source>Diff context:</source>
-        <translation>差分周辺の行数:</translation>
+        <translation>差异内容：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="480"/>
         <source>Remove Index</source>
-        <translation>インデックスを削除</translation>
+        <translation>删除索引</translation>
     </message>
 </context>
 <context>
@@ -6034,32 +6045,32 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/conf/Settings.cpp" line="171"/>
         <source>Prompt to edit stash message before stashing</source>
-        <translation>スタッシュへ預ける前に、スタッシュ内容の説明を編集するか尋ねる</translation>
+        <translation>在执行贮存操作前提示编辑贮存消息</translation>
     </message>
     <message>
         <location filename="../src/conf/Settings.cpp" line="174"/>
         <source>Prompt to edit commit message before merging</source>
-        <translation>マージする前に、コミットの説明を編集するか尋ねる</translation>
+        <translation>合并前提示编辑提交消息</translation>
     </message>
     <message>
         <location filename="../src/conf/Settings.cpp" line="177"/>
         <source>Prompt to edit commit message before reverting</source>
-        <translation>コミットを取り消す前に、コミットの説明を編集するか尋ねる</translation>
+        <translation>还原前提示编辑提交消息</translation>
     </message>
     <message>
         <location filename="../src/conf/Settings.cpp" line="180"/>
         <source>Prompt to edit commit message before cherry-picking</source>
-        <translation>コミットを取り込む前に、コミットの説明を編集するか尋ねる</translation>
+        <translation>在拣选操作之前提示编辑提交消息</translation>
     </message>
     <message>
         <location filename="../src/conf/Settings.cpp" line="183"/>
         <source>Prompt to stage directories</source>
-        <translation>ディレクトリをステージに上げる前に尋ねる</translation>
+        <translation>提示暂存目录</translation>
     </message>
     <message>
         <location filename="../src/conf/Settings.cpp" line="186"/>
         <source>Prompt to stage large files</source>
-        <translation>大きなファイルをステージに上げる前に尋ねる</translation>
+        <translation>提示暂存大文件</translation>
     </message>
 </context>
 <context>
@@ -6067,17 +6078,17 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="822"/>
         <source>Esc</source>
-        <translation>Esc</translation>
+        <translation>退出</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="837"/>
         <source>Global git settings can be overridden for each repository in the corresponding repository configuration page.</source>
-        <translation>Git のグローバル設定は、各リポジトリの設定から上書きできます。</translation>
+        <translation>可以在相应的仓库配置页面中为每个仓库覆盖全局git设置。</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="854"/>
         <source>Edit Config File...</source>
-        <translation>設定ファイルを編集...</translation>
+        <translation>编辑配置文件...</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="883"/>
@@ -6087,22 +6098,22 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="891"/>
         <source>Diff</source>
-        <translation>差分</translation>
+        <translation>比较</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="899"/>
         <source>Tools</source>
-        <translation>ツール</translation>
+        <translation>工具</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="909"/>
         <source>Window</source>
-        <translation>ウィンドウ</translation>
+        <translation>窗口</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="917"/>
         <source>Editor</source>
-        <translation>エディター</translation>
+        <translation>编辑器</translation>
     </message>
     <message>
         <source>Update</source>
@@ -6111,22 +6122,22 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="925"/>
         <source>Plugins</source>
-        <translation>プラグイン</translation>
+        <translation>插件</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="933"/>
         <source>Misc</source>
-        <translation>その他</translation>
+        <translation>其他</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="941"/>
         <source>Hotkeys</source>
-        <translation type="unfinished"></translation>
+        <translation>快捷键</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="951"/>
         <source>Terminal</source>
-        <translation>端末</translation>
+        <translation>终端</translation>
     </message>
 </context>
 <context>
@@ -6134,97 +6145,97 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/tools/ShowTool.cpp" line="20"/>
         <source>Finder</source>
-        <translation type="unfinished"></translation>
+        <translation>查找器</translation>
     </message>
     <message>
         <location filename="../src/tools/ShowTool.cpp" line="22"/>
         <source>Explorer</source>
-        <translation type="unfinished"></translation>
+        <translation>资源管理器</translation>
     </message>
     <message>
         <location filename="../src/tools/ShowTool.cpp" line="24"/>
         <source>Default File Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>默认文件浏览器</translation>
     </message>
     <message>
         <location filename="../src/tools/ShowTool.cpp" line="103"/>
         <source>Show in %1</source>
-        <translation>%1 に表示</translation>
+        <translation>在%1中显示</translation>
     </message>
 </context>
 <context>
     <name>SideBar</name>
     <message>
         <source>Close</source>
-        <translation type="vanished">閉じる</translation>
+        <translation type="vanished">关闭</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="vanished">削除</translation>
+        <translation type="vanished">删除</translation>
     </message>
     <message>
         <source>Authorize</source>
-        <translation type="vanished">認証</translation>
+        <translation type="vanished">授权</translation>
     </message>
     <message>
         <location filename="../src/ui/SideBar.cpp" line="59"/>
         <source>Clone Repository</source>
-        <translation>リポジトリをクローン</translation>
+        <translation>克隆仓库</translation>
     </message>
     <message>
         <location filename="../src/ui/SideBar.cpp" line="70"/>
         <source>Open Existing Repository</source>
-        <translation>既存のリポジトリを開く</translation>
+        <translation>打开现有仓库</translation>
     </message>
     <message>
         <location filename="../src/ui/SideBar.cpp" line="73"/>
         <source>Open Repository</source>
-        <translation>リポジトリを開く</translation>
+        <translation>打开仓库</translation>
     </message>
     <message>
         <location filename="../src/ui/SideBar.cpp" line="82"/>
         <source>Initialize New Repository</source>
-        <translation>新しいリポジトリを作成</translation>
+        <translation>初始化新仓库</translation>
     </message>
     <message>
         <source>Add %1 Account</source>
-        <translation type="vanished">%1 アカウントを追加</translation>
+        <translation type="vanished">添加%1帐户</translation>
     </message>
     <message>
         <source>&lt;p&gt;Are you sure you want to remove the remote repository association for %1?&lt;/p&gt;&lt;p&gt;The local clone itself will not be affected.&lt;/p&gt;</source>
-        <translation type="vanished">&lt;p&gt;リモートリポジトリ %1 への関連付けを解除しますか？&lt;/p&gt;&lt;p&gt;ローカルのクローンには影響しません。&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;确定要删除%1的远程仓库关联吗？&lt;/p&gt;&lt;p&gt;本地克隆本身不会受到影响。&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Remove Repository Association?</source>
-        <translation type="vanished">リポジトリへの関連付けを解除しますか？</translation>
+        <translation type="vanished">删除仓库关联？</translation>
     </message>
     <message>
         <source>Clear All Recent</source>
-        <translation type="vanished">最近使ったリポジトリを消去</translation>
+        <translation type="vanished">清除所有最近的</translation>
     </message>
     <message>
         <source>Show Full Path</source>
-        <translation type="vanished">完全なパスを表示</translation>
+        <translation type="vanished">显示完整路径</translation>
     </message>
     <message>
         <source>Filter Non-existent Paths</source>
-        <translation type="vanished">存在しないパスを除去</translation>
+        <translation type="vanished">过滤不存在​​的路径</translation>
     </message>
     <message>
         <source>Refresh Remote Accounts</source>
-        <translation type="vanished">リモートアカウントを再読み込み</translation>
+        <translation type="vanished">刷新远程帐户</translation>
     </message>
     <message>
         <source>Show Full Name</source>
-        <translation type="vanished">完全な名前を表示</translation>
+        <translation type="vanished">显示全名</translation>
     </message>
     <message>
         <source>&lt;p&gt;Are you sure you want to remove the %1 account for &apos;%2&apos;?&lt;/p&gt;&lt;p&gt;Only the account association will be removed. Remote configurations and local clones will not be affected.&lt;/p&gt;</source>
-        <translation type="vanished">&lt;p&gt;%1 アカウント &apos;%2&apos; を削除しますか？&lt;/p&gt;&lt;p&gt;アカウントへの関連付けのみが解除されます。リモートの設定と、ローカルのクローンには影響しません。&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;确定要删除“%2”的%1个帐户吗？&lt;/p&gt;&lt;p&gt;仅会删除帐户关联。远程配置和本地克隆将不受影响。&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Remove Account?</source>
-        <translation type="vanished">アカウントを削除しますか？</translation>
+        <translation type="vanished">删除帐户？</translation>
     </message>
 </context>
 <context>
@@ -6232,108 +6243,108 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="371"/>
         <source>Choose Repository</source>
-        <translation>リポジトリを選択</translation>
+        <translation>选择仓库</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="380"/>
         <source>Understand your history!</source>
-        <translation>Git の履歴を見やすく管理</translation>
+        <translation>了解您的历史！</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="435"/>
         <source>Clone Repository</source>
-        <translation>リポジトリをクローン</translation>
+        <translation>克隆仓库</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="446"/>
         <source>Open Existing Repository</source>
-        <translation>既存のリポジトリを開く</translation>
+        <translation>打开现有仓库</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="450"/>
         <source>Open Repository</source>
-        <translation>リポジトリを開く</translation>
+        <translation>打开仓库</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="458"/>
         <source>Initialize New Repository</source>
-        <translation>新しいリポジトリを作成</translation>
+        <translation>初始化新仓库</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="472"/>
         <source>Clear All</source>
-        <translation>全て消去</translation>
+        <translation>全部清除</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="477"/>
         <source>Show Full Path</source>
-        <translation>完全なパスを表示</translation>
+        <translation>显示完整路径</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="487"/>
         <source>Filter Non-existent Paths</source>
-        <translation>存在しないパスを除去</translation>
+        <translation>过滤不存在​​的路径</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="495"/>
         <source>Repositories:</source>
-        <translation>リポジトリ:</translation>
+        <translation>仓库：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="543"/>
         <source>Refresh</source>
-        <translation>再読み込み</translation>
+        <translation>刷新</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="550"/>
         <source>Show Full Name</source>
-        <translation>完全な名前を表示</translation>
+        <translation>显示全名</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="578"/>
         <source>Remote:</source>
-        <translation>リモート:</translation>
+        <translation>远程：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="596"/>
         <source>View Getting Started Video</source>
-        <translation>解説動画を観る</translation>
+        <translation>查看入门视频</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="715"/>
         <source>Clone</source>
-        <translation>クローン</translation>
+        <translation>克隆</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="715"/>
         <source>Open</source>
-        <translation>開く</translation>
+        <translation>打开</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="781"/>
         <source>&lt;p&gt;Are you sure you want to remove the %1 account for &apos;%2&apos;?&lt;/p&gt;&lt;p&gt;Only the account association will be removed. Remote configurations and local clones will not be affected.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;%1 アカウント &apos;%2&apos; を削除しますか？&lt;/p&gt;&lt;p&gt;アカウントへの関連付けのみが解除されます。リモートの設定と、ローカルのクローンには影響しません。&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;确定要删除“%2”的%1个帐户吗？&lt;/p&gt;&lt;p&gt;仅会删除帐户关联。远程配置和本地克隆将不受影响。&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="785"/>
         <source>Remove Account?</source>
-        <translation>アカウントを削除しますか？</translation>
+        <translation>删除帐户？</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="788"/>
         <location filename="../src/dialogs/StartDialog.cpp" line="808"/>
         <source>Remove</source>
-        <translation>削除</translation>
+        <translation>删除</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="803"/>
         <source>&lt;p&gt;Are you sure you want to remove the remote repository association for %1?&lt;/p&gt;&lt;p&gt;The local clone itself will not be affected.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;リモートリポジトリ %1 への関連付けを解除しますか？&lt;/p&gt;&lt;p&gt;ローカルのクローンには影響しません。&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;确定要删除%1的远程仓库关联吗？&lt;/p&gt;&lt;p&gt;本地克隆本身不会受到影响。&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="806"/>
         <source>Remove Repository Association?</source>
-        <translation>リポジトリへの関連付けを解除しますか？</translation>
+        <translation>删除仓库关联？</translation>
     </message>
 </context>
 <context>
@@ -6341,7 +6352,7 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="67"/>
         <source>Name</source>
-        <translation>名前</translation>
+        <translation>名称</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="69"/>
@@ -6351,37 +6362,37 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="71"/>
         <source>URL</source>
-        <translation>URL</translation>
+        <translation>地址URL</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="73"/>
         <source>Branch</source>
-        <translation>ブランチ</translation>
+        <translation>分支</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="75"/>
         <source>Initialized</source>
-        <translation>初期化済み</translation>
+        <translation>已初始化</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="136"/>
         <source>Deinitializing &apos;%1&apos; will remove its working directory. Are you sure you want to deinitialize?</source>
-        <translation>&apos;%1&apos; を解除すると、対応する作業ディレクトリが削除されます。よろしいですか？</translation>
+        <translation>取消初始化&apos;%1&apos;将删除其工作目录。您确定要取消初始化吗？</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="140"/>
         <source>Deinitialize Submodule?</source>
-        <translation>サブモジュールを解除しますか？</translation>
+        <translation>取消初始化子模块？</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="146"/>
         <source>The submodule working directory contains uncommitted changes that will be lost if you continue.</source>
-        <translation>サブモジュールの作業ディレクトリに、コミットされていない変更があります。このまま続行すると、変更が全て失われます。</translation>
+        <translation>子模块工作目录包含未提交的更改，如果您继续，这些更改将丢失。</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="150"/>
         <source>Deinitialize</source>
-        <translation>解除</translation>
+        <translation>取消初始化</translation>
     </message>
 </context>
 <context>
@@ -6398,113 +6409,117 @@ The submodule will be removed from this project. Its working files and cached lo
         <location filename="../src/dialogs/TagDialog.cpp" line="34"/>
         <location filename="../src/dialogs/TagDialog.cpp" line="71"/>
         <source>Create Tag</source>
-        <translation>タグを作成</translation>
+        <translation>创建标签</translation>
     </message>
     <message>
         <location filename="../src/dialogs/TagDialog.cpp" line="35"/>
         <source>Add a new tag at %1</source>
-        <translation>%1 に新しいタグを追加</translation>
+        <translation>在%1处添加新标签</translation>
     </message>
     <message>
         <location filename="../src/dialogs/TagDialog.cpp" line="39"/>
         <source>Force (replace existing tag)</source>
-        <translation>強制 (既存のタグを置換)</translation>
+        <translation>强制（替换现有标签）</translation>
     </message>
     <message>
         <location filename="../src/dialogs/TagDialog.cpp" line="42"/>
         <source>Push to %1</source>
-        <translation>%1 へプッシュ</translation>
+        <translation>推送到%1</translation>
     </message>
     <message>
         <location filename="../src/dialogs/TagDialog.cpp" line="46"/>
         <source>Annotated</source>
-        <translation>注釈を付ける</translation>
+        <translation>带注解</translation>
     </message>
     <message>
         <location filename="../src/dialogs/TagDialog.cpp" line="117"/>
         <source>Name</source>
-        <translation>名前</translation>
+        <translation>名称</translation>
     </message>
 </context>
 <context>
     <name>TemplateDialog</name>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="32"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="35"/>
         <source>Name</source>
-        <translation type="unfinished">名前</translation>
+        <translation>名称</translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="38"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="41"/>
         <source>Content</source>
-        <translation type="unfinished"></translation>
+        <translation>内容</translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="43"/>
-        <location filename="../src/ui/TemplateDialog.cpp" line="327"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="46"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="331"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>添加</translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="52"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="55"/>
         <source>use %1 to declare the position of the cursor.</source>
-        <translation type="unfinished"></translation>
+        <translation>使用%1声明游标的位置。</translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="56"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="59"/>
         <source>use ${files:x} to add all updated file names,
 x (number) determines the number of maximum files shown</source>
-        <translation type="unfinished"></translation>
+        <translation>使用${files:x}添加所有更新的文件名，x（数字）确定所显示的最大文件数</translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="66"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="69"/>
         <source>Remove</source>
-        <translation type="unfinished">削除</translation>
+        <translation>删除</translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="72"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="75"/>
         <source>First template will be applied automatically</source>
-        <translation type="unfinished"></translation>
+        <translation>将自动应用第一个模板</translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="79"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="82"/>
         <source>Up</source>
-        <translation type="unfinished"></translation>
+        <translation>上</translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="80"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="83"/>
         <source>Down</source>
-        <translation type="unfinished"></translation>
+        <translation>下</translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="95"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="98"/>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation>导入</translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="96"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="99"/>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>导出</translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="243"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="246"/>
         <source>Open File</source>
+        <translation>打开文件</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/TemplateDialog.cpp" line="247"/>
+        <source>GitNortek Templates (*%1 *%2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="244"/>
-        <location filename="../src/ui/TemplateDialog.cpp" line="297"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="301"/>
         <source>GitNortek Templates (*%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="294"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="298"/>
         <source>Save Templates</source>
-        <translation type="unfinished"></translation>
+        <translation>保存模板</translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="323"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="327"/>
         <source>Replace</source>
-        <translation type="unfinished">置換</translation>
+        <translation>替换</translation>
     </message>
 </context>
 <context>
@@ -6513,22 +6528,22 @@ x (number) determines the number of maximum files shown</source>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="779"/>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="803"/>
         <source>Install</source>
-        <translation>インストール</translation>
+        <translation>安装</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="792"/>
         <source>Name:</source>
-        <translation>名前:</translation>
+        <translation>名称:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="793"/>
         <source>Location:</source>
-        <translation>場所:</translation>
+        <translation>位置：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="803"/>
         <source>Uninstall</source>
-        <translation>アンインストール</translation>
+        <translation>卸载</translation>
     </message>
 </context>
 <context>
@@ -6536,49 +6551,49 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="88"/>
         <source>Replace...</source>
-        <translation>置換...</translation>
+        <translation>替换...</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="89"/>
         <source>Replace All...</source>
-        <translation>全て置換...</translation>
+        <translation>替换全部...</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="118"/>
         <source>Ignore</source>
-        <translation>無視</translation>
+        <translation>忽略</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="137"/>
         <source>Ignore All</source>
-        <translation>全て無視</translation>
+        <translation>忽略全部</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="143"/>
         <source>Add to User Dictionary</source>
-        <translation>ユーザー辞書に追加</translation>
+        <translation>添加到用户字典</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="157"/>
         <source>Do not Ignore</source>
-        <translation>無視しない</translation>
+        <translation>不忽略</translation>
     </message>
 </context>
 <context>
     <name>ThemeDialog</name>
     <message>
         <source>Native Theme</source>
-        <translation type="vanished">通常のテーマ</translation>
+        <translation type="vanished">原生主题</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ThemeDialog.cpp" line="102"/>
         <source>A flexible look matching system colors</source>
-        <translation>システムの配色に合った、見やすいテーマ</translation>
+        <translation>匹配系统颜色的灵活外观</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ThemeDialog.cpp" line="96"/>
         <source>Dark Theme</source>
-        <translation>暗いテーマ</translation>
+        <translation>黑暗主题</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ThemeDialog.cpp" line="89"/>
@@ -6588,22 +6603,22 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/dialogs/ThemeDialog.cpp" line="92"/>
         <source>Default Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>默认主题</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ThemeDialog.cpp" line="93"/>
         <source>A consistent bright theme</source>
-        <translation type="unfinished"></translation>
+        <translation>统一明亮主题</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ThemeDialog.cpp" line="97"/>
         <source>A consistent look optimal for reducing eye strain</source>
-        <translation>目の疲れを軽減する、一貫性のあるテーマ</translation>
+        <translation>统一的外观有助于有效缓解眼部疲劳</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ThemeDialog.cpp" line="101"/>
         <source>System Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>跟随系统</translation>
     </message>
 </context>
 <context>
@@ -6611,42 +6626,42 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="737"/>
         <source>Show repository sidebar</source>
-        <translation>リポジトリのサイドバーを表示</translation>
+        <translation>显示仓库侧栏</translation>
     </message>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="751"/>
         <source>Previous</source>
-        <translation>前</translation>
+        <translation>退回</translation>
     </message>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="763"/>
         <source>Next</source>
-        <translation>次</translation>
+        <translation>前进</translation>
     </message>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="779"/>
         <source>Fetch</source>
-        <translation>フェッチ</translation>
+        <translation>获取</translation>
     </message>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="784"/>
         <source>Pull</source>
-        <translation>プル</translation>
+        <translation>拉取</translation>
     </message>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="790"/>
         <source>Merge</source>
-        <translation type="unfinished">マージ</translation>
+        <translation>合并</translation>
     </message>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="794"/>
         <source>Rebase</source>
-        <translation type="unfinished">リベース</translation>
+        <translation>变基</translation>
     </message>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="802"/>
         <source>Push</source>
-        <translation>プッシュ</translation>
+        <translation>推送</translation>
     </message>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="806"/>
@@ -6656,72 +6671,72 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="815"/>
         <source>Checkout</source>
-        <translation>チェックアウト</translation>
+        <translation>检出</translation>
     </message>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="827"/>
         <source>Stash</source>
-        <translation>スタッシュへ預ける</translation>
+        <translation>备份未提交修改到贮藏区</translation>
     </message>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="832"/>
         <source>Pop Stash</source>
-        <translation>スタッシュから引き出す</translation>
+        <translation>应用备份并从贮藏区删除</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="857"/>
+        <location filename="../src/ui/ToolBar.cpp" line="858"/>
         <source>Open Terminal</source>
-        <translation type="unfinished"></translation>
+        <translation>打开终端</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="869"/>
+        <location filename="../src/ui/ToolBar.cpp" line="870"/>
         <source>Open file manager</source>
-        <translation type="unfinished"></translation>
+        <translation>打开文件管理器</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="881"/>
+        <location filename="../src/ui/ToolBar.cpp" line="882"/>
         <source>Configure Settings</source>
-        <translation>設定を変更</translation>
+        <translation>配置设定</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="889"/>
+        <location filename="../src/ui/ToolBar.cpp" line="890"/>
         <source>Repository settings</source>
-        <translation type="unfinished"></translation>
+        <translation>存储库设置</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="893"/>
+        <location filename="../src/ui/ToolBar.cpp" line="894"/>
         <source>Application settings</source>
-        <translation type="unfinished"></translation>
+        <translation>应用程序设置</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="900"/>
-        <location filename="../src/ui/ToolBar.cpp" line="1029"/>
+        <location filename="../src/ui/ToolBar.cpp" line="901"/>
+        <location filename="../src/ui/ToolBar.cpp" line="1030"/>
         <source>Show Log</source>
-        <translation>ログを表示</translation>
+        <translation>显示日志</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="918"/>
+        <location filename="../src/ui/ToolBar.cpp" line="919"/>
         <source>Double Tree View</source>
-        <translation type="unfinished"></translation>
+        <translation>双树状视图</translation>
     </message>
     <message>
         <source>Diff View</source>
-        <translation type="vanished">差分ビュー</translation>
+        <translation type="vanished">差异视图</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="923"/>
+        <location filename="../src/ui/ToolBar.cpp" line="924"/>
         <source>Tree View</source>
-        <translation>ツリービュー</translation>
+        <translation>树状视图</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="936"/>
+        <location filename="../src/ui/ToolBar.cpp" line="937"/>
         <source>Show Starred Commits</source>
-        <translation>スターを付けたコミットを表示</translation>
+        <translation>显示加注星标的提交</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="1029"/>
+        <location filename="../src/ui/ToolBar.cpp" line="1030"/>
         <source>Hide Log</source>
-        <translation>ログを隠す</translation>
+        <translation>隐藏日志</translation>
     </message>
 </context>
 <context>
@@ -6729,42 +6744,42 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="337"/>
         <source>Keep backup of merge files (.orig)</source>
-        <translation>マージファイルのバックアップを取る (.orig)</translation>
+        <translation>保留合并文件（.orig）的备份</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="344"/>
         <source>External editor:</source>
-        <translation>外部エディター:</translation>
+        <translation>外部编辑器：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="345"/>
         <source>External diff:</source>
-        <translation>外部差分ツール:</translation>
+        <translation>外部差异比较：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="346"/>
         <source>External merge:</source>
-        <translation>外部マージツール:</translation>
+        <translation>外部合并：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="347"/>
         <source>Backup files:</source>
-        <translation>ファイルのバックアップ:</translation>
+        <translation>备份文件：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="350"/>
         <source>Terminal emulator command:</source>
-        <translation type="unfinished"></translation>
+        <translation>终端模拟器命令：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="362"/>
         <source>File manager command:</source>
-        <translation type="unfinished"></translation>
+        <translation>文件管理器命令：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="390"/>
         <source>Configure</source>
-        <translation>設定</translation>
+        <translation>配置</translation>
     </message>
 </context>
 <context>
@@ -6772,7 +6787,7 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/ui/TreeModel.cpp" line="143"/>
         <source>Submodule</source>
-        <translation>サブモジュール</translation>
+        <translation>子模块</translation>
     </message>
 </context>
 <context>
@@ -6780,38 +6795,38 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/ui/TreeView.cpp" line="99"/>
         <source>Directory</source>
-        <translation type="unfinished">ディレクトリ</translation>
+        <translation>目录</translation>
     </message>
     <message>
         <location filename="../src/ui/TreeView.cpp" line="99"/>
         <source>File</source>
-        <translation type="unfinished">ファイル</translation>
+        <translation>文件</translation>
     </message>
     <message>
         <location filename="../src/ui/TreeView.cpp" line="100"/>
         <source>Remove or discard %1?</source>
-        <translation type="unfinished"></translation>
+        <translation>删除或放弃%1？</translation>
     </message>
     <message>
         <location filename="../src/ui/TreeView.cpp" line="102"/>
         <source>Are you sure you want to remove or discard all changes in &apos;%1&apos;?</source>
-        <translation type="unfinished"></translation>
+        <translation>你是否确认要删除或放弃&apos;%1&apos;中的所有更改？</translation>
     </message>
     <message>
         <location filename="../src/ui/TreeView.cpp" line="107"/>
         <source>This action cannot be undone.</source>
-        <translation type="unfinished">この操作は元に戻せません。</translation>
+        <translation>此操作无法撤消。</translation>
     </message>
     <message>
         <location filename="../src/ui/TreeView.cpp" line="110"/>
         <location filename="../src/ui/TreeView.cpp" line="122"/>
         <source>Discard</source>
-        <translation type="unfinished">破棄</translation>
+        <translation>丢弃</translation>
     </message>
     <message>
         <location filename="../src/ui/TreeView.cpp" line="123"/>
         <source>discard</source>
-        <translation type="unfinished">破棄</translation>
+        <translation>丢弃</translation>
     </message>
 </context>
 <context>
@@ -6819,74 +6834,90 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/ui/TreeWidget.cpp" line="54"/>
         <source>Search:</source>
-        <translation type="unfinished"></translation>
+        <translation>搜索：</translation>
     </message>
     <message>
         <location filename="../src/ui/TreeWidget.cpp" line="57"/>
         <source>Regex</source>
-        <translation type="unfinished"></translation>
+        <translation>正则表达式</translation>
     </message>
     <message>
         <location filename="../src/ui/TreeWidget.cpp" line="59"/>
         <source>Case Sensitive</source>
-        <translation type="unfinished"></translation>
+        <translation>区分大小写</translation>
     </message>
 </context>
 <context>
     <name>UpToDateDialog</name>
     <message>
         <source>Already Up-to-date</source>
-        <translation type="vanished">既に最新です</translation>
+        <translation type="vanished">已经是最新的</translation>
     </message>
     <message>
         <source>%1 is already up-to-date. You have version %2.</source>
-        <translation type="vanished">既に最新版 (バージョン %2) の %1 をお使いです。</translation>
+        <translation type="vanished">%1已经是最新的。您拥有的版本是%2。</translation>
     </message>
 </context>
 <context>
     <name>UpdateDialog</name>
     <message>
         <source>Update %1</source>
-        <translation type="vanished">%1 を更新</translation>
+        <translation type="vanished">更新%1</translation>
+    </message>
+    <message>
+        <source>&lt;h3&gt;A new version of %1 is available!&lt;/h3&gt;&lt;p&gt;%1 %2 is now available - you have %3. The new version will be soon available in your package manager. Just update your system.&lt;/p&gt;&lt;b&gt;Release Notes:&lt;/b&gt;</source>
+        <translation type="vanished">&lt;h3&gt;1%的新版本已可用！&lt;/h3&gt;&lt;p&gt;现已推出 %1 %2版本——当前使用的是%3。新版本很快会在你的软件包管理器中提供，只需更新系统即可。&lt;/p&gt;&lt;b&gt;发行说明：&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;h3&gt;A new version of %1 is available!&lt;/h3&gt;&lt;p&gt;%1 %2 is now available - you have %3. Would you like to download it now?&lt;/p&gt;&lt;b&gt;Release Notes:&lt;/b&gt;</source>
-        <translation type="vanished">&lt;h3&gt;新しい %1 のバージョンが利用できます。&lt;/h3&gt;&lt;p&gt;%1 %2 を利用できます (現在 %3 をお使いです)。すぐにダウンロードしますか？&lt;/p&gt;&lt;b&gt;新機能と変更点:&lt;/b&gt;</translation>
+        <translation type="vanished">&lt;h3&gt;%1的新版本已可用！&lt;/h3&gt;&lt;p&gt;现已推出 %1 %2版本——你当前使用的是%3。您要立即下载吗？&lt;/p&gt;&lt;b&gt;发行说明：&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;h3&gt;A new version of %1 is available!&lt;/h3&gt;&lt;p&gt;%1 %2 is now available - you have %3.&lt;/p&gt;&lt;p&gt;If you downloaded the flatpak package over a package manager or from flathub.org &lt;br/&gt;you don&apos;t have to install manually a new version. It will be available within the next &lt;br/&gt;days during your system update: &lt;code&gt;flatpak update&lt;/code&gt;&lt;/p&gt;&lt;b&gt;Release Notes:&lt;/b&gt;</source>
+        <translation type="vanished">&lt;h3&gt;%1 的新版本现已可用！&lt;/h3&gt;&lt;p&gt;现已推出 %1 %2版本——你当前使用的是%3。&lt;/p&gt;&lt;p&gt;如果你是通过软件包管理器或从flathub.org下载的Flatpak安装包，&lt;br/&gt;无需手动安装新版本。它将在未来几天内随系统更新自动可用：&lt;br/&gt;执行命令：&lt;code&gt;flatpak update&lt;/code&gt;&lt;/p&gt;&lt;b&gt;发行说明：&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Automatically download and install updates</source>
-        <translation type="vanished">自動的に更新のダウンロードとインストールを行う</translation>
+        <translation type="vanished">自动下载并安装更新</translation>
     </message>
     <message>
         <source>Install Update</source>
-        <translation type="vanished">更新をインストール</translation>
+        <translation type="vanished">安装更新</translation>
     </message>
     <message>
         <source>Remind Me Later</source>
-        <translation type="vanished">後で通知</translation>
+        <translation type="vanished">稍后提醒我</translation>
     </message>
     <message>
         <source>Skip This Version</source>
-        <translation type="vanished">このバージョンは無視</translation>
+        <translation type="vanished">跳过此版本</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation type="vanished">确认</translation>
+    </message>
+    <message>
+        <source>Donate</source>
+        <translation type="vanished">捐赠</translation>
     </message>
 </context>
 <context>
     <name>UpdatePanel</name>
     <message>
         <source>Check for updates automatically</source>
-        <translation type="vanished">自動的に更新を確認</translation>
+        <translation type="vanished">自动检查更新</translation>
     </message>
     <message>
         <source>Automatically download and install updates</source>
-        <translation type="vanished">自動的に更新のダウンロードとインストールを行う</translation>
+        <translation type="vanished">自动下载并安装更新</translation>
     </message>
     <message>
         <source>Check Now</source>
-        <translation type="vanished">今すぐ確認</translation>
+        <translation type="vanished">现在检查</translation>
     </message>
     <message>
         <source>Software Update:</source>
-        <translation type="vanished">ソフトウェアの更新:</translation>
+        <translation type="vanished">软件更新：</translation>
     </message>
 </context>
 <context>
@@ -6894,12 +6925,12 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/dialogs/UpdateSubmodulesDialog.cpp" line="109"/>
         <source>Recursive</source>
-        <translation>再帰的</translation>
+        <translation>递归的</translation>
     </message>
     <message>
         <location filename="../src/dialogs/UpdateSubmodulesDialog.cpp" line="112"/>
         <source>Init</source>
-        <translation>初期化</translation>
+        <translation>在里面</translation>
     </message>
     <message>
         <location filename="../src/dialogs/UpdateSubmodulesDialog.cpp" line="117"/>
@@ -6911,55 +6942,59 @@ x (number) determines the number of maximum files shown</source>
     <name>Updater</name>
     <message>
         <source>Installer failed to start</source>
-        <translation type="vanished">インストーラーの開始に失敗しました</translation>
+        <translation type="vanished">安装程序无法启动</translation>
     </message>
     <message>
         <source>The disk image failed to mount successfully</source>
-        <translation type="vanished">ディスクイメージを正しくマウントできませんでした</translation>
+        <translation type="vanished">磁盘映像安装失败</translation>
     </message>
     <message>
         <source>The existing bundle could not be moved to the trash</source>
-        <translation type="vanished">既存のバンドルをゴミ箱へ移動できませんでした</translation>
+        <translation type="vanished">现有的包无法移至垃圾箱</translation>
     </message>
     <message>
         <source>The new bundle could not be copied into place</source>
-        <translation type="vanished">新しいバンドルを、対象の場所へコピーできませんでした</translation>
+        <translation type="vanished">新的包无法复制到位</translation>
     </message>
     <message>
         <source>Helper application failed to start</source>
-        <translation type="vanished">補助アプリケーションの開始に失敗しました</translation>
+        <translation type="vanished">帮助应用程序无法启动</translation>
     </message>
     <message>
         <source>Update Failed</source>
-        <translation type="vanished">更新に失敗しました</translation>
+        <translation type="vanished">更新失败</translation>
     </message>
     <message>
         <source>Unable to check for updates</source>
-        <translation type="vanished">更新を確認できませんでした</translation>
+        <translation type="vanished">无法检查更新</translation>
     </message>
     <message>
         <source>Unable to download update</source>
-        <translation type="vanished">更新をダウンロードできませんでした</translation>
+        <translation type="vanished">无法下载更新</translation>
     </message>
     <message>
         <source>Unable to open temporary file</source>
-        <translation type="vanished">一時ファイルを開けませんでした</translation>
+        <translation type="vanished">无法打开临时文件</translation>
     </message>
     <message>
         <source>Unable to install update</source>
-        <translation type="vanished">更新をインストールできませんでした</translation>
+        <translation type="vanished">无法安装更新</translation>
+    </message>
+    <message>
+        <source>Some windows failed to close. You can download the binary manually from %1</source>
+        <translation type="vanished">一些窗口无法关闭。您可以从%1手动下载二进制文件</translation>
     </message>
     <message>
         <source>Some windows failed to close</source>
-        <translation type="vanished">一部のウィンドウを閉じられませんでした</translation>
+        <translation type="vanished">一些窗口无法关闭</translation>
     </message>
     <message>
         <source>Unknown install error</source>
-        <translation type="vanished">不明なインストールエラー</translation>
+        <translation type="vanished">未知的安装错误</translation>
     </message>
     <message>
         <source>Installer script failed: %1</source>
-        <translation type="vanished">インストーラーのスクリプトが失敗しました: %1</translation>
+        <translation type="vanished">安装脚本失败：%1</translation>
     </message>
 </context>
 <context>
@@ -6967,76 +7002,76 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="459"/>
         <source>Add New Theme</source>
-        <translation>新しいテーマを追加</translation>
+        <translation>添加新主题</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="460"/>
         <source>Edit Current Theme</source>
-        <translation>現在のテーマを編集</translation>
+        <translation>编辑当前主题</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="484"/>
         <source>Create Theme</source>
-        <translation>テーマを作成</translation>
+        <translation>创建主题</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="494"/>
         <source>Theme Name</source>
-        <translation>テーマ名</translation>
+        <translation>主题名称</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="526"/>
         <source>Restart?</source>
-        <translation>再起動しますか？</translation>
+        <translation>重启？</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="527"/>
         <source>The application must be restarted for the theme change to take effect.</source>
-        <translation>テーマの変更を適用するには、アプリケーションを再起動する必要があります。</translation>
+        <translation>必须重启应用程序，主题更改才能生效。</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="529"/>
         <source>Do you want to restart now?</source>
-        <translation>今すぐ再起動しますか？</translation>
+        <translation>您要立即重启吗？</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="531"/>
         <source>Restart</source>
-        <translation>再起動</translation>
+        <translation>重启</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="532"/>
         <source>Later</source>
-        <translation>後で</translation>
+        <translation>推后</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="550"/>
         <source>Show full repository path</source>
-        <translation>リポジトリの完全なパスを表示</translation>
+        <translation>显示完整的仓库路径</translation>
     </message>
     <message>
         <source>Hide automatically</source>
-        <translation type="vanished">自動的に隠す</translation>
+        <translation type="vanished">自动隐藏</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="557"/>
         <source>Open submodules in tabs</source>
-        <translation>サブモジュールをタブに開く</translation>
+        <translation>在标签页中打开子模块</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="565"/>
         <source>Open all repositories in tabs</source>
-        <translation>全てのリポジトリをタブに開く</translation>
+        <translation>在标签页中打开所有仓库</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="572"/>
         <source>Hide Menubar</source>
-        <translation type="unfinished"></translation>
+        <translation>隐藏菜单栏</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="577"/>
         <source>Show Avatars</source>
-        <translation type="unfinished"></translation>
+        <translation>显示头像</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="578"/>
@@ -7046,36 +7081,36 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="587"/>
         <source>Show Window Maximized when opened</source>
-        <translation type="unfinished"></translation>
+        <translation>打开时最大化显示窗口</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="640"/>
         <source>Theme:</source>
-        <translation>テーマ:</translation>
+        <translation>主题：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="641"/>
         <source>Title:</source>
-        <translation>タイトル:</translation>
+        <translation>标题：</translation>
     </message>
     <message>
         <source>Log:</source>
-        <translation type="vanished">ログ:</translation>
+        <translation type="vanished">日志：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="642"/>
         <source>Tabs:</source>
-        <translation>タブ:</translation>
+        <translation>标签页：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="644"/>
         <source>View:</source>
-        <translation type="unfinished"></translation>
+        <translation>查看：</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="647"/>
         <source>Prompt:</source>
-        <translation>質問:</translation>
+        <translation>提示：</translation>
     </message>
 </context>
 <context>
@@ -7084,28 +7119,28 @@ x (number) determines the number of maximum files shown</source>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="222"/>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="248"/>
         <source>Use Theirs: Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>以他们的删除操作为准</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="230"/>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="241"/>
         <source>Use Ours: Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>以我们的删除操作为准</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="256"/>
         <source>both: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>两者：%1</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="260"/>
         <source>ours: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>我们的：%1</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="264"/>
         <source>theirs: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>他们的：%1</translation>
     </message>
 </context>
 </TS>

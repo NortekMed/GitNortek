@@ -1336,6 +1336,7 @@ int main(int argc, char *argv[]) {
   QSettings::setDefaultFormat(QSettings::IniFormat);
   QSettings::setPath(QSettings::IniFormat, QSettings::UserScope,
                      settings.path());
+  qunsetenv("GITNORTEK_OAUTH");
   qunsetenv("GITTYUP_OAUTH");
 
   Application::setInTest();

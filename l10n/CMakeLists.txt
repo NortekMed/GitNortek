@@ -18,7 +18,7 @@ file(GLOB_RECURSE SOURCE_FILES ${SRC_DIR}/*.h ${SRC_DIR}/*.cpp ${SRC_DIR}/*.mm)
 set(SYSTEM_LANG_KEY "System")
 set(SUPPORTED_LANGUAGES "{\"${SYSTEM_LANG_KEY}\", \"${SYSTEM_LANG_KEY}\"},")
 foreach(LANGUAGE ${LANGUAGES})
-  set(TS_FILES ${TS_FILES} gittyup_${LANGUAGE}.ts)
+  set(TS_FILES ${TS_FILES} gitnortek_${LANGUAGE}.ts)
   set(SUPPORTED_LANGUAGES
       "${SUPPORTED_LANGUAGES} {\"${LANGUAGE}\", \"${LANGUAGE}\"},")
 endforeach()
@@ -61,7 +61,7 @@ foreach(QM_FILE ${QT_QM_FILES})
     install(
       FILES ${QM_FILE}
       DESTINATION ${L10N_INSTALL_DIR}
-      COMPONENT ${GITTYUP_NAME})
+      COMPONENT ${GITNORTEK_NAME})
   endif()
 endforeach()
 
@@ -69,5 +69,5 @@ foreach(QM_FILE ${QM_FILES})
   install(
     FILES ${QM_FILE}
     DESTINATION ${L10N_INSTALL_DIR}
-    COMPONENT ${GITTYUP_NAME})
+    COMPONENT ${GITNORTEK_NAME})
 endforeach()

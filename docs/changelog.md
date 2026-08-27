@@ -32,6 +32,7 @@ Bug Fix and Feature release
 * Rename the NortekMed repository to `NortekMed/GitNortek`
 * Load About dialog documentation when running GitNortek directly from the build tree
 * Replace the inherited application icon with the GitNortek logo on Linux, Windows, macOS, and in the application UI
+* Complete the canonical GitNortek naming migration, fix translation catalog loading, and replace inherited documentation, theme preview, and macOS installer artwork
 * Refresh repositories automatically when Git metadata changes
 * Improve diff, blame, commit description, and large binary refresh performance
 * Fix path filtering, detached HEAD selection, merge tool visibility, and macOS Finder integration

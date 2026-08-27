@@ -8,6 +8,9 @@
 //
 
 #include "Test.h"
+#include "conf/Settings.h"
+
+#include <QTranslator>
 
 using namespace QTest;
 
@@ -16,11 +19,20 @@ class TestSanity : public QObject {
 
 private slots:
   void sanity();
+  void translationCatalog();
 };
 
 void TestSanity::sanity() {
-  QCOMPARE(QCoreApplication::applicationName(), QString(GITTYUP_NAME));
-  QCOMPARE(QCoreApplication::applicationVersion(), QString(GITTYUP_VERSION));
+  QCOMPARE(QCoreApplication::applicationName(), QString(GITNORTEK_NAME));
+  QCOMPARE(QCoreApplication::applicationVersion(), QString(GITNORTEK_VERSION));
+}
+
+void TestSanity::translationCatalog() {
+  QTranslator translator;
+  const QString path = Settings::l10nDir().absolutePath();
+  QVERIFY2(translator.load(QLocale("de_DE"), "gitnortek", "_", path),
+           qPrintable(QString("Unable to load GitNortek translations from %1")
+                          .arg(path)));
 }
 
 TEST_MAIN(TestSanity)

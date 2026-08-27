@@ -1,40 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="pt_PT">
+<TS version="2.1" language="ru_RU">
 <context>
     <name>AboutDialog</name>
     <message>
         <location filename="../src/dialogs/AboutDialog.cpp" line="64"/>
         <source>About %1</source>
-        <translation>Acerca do %1</translation>
+        <translation>О %1</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AboutDialog.cpp" line="73"/>
         <source>Understand your history!</source>
-        <translation>Compreender o seu histórico!</translation>
+        <translation>Понимай свою историю!</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AboutDialog.cpp" line="94"/>
         <source>Changelog</source>
-        <translation>Diário de alterações</translation>
+        <translation>Журнал изменений</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AboutDialog.cpp" line="95"/>
         <source>Acknowledgments</source>
-        <translation>Agradecimentos</translation>
+        <translation>Благодарности</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AboutDialog.cpp" line="97"/>
         <source>Privacy</source>
-        <translation>Privacidade</translation>
+        <translation>Приватность</translation>
     </message>
     <message>
         <source>Usage reporting has been disabled. Restart the application for changes to take effect.</source>
-        <translation type="vanished">Relatório de utilização desactivado. Reinicie a aplicação para aplicar as alterações.</translation>
+        <translation type="vanished">Доносительство об использовании было отключено. Перезапустите приложение для вступления изменений в силу.</translation>
     </message>
     <message>
         <source>Usage Reporting Disabled</source>
-        <translation type="vanished">Relatório de utilização desactivado</translation>
+        <translation type="vanished">Доносительство об использовании отключено</translation>
     </message>
 </context>
 <context>
@@ -42,12 +42,12 @@
     <message>
         <location filename="../src/host/Account.cpp" line="128"/>
         <source>Connection failed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Соединение не удалось</translation>
     </message>
     <message>
         <location filename="../src/host/Account.cpp" line="187"/>
         <source>&lt;b&gt;Note:&lt;/b&gt; Basic authentication is not supported if you have two-factor authentication enabled. Use a &lt;a href=&apos;https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/&apos;&gt;personal access token&lt;/a&gt; in the password field instead.</source>
-        <translation>&lt;b&gt;Nota:&lt;/b&gt; A autenticação básica não é suportada se tiver activada a autenticação em dois passos. Use antes um &lt;a href=&apos;https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/&apos;&gt;símbolo de autenticaçao pessoal&lt;/a&gt; no campo da senha.</translation>
+        <translation>&lt;b&gt;Заметь:&lt;/b&gt; Базовая аутентификация не поддерживается, если у вас включена двухфакторная. Используйте &lt;a href=&apos;https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/&apos;&gt;персональный токен доступа&lt;/a&gt; вместо пароля.</translation>
     </message>
     <message>
         <location filename="../src/host/Account.cpp" line="195"/>
@@ -57,12 +57,12 @@
     <message>
         <location filename="../src/host/Account.cpp" line="199"/>
         <source>&lt;b&gt;Note:&lt;/b&gt; Basic authentication is not supported. Use a &lt;a href=&apos;https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html&apos;&gt;personal access token&lt;/a&gt; in the password field instead.</source>
-        <translation>&lt;b&gt;Nota:&lt;/b&gt; A autenticação básica não é suportada. Use antes um &lt;a href=&apos;https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html&apos;&gt;símbolo de autenticaçao pessoal&lt;/a&gt; no campo da senha.</translation>
+        <translation>&lt;b&gt;Note:&lt;/b&gt; Базовая аутентификация не поддерживается. Используйте &lt;a href=&apos;https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html&apos;&gt;personal токен доступа&lt;/a&gt; вместо пароля.</translation>
     </message>
     <message>
         <location filename="../src/host/Account.cpp" line="289"/>
         <source>Authentication failed</source>
-        <translation>Falha ao autenticar</translation>
+        <translation>Аутентификация провалена</translation>
     </message>
 </context>
 <context>
@@ -70,62 +70,62 @@
     <message>
         <location filename="../src/dialogs/AccountDialog.cpp" line="22"/>
         <source>Add Remote Account</source>
-        <translation>Adicionar conta remota</translation>
+        <translation>Добавить удаленный аккаунт</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AccountDialog.cpp" line="64"/>
         <source>Host:</source>
-        <translation>Servidor:</translation>
+        <translation>Сервер:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AccountDialog.cpp" line="65"/>
         <source>Username:</source>
-        <translation>Utilizador:</translation>
+        <translation>Имя пользователя:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AccountDialog.cpp" line="66"/>
         <source>Password:</source>
-        <translation>Senha:</translation>
+        <translation>Пароль:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AccountDialog.cpp" line="68"/>
         <source>Advanced:</source>
-        <translation>Avançado:</translation>
+        <translation>Дополнительно:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AccountDialog.cpp" line="83"/>
         <source>URL:</source>
-        <translation>URL:</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/dialogs/AccountDialog.cpp" line="114"/>
         <source>Replace?</source>
-        <translation>Substituir?</translation>
+        <translation>Заменить?</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AccountDialog.cpp" line="115"/>
         <source>An account of this type already exists.</source>
-        <translation>Já existe uma conta deste tipo.</translation>
+        <translation>Аккаунт этого типа уже существует.</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AccountDialog.cpp" line="117"/>
         <source>Would you like to replace the previous account?</source>
-        <translation>Deseja substituir a conta anterior?</translation>
+        <translation>Желаете заменить предыдущий аккаунт?</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AccountDialog.cpp" line="118"/>
         <source>Replace</source>
-        <translation>Substituir</translation>
+        <translation>Заменить</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AccountDialog.cpp" line="119"/>
         <source>Cancel</source>
-        <translation>Cancelar</translation>
+        <translation>Отменить</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AccountDialog.cpp" line="135"/>
         <source>Connection Failed</source>
-        <translation>A ligação falhou</translation>
+        <translation>Соединение не удалось</translation>
     </message>
 </context>
 <context>
@@ -134,17 +134,17 @@
         <location filename="../src/dialogs/AddRemoteDialog.cpp" line="18"/>
         <location filename="../src/dialogs/AddRemoteDialog.cpp" line="31"/>
         <source>Add Remote</source>
-        <translation>Adicionar remoto</translation>
+        <translation>Добавить Remote</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AddRemoteDialog.cpp" line="34"/>
         <source>Name:</source>
-        <translation>Nome:</translation>
+        <translation>Имя:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AddRemoteDialog.cpp" line="35"/>
         <source>URL:</source>
-        <translation>URL:</translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -163,12 +163,12 @@
     <message>
         <location filename="../src/dialogs/AddSubmoduleDialog.cpp" line="53"/>
         <source>URL:</source>
-        <translation type="unfinished">URL:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/dialogs/AddSubmoduleDialog.cpp" line="54"/>
         <source>Path:</source>
-        <translation type="unfinished">Caminho:</translation>
+        <translation type="unfinished">Путь:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AddSubmoduleDialog.cpp" line="55"/>
@@ -181,7 +181,7 @@
     <message>
         <location filename="../src/ui/SearchField.cpp" line="43"/>
         <source>Advanced Search</source>
-        <translation>Procura avançada</translation>
+        <translation>Расширенный поиск</translation>
     </message>
 </context>
 <context>
@@ -189,162 +189,162 @@
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="84"/>
         <source>Author:</source>
-        <translation>Autor:</translation>
+        <translation>Автор:</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="84"/>
         <source>Author name</source>
-        <translation>Nome do autor</translation>
+        <translation>Имя автора</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="85"/>
         <source>Email:</source>
-        <translation>Email:</translation>
+        <translation>Почта:</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="85"/>
         <source>Author email</source>
-        <translation>Email do autor</translation>
+        <translation>Почта автора</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="86"/>
         <source>Message:</source>
-        <translation>Mensagem:</translation>
+        <translation>Сообщение:</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="86"/>
         <source>Commit message</source>
-        <translation>Mensagem de submissão</translation>
+        <translation>Сообщение коммита</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="90"/>
         <source>Date:</source>
-        <translation>Data:</translation>
+        <translation>Дата:</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="90"/>
         <source>Specific commit date</source>
-        <translation>Data específica da submissão</translation>
+        <translation>Конкретная дата коммита</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="91"/>
         <source>After:</source>
-        <translation>Após:</translation>
+        <translation>После:</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="91"/>
         <source>Commits after date</source>
-        <translation>Submissão após a data</translation>
+        <translation>Коммиты после даты</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="92"/>
         <source>Before:</source>
-        <translation>Antes:</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="92"/>
         <source>Commits before date</source>
-        <translation>Submissão antes da data</translation>
+        <translation>Коммиты до даты</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="96"/>
         <source>File:</source>
-        <translation>Ficheiro:</translation>
+        <translation>Файл:</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="96"/>
         <source>File name</source>
-        <translation>Nome do ficheiro</translation>
+        <translation>Имя файла</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="97"/>
         <source>Path:</source>
-        <translation>Caminho:</translation>
+        <translation>Путь:</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="97"/>
         <source>File path</source>
-        <translation>Caminho do ficheiro</translation>
+        <translation>Путь файла</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="98"/>
         <source>Scope:</source>
-        <translation>Âmbito:</translation>
+        <translation>Область видимости:</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="98"/>
         <source>Hunk header text</source>
-        <translation>Texto da parte do cabeçalho</translation>
+        <translation>Текст заголовка hunkа</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="103"/>
         <source>Context:</source>
-        <translation>Contexto:</translation>
+        <translation>Контекст:</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="103"/>
         <source>Diff context (white)</source>
-        <translation>Contexto comparado (branco)</translation>
+        <translation>Diff контекст (белый)</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="104"/>
         <source>Addition:</source>
-        <translation>Adição:</translation>
+        <translation>Добавка:</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="104"/>
         <source>Diff addition (green)</source>
-        <translation>Adição comparada (verde)</translation>
+        <translation>Diff добавлено (зелёный)</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="105"/>
         <source>Deletion:</source>
-        <translation>Eliminação:</translation>
+        <translation>Удалено:</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="105"/>
         <source>Diff deletion (red)</source>
-        <translation>Eliminação comparada (vermelho)</translation>
+        <translation>Diff удалено (красный)</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="110"/>
         <source>Comment:</source>
-        <translation>Comentário:</translation>
+        <translation>Комментарий:</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="110"/>
         <source>Source code comment</source>
-        <translation>Comentário do código-fonte</translation>
+        <translation>Комментарий исходника</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="111"/>
         <source>String:</source>
-        <translation>Cadeia:</translation>
+        <translation>Строка:</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="111"/>
         <source>Source code string literal</source>
-        <translation>Cadeia literal do código-fonte</translation>
+        <translation>Литеральная строка исходника</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="112"/>
         <source>Identifier:</source>
-        <translation>Identificador:</translation>
+        <translation>Идентификатор:</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="112"/>
         <source>Source code identifier</source>
-        <translation>Identificador do código-fonte</translation>
+        <translation>Идентификатор исходника</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="114"/>
         <source>Search</source>
-        <translation>Procurar</translation>
+        <translation>Поиск</translation>
     </message>
     <message>
         <location filename="../src/ui/AdvancedSearchWidget.cpp" line="122"/>
         <source>Return</source>
-        <translation>Retornar</translation>
+        <translation>Вернуться</translation>
     </message>
 </context>
 <context>
@@ -367,23 +367,23 @@
     <message>
         <location filename="../src/dialogs/AmendDialog.cpp" line="181"/>
         <source>Amend</source>
-        <translation type="unfinished">Emendar</translation>
+        <translation type="unfinished">Дополнить</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AmendDialog.cpp" line="182"/>
         <source>Cancel</source>
-        <translation type="unfinished">Cancelar</translation>
+        <translation type="unfinished">Отменить</translation>
     </message>
 </context>
 <context>
     <name>Application</name>
     <message>
         <source>SSL Errors</source>
-        <translation type="vanished">Erros SSL</translation>
+        <translation type="vanished">Ошибки SSL</translation>
     </message>
     <message>
         <source>Failed to set up SSL session. Do you want to ignore these errors?</source>
-        <translation type="vanished">Falha ao configurar sessão SSL. Deseja ignorar estes erros?</translation>
+        <translation type="vanished">Не смог установить сеанс SSL. Хотите игнорировать ошибки?</translation>
     </message>
 </context>
 <context>
@@ -408,14 +408,14 @@
     <name>Beanstalk</name>
     <message>
         <source>Connection failed</source>
-        <translation type="vanished">A ligação falhou</translation>
+        <translation type="vanished">Соединение не удалось</translation>
     </message>
 </context>
 <context>
     <name>Bitbucket</name>
     <message>
         <source>Connection failed</source>
-        <translation type="vanished">A ligação falhou</translation>
+        <translation type="vanished">Соединение не удалось</translation>
     </message>
 </context>
 <context>
@@ -423,27 +423,27 @@
     <message>
         <location filename="../src/ui/BlameEditor.cpp" line="104"/>
         <source>Untitled</source>
-        <translation>Sem título</translation>
+        <translation>Без_Имени</translation>
     </message>
     <message>
         <location filename="../src/ui/BlameEditor.cpp" line="118"/>
         <source>Not Tracked</source>
-        <translation>Não rastreado</translation>
+        <translation>Не отслеживаемо</translation>
     </message>
     <message>
         <location filename="../src/ui/BlameEditor.cpp" line="136"/>
         <source>HEAD</source>
-        <translation>HEAD</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/BlameEditor.cpp" line="140"/>
         <source>Working Copy</source>
-        <translation>Cópia de trabalho</translation>
+        <translation>Рабочая копия</translation>
     </message>
     <message>
         <location filename="../src/ui/BlameEditor.cpp" line="197"/>
         <source>Save File</source>
-        <translation>Gravar ficheiro</translation>
+        <translation>Сохранить файл</translation>
     </message>
 </context>
 <context>
@@ -451,12 +451,12 @@
     <message>
         <location filename="../src/ui/BlameMargin.cpp" line="385"/>
         <source>Not Committed</source>
-        <translation>Não submetido</translation>
+        <translation>Не закоммичено</translation>
     </message>
     <message>
         <location filename="../src/ui/BlameMargin.cpp" line="388"/>
         <source>Invalid Signature</source>
-        <translation>Assinatura inválida</translation>
+        <translation>Неверная подпись</translation>
     </message>
 </context>
 <context>
@@ -464,17 +464,17 @@
     <message>
         <location filename="../src/dialogs/BranchTableModel.cpp" line="76"/>
         <source>Name</source>
-        <translation>Nome</translation>
+        <translation>Имя</translation>
     </message>
     <message>
         <location filename="../src/dialogs/BranchTableModel.cpp" line="78"/>
         <source>Upstream</source>
-        <translation>Montante</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/dialogs/BranchTableModel.cpp" line="80"/>
         <source>Rebase</source>
-        <translation>Rebasear</translation>
+        <translation>Перебазировать</translation>
     </message>
 </context>
 <context>
@@ -482,17 +482,17 @@
     <message>
         <location filename="../src/dialogs/CheckoutDialog.cpp" line="28"/>
         <source>Detach HEAD</source>
-        <translation>Desanexar HEAD</translation>
+        <translation>Отсоединить HEAD</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CheckoutDialog.cpp" line="37"/>
         <source>References:</source>
-        <translation>Referências:</translation>
+        <translation>Ссылки:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CheckoutDialog.cpp" line="42"/>
         <source>Checkout</source>
-        <translation>Mudar</translation>
+        <translation>Перейти</translation>
     </message>
 </context>
 <context>
@@ -500,7 +500,7 @@
     <message>
         <location filename="../src/ui/SearchField.cpp" line="68"/>
         <source>Clear</source>
-        <translation>Limpar</translation>
+        <translation>Очистить</translation>
     </message>
 </context>
 <context>
@@ -508,32 +508,32 @@
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="323"/>
         <source>Initialize Repository</source>
-        <translation>Inicializar repositório</translation>
+        <translation>Инициализировать репозиторий</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="323"/>
         <source>Clone Repository</source>
-        <translation>Clonar repositório</translation>
+        <translation>Клонировать репозиторий</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="359"/>
         <source>Initialized empty repository into &apos;%1&apos;</source>
-        <translation>Repositório vazio inicializado em &quot;%1&quot;</translation>
+        <translation>Инициализировал пустой репозиторий &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="360"/>
         <source>Cloned repository from &apos;%1&apos; into &apos;%2&apos;</source>
-        <translation>Repositório clonado de &quot;%1&quot; para &quot;%2&quot;</translation>
+        <translation>Клонировал репозиторий из &apos;%1&apos; в &apos;%2&apos;</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="365"/>
         <source>Initialize</source>
-        <translation>Inicializar</translation>
+        <translation>Инициализировать</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="365"/>
         <source>Clone</source>
-        <translation>Clonar</translation>
+        <translation>Клонировать</translation>
     </message>
 </context>
 <context>
@@ -541,33 +541,33 @@
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="240"/>
         <source>Clone Progress</source>
-        <translation>Progresso da clonagem</translation>
+        <translation>Прогрессклонирования</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="241"/>
         <source>The new repository will open after the clone finishes.</source>
-        <translation>O novo repositório será aberto após terminar a clonagem.</translation>
+        <translation>Новый репозиторий откроется когда клонирование завершится.</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="260"/>
         <source>Clone</source>
-        <translation>Clonar</translation>
+        <translation>Клонировать</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="269"/>
         <location filename="../src/dialogs/CloneDialog.cpp" line="271"/>
         <source>clone</source>
-        <translation>clonar</translation>
+        <translation>клонировать</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="269"/>
         <source>Clone canceled.</source>
-        <translation>Clonagem cancelada.</translation>
+        <translation>Клонирование отменено.</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="305"/>
         <source>Failed to %1 into &apos;%2&apos; - %3</source>
-        <translation>Falha ao %1 para &quot;%2&quot; - %3</translation>
+        <translation>Ну не смогла я %1 в &apos;%2&apos; - %3</translation>
     </message>
 </context>
 <context>
@@ -575,22 +575,22 @@
     <message>
         <location filename="../src/ui/DetailView.cpp" line="244"/>
         <source>Copy</source>
-        <translation>Copiar</translation>
+        <translation>Копировать</translation>
     </message>
     <message>
         <location filename="../src/ui/DetailView.cpp" line="402"/>
         <source>Range:</source>
-        <translation>Intervalo:</translation>
+        <translation>Диапазон:</translation>
     </message>
     <message>
         <location filename="../src/ui/DetailView.cpp" line="423"/>
         <source>Id:</source>
-        <translation>Id:</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/DetailView.cpp" line="438"/>
         <source>initial commit</source>
-        <translation>submissão inicial</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/DetailView.cpp" line="440"/>
@@ -603,49 +603,49 @@
     <message>
         <location filename="../src/dialogs/CommitDialog.cpp" line="29"/>
         <source>Merge commit message</source>
-        <translation>Mensagem de submissão da união</translation>
+        <translation>Сообщение коммита слияния</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CommitDialog.cpp" line="33"/>
         <source>Stash commit message</source>
-        <translation>Mensagem de submissão de stash</translation>
+        <translation>Сообщение коммита схоронения</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CommitDialog.cpp" line="37"/>
         <source>Revert commit message</source>
-        <translation>Mensagem de submissão de reversão</translation>
+        <translation>Сообщение коммита отката</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CommitDialog.cpp" line="41"/>
         <source>Cherry-pick commit message</source>
-        <translation>Mensagem de submissão de escolha precisa</translation>
+        <translation>Сообщние коммита cherry-pickа</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CommitDialog.cpp" line="71"/>
         <source>Merge</source>
-        <translation>Unir</translation>
+        <translation>Слить</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CommitDialog.cpp" line="72"/>
         <location filename="../src/dialogs/CommitDialog.cpp" line="82"/>
         <location filename="../src/dialogs/CommitDialog.cpp" line="87"/>
         <source>Abort</source>
-        <translation>Abortar</translation>
+        <translation>Прервать</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CommitDialog.cpp" line="76"/>
         <source>Stash</source>
-        <translation>Ocultar</translation>
+        <translation>Схрон</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CommitDialog.cpp" line="81"/>
         <source>Revert</source>
-        <translation>Reverter</translation>
+        <translation>Откатить</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CommitDialog.cpp" line="86"/>
         <source>Cherry-pick</source>
-        <translation>Escolha precisa</translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -658,7 +658,7 @@
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="284"/>
         <source>&lt;b&gt;Commit Message:&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Mensagem de submissão:&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;Сообщение коммита:&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="395"/>
@@ -695,18 +695,18 @@
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="484"/>
         <source>Stage All</source>
-        <translation>Adicionar tudo</translation>
+        <translation>Добавить всё</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="488"/>
         <source>Unstage All</source>
-        <translation>Remover adições</translation>
+        <translation>Отменить добавление всего</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="491"/>
         <location filename="../src/ui/CommitEditor.cpp" line="818"/>
         <source>Commit</source>
-        <translation>Submeter</translation>
+        <translation>Коммит</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="495"/>
@@ -721,12 +721,12 @@
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="505"/>
         <source>Abort Merge</source>
-        <translation type="unfinished">Abortar união</translation>
+        <translation type="unfinished">Прервать слияние</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="583"/>
         <source>%1</source>
-        <translation type="unfinished">%1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="585"/>
@@ -741,12 +741,12 @@
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="694"/>
         <source>Merge</source>
-        <translation type="unfinished">Unir</translation>
+        <translation type="unfinished">Слить</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="704"/>
         <source>Revert</source>
-        <translation type="unfinished">Reverter</translation>
+        <translation type="unfinished">Откатить</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="710"/>
@@ -756,12 +756,12 @@
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="716"/>
         <source>Rebase</source>
-        <translation type="unfinished">Rebasear</translation>
+        <translation type="unfinished">Перебазировать</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="724"/>
         <source>Abort %1</source>
-        <translation type="unfinished">Abortar %1</translation>
+        <translation type="unfinished">Прервать %1</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="813"/>
@@ -770,64 +770,64 @@
     </message>
     <message>
         <source>Update %1</source>
-        <translation type="vanished">Actualizar %1</translation>
+        <translation type="vanished">Update %1</translation>
     </message>
     <message>
         <source>Update %1 and %2</source>
-        <translation type="vanished">Actualizar %1 e %2</translation>
+        <translation type="vanished">Обновить %1 и %2</translation>
     </message>
     <message>
         <source>Update %1, %2, and %3</source>
-        <translation type="vanished">Actualizar %1, %2 e %3</translation>
+        <translation type="vanished">Обновить %1 и %2 и %3</translation>
     </message>
     <message>
         <source>Update %1, %2, and %3 more files...</source>
-        <translation type="vanished">Actualizar %1, %2 e mais %3 ficheiros...</translation>
+        <translation type="vanished">Обновить %1 и %2 и ещё %3 файла...</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="777"/>
         <source>Nothing staged</source>
-        <translation>Nada adicionado</translation>
+        <translation>Ничего не добавлено</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="779"/>
         <source>%1 of %2 file staged</source>
-        <translation>%1 de %2 ficheiro adicionado</translation>
+        <translation>%1 из %2 файл добавлен</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="780"/>
         <source>%1 of %2 files staged</source>
-        <translation>%1 de %2 ficheiros adicionados</translation>
+        <translation>%1 из %2 файлы добавлены</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="784"/>
         <source>%1 file partially staged</source>
-        <translation>%1 ficheiro parcialmente adicionado</translation>
+        <translation>%1 файл частично добавлен</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="785"/>
         <source>%1 files partially staged</source>
-        <translation>%1 ficheiros parcialmente adicionados</translation>
+        <translation>%1 файлы частично добавлены</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="790"/>
         <source>%1 unresolved conflict</source>
-        <translation>%1 conflito por resolver</translation>
+        <translation>%1 неразрешённый конфликт</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="791"/>
         <source>%1 unresolved conflicts</source>
-        <translation>%1 conflitos por resolver</translation>
+        <translation>%1 неразрешённый конфликтов</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="794"/>
         <source>all conflicts resolved</source>
-        <translation>todos os conflitos resolvidos</translation>
+        <translation>все конфликты разрешены</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="807"/>
         <source>Commit Merge</source>
-        <translation>Submeter união</translation>
+        <translation>Закоммитить слияние</translation>
     </message>
 </context>
 <context>
@@ -835,50 +835,50 @@
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2322"/>
         <source>Remove Untracked Files</source>
-        <translation>Remover ficheiros não rastreados</translation>
+        <translation>Удалить неотслеживаемые файлы</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2340"/>
         <source>Apply</source>
-        <translation>Aplicar</translation>
+        <translation>Применить</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2343"/>
         <source>Pop</source>
-        <translation>Aplicar e apagar</translation>
+        <translation>Вытолкнуть</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2346"/>
         <source>Drop</source>
-        <translation>Largar</translation>
+        <translation>Выбросить</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2360"/>
         <source>Unstar</source>
-        <translation>Sem estrela</translation>
+        <translation>Снять отметку</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2360"/>
         <source>Star</source>
-        <translation>Com estrela</translation>
+        <translation>Отметить</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2375"/>
         <source>Add Tag...</source>
-        <translation>Adicionar etiqueta...</translation>
+        <translation>Добавить метку...</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2378"/>
         <source>New Branch...</source>
-        <translation>Novo ramo...</translation>
+        <translation>Новая ветка...</translation>
     </message>
     <message>
         <source>Delete Tag %1</source>
-        <translation type="vanished">Eliminar etiqueta %1</translation>
+        <translation type="vanished">Удалить метку %1</translation>
     </message>
     <message>
         <source>Delete Branch %1</source>
-        <translation type="vanished">Eliminar ramo %1</translation>
+        <translation type="vanished">Удалить ветку %1</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="1729"/>
@@ -933,73 +933,73 @@
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2416"/>
         <source>Delete Tag</source>
-        <translation type="unfinished">Eliminar etiqueta</translation>
+        <translation type="unfinished">Удалить метку</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2420"/>
         <source>Merge...</source>
-        <translation>Unir...</translation>
+        <translation>Слить...</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2435"/>
         <source>Rebase...</source>
-        <translation>Rebasear...</translation>
+        <translation>Перебазировать...</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2450"/>
         <source>Squash...</source>
-        <translation>Comprimir...</translation>
+        <translation>Объединить...</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2467"/>
         <source>Revert</source>
-        <translation>Reverter</translation>
+        <translation>Откатить</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2469"/>
         <source>Cherry-pick</source>
-        <translation>Escolher este</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2476"/>
         <location filename="../src/ui/CommitList.cpp" line="2509"/>
         <source>Checkout %1</source>
-        <translation>Mudar para %1</translation>
+        <translation>Перейти на %1</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2478"/>
         <source>Checkout</source>
-        <translation type="unfinished">Mudar</translation>
+        <translation type="unfinished">Перейти</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2499"/>
         <source>Local branch is already checked out</source>
-        <translation>O ramo local já foi mudado</translation>
+        <translation>Локальная ветка уже извлечена</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2502"/>
         <source>This is a bare repository</source>
-        <translation>Este é um repositório em bruto</translation>
+        <translation>Это - &quot;голый&quot; репозиторий</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2517"/>
         <source>Reset</source>
-        <translation>Repor</translation>
+        <translation>Сбросить</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2518"/>
         <source>Soft</source>
-        <translation>Suave</translation>
+        <translation>Мягкий</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2519"/>
         <source>Mixed</source>
-        <translation>Misto</translation>
+        <translation>Смешанный</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="2520"/>
         <source>Hard</source>
-        <translation>Forçado</translation>
+        <translation>Жесткий</translation>
     </message>
 </context>
 <context>
@@ -1012,12 +1012,12 @@
     <message>
         <location filename="../src/ui/CommitList.cpp" line="495"/>
         <source>Uncommitted changes</source>
-        <translation>Alterações não submetidas</translation>
+        <translation>Незакоммиченные изменения</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitList.cpp" line="496"/>
         <source>Checking for uncommitted changes</source>
-        <translation>A procurar alterações não submetidas</translation>
+        <translation>Проверяем на незакоммиченные изменения</translation>
     </message>
 </context>
 <context>
@@ -1025,12 +1025,12 @@
     <message>
         <location filename="../src/ui/CommitToolBar.cpp" line="121"/>
         <source>Show All Branches</source>
-        <translation>Mostrar todos os ramos</translation>
+        <translation>Показать все ветки</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitToolBar.cpp" line="124"/>
         <source>Show Selected Branch</source>
-        <translation>Mostrar o ramo seleccionado</translation>
+        <translation>Показать выбранную ветку</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitToolBar.cpp" line="126"/>
@@ -1040,27 +1040,27 @@
     <message>
         <location filename="../src/ui/CommitToolBar.cpp" line="133"/>
         <source>Sort by Date</source>
-        <translation>Ordenar por data</translation>
+        <translation>Сортировать по дате</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitToolBar.cpp" line="134"/>
         <source>Sort Topologically</source>
-        <translation>Ordenar topologicamente</translation>
+        <translation>Сортировать топологически</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitToolBar.cpp" line="151"/>
         <source>Show Graph</source>
-        <translation>Mostrar gráfico</translation>
+        <translation>Показать граф</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitToolBar.cpp" line="161"/>
         <source>Show Clean Status</source>
-        <translation>Mostrar estado limpo</translation>
+        <translation>Показать чистоту</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitToolBar.cpp" line="172"/>
         <source>Compact Mode</source>
-        <translation>Modo compacto</translation>
+        <translation>Компатный режим</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitToolBar.cpp" line="185"/>
@@ -1083,52 +1083,52 @@
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="779"/>
         <source>Esc</source>
-        <translation>Esc</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="803"/>
         <source>General</source>
-        <translation>Geral</translation>
+        <translation>J,obt</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="811"/>
         <source>Diff</source>
-        <translation>Comparação</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="819"/>
         <source>Remotes</source>
-        <translation>Remotos</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="827"/>
         <source>Branches</source>
-        <translation>Ramos</translation>
+        <translation>Ветки</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="835"/>
         <source>Submodules</source>
-        <translation>Sub-módulos</translation>
+        <translation>Подмодули</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="842"/>
         <source>Search</source>
-        <translation>Procurar</translation>
+        <translation>Поиск</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="849"/>
         <source>Plugins</source>
-        <translation>Extensões</translation>
+        <translation>Плагины</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="856"/>
         <source>LFS</source>
-        <translation>LFS</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="870"/>
         <source>Edit Config File...</source>
-        <translation>Editar ficheiro de configuração...</translation>
+        <translation>Редактировать конфиг...</translation>
     </message>
 </context>
 <context>
@@ -1192,27 +1192,27 @@
     <message>
         <location filename="../src/ui/TabWidget.cpp" line="41"/>
         <source>Clone repository</source>
-        <translation>Clonar repositório</translation>
+        <translation>Клонировать репозиторий</translation>
     </message>
     <message>
         <location filename="../src/ui/TabWidget.cpp" line="53"/>
         <source>Open existing repository</source>
-        <translation>Abrir repositório existente</translation>
+        <translation>Открыть существующий репозиторий</translation>
     </message>
     <message>
         <location filename="../src/ui/TabWidget.cpp" line="57"/>
         <source>Open Repository</source>
-        <translation>Abrir repositório</translation>
+        <translation>Открыть репозиторий</translation>
     </message>
     <message>
         <location filename="../src/ui/TabWidget.cpp" line="67"/>
         <source>Initialize new repository</source>
-        <translation>Inicializar novo repositório</translation>
+        <translation>Инициилизировать новый репозиторий</translation>
     </message>
     <message>
         <location filename="../src/ui/TabWidget.cpp" line="87"/>
         <source>Add %1 account</source>
-        <translation>Adicionar conta %1</translation>
+        <translation>Добавить аккаунт %1</translation>
     </message>
     <message>
         <location filename="../src/ui/TabWidget.cpp" line="99"/>
@@ -1221,11 +1221,11 @@
     </message>
     <message>
         <source>View getting started videos</source>
-        <translation type="vanished">Ver vídeos de aprendizagem</translation>
+        <translation type="vanished">Показать вводные видеоролики</translation>
     </message>
     <message>
         <source>Contact us for support</source>
-        <translation type="vanished">Contacte-nos para ajuda</translation>
+        <translation type="vanished">Обратиться к нам за поддержкой</translation>
     </message>
 </context>
 <context>
@@ -1233,47 +1233,47 @@
     <message>
         <location filename="../src/dialogs/DeleteBranchDialog.cpp" line="31"/>
         <source>Are you sure you want to delete local branch &apos;%1&apos;?</source>
-        <translation>Tem a certeza de que deseja eliminar o ramo &quot;%1&quot;?</translation>
+        <translation>Вы уверены, что хотите удалить локальную ветку &apos;%1&apos;?</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteBranchDialog.cpp" line="32"/>
         <source>Delete Branch?</source>
-        <translation>Eliminar ramo?</translation>
+        <translation>Удалить ветку?</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteBranchDialog.cpp" line="38"/>
         <source>Also delete the upstream branch from its remote</source>
-        <translation>Eliminar também o ramo a montante do seu remoto</translation>
+        <translation>Также удалить upstream-ветку из remote</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteBranchDialog.cpp" line="42"/>
         <source>Delete</source>
-        <translation>Eliminar</translation>
+        <translation>Удалить</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteBranchDialog.cpp" line="54"/>
         <source>delete &apos;%1&apos; from &apos;%2&apos;</source>
-        <translation>eliminar &quot;%1&quot; de &quot;%2&quot;</translation>
+        <translation>удалить &apos;%1&apos; из &apos;%2&apos;</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteBranchDialog.cpp" line="55"/>
         <source>Push</source>
-        <translation>Enviar</translation>
+        <translation>Запушить</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteBranchDialog.cpp" line="73"/>
         <source>Push canceled.</source>
-        <translation>Envio cancelado.</translation>
+        <translation>Push отменён.</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteBranchDialog.cpp" line="76"/>
         <source>Unable to push to %1 - %2</source>
-        <translation>Impossível enviar para %1 - %2</translation>
+        <translation>Не смог запушить в %1 - %2</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteBranchDialog.cpp" line="90"/>
         <source>The branch is not fully merged. Deleting it may cause some commits to be lost.</source>
-        <translation>O ramo não está totalmente unido. Eliminá-lo pode causar a perda de algumas submissões.</translation>
+        <translation>Ветка не полностью слита. Удаление её может привести к потере некоторых коммитов.</translation>
     </message>
 </context>
 <context>
@@ -1281,52 +1281,52 @@
     <message>
         <location filename="../src/dialogs/DeleteTagDialog.cpp" line="24"/>
         <source>Are you sure you want to delete tag &apos;%1&apos;?</source>
-        <translation>Tem a certeza de que deseja eliminar a etiqueta &quot;%1&quot;?</translation>
+        <translation>Вы уверенны, что вы хотите удалить метку &apos;%1&apos;?</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteTagDialog.cpp" line="25"/>
         <source>Delete Tag?</source>
-        <translation>Eliminar etiqueta?</translation>
+        <translation>Удалить метку?</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteTagDialog.cpp" line="32"/>
         <source>Also delete the upstream tag from %1</source>
-        <translation>Eliminar também a etiqueta a montante de %1</translation>
+        <translation>Также удалить метку апстрима из %1</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteTagDialog.cpp" line="36"/>
         <source>Delete</source>
-        <translation>Eliminar</translation>
+        <translation>Удалить</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteTagDialog.cpp" line="45"/>
         <source>delete &apos;%1&apos; from &apos;%2&apos;</source>
-        <translation>eliminar &quot;%1&quot; de &quot;%2&quot;</translation>
+        <translation>удалить &apos;%1&apos; из &apos;%2&apos;</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteTagDialog.cpp" line="46"/>
         <source>Push</source>
-        <translation>Enviar</translation>
+        <translation>Запушить</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteTagDialog.cpp" line="65"/>
         <source>Push canceled.</source>
-        <translation>Envio cancelado.</translation>
+        <translation>Push отменён.</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteTagDialog.cpp" line="68"/>
         <source>Unable to push to %1 - %2</source>
-        <translation>Impossível enviar para %1 - %2</translation>
+        <translation>Не смог запушить в %1 - %2</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteTagDialog.cpp" line="77"/>
         <source>Delete Tag</source>
-        <translation>Eliminar etiqueta</translation>
+        <translation>Удалить метку</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DeleteTagDialog.cpp" line="78"/>
         <source>delete tag</source>
-        <translation>eliminar etiqueta</translation>
+        <translation>удалить метку</translation>
     </message>
 </context>
 <context>
@@ -1335,12 +1335,12 @@
         <location filename="../src/ui/DetailView.cpp" line="637"/>
         <location filename="../src/ui/DetailView.cpp" line="666"/>
         <source>Author:</source>
-        <translation type="unfinished">Autor:</translation>
+        <translation type="unfinished">Автор:</translation>
     </message>
     <message>
         <location filename="../src/ui/DetailView.cpp" line="651"/>
         <source>reset</source>
-        <translation type="unfinished">repor</translation>
+        <translation type="unfinished">сбросить</translation>
     </message>
     <message>
         <location filename="../src/ui/DetailView.cpp" line="662"/>
@@ -1351,7 +1351,7 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/DetailView.cpp" line="669"/>
         <source>Email:</source>
-        <translation type="unfinished">Email:</translation>
+        <translation type="unfinished">Почта:</translation>
     </message>
 </context>
 <context>
@@ -1359,12 +1359,12 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/dialogs/DiffPanel.cpp" line="30"/>
         <source>lines</source>
-        <translation>linhas</translation>
+        <translation>строк</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DiffPanel.cpp" line="54"/>
         <source>System Locale</source>
-        <translation>Idioma do sistema</translation>
+        <translation>Системная локаль</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DiffPanel.cpp" line="78"/>
@@ -1374,7 +1374,7 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/dialogs/DiffPanel.cpp" line="85"/>
         <source>Context lines:</source>
-        <translation>Linhas de contexto:</translation>
+        <translation>Строки контекста:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DiffPanel.cpp" line="86"/>
@@ -1384,32 +1384,32 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/dialogs/DiffPanel.cpp" line="87"/>
         <source>Character Encoding:</source>
-        <translation>Codificação de caracteres:</translation>
+        <translation>Кодировка символов:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DiffPanel.cpp" line="96"/>
         <source>Ignore Whitespace (-w)</source>
-        <translation>Ignorar espaços (-w)</translation>
+        <translation>Игнорировать непечатаемые (-w)</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DiffPanel.cpp" line="104"/>
         <source>Added files</source>
-        <translation>Ficheiros adicionados</translation>
+        <translation>Добавленные файлы</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DiffPanel.cpp" line="111"/>
         <source>Deleted files</source>
-        <translation>Ficheiros eliminados</translation>
+        <translation>Удалить файлы</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DiffPanel.cpp" line="118"/>
         <source>Whitespace:</source>
-        <translation>Espaço:</translation>
+        <translation>Непечатаемые:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/DiffPanel.cpp" line="119"/>
         <source>Auto Collapse:</source>
-        <translation>Colapso automático:</translation>
+        <translation>Авто-сворачивание:</translation>
     </message>
 </context>
 <context>
@@ -1417,7 +1417,7 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/tools/DiffTool.cpp" line="31"/>
         <source>External Diff</source>
-        <translation>Comparação externa</translation>
+        <translation>Внешний Diff</translation>
     </message>
     <message>
         <location filename="../src/tools/DiffTool.cpp" line="32"/>
@@ -1430,7 +1430,7 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/DiffTreeModel.cpp" line="311"/>
         <source>Submodule</source>
-        <translation type="unfinished">Sub-módulo</translation>
+        <translation type="unfinished">Подмодуль</translation>
     </message>
 </context>
 <context>
@@ -1438,12 +1438,12 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/DiffView/DiffView.cpp" line="146"/>
         <source>Add new file</source>
-        <translation>Adicionar novo ficheiro</translation>
+        <translation>Добавить новый файл</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/DiffView.cpp" line="156"/>
         <source>Or drag files here to copy into the repository</source>
-        <translation>Ou arrastar ficheiros para aqui e copiar para o repositório</translation>
+        <translation>Или перетащите файлы сюда, чтобы скопировать их в репозиторий</translation>
     </message>
 </context>
 <context>
@@ -1461,12 +1461,12 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/DoubleTreeWidget.cpp" line="93"/>
         <source>Diff</source>
-        <translation type="unfinished">Comparação</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/DoubleTreeWidget.cpp" line="94"/>
         <source>Show Diff View</source>
-        <translation type="unfinished">Mostrar vista de comparação</translation>
+        <translation type="unfinished">Показать просмотрщик диффов</translation>
     </message>
     <message>
         <location filename="../src/ui/DoubleTreeWidget.cpp" line="103"/>
@@ -1476,7 +1476,7 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/DoubleTreeWidget.cpp" line="104"/>
         <source>Close</source>
-        <translation type="unfinished">Fechar</translation>
+        <translation type="unfinished">Закрыть</translation>
     </message>
     <message>
         <location filename="../src/ui/DoubleTreeWidget.cpp" line="214"/>
@@ -1493,19 +1493,19 @@ These settings will not be saved permanently</source>
     <name>DownloadDialog</name>
     <message>
         <source>Update %1</source>
-        <translation type="vanished">Actualizar %1</translation>
+        <translation type="vanished">Обновить %1</translation>
     </message>
     <message>
         <source>Downloading %1...</source>
-        <translation type="vanished">A transferir %1...</translation>
+        <translation type="vanished">Загружаем %1...</translation>
     </message>
     <message>
         <source>Download Complete!</source>
-        <translation type="vanished">Transferência concluída!</translation>
+        <translation type="vanished">Загрузка завершена!</translation>
     </message>
     <message>
         <source>Install and Restart</source>
-        <translation type="vanished">Instalar e reiniciar</translation>
+        <translation type="vanished">Установить и перезапустить</translation>
     </message>
 </context>
 <context>
@@ -1531,7 +1531,7 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/tools/EditTool.cpp" line="26"/>
         <source>Edit in External Editor</source>
-        <translation>Editar em editor externo</translation>
+        <translation>Редактировать во внешнем редакторе</translation>
     </message>
 </context>
 <context>
@@ -1544,52 +1544,52 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="690"/>
         <source>Tabs</source>
-        <translation>Tabulações</translation>
+        <translation>Табы</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="691"/>
         <source>Spaces</source>
-        <translation>Espaços</translation>
+        <translation>Пробелы</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="712"/>
         <source>Show heat map</source>
-        <translation>Mostrar mapa de calor</translation>
+        <translation>Показать тепловую карту</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="721"/>
         <source>Font:</source>
-        <translation>Letra:</translation>
+        <translation>Шрифт:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="722"/>
         <source>Font size:</source>
-        <translation>Tamanho da letra:</translation>
+        <translation>Размер шрифта:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="723"/>
         <source>Whitespace:</source>
-        <translation type="unfinished">Espaço:</translation>
+        <translation type="unfinished">Непечатаемые:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="724"/>
         <source>Indent using:</source>
-        <translation>Avançar com:</translation>
+        <translation>Отступать используя:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="725"/>
         <source>Indent width:</source>
-        <translation>Largura do avanço:</translation>
+        <translation>Ширина отступа:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="726"/>
         <source>Tab width:</source>
-        <translation>Largura de tabulação:</translation>
+        <translation>Ширина таба:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="727"/>
         <source>Blame margin:</source>
-        <translation>Margem de culpa:</translation>
+        <translation>Граница blame:</translation>
     </message>
 </context>
 <context>
@@ -1597,12 +1597,12 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/EditorWindow.cpp" line="89"/>
         <source>&apos;%1&apos; has been modified. Do you want to save your changes?</source>
-        <translation>&quot;%1&quot; foi alterado. Deseja gravar as suas alterações?</translation>
+        <translation>&apos;%1&apos; был изменён. Хотите сохранить ваши изменения?</translation>
     </message>
     <message>
         <location filename="../src/ui/EditorWindow.cpp" line="91"/>
         <source>Save Changes?</source>
-        <translation>Gravar alterações?</translation>
+        <translation>Сохранить изменения?</translation>
     </message>
 </context>
 <context>
@@ -1610,22 +1610,22 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/dialogs/ExternalToolsDialog.cpp" line="24"/>
         <source>Configure External Tools</source>
-        <translation>Configurar ferramentas externas</translation>
+        <translation>Настроить внешние инструменты</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ExternalToolsDialog.cpp" line="40"/>
         <source>Detected Tools</source>
-        <translation>Ferramentas detectadas</translation>
+        <translation>Обнаружены инструменты</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ExternalToolsDialog.cpp" line="64"/>
         <source>User Defined Tools</source>
-        <translation>Ferramentas do utilizador</translation>
+        <translation>Инструменты пользователя</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ExternalToolsDialog.cpp" line="83"/>
         <source>Select Executable</source>
-        <translation>Seleccionar executável</translation>
+        <translation>Выбрать исполняемый</translation>
     </message>
 </context>
 <context>
@@ -1633,17 +1633,17 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/dialogs/ExternalToolsModel.cpp" line="56"/>
         <source>Name</source>
-        <translation>Nome</translation>
+        <translation>Имя</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ExternalToolsModel.cpp" line="58"/>
         <source>Command</source>
-        <translation>Comando</translation>
+        <translation>Команда</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ExternalToolsModel.cpp" line="60"/>
         <source>Arguments</source>
-        <translation>Argumentos</translation>
+        <translation>Аргументы</translation>
     </message>
 </context>
 <context>
@@ -1651,61 +1651,61 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="36"/>
         <source>Revision Not Found</source>
-        <translation>Revisão não encontrada</translation>
+        <translation>Ревизия не найдена</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="38"/>
         <source>The selected file doesn&apos;t have a %1 revision.</source>
-        <translation>O ficheiro seleccionado não tem uma revisão %1.</translation>
+        <translation>Выбранный файл не имеет ревизии %1.</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="124"/>
         <location filename="../src/ui/FileContextMenu.cpp" line="155"/>
         <source>Bash Not Found</source>
-        <translation>Bash não encontrado</translation>
+        <translation>Bash не найден</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="125"/>
         <location filename="../src/ui/FileContextMenu.cpp" line="156"/>
         <source>Bash was not found on your PATH.</source>
-        <translation>Bash não encontrado no PATH.</translation>
+        <translation>Bash не найден в вашем PATH.</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="129"/>
         <location filename="../src/ui/FileContextMenu.cpp" line="160"/>
         <source>Bash is required to execute external tools.</source>
-        <translation>O Bash é necessário para executar ferramentas externas.</translation>
+        <translation>Требуется Bash для запуска внешних инструментов.</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="268"/>
         <source>Stage</source>
-        <translation>Adicionar</translation>
+        <translation>Добавить</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="272"/>
         <source>Unstage</source>
-        <translation>Remover adição</translation>
+        <translation>Отменить добавление</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="335"/>
         <location filename="../src/ui/FileContextMenu.cpp" line="356"/>
         <source>Discard Changes</source>
-        <translation>Descartar alterações</translation>
+        <translation>Отменить изменения</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="337"/>
         <source>Discard Changes?</source>
-        <translation>Descartar alterações?</translation>
+        <translation>Отменить изменения?</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="338"/>
         <source>Are you sure you want to discard changes in the selected files?</source>
-        <translation>Tem a certeza de que deseja descartar as alterações nos ficheiros seleccionados?</translation>
+        <translation>Вы уверены, что хотите отклонить изменения в выбранных файлах?</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="342"/>
         <source>This action cannot be undone.</source>
-        <translation>Esta acção não pode ser desfeita.</translation>
+        <translation>Это дествие не может быть отменено.</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="345"/>
@@ -1715,87 +1715,87 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="364"/>
         <source>%1 files</source>
-        <translation>%1 ficheiros</translation>
+        <translation>%1 файлов</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="365"/>
         <source>Discard</source>
-        <translation>Descartar</translation>
+        <translation>Отменить</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="366"/>
         <source>discard</source>
-        <translation>descartar</translation>
+        <translation>отменить</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="378"/>
         <source>Remove Untracked Files</source>
-        <translation>Remover ficheiros não rastreados</translation>
+        <translation>Удалить неотслеживаемые файлы</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="384"/>
         <source>Ignore</source>
-        <translation>Ignorar</translation>
+        <translation>Игнорировать</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="407"/>
         <source>Checkout</source>
-        <translation>Mudar</translation>
+        <translation>Перейти</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="197"/>
         <source>Unlock</source>
-        <translation>Desbloquear</translation>
+        <translation>Разблокировать</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="197"/>
         <source>Lock</source>
-        <translation>Bloquear</translation>
+        <translation>Заблокировать</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="211"/>
         <source>Copy File Name</source>
-        <translation>Copiar nome do ficheiro</translation>
+        <translation>Копировать имя файла</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="222"/>
         <source>Filter History</source>
-        <translation>Filtrar histórico</translation>
+        <translation>Фильтровать историю</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="225"/>
         <source>Navigate to</source>
-        <translation>Navegar para</translation>
+        <translation>Перейти к</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="226"/>
         <source>Next Revision</source>
-        <translation>Revisão seguinte</translation>
+        <translation>следующая ревизия</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="231"/>
         <source>next</source>
-        <translation>seguinte</translation>
+        <translation>следующая</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="235"/>
         <source>Previous Revision</source>
-        <translation>Revisão anterior</translation>
+        <translation>Предыдущая ревизия</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="240"/>
         <source>previous</source>
-        <translation>anterior</translation>
+        <translation>предыдущая</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="250"/>
         <source>Unset Executable</source>
-        <translation>Desactivar executável</translation>
+        <translation>Сделать неисполняемым</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="250"/>
         <source>Set Executable</source>
-        <translation>Activar executável</translation>
+        <translation>Сделать исполняемым</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="414"/>
@@ -1871,94 +1871,94 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="546"/>
         <source>edit</source>
-        <translation>editar</translation>
+        <translation>редактировать</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="550"/>
         <source>diff</source>
-        <translation>comparar</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="554"/>
         <source>merge</source>
-        <translation>unir</translation>
+        <translation>слить</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="558"/>
         <source>External Tool Not Found</source>
-        <translation>Ferramenta externa não encontrada</translation>
+        <translation>Внешний инстрмент не найден</translation>
     </message>
     <message>
         <location filename="../src/ui/FileContextMenu.cpp" line="559"/>
         <source>Failed to execute external %1 tool.</source>
-        <translation>Falha ao executar a ferramenta %1.</translation>
+        <translation>Не могу выполнить внешний инструмент %1.</translation>
     </message>
 </context>
 <context>
     <name>FileList</name>
     <message>
         <source>Sort By</source>
-        <translation type="vanished">Ordenar por</translation>
+        <translation type="vanished">Сортировать по</translation>
     </message>
     <message>
         <source>Select</source>
-        <translation type="vanished">Seleccionar</translation>
+        <translation type="vanished">Выбрать</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="vanished">Nome</translation>
+        <translation type="vanished">Имя</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="vanished">Estado</translation>
+        <translation type="vanished">Состояние</translation>
     </message>
     <message>
         <source>Ignore Whitespace (-w)</source>
-        <translation type="vanished">Ignorar espaços (-w)</translation>
+        <translation type="vanished">Игнорировать непечатаемые симовлы</translation>
     </message>
     <message>
         <source>Added</source>
-        <translation type="vanished">Adicionado</translation>
+        <translation type="vanished">Добавлено</translation>
     </message>
     <message>
         <source>Deleted</source>
-        <translation type="vanished">Eliminado</translation>
+        <translation type="vanished">Удалено</translation>
     </message>
     <message>
         <source>Modified</source>
-        <translation type="vanished">Modificado</translation>
+        <translation type="vanished">Изменено</translation>
     </message>
     <message>
         <source>Renamed</source>
-        <translation type="vanished">Renomeado</translation>
+        <translation type="vanished">Переименовано</translation>
     </message>
     <message>
         <source>Copied</source>
-        <translation type="vanished">Copiado</translation>
+        <translation type="vanished">Копировано</translation>
     </message>
     <message>
         <source>Ignored</source>
-        <translation type="vanished">Ignorado</translation>
+        <translation type="vanished">игнорировано</translation>
     </message>
     <message>
         <source>Untracked</source>
-        <translation type="vanished">Não rastreado</translation>
+        <translation type="vanished">Не отслеживается</translation>
     </message>
     <message>
         <source>Unreadable</source>
-        <translation type="vanished">Ilegível</translation>
+        <translation type="vanished">Нечитаемо</translation>
     </message>
     <message>
         <source>Conflicted</source>
-        <translation type="vanished">Em conflito</translation>
+        <translation type="vanished">Конфликтует</translation>
     </message>
     <message>
         <source>Unmodified</source>
-        <translation type="vanished">Inalterado</translation>
+        <translation type="vanished">Не изменено</translation>
     </message>
     <message>
         <source>Type Change</source>
-        <translation type="vanished">Alteração de tipo</translation>
+        <translation type="vanished">Изменён тип</translation>
     </message>
 </context>
 <context>
@@ -1966,35 +1966,35 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="74"/>
         <source>LFS</source>
-        <translation>LFS</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="80"/>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="93"/>
         <source>Unlock</source>
-        <translation>Desbloquear</translation>
+        <translation>Разблокировать</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="81"/>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="94"/>
         <source>Lock</source>
-        <translation>Bloquear</translation>
+        <translation>Заблокировать</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="98"/>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="447"/>
         <source>Show Object</source>
-        <translation>Mostrar objecto</translation>
+        <translation>Показать объект</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="107"/>
         <source>Edit File</source>
-        <translation>Editar ficheiro</translation>
+        <translation>Редактировать файл</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="113"/>
         <source>Discard File</source>
-        <translation>Descartar ficheiro</translation>
+        <translation>Удалить файл</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="423"/>
@@ -2004,74 +2004,74 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="798"/>
         <source>Directory</source>
-        <translation>Pasta</translation>
+        <translation>Директория</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="799"/>
         <source>File</source>
-        <translation>Ficheiro</translation>
+        <translation>Файл</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="800"/>
         <source>Remove %1?</source>
-        <translation>Remover %1?</translation>
+        <translation>Удалить %1?</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="801"/>
         <source>Discard Changes?</source>
-        <translation>Descartar alterações?</translation>
+        <translation>Отменить изменения?</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="803"/>
         <source>Are you sure you want to remove &apos;%1&apos;?</source>
-        <translation>Tem a certeza de que deseja remover &quot;%1&quot;?</translation>
+        <translation>Вы уверены, что хотите удалить &apos;%1&apos;?</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="804"/>
         <source>Are you sure you want to discard all changes in &apos;%1&apos;?</source>
-        <translation>Tem a certeza de que deseja descartar as alterações em &quot;%1&quot;?</translation>
+        <translation>Вы уверены, что хотите отменить все изменения в &apos;%1&apos;?</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="809"/>
         <source>This action cannot be undone.</source>
-        <translation>Esta acção não pode ser desfeita.</translation>
+        <translation>Это дествие не может быть отменено.</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="811"/>
         <source>Remove %1</source>
-        <translation>Remover %1</translation>
+        <translation>Удалить %1</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="812"/>
         <source>Discard Changes</source>
-        <translation>Descartar alterações</translation>
+        <translation>Отменить изменения</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/DiffView.cpp" line="489"/>
         <source>Discard</source>
-        <translation>Descartar</translation>
+        <translation>Удалить</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/DiffView.cpp" line="490"/>
         <source>discard</source>
-        <translation>descartar</translation>
+        <translation>убрать</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="120"/>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="124"/>
         <source>Collapse File</source>
-        <translation>Colapsar ficheiro</translation>
+        <translation>Свернуть файл</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="121"/>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="125"/>
         <source>Expand File</source>
-        <translation>Expandir ficheiro</translation>
+        <translation>Развернуть файл</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="446"/>
         <source>Show Pointer</source>
-        <translation>Mostrar ponteiro</translation>
+        <translation>Показаить указатель</translation>
     </message>
 </context>
 <context>
@@ -2079,32 +2079,32 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/FindWidget.cpp" line="102"/>
         <source>Search</source>
-        <translation>Procurar</translation>
+        <translation>Поиск</translation>
     </message>
     <message>
         <location filename="../src/ui/FindWidget.cpp" line="107"/>
         <source>Done</source>
-        <translation>Concluído</translation>
+        <translation>Сделано</translation>
     </message>
     <message>
         <location filename="../src/ui/FindWidget.cpp" line="135"/>
         <source>Esc</source>
-        <translation>Esc</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/FindWidget.cpp" line="156"/>
         <source>Not found</source>
-        <translation>Não encontrado</translation>
+        <translation>Не найдено</translation>
     </message>
     <message>
         <location filename="../src/ui/FindWidget.cpp" line="160"/>
         <source>%1 match</source>
-        <translation>%1 resultado</translation>
+        <translation>%1 совпадение</translation>
     </message>
     <message>
         <location filename="../src/ui/FindWidget.cpp" line="164"/>
         <source>%1 matches</source>
-        <translation>%1 resultados</translation>
+        <translation>%1 совпадений</translation>
     </message>
 </context>
 <context>
@@ -2117,12 +2117,12 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/ui/Footer.cpp" line="95"/>
         <source>Remove</source>
-        <translation type="unfinished">Remover</translation>
+        <translation type="unfinished">Удалить</translation>
     </message>
     <message>
         <location filename="../src/ui/Footer.cpp" line="101"/>
         <source>Options</source>
-        <translation type="unfinished">Opções</translation>
+        <translation type="unfinished">Настройки</translation>
     </message>
 </context>
 <context>
@@ -2131,41 +2131,41 @@ These settings will not be saved permanently</source>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="95"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="78"/>
         <source>Fetch every</source>
-        <translation>Obter cada</translation>
+        <translation>Забирать каждые</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="102"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="85"/>
         <source>minutes</source>
-        <translation>minutos</translation>
+        <translation>минут</translation>
     </message>
     <message>
         <source>Push after each commit</source>
-        <translation type="vanished">Enviar após cada commit</translation>
+        <translation type="vanished">Пушить после каждого коммита</translation>
     </message>
     <message>
         <source>Update submodules after pull</source>
-        <translation type="vanished">Actualizar sub-módulos após puxar</translation>
+        <translation type="vanished">Обновлять подмодули после каждого утягивания</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="109"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="90"/>
         <source>Prune when fetching</source>
-        <translation>Aparar ao obter</translation>
+        <translation>Чистить ссылки, когда забираю</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="110"/>
         <source>No translation</source>
-        <translation>Sem tradução</translation>
+        <translation>Без перевода</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="120"/>
         <source>Store credentials in secure storage</source>
-        <translation>Armazenar credenciais com segurança</translation>
+        <translation>Хранить учётные данные в безопасном хранилище</translation>
     </message>
     <message>
         <source>Allow collection of usage data</source>
-        <translation type="vanished">Permitir recolha de dados de utilização</translation>
+        <translation type="vanished">Разрешить доносительство данных об использовании</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="106"/>
@@ -2181,36 +2181,36 @@ These settings will not be saved permanently</source>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="124"/>
         <source>&lt;a href=&apos;view&apos;&gt;View privacy policy&lt;/a&gt;</source>
-        <translation>&lt;a href=&apos;view&apos;&gt;Ler política de privacidade&lt;/a&gt;</translation>
+        <translation>&lt;a href=&apos;view&apos;&gt;Смотреть политику приватности&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="131"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="93"/>
         <source>User name:</source>
-        <translation>Utilizador:</translation>
+        <translation>Имя пользователя:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="132"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="94"/>
         <source>User email:</source>
-        <translation>Email:</translation>
+        <translation>Почта пользователя:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="133"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="95"/>
         <source>Automatic actions:</source>
-        <translation>Acções automáticas:</translation>
+        <translation>Автоматические действия:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="137"/>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="138"/>
         <source>Language:</source>
-        <translation>Idioma:</translation>
+        <translation>Язык:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="139"/>
         <source>Credentials:</source>
-        <translation>Credenciais:</translation>
+        <translation>Учётные данные:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="140"/>
@@ -2254,35 +2254,34 @@ These settings will not be saved permanently</source>
     </message>
     <message>
         <source>Usage reporting:</source>
-        <translation type="vanished">Relatório de utilização:</translation>
+        <translation type="vanished">Доносительство об использовании:</translation>
     </message>
 </context>
 <context>
     <name>GitHub</name>
     <message>
         <source>Connection failed</source>
-        <translation type="vanished">
-A ligação falhou</translation>
+        <translation type="vanished">Соединение не удалось</translation>
     </message>
     <message>
         <source>Failed to authenticate with GitHub!</source>
-        <translation type="vanished">Falha ao autenticar no GitHub!</translation>
+        <translation type="vanished">Не смог аутентифицироваться на GitHubе!</translation>
     </message>
     <message>
         <source>Successfully authenticated with GitHub!</source>
-        <translation type="vanished">Autenticado com sucesso no GitHub!</translation>
+        <translation type="vanished">Успешно аутентифицирован на GitHubе!</translation>
     </message>
 </context>
 <context>
     <name>GitLab</name>
     <message>
         <source>Connection failed</source>
-        <translation type="vanished">A ligação falhou</translation>
+        <translation type="vanished">Соединение не удалось</translation>
     </message>
     <message>
         <location filename="../src/host/GitLab.cpp" line="97"/>
         <source>Authentication failed</source>
-        <translation>Falha ao autenticar</translation>
+        <translation>Аутентификация провалена</translation>
     </message>
 </context>
 <context>
@@ -2290,8 +2289,7 @@ A ligação falhou</translation>
     <message>
         <location filename="../src/ui/ReferenceView.cpp" line="79"/>
         <source>Filter %1</source>
-        <translatorcomment>Pode ser &quot;Filtro %1&quot;</translatorcomment>
-        <translation>Filtrar %1</translation>
+        <translation>Фильтр %1</translation>
     </message>
 </context>
 <context>
@@ -2299,7 +2297,7 @@ A ligação falhou</translation>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="282"/>
         <source>Connecting</source>
-        <translation>A ligar</translation>
+        <translation>Соединяемся</translation>
     </message>
 </context>
 <context>
@@ -2321,35 +2319,35 @@ A ligação falhou</translation>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="67"/>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="132"/>
         <source>Save</source>
-        <translation>Gravar</translation>
+        <translation>Сохранить</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="71"/>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="136"/>
         <source>Undo</source>
-        <translation>Desfazer</translation>
+        <translation>Отменить</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="83"/>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="214"/>
         <source>Use Ours</source>
-        <translation>Usar o nosso</translation>
+        <translation>Использовать &quot;Нашу&quot;</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="95"/>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="215"/>
         <source>Use Theirs</source>
-        <translation>Usar o deles</translation>
+        <translation>Использовать &quot;Их&quot;</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="105"/>
         <source>Edit Hunk</source>
-        <translation>Editar pedaço</translation>
+        <translation>Редактировать hunk</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="111"/>
         <source>Discard Hunk</source>
-        <translation>Descartar pedaço</translation>
+        <translation>Отклонить hunk</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="513"/>
@@ -2368,53 +2366,53 @@ A ligação falhou</translation>
     </message>
     <message>
         <source>Discard Hunk?</source>
-        <translation type="vanished">Descartar pedaço?</translation>
+        <translation type="vanished">Отклонить hunk?</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="516"/>
         <source>Are you sure you want to remove &apos;%1&apos;?</source>
-        <translation>Tem a certeza de que deseja remover &quot;%1&quot;?</translation>
+        <translation>Вы уверены, что хотите удалить &apos;%1&apos;?</translation>
     </message>
     <message>
         <source>Are you sure you want to discard the hunk starting at line %1 in &apos;%2&apos;?</source>
-        <translation type="vanished">Tem a certeza de que deseja descartar o pedaço que comaçe na linha %1 em &quot;%2&quot;?</translation>
+        <translation type="vanished">Вы уверены, что хотите отклонить hunk в строке %1 в &apos;%2&apos;?</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="526"/>
         <source>This action cannot be undone.</source>
-        <translation>Esta acção não pode ser desfeita.</translation>
+        <translation>Это дествие не может быть отменено.</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="118"/>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="121"/>
         <source>Collapse Hunk</source>
-        <translation>Colapsar pedaço</translation>
+        <translation>Свернуть hunk</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="119"/>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="122"/>
         <source>Expand Hunk</source>
-        <translation>Expandir pedaço</translation>
+        <translation>Развернуть hunk</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="344"/>
         <source>Esc</source>
-        <translation>Esc</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="371"/>
         <source>Fix</source>
-        <translation>Reparar</translation>
+        <translation>Поправить</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="424"/>
         <source>Edit</source>
-        <translation>Editar</translation>
+        <translation>Редактировать</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="36"/>
         <source>No newline at end of file</source>
-        <translation>Sem nova linha no fim do ficheiro</translation>
+        <translation>В конце файла нет пустой строки</translation>
     </message>
 </context>
 <context>
@@ -2430,7 +2428,7 @@ A ligação falhou</translation>
     <message>
         <location filename="../src/ui/DiffView/Images.cpp" line="128"/>
         <source>&lt;b&gt;Size:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Tamanho:&lt;/b&gt; %1</translation>
+        <translation>&lt;b&gt;Размер:&lt;/b&gt; %1</translation>
     </message>
 </context>
 <context>
@@ -2438,12 +2436,12 @@ A ligação falhou</translation>
     <message>
         <location filename="../src/dialogs/AmendDialog.cpp" line="76"/>
         <source>Name:</source>
-        <translation type="unfinished">Nome:</translation>
+        <translation type="unfinished">Имя:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AmendDialog.cpp" line="83"/>
         <source>Email:</source>
-        <translation type="unfinished">Email:</translation>
+        <translation type="unfinished">Почта:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/AmendDialog.cpp" line="92"/>
@@ -2470,7 +2468,7 @@ A ligação falhou</translation>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="504"/>
         <source>Initialize LFS</source>
-        <translation>Inicializar LFS</translation>
+        <translation>Инициализировать LFS</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="553"/>
@@ -2485,13 +2483,13 @@ Examples
 *.[pP][nN][gG]
 /images/*
 </source>
-        <translation>Especifique um padrão glob para rastrear ficheiros grandes.
+        <translation>Специфицируйте шаблон globа для отслеживания больших файлов.
 
-Geralmente, os ficheiros grandes são maiores que 500kB, mudam frequentemente,
-e não comprimem muito bem com o git. Isto inclui binários ou vídeo
-que normalmente já estão muito comprimidos.
+Обычно, большие файлы больше, чем 500 kB, меняются часто,
+и не сжимаются хорошо gitом. Это включает бинарные и видеофайлы
+которые уже хорошо сжаты.
 
-Exemplos
+Примеры
 *.png
 *.[pP][nN][gG]
 /images/*
@@ -2500,82 +2498,82 @@ Exemplos
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="568"/>
         <source>Pattern:</source>
-        <translation>Padrão:</translation>
+        <translation>Шаблон:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="573"/>
         <source>Track</source>
-        <translation>Rastrear</translation>
+        <translation>Отслеживать</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="658"/>
         <source>days</source>
-        <translation>dias</translation>
+        <translation>дней</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="663"/>
         <source>Fetch LFS objects from all references for the past</source>
-        <translation>Obter objectos LFS de todas as referências passadas</translation>
+        <translation>Забрать объекты LFS из всех прошлых ссылок</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="685"/>
         <source>reference days or</source>
-        <translation>dias de referência ou</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="704"/>
         <source>commit days</source>
-        <translation>dias de submissão</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="708"/>
         <source>View Environment</source>
-        <translation>Ver ambiente</translation>
+        <translation>Смотреть окружение</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="713"/>
         <source>git-lfs env (read only)</source>
-        <translation>git-lfs env (só de leitura)</translation>
+        <translation>git-lfs env (только чтение)</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="729"/>
         <source>Deinitialize LFS</source>
-        <translation>Desinicializar LFS</translation>
+        <translation>Деинициализировать LFS</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="731"/>
         <source>Deinitialize LFS?</source>
-        <translation>Desinicializar LFS?</translation>
+        <translation>Деинициализировать LFS?</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="733"/>
         <source>Are you sure you want uninstall LFS from this repository?</source>
-        <translation>Tem a certeza de que deseja desinstalar LFS deste repositório?</translation>
+        <translation>Вы уверены, что хотите отменить установку LFS в этот репозиторий?</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="739"/>
         <source>Deinitialize</source>
-        <translation>Desinicializar</translation>
+        <translation>Деинициализировать</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="750"/>
         <source>Server URL:</source>
-        <translation>URL do servidor:</translation>
+        <translation>URL сервера:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="751"/>
         <source>Prune Offset:</source>
-        <translation>Desvio para aparar:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="752"/>
         <source>Fetch Recent:</source>
-        <translation>Obter recentes:</translation>
+        <translation>Забирать недавние:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="755"/>
         <source>Advanced:</source>
-        <translation>Avançado:</translation>
+        <translation>Дополнительно:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="759"/>
@@ -2593,17 +2591,17 @@ Exemplos
     <message>
         <location filename="../src/ui/Location.cpp" line="22"/>
         <source>%1 | %2</source>
-        <translation>%1 | %2</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/Location.cpp" line="25"/>
         <source>NC</source>
-        <translation>NS</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/Location.cpp" line="25"/>
         <source>Not Committed</source>
-        <translation>Não submetido</translation>
+        <translation>Не закоммичено</translation>
     </message>
 </context>
 <context>
@@ -2611,57 +2609,57 @@ Exemplos
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="132"/>
         <source>Repository Location</source>
-        <translation>Localização do repositório</translation>
+        <translation>Размещение репозитория</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="133"/>
         <source>Choose the name and location of the new repository. A new directory will be created if it doesn&apos;t already exist.</source>
-        <translation>Escolha o nome e a localização do novo repositório. Será criada uma nova pasta, se ainda não existir.</translation>
+        <translation>Выберите имя и размещение нового репозитория. Новая директория будет создана, если она не существует.</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="136"/>
         <source>Initialize</source>
-        <translation>Inicializar</translation>
+        <translation>Инициализировать</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="136"/>
         <source>Clone</source>
-        <translation>Clonar</translation>
+        <translation>Клонировать</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="147"/>
         <source>...</source>
-        <translation>...</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="149"/>
         <source>Choose Directory</source>
-        <translation>Escloher pasta</translation>
+        <translation>Выберите директорию</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="172"/>
         <source>Name:</source>
-        <translation>Nome:</translation>
+        <translation>Имя:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="173"/>
         <source>Directory:</source>
-        <translation>Pasta:</translation>
+        <translation>Директория:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="174"/>
         <source>Advanced:</source>
-        <translation>Avançado:</translation>
+        <translation>Дополнительно:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="176"/>
         <source>Create a bare repository</source>
-        <translation>Criar um repositório em bruto</translation>
+        <translation>Создать &quot;голый&quot; репозиторий</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="218"/>
         <source>The new repository will be created at:&lt;p style=&apos;text-indent: 12px&apos;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/p&gt;</source>
-        <translation>O novo repositório será criado em :&lt;p style=&apos;text-indent: 12px&apos;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/p&gt;</translation>
+        <translation>Новый репозиторий будет создан в:&lt;p style=&apos;text-indent: 12px&apos;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -2669,7 +2667,7 @@ Exemplos
     <message>
         <location filename="../src/log/LogView.cpp" line="51"/>
         <source>Copy</source>
-        <translation>Copiar</translation>
+        <translation>Копировать</translation>
     </message>
 </context>
 <context>
@@ -2677,12 +2675,12 @@ Exemplos
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="520"/>
         <source>Invalid Git Repository</source>
-        <translation>Repositório git invaĺido</translation>
+        <translation>Неправильный Git-репозиторий</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="521"/>
         <source>%1 does not contain a valid git repository.</source>
-        <translation>%1 não contém um repositório git válido.</translation>
+        <translation>%1 не содержит правильный git-репозиторий.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="526"/>
@@ -2713,48 +2711,48 @@ Exemplos
         <location filename="../src/ui/MainWindow.cpp" line="604"/>
         <location filename="../src/ui/MainWindow.cpp" line="622"/>
         <source>%1 - %2</source>
-        <translation>%1 - %2</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="616"/>
         <source>ahead: %1</source>
-        <translation>à frente: %1</translation>
+        <translation>обгоняет: %1</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="618"/>
         <source>behind: %1</source>
-        <translation>atrás: %1</translation>
+        <translation>отстаёт: %1</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="620"/>
         <source>up-to-date</source>
-        <translation>actualizado</translation>
+        <translation>уже самое новое</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="621"/>
         <location filename="../src/ui/MainWindow.cpp" line="658"/>
         <source>%1 (%2)</source>
-        <translation>%1 (%2)</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="630"/>
         <source>MERGING</source>
-        <translation>A UNIR</translation>
+        <translation>СЛИВАЕМ</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="635"/>
         <source>REVERTING</source>
-        <translation>A REVERTER</translation>
+        <translation>ОТКАТЫВАЕМ</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="640"/>
         <source>CHERRY-PICKING</source>
-        <translation>A ESCOLHER PRECISAMENTE</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="649"/>
         <source>REBASING</source>
-        <translation>A REBASEAR</translation>
+        <translation>ПЕРЕБАЗИРУЕМ</translation>
     </message>
 </context>
 <context>
@@ -2762,139 +2760,112 @@ Exemplos
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="259"/>
         <source>File</source>
-        <translation>Ficheiro</translation>
+        <translation>Файл</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="261"/>
         <source>New File</source>
-        <translation>Novo ficheiro</translation>
+        <translation>Новый файл</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="275"/>
         <source>New Window</source>
-        <translation>Nova janela</translation>
-    </message>
-    <message>
-        <source>Ctrl+Meta+N</source>
-        <translation type="vanished">Ctrl+Meta+N</translation>
+        <translation>Новое окно</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="279"/>
         <source>Clone Repository...</source>
-        <translation>Clonar repositório...</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+N</source>
-        <translation type="vanished">Ctrl+Shift+N</translation>
+        <translation>Клонировать репозиторий...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="284"/>
         <source>Initialize New Repository...</source>
-        <translation>Inicializar novo repositório...</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+N</source>
-        <translation type="vanished">Ctrl+Alt+N</translation>
+        <translation>Инициилизировать новый репозиторий...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="291"/>
         <source>Open Repository...</source>
-        <translation>Abrir repositório...</translation>
+        <translation>Открыть репозиторий...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="296"/>
         <source>Open Repository</source>
-        <translation>Abrir repositório</translation>
+        <translation>Открыть репозиторий</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="303"/>
         <source>Open Recent</source>
-        <translation>Abrir recente</translation>
+        <translation>Открыть недавние</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="319"/>
         <source>Close</source>
-        <translation>Fechar</translation>
+        <translation>Закрыть</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="336"/>
         <source>Save</source>
-        <translation>Gravar</translation>
+        <translation>Сохранить</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="345"/>
         <source>Exit</source>
-        <translation>Sair</translation>
+        <translation>Выйти</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="352"/>
         <source>Edit</source>
-        <translation>Editar</translation>
+        <translation>Редактировать</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="354"/>
         <source>Undo</source>
-        <translation>Desfazer</translation>
+        <translation>Отменить</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="367"/>
         <source>Redo</source>
-        <translation>Refazer</translation>
+        <translation>Повторить</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="382"/>
         <source>Cut</source>
-        <translation>Cortar</translation>
+        <translation>Вырезать</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="395"/>
         <source>Copy</source>
-        <translation>Copiar</translation>
+        <translation>Копировать</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="410"/>
         <source>Paste</source>
-        <translation>Colar</translation>
+        <translation>Вставить</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="423"/>
         <source>Select All</source>
-        <translation>Seleccionar tudo</translation>
+        <translation>Выбрать всё</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="438"/>
         <source>Find...</source>
-        <translation>Localizar...</translation>
+        <translation>Найти...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="450"/>
         <source>Find Next</source>
-        <translation>Localizar seguinte</translation>
+        <translation>Найти следующий</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="461"/>
         <source>Find Previous</source>
-        <translation>Localizar anterior</translation>
+        <translation>Найти пердыдущий</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="472"/>
         <source>Use Selection for Find</source>
-        <translation>Usar selecção para localizar</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/MenuBar.cpp" line="496"/>
-        <source>Report Repository Diagnostics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/MenuBar.cpp" line="632"/>
-        <source>Force Push...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/MenuBar.cpp" line="737"/>
-        <source>Check for Updates</source>
-        <translation type="unfinished"></translation>
+        <translation>Поиск по выделению</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="1042"/>
@@ -2902,24 +2873,25 @@ Exemplos
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Ctrl+E</source>
-        <translation type="vanished">Ctrl+E</translation>
-    </message>
-    <message>
         <location filename="../src/ui/MenuBar.cpp" line="489"/>
         <source>View</source>
-        <translation>Ver</translation>
+        <translation>Вид</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="491"/>
         <source>Refresh</source>
-        <translation>Actualizar</translation>
+        <translation>Обновить</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MenuBar.cpp" line="496"/>
+        <source>Report Repository Diagnostics</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="502"/>
         <location filename="../src/ui/MenuBar.cpp" line="1040"/>
         <source>Show Log</source>
-        <translation>Mostrar diário</translation>
+        <translation>Показать журнал</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="509"/>
@@ -2935,7 +2907,7 @@ Exemplos
         <location filename="../src/ui/MenuBar.cpp" line="528"/>
         <location filename="../src/ui/MenuBar.cpp" line="1041"/>
         <source>Show Tree View</source>
-        <translation>Mostrar árvore</translation>
+        <translation>Показать обзор дерева</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="536"/>
@@ -2945,151 +2917,112 @@ Exemplos
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="544"/>
         <source>Repository</source>
-        <translation>Repositório</translation>
+        <translation>Репозиторий</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="546"/>
         <source>Configure Repository...</source>
-        <translation>Configurar repositório...</translation>
+        <translation>Настроить репозиторий...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="553"/>
         <source>Stage All</source>
-        <translation>Adicioanr tudo</translation>
-    </message>
-    <message>
-        <source>Ctrl++</source>
-        <translation type="vanished">Ctrl++</translation>
+        <translation>Добавить всё</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="557"/>
         <source>Unstage All</source>
-        <translation>Remover todas as adições</translation>
-    </message>
-    <message>
-        <source>Ctrl+-</source>
-        <translation type="vanished">Ctrl+-</translation>
+        <translation>Отменить добавление всего</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="563"/>
         <source>Commit</source>
-        <translation>Submeter</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+C</source>
-        <translation type="vanished">Ctrl+Shift+C</translation>
+        <translation>Коммит</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="567"/>
         <source>Amend Commit</source>
-        <translation>Emendar submissão</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+A</source>
-        <translation type="vanished">Ctrl+Shift+A</translation>
+        <translation>Дополнить коммит</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="573"/>
         <source>Git LFS</source>
-        <translation>Git LFS</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="574"/>
         <source>Remove all locks</source>
-        <translation>Remover todos os bloqueios</translation>
+        <translation>Удалить все блокировки</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="582"/>
         <source>Initialize</source>
-        <translation>Inicializar</translation>
+        <translation>Инициализировать</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="588"/>
         <source>Remote</source>
-        <translation>Remoto</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="590"/>
         <source>Configure Remotes...</source>
-        <translation>Configurar remotos...</translation>
+        <translation>Настроить remotes...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="598"/>
         <source>Fetch</source>
-        <translation>Obter</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+Alt+F</source>
-        <translation type="vanished">Ctrl+Shift+Alt+F</translation>
+        <translation>Забрать</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="602"/>
         <source>Fetch All</source>
-        <translation>Obter tudo</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+Alt+A</source>
-        <translation type="vanished">Ctrl+Shift+Alt+A</translation>
+        <translation>Забрать всё</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="606"/>
         <source>Fetch From...</source>
-        <translation>Obter de...</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+F</source>
-        <translation type="vanished">Ctrl+Shift+F</translation>
+        <translation>Забрать из...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="615"/>
         <source>Pull</source>
-        <translation>Puxar</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+Alt+L</source>
-        <translation type="vanished">Ctrl+Shift+Alt+L</translation>
+        <translation>Утянуть</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="619"/>
         <source>Pull From...</source>
-        <translation>Puxar de...</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+L</source>
-        <translation type="vanished">Ctrl+Shift+L</translation>
+        <translation>Утянуть из...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="628"/>
         <source>Push</source>
-        <translation>Enviar</translation>
+        <translation>Запушить</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+Alt+P</source>
-        <translation type="vanished">Ctrl+Shift+Alt+P</translation>
+        <location filename="../src/ui/MenuBar.cpp" line="632"/>
+        <source>Force Push...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="637"/>
         <source>Push To...</source>
-        <translation>Enviar para...</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+P</source>
-        <translation type="vanished">Ctrl+Shift+P</translation>
+        <translation>Запушить в...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="645"/>
         <source>Branch</source>
-        <translation>Ramo</translation>
+        <translation>Ветка</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="647"/>
         <source>Configure Branches...</source>
-        <translation>Configurar ramos...</translation>
+        <translation>Настроить ветки...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="653"/>
         <source>New Branch...</source>
-        <translation>Novo ramo...</translation>
+        <translation>Новая ветка...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="658"/>
@@ -3099,206 +3032,171 @@ Exemplos
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="666"/>
         <source>Checkout Current</source>
-        <translation>Mudar actual</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+Alt+H</source>
-        <translation type="vanished">Ctrl+Shift+Alt+H</translation>
+        <translation>Перейти на текущую</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="677"/>
         <source>Checkout...</source>
-        <translation>Mudar...</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+H</source>
-        <translation type="vanished">Ctrl+Shift+H</translation>
+        <translation>Перейти...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="684"/>
         <source>Merge...</source>
-        <translation>Unir...</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+M</source>
-        <translation type="vanished">Ctrl+Shift+M</translation>
+        <translation>Слить...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="696"/>
         <source>Rebase...</source>
-        <translation>Rebasear...</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+R</source>
-        <translation type="vanished">Ctrl+Shift+R</translation>
+        <translation>Перебазировать...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="708"/>
         <source>Squash...</source>
-        <translation>Comprimir...</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+Q</source>
-        <translation type="vanished">Ctrl+Shift+Q</translation>
+        <translation>Объединить...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="722"/>
         <source>Abort Merge</source>
-        <translation>Abortar união</translation>
+        <translation>Прервать слияние</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="727"/>
         <source>Submodule</source>
-        <translation>Sub-módulo</translation>
+        <translation>Подмодуль</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="729"/>
         <source>Configure Submodules...</source>
-        <translation>Configurar sub-módulos...</translation>
+        <translation>Настроить подмодули...</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MenuBar.cpp" line="737"/>
+        <source>Check for Updates</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="743"/>
         <source>Update All</source>
-        <translation>Actualizar tudo</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+Alt+U</source>
-        <translation type="vanished">Ctrl+Shift+Alt+U</translation>
+        <translation>Обновить всё</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="748"/>
         <source>Update...</source>
-        <translation>Actualizar...</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+U</source>
-        <translation type="vanished">Ctrl+Shift+U</translation>
+        <translation>Обновить...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="764"/>
         <source>Open</source>
-        <translation>Abrir</translation>
+        <translation>Открыть</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="782"/>
         <source>Stash</source>
-        <translation>Ocultar</translation>
+        <translation>Схрон</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="784"/>
         <source>Show Stashes</source>
-        <translation>Mostrar ocultos</translation>
+        <translation>Показать схроны</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="793"/>
         <source>Stash...</source>
-        <translation>Ocultar...</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+T</source>
-        <translation type="vanished">Ctrl+Shift+T</translation>
+        <translation>Схоронить...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="797"/>
         <source>Pop Stash</source>
-        <translation>Aplicar e limpar</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+Alt+T</source>
-        <translation type="vanished">Ctrl+Shift+Alt+T</translation>
+        <translation>Вынуть из схрона</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="802"/>
         <source>History</source>
-        <translation>Histórico</translation>
+        <translation>История</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="804"/>
         <source>Back</source>
-        <translation>Recuar</translation>
+        <translation>Назад</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="809"/>
         <source>Forward</source>
-        <translation>Avançar</translation>
+        <translation>Вперёд</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="815"/>
         <source>Window</source>
-        <translation>Janela</translation>
+        <translation>Окно</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="816"/>
         <source>Show Previous Tab</source>
-        <translation>Mostrar separador anterior</translation>
+        <translation>Показать предыдущую вкладку</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="825"/>
         <source>Show Next Tab</source>
-        <translation>Mostrar separador seguinte</translation>
+        <translation>Показать следующую вкладку</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="836"/>
         <source>Show Repository Chooser...</source>
-        <translation>Mostrar selector de repositórios...</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+O</source>
-        <translation type="vanished">Ctrl+Shift+O</translation>
+        <translation>Показать список репозиториев...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="841"/>
         <source>Tools</source>
-        <translation>Ferramentas</translation>
+        <translation>Инструменты</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="842"/>
         <source>Options...</source>
-        <translation>Opções...</translation>
+        <translation>Настройки...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="848"/>
         <source>Help</source>
-        <translation>Ajuda</translation>
+        <translation>Справка</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="850"/>
         <source>About %1</source>
-        <translation>Acerca do %1</translation>
+        <translation>О %1</translation>
     </message>
     <message>
         <source>Check For Updates...</source>
-        <translation type="vanished">Procurar actualizações...</translation>
+        <translation type="vanished">Проверить обновления...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="855"/>
         <source>Plugin Documentation...</source>
-        <translation>Documentação de extensões...</translation>
+        <translation>Документация по плагинам...</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="863"/>
         <source>Debug</source>
-        <translation>Depurar</translation>
+        <translation>Отладка</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="864"/>
         <source>Abort</source>
-        <translation>Abortar</translation>
+        <translation>Прервать</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="877"/>
         <source>Log Indexer Progress</source>
-        <translation>Registar progresso do indexador</translation>
+        <translation>Логгировать прогресс индексатора</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="883"/>
         <source>Log Credential Helper</source>
-        <translation>Registar ajudante de credenciais</translation>
+        <translation>Логировать помощник учётных данных</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="889"/>
         <source>Log Remote Connection</source>
-        <translation>Registar ligação remota</translation>
+        <translation>Логировать соединения с remote</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="895"/>
@@ -3308,46 +3206,46 @@ Exemplos
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="903"/>
         <source>Load All Diffs</source>
-        <translation>Carregar todas as comparações</translation>
+        <translation>Загрузить все различия</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="917"/>
         <source>Walk Commits</source>
-        <translation>Passear submissões</translation>
+        <translation>Обойти коммиты</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="1040"/>
         <source>Hide Log</source>
-        <translation>Ocultar diário</translation>
+        <translation>Скрыть журнал</translation>
     </message>
     <message>
         <source>Show Diff View</source>
-        <translation type="vanished">Mostrar vista de comparação</translation>
+        <translation type="vanished">Показать просмотрщик диффов</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="1091"/>
         <source>Merge</source>
-        <translation>Unir</translation>
+        <translation>Слить</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="1101"/>
         <source>Revert</source>
-        <translation>Reverter</translation>
+        <translation>Откатить</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="1107"/>
         <source>Cherry-pick</source>
-        <translation>Escolher precisamente</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="1113"/>
         <source>Rebase</source>
-        <translation>Rebasear</translation>
+        <translation>Перебазировать</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="1119"/>
         <source>Abort %1</source>
-        <translation>Abortar %1</translation>
+        <translation>Прервать %1</translation>
     </message>
 </context>
 <context>
@@ -3356,59 +3254,59 @@ Exemplos
         <location filename="../src/dialogs/MergeDialog.cpp" line="42"/>
         <location filename="../src/dialogs/MergeDialog.cpp" line="138"/>
         <source>Merge</source>
-        <translation>Unir</translation>
+        <translation>Слить</translation>
     </message>
     <message>
         <location filename="../src/dialogs/MergeDialog.cpp" line="43"/>
         <location filename="../src/dialogs/MergeDialog.cpp" line="140"/>
         <source>Rebase</source>
-        <translation>Rebasear</translation>
+        <translation>Перебазировать</translation>
     </message>
     <message>
         <location filename="../src/dialogs/MergeDialog.cpp" line="44"/>
         <location filename="../src/dialogs/MergeDialog.cpp" line="140"/>
         <source>Squash</source>
-        <translation>Comprimir</translation>
+        <translation>Объединить</translation>
     </message>
     <message>
         <location filename="../src/dialogs/MergeDialog.cpp" line="45"/>
         <source>Merge (No Fast-forward)</source>
-        <translation>Unir (sem avanço rápido)</translation>
+        <translation>Слить (никаких fast-forward)</translation>
     </message>
     <message>
         <location filename="../src/dialogs/MergeDialog.cpp" line="46"/>
         <source>Merge (Fast-forward Only)</source>
-        <translation>Unir (só avanço rápido)</translation>
+        <translation>Слить (только fast-forward)</translation>
     </message>
     <message>
         <location filename="../src/dialogs/MergeDialog.cpp" line="51"/>
         <source>No commit</source>
-        <translation>Sem submissão</translation>
+        <translation>Нет коммита</translation>
     </message>
     <message>
         <location filename="../src/dialogs/MergeDialog.cpp" line="76"/>
         <source>Reference:</source>
-        <translation>Referência:</translation>
+        <translation>Сссылка:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/MergeDialog.cpp" line="77"/>
         <source>Action:</source>
-        <translation>Acção:</translation>
+        <translation>Действие:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/MergeDialog.cpp" line="124"/>
         <source>Choose a reference to merge into &apos;%1&apos;.</source>
-        <translation>Escolha uma referência a unir com &quot;%1&quot;.</translation>
+        <translation>Выберите ссылку, которую влить в &apos;%1&apos;.</translation>
     </message>
     <message>
         <location filename="../src/dialogs/MergeDialog.cpp" line="126"/>
         <source>Choose a reference to rebase &apos;%1&apos; on.</source>
-        <translation>Escolha uma referência em que rebasear &quot;%1&quot;.</translation>
+        <translation>Выберите ссылку, на которую перебазировать &apos;%1&apos;.</translation>
     </message>
     <message>
         <location filename="../src/dialogs/MergeDialog.cpp" line="128"/>
         <source>Choose a reference to squash into &apos;%1&apos;.</source>
-        <translation>Escolha uma referência para comprimir em &quot;%1&quot;.</translation>
+        <translation>Выберите ссылку, которую объединить в &apos;%1&apos;.</translation>
     </message>
 </context>
 <context>
@@ -3416,7 +3314,7 @@ Exemplos
     <message>
         <location filename="../src/tools/MergeTool.cpp" line="35"/>
         <source>External Merge</source>
-        <translation>União externa</translation>
+        <translation>Внешнее слияние</translation>
     </message>
 </context>
 <context>
@@ -3424,12 +3322,12 @@ Exemplos
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="751"/>
         <source>Path to SSH config file:</source>
-        <translation>Caminho para ficheiro de configuração SSH:</translation>
+        <translation>Путь к конфигу SSH:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="752"/>
         <source>Path to default / fallback SSH key file:</source>
-        <translation>Caminho predefinido/omissão de ficheiro-chave SSH:</translation>
+        <translation>Путь к запасному / по-умолчанию файлу ключа SSH:</translation>
     </message>
 </context>
 <context>
@@ -3447,22 +3345,22 @@ Exemplos
     <message>
         <location filename="../src/dialogs/ModifySubmoduleDialog.cpp" line="53"/>
         <source>Save</source>
-        <translation type="unfinished">Gravar</translation>
+        <translation type="unfinished">Сохранить</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ModifySubmoduleDialog.cpp" line="58"/>
         <source>Name:</source>
-        <translation type="unfinished">Nome:</translation>
+        <translation type="unfinished">Имя:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ModifySubmoduleDialog.cpp" line="59"/>
         <source>Path:</source>
-        <translation type="unfinished">Caminho:</translation>
+        <translation type="unfinished">Путь:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ModifySubmoduleDialog.cpp" line="60"/>
         <source>URL:</source>
-        <translation type="unfinished">URL:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/dialogs/ModifySubmoduleDialog.cpp" line="61"/>
@@ -3475,32 +3373,32 @@ Exemplos
     <message>
         <location filename="../src/dialogs/NewBranchDialog.cpp" line="41"/>
         <source>Checkout branch</source>
-        <translation>Mudar ramo</translation>
+        <translation>Перейти на ветку</translation>
     </message>
     <message>
         <location filename="../src/dialogs/NewBranchDialog.cpp" line="48"/>
         <source>Name:</source>
-        <translation>Nome:</translation>
+        <translation>Имя:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/NewBranchDialog.cpp" line="50"/>
         <source>Start Point:</source>
-        <translation>Pnto inicial:</translation>
+        <translation>Начальная точка:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/NewBranchDialog.cpp" line="53"/>
         <source>Advanced:</source>
-        <translation>Avançado:</translation>
+        <translation>Дополнительно:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/NewBranchDialog.cpp" line="61"/>
         <source>Upstream:</source>
-        <translation>Montante:</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/dialogs/NewBranchDialog.cpp" line="72"/>
         <source>Create Branch</source>
-        <translation>Criar ramo</translation>
+        <translation>Создать ветку</translation>
     </message>
 </context>
 <context>
@@ -3508,7 +3406,7 @@ Exemplos
     <message>
         <location filename="../src/ui/PathspecWidget.cpp" line="105"/>
         <source>Filter by Path</source>
-        <translation>Filtrar por caminho</translation>
+        <translation>Фильтровать по пути</translation>
     </message>
 </context>
 <context>
@@ -3516,42 +3414,42 @@ Exemplos
     <message>
         <location filename="../src/dialogs/PluginsPanel.cpp" line="25"/>
         <source>Name</source>
-        <translation>Nome</translation>
+        <translation>Имя</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PluginsPanel.cpp" line="25"/>
         <source>Kind</source>
-        <translation>Espécie</translation>
+        <translation>Тип</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PluginsPanel.cpp" line="25"/>
         <source>Description</source>
-        <translation>Descrição</translation>
+        <translation>Описание</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PluginsPanel.cpp" line="60"/>
         <source>Options</source>
-        <translation>Opções</translation>
+        <translation>Настройки</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PluginsPanel.cpp" line="71"/>
         <source>%1 Options</source>
-        <translation>Opções de %1</translation>
+        <translation>Настройки %1</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PluginsPanel.cpp" line="152"/>
         <source>Note</source>
-        <translation>Nota</translation>
+        <translation>Сообщение</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PluginsPanel.cpp" line="153"/>
         <source>Warning</source>
-        <translation>Aviso</translation>
+        <translation>Предупреждение</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PluginsPanel.cpp" line="154"/>
         <source>Error</source>
-        <translation>Erro</translation>
+        <translation>Ошибка</translation>
     </message>
 </context>
 <context>
@@ -3559,7 +3457,7 @@ Exemplos
     <message>
         <location filename="../src/ui/IndexCompleter.cpp" line="89"/>
         <source>Show Advanced Search</source>
-        <translation>Mostrar procura avançada</translation>
+        <translation>Показать расширенный поиск</translation>
     </message>
 </context>
 <context>
@@ -3567,12 +3465,12 @@ Exemplos
     <message>
         <location filename="../src/ui/ColumnView.cpp" line="67"/>
         <source>Added</source>
-        <translation>Adicionado</translation>
+        <translation>Добавлено</translation>
     </message>
     <message>
         <location filename="../src/ui/ColumnView.cpp" line="68"/>
         <source>Modified</source>
-        <translation>Modificado</translation>
+        <translation>Изменено</translation>
     </message>
 </context>
 <context>
@@ -3580,7 +3478,7 @@ Exemplos
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="414"/>
         <source>Create Pull Request</source>
-        <translation>Criar Pull Request</translation>
+        <translation>Создать Pull Request</translation>
     </message>
 </context>
 <context>
@@ -3588,47 +3486,47 @@ Exemplos
     <message>
         <location filename="../src/dialogs/PullRequestDialog.cpp" line="24"/>
         <source>Create Pull Request</source>
-        <translation>Criar Pull Request</translation>
+        <translation>Создать Pull Request</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PullRequestDialog.cpp" line="28"/>
         <source>Title</source>
-        <translation>Título</translation>
+        <translation>Название</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PullRequestDialog.cpp" line="31"/>
         <source>Body</source>
-        <translation>Corpo</translation>
+        <translation>Тело</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PullRequestDialog.cpp" line="35"/>
         <source>Maintainer can modify</source>
-        <translation>Responsável pode modificar</translation>
+        <translation>Maintainer может изменять</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PullRequestDialog.cpp" line="49"/>
         <source>From:</source>
-        <translation>De:</translation>
+        <translation>От:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PullRequestDialog.cpp" line="57"/>
         <source>owner/repository</source>
-        <translation>dono/repositório</translation>
+        <translation>владелец/репозиторий</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PullRequestDialog.cpp" line="61"/>
         <source>branch</source>
-        <translation>ramo</translation>
+        <translation>ветка</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PullRequestDialog.cpp" line="76"/>
         <source>To:</source>
-        <translation>Para:</translation>
+        <translation>Кому:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/PullRequestDialog.cpp" line="87"/>
         <source>Create</source>
-        <translation>Criar</translation>
+        <translation>Создать</translation>
     </message>
 </context>
 <context>
@@ -3876,7 +3774,7 @@ Exemplos
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/app/Gittyup.cpp" line="25"/>
+        <location filename="../src/app/GitNortek.cpp" line="25"/>
         <source>Your global Git configuration is invalid. GitNortek won&apos;t run properly until this is fixed</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3910,7 +3808,7 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/git/Reference.cpp" line="70"/>
         <source>HEAD detached at %1</source>
-        <translation>HEAD desanexado em %1</translation>
+        <translation>HEAD отсоединена на %1</translation>
     </message>
 </context>
 <context>
@@ -3918,7 +3816,7 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/ui/ReferenceList.cpp" line="163"/>
         <source>Commit</source>
-        <translation>Submeter</translation>
+        <translation>Коммит</translation>
     </message>
 </context>
 <context>
@@ -3926,17 +3824,17 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/ui/ReferenceModel.cpp" line="116"/>
         <source>Branches</source>
-        <translation>Ramos</translation>
+        <translation>Ветки</translation>
     </message>
     <message>
         <location filename="../src/ui/ReferenceModel.cpp" line="135"/>
         <source>Remotes</source>
-        <translation>Remotos</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/ReferenceModel.cpp" line="152"/>
         <source>Tags</source>
-        <translation>Etiquetas</translation>
+        <translation>Метки</translation>
     </message>
 </context>
 <context>
@@ -3944,49 +3842,49 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/ui/ReferenceView.cpp" line="253"/>
         <source>Branch</source>
-        <translation>Ramo</translation>
+        <translation>Ветка</translation>
     </message>
     <message>
         <location filename="../src/ui/ReferenceView.cpp" line="256"/>
         <source>Remote</source>
-        <translation>Remoto</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/ReferenceView.cpp" line="259"/>
         <source>Tag</source>
-        <translation>Etiqueta</translation>
+        <translation>Метка</translation>
     </message>
     <message>
         <source>Checkout</source>
-        <translation type="vanished">Mudar</translation>
+        <translation type="vanished">Перейти</translation>
     </message>
     <message>
         <source>Rename</source>
-        <translation type="vanished">Renomear</translation>
+        <translation type="vanished">Переименовать</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="vanished">Eliminar</translation>
+        <translation type="vanished">Удалить</translation>
     </message>
     <message>
         <source>Push Tag to %1</source>
-        <translation type="vanished">Enviar etiqueta para %1</translation>
+        <translation type="vanished">Запушить метку в %1</translation>
     </message>
     <message>
         <source>New Local Branch</source>
-        <translation type="vanished">Novo ramo local</translation>
+        <translation type="vanished">Новая локальная ветка</translation>
     </message>
     <message>
         <source>Merge...</source>
-        <translation type="vanished">Unir...</translation>
+        <translation type="vanished">Слить...</translation>
     </message>
     <message>
         <source>Rebase...</source>
-        <translation type="vanished">Rebasear...</translation>
+        <translation type="vanished">Перебазировать...</translation>
     </message>
     <message>
         <source>Squash...</source>
-        <translation type="vanished">Comprimir...</translation>
+        <translation type="vanished">Объединить...</translation>
     </message>
 </context>
 <context>
@@ -3994,7 +3892,7 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="361"/>
         <source>Refresh</source>
-        <translation>Actualizar</translation>
+        <translation>Обновить</translation>
     </message>
 </context>
 <context>
@@ -4002,7 +3900,7 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="259"/>
         <source>999+</source>
-        <translation>999+</translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -4010,59 +3908,59 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="163"/>
         <source>remote: %1</source>
-        <translation>remoto: %1</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="213"/>
         <source>failed to execute pre-push hook: bash not found</source>
-        <translation>falha ao executar gancho de pré-envio: bash não encontrado</translation>
+        <translation>не могу выполнить pre-push hook: bash не найден</translation>
     </message>
     <message>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="248"/>
         <source>failed to execute pre-push hook: %1</source>
-        <translation>falha ao executar gancho de pré-envio: %1</translation>
+        <translation>не могу выполнить pre-push hook: %1</translation>
     </message>
     <message>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="296"/>
         <source>HTTPS Credentials</source>
-        <translation>Credenciais HTTPS</translation>
+        <translation>учётные данные HTTPS</translation>
     </message>
     <message>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="296"/>
         <source>SSH Passphrase</source>
-        <translation>Frase-passe SSH</translation>
+        <translation>Парольная фраза SSH</translation>
     </message>
     <message>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="311"/>
         <source>Username:</source>
-        <translation>Utilizador:</translation>
+        <translation>Имя пользователя:</translation>
     </message>
     <message>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="312"/>
         <source>Password:</source>
-        <translation>Senha:</translation>
+        <translation>Пароль:</translation>
     </message>
     <message>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="312"/>
         <source>Passphrase:</source>
-        <translation>Frase-passe:</translation>
+        <translation>Парольная фраза:</translation>
     </message>
     <message>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="327"/>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="375"/>
         <source>authentication canceled</source>
-        <translation>autenticação cancelada</translation>
+        <translation>аутентификация отменена</translation>
     </message>
     <message>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="460"/>
         <source>From %1</source>
-        <translation>De %1</translation>
+        <translation>Из %1</translation>
     </message>
     <message>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="460"/>
         <location filename="../src/ui/RemoteCallbacks.cpp" line="502"/>
         <source>To %1</source>
-        <translation>Para %1</translation>
+        <translation>На %1</translation>
     </message>
 </context>
 <context>
@@ -4070,87 +3968,87 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="44"/>
         <source>Push all tags</source>
-        <translation>Enviar todas as etiquetas</translation>
+        <translation>Запушить все метки</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="44"/>
         <source>Update existing tags</source>
-        <translation>Actualizar etiquetas existentes</translation>
+        <translation>Обновить существующие метки</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="52"/>
         <source>Merge</source>
-        <translation>Unir</translation>
+        <translation>Слить</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="53"/>
         <source>Rebase</source>
-        <translation>Rebasear</translation>
+        <translation>Перебазировать</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="54"/>
         <source>Merge (No Fast-forward)</source>
-        <translation>Unir (sem avanço rápido)</translation>
+        <translation>Слить (никаких fast-forward)</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="55"/>
         <source>Merge (Fast-forward Only)</source>
-        <translation>Unir (só avanço rápido)</translation>
+        <translation>Слить (только fast-forward)</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="65"/>
         <source>Set upstream</source>
-        <translation>Definir montante</translation>
+        <translation>Выставить upstream</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="66"/>
         <source>Force</source>
-        <translation>Forçar</translation>
+        <translation>Принудительно</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="79"/>
         <source>Remote Reference:</source>
-        <translation>Referência remota:</translation>
+        <translation>Удаленная ссылка:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="106"/>
         <source>Prune references</source>
-        <translation>Aparar referências</translation>
+        <translation>Подчистить ссылки</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="113"/>
         <source>Fetch</source>
-        <translation>Obter</translation>
+        <translation>Забрать</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="117"/>
         <source>Pull</source>
-        <translation>Puxar</translation>
+        <translation>Утянуть</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="121"/>
         <source>Push</source>
-        <translation>Enviar</translation>
+        <translation>Запушить</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="127"/>
         <source>Remote:</source>
-        <translation>Remoto:</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="129"/>
         <source>Reference:</source>
-        <translation>Referência:</translation>
+        <translation>Сссылка:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="131"/>
         <source>Action:</source>
-        <translation>Acção:</translation>
+        <translation>Действие:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteDialog.cpp" line="140"/>
         <source>Advanced:</source>
-        <translation>Avançado:</translation>
+        <translation>Дополнительно:</translation>
     </message>
 </context>
 <context>
@@ -4158,42 +4056,42 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="41"/>
         <source>Remote Repository URL</source>
-        <translation>URL do repositório remoto</translation>
+        <translation>URL удаленного репозитория</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="44"/>
         <source>Choose protocol to authenticate with the remote.</source>
-        <translation>Escolha o protocolo para autenticação com o remoto.</translation>
+        <translation>Выберите протокол для аутентификации перед remote.</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="45"/>
         <source>Enter the URL of the remote repository or browse for a local directory</source>
-        <translation>Insira o URL do repositório remoto ou navegue até uma pasta local</translation>
+        <translation>Ddtlbnt URL удаленного репозитория или проследуйте в локльную директорию</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="72"/>
         <source>...</source>
-        <translation>...</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="74"/>
         <source>Choose Directory</source>
-        <translation>Escolha a pasta</translation>
+        <translation>Выберите директорию</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="96"/>
         <source>Examples of valid URLs include:&lt;table cellspacing=&apos;8&apos;&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;HTTPS&lt;/b&gt;&lt;/td&gt;&lt;td&gt;https://hostname/path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;SSH&lt;/b&gt;&lt;/td&gt;&lt;td&gt;git@hostname:path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;Git&lt;/b&gt;&lt;/td&gt;&lt;td&gt;git://hostname/path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;Local&lt;/b&gt;&lt;/td&gt;&lt;td&gt;/path/to/repo, C:\path\to\repo&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
-        <translation>Exemplos de URLs válidos incluem:&lt;table cellspacing=&apos;8&apos;&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;HTTPS&lt;/b&gt;&lt;/td&gt;&lt;td&gt;https://hostname/path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;SSH&lt;/b&gt;&lt;/td&gt;&lt;td&gt;git@hostname:path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;Git&lt;/b&gt;&lt;/td&gt;&lt;td&gt;git://hostname/path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;Local&lt;/b&gt;&lt;/td&gt;&lt;td&gt;/path/to/repo, C:\path\to\repo&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
+        <translation>Примеры валидных URL включают:&lt;table cellspacing=&apos;8&apos;&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;HTTPS&lt;/b&gt;&lt;/td&gt;&lt;td&gt;https://hostname/path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;SSH&lt;/b&gt;&lt;/td&gt;&lt;td&gt;git@hostname:path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;Git&lt;/b&gt;&lt;/td&gt;&lt;td&gt;git://hostname/path/to/repo.git&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td align=&apos;right&apos;&gt;&lt;b&gt;Local&lt;/b&gt;&lt;/td&gt;&lt;td&gt;/path/to/repo, C:\path\to\repo&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="110"/>
         <source>Protocol:</source>
-        <translation>Protocolo:</translation>
+        <translation>Протокол:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/CloneDialog.cpp" line="111"/>
         <source>URL:</source>
-        <translation>URL:</translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -4201,12 +4099,12 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/dialogs/RemoteTableModel.cpp" line="57"/>
         <source>Name</source>
-        <translation>Nome</translation>
+        <translation>Имя</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RemoteTableModel.cpp" line="59"/>
         <source>URL</source>
-        <translation>URL</translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -4214,17 +4112,17 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="194"/>
         <source>Delete Remote?</source>
-        <translation>Eliminar remoto?</translation>
+        <translation>Удалить Remote?</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="195"/>
         <source>Are you sure you want to delete &apos;%1&apos;?</source>
-        <translation>Tem a certeza de que deseja eliminar &quot;%1&quot;?</translation>
+        <translation>Вы уверены, что вы хотите удалить &apos;%1&apos;?</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="200"/>
         <source>Delete</source>
-        <translation>Eliminar</translation>
+        <translation>Удалить</translation>
     </message>
 </context>
 <context>
@@ -4232,7 +4130,7 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/dialogs/RenameBranchDialog.cpp" line="33"/>
         <source>Name:</source>
-        <translation type="unfinished">Nome:</translation>
+        <translation type="unfinished">Имя:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/RenameBranchDialog.cpp" line="38"/>
@@ -4244,38 +4142,38 @@ Would you like to fix the merge conflict and continue?</source>
     <name>RepoModel</name>
     <message>
         <source>Connecting</source>
-        <translation type="vanished">A ligar</translation>
+        <translation type="vanished">Соединяемся</translation>
     </message>
     <message>
         <source>open</source>
-        <translation type="vanished">abrir</translation>
+        <translation type="vanished">открытые</translation>
     </message>
     <message>
         <source>recent</source>
-        <translation type="vanished">recente</translation>
+        <translation type="vanished">недавние</translation>
     </message>
     <message>
         <source>remote</source>
-        <translation type="vanished">remoto</translation>
+        <translation type="vanished">удаленные</translation>
     </message>
     <message>
         <source>none</source>
-        <translation type="vanished">nenhum</translation>
+        <translation type="vanished">нет</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="95"/>
         <source>Clone Repository</source>
-        <translation>Clonar repositório</translation>
+        <translation>Клонировать репозиторий</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="97"/>
         <source>Open Existing Repository</source>
-        <translation>Abrir repositório existente</translation>
+        <translation>Открыть существующий репозиторий</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="99"/>
         <source>Initialize New Repository</source>
-        <translation>Inicializar novo repositório</translation>
+        <translation>Инициилизировать новый репозиторий</translation>
     </message>
 </context>
 <context>
@@ -4283,86 +4181,86 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="227"/>
         <source>Indexing...</source>
-        <translation>A indexar...</translation>
+        <translation>Индексируется...</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="235"/>
         <source>Search</source>
-        <translation>Procurar</translation>
+        <translation>Поиск</translation>
     </message>
     <message>
         <source>The indexer worker process crashed. If this problem persists please contact us at support@gitahead.com.</source>
-        <translation type="vanished">O processo do indexador rebentou. Se este problema persistir, por favor contacte-nos em support@gitahead.com.</translation>
+        <translation type="vanished">Процесс-работник индексатора упал. Если проблема постоянна, пожалуйста, свяжитесь с нами на через support@gitahead.com.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="241"/>
         <source>Indexer Crashed</source>
-        <translation>O indexador rebentou</translation>
+        <translation>Индексатор упал</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="329"/>
         <source>Status</source>
-        <translation type="unfinished">Estado</translation>
+        <translation type="unfinished">Состояние</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="411"/>
         <source>Stage Directory?</source>
-        <translation>Adicionar pasta?</translation>
+        <translation>Добавить директорию?</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="412"/>
         <source>Are you sure you want to stage &apos;%1&apos;?</source>
-        <translation>Tem a certeza de que deseja adicionar &quot;%1&quot;?</translation>
+        <translation>Вы уверенны, что хотите добавить &apos;%1&apos;?</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="413"/>
         <source>This will result in the addition of %1 files.</source>
-        <translation>Isto resultará na adição de %1 ficheiros.</translation>
+        <translation>Это приведёт к добавлению %1 файлов.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="415"/>
         <source>more than 100</source>
-        <translation>mais de 100</translation>
+        <translation>больше 100</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="419"/>
         <source>Stage Directory</source>
-        <translation>Adicionar pasta</translation>
+        <translation>Добавить директорию</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="422"/>
         <source>Stop prompting to stage directories</source>
-        <translation>Parar de pedir para adicionar pastas</translation>
+        <translation>Перестать подтверждать добавление директорий</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="438"/>
         <source>Stage Large File?</source>
-        <translation>Adicionar ficheiro grande?</translation>
+        <translation>Добавить большой файл?</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="440"/>
         <source>Are you sure you want to stage &apos;%1&apos; with a size of %2?</source>
-        <translation>Tem a certeza de que deseja adicionar &quot;%1&quot; com um tamanho de %2?</translation>
+        <translation>Вы уверены, что хотите добавить &apos;%1&apos; с размером %2?</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="445"/>
         <source>Stage</source>
-        <translation>Adicionar</translation>
+        <translation>Добавить</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="449"/>
         <source>Track with LFS</source>
-        <translation>Rastrear com LFS</translation>
+        <translation>Отслеживать с помощью LFS</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="452"/>
         <source>This repository has LFS enabled. Do you want to track the file with LFS instead?</source>
-        <translation>Este repositório tem LFS activo. Deseja antes rastrear o ficheiro com LFS?</translation>
+        <translation>В этом репозитории включено LFS. Желаете отслеживать файл через LFS?</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="456"/>
         <source>Stop prompting to stage large files</source>
-        <translation>Parar de pedir para adicionar ficheiros grandes</translation>
+        <translation>Перестать подтверждать добавление больших файлов</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="499"/>
@@ -4372,7 +4270,7 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="524"/>
         <source>Esc</source>
-        <translation>Esc</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="530"/>
@@ -4382,37 +4280,37 @@ Would you like to fix the merge conflict and continue?</source>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="535"/>
         <source>Git LFS was not found on the PATH. &lt;a href=&apos;https://git-lfs.github.com&apos;&gt;Install Git LFS&lt;/a&gt; to use LFS integration.</source>
-        <translation>O Git LFS não foi encontrado no PATH. &lt;a href=&apos;https://git-lfs.github.com&apos;&gt;Instale o Git LFS&lt;/a&gt; para usar integração LFS.</translation>
+        <translation>Git LFS не найден в PATH. &lt;a href=&apos;https://git-lfs.github.com&apos;&gt;Установите Git LFS&lt;/a&gt; для использовани интеграции с LFS.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="599"/>
         <source>untracked file</source>
-        <translation>ficheiro não rastreado</translation>
+        <translation>неотслеживаемый файл</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="600"/>
         <source>untracked files</source>
-        <translation>ficheiros não rastreados</translation>
+        <translation>неотслеживаемые файлы</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="603"/>
         <source>Remove Untracked Files</source>
-        <translation>Remover ficheiros não rastreados</translation>
+        <translation>Удалить неотслеживаемые файлы</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="604"/>
         <source>Remove %1 %2?</source>
-        <translation>Remover %1 %2?</translation>
+        <translation>Удалить %1 %2?</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="607"/>
         <source>This action cannot be undone.</source>
-        <translation>Esta acção não pode ser desfeita.</translation>
+        <translation>Это дествие не может быть отменено.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="610"/>
         <source>Remove</source>
-        <translation>Remover</translation>
+        <translation>Удалить</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="885"/>
@@ -4449,29 +4347,29 @@ was added to %1</source>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="928"/>
         <source>Pull Request</source>
-        <translation>Pull Request</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="928"/>
         <source>Create</source>
-        <translation>Criar</translation>
+        <translation>Создать</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="929"/>
         <source>create pull request</source>
-        <translation>criar Pull Request</translation>
+        <translation>создать pull request</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="943"/>
         <location filename="../src/ui/RepoView.cpp" line="953"/>
         <location filename="../src/ui/RepoView.cpp" line="976"/>
         <source>Git LFS</source>
-        <translation>Git LFS</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="943"/>
         <source>Initialize</source>
-        <translation>Inicializar</translation>
+        <translation>Инициализировать</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="945"/>
@@ -4481,12 +4379,12 @@ was added to %1</source>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="949"/>
         <source>Git LFS initialized.</source>
-        <translation>Git LFS inicializado.</translation>
+        <translation>Git LFS инициализирована.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="953"/>
         <source>Deinitialize</source>
-        <translation>Desinicializar</translation>
+        <translation>Деинициализировать</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="955"/>
@@ -4496,33 +4394,33 @@ was added to %1</source>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="959"/>
         <source>Git LFS Deinitialized.</source>
-        <translation>Git LFS desinicializado.</translation>
+        <translation>Git LFS деинициализирован.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="964"/>
         <source>Lock</source>
-        <translation>Bloquear</translation>
+        <translation>Заблокировать</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="964"/>
         <source>Unlock</source>
-        <translation>Desbloquear</translation>
+        <translation>Разблокировать</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="969"/>
         <location filename="../src/ui/RepoView.cpp" line="1175"/>
         <source>Unable to %1 &apos;%2&apos; - %3</source>
-        <translation>Impossível %1 &apos;%2&apos; - %3</translation>
+        <translation>Не смог %1 &apos;%2&apos; - %3</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1056"/>
         <source>Hide Log</source>
-        <translation type="unfinished">Ocultar diário</translation>
+        <translation type="unfinished">Скрыть журнал</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1056"/>
         <source>Show Log</source>
-        <translation type="unfinished">Mostrar diário</translation>
+        <translation type="unfinished">Показать журнал</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1124"/>
@@ -4547,45 +4445,45 @@ was added to %1</source>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1174"/>
         <source>Unable to %1 - %2</source>
-        <translation>Impossível %1 - %2</translation>
+        <translation>Не смог %1 - %2</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1219"/>
         <source>%1 remotes</source>
-        <translation>%1 remotos</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1220"/>
         <source>Fetch All</source>
-        <translation>Obter tudo</translation>
+        <translation>Забрать всё</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1248"/>
         <source>Fetch</source>
-        <translation>Obter</translation>
+        <translation>Забрать</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1250"/>
         <location filename="../src/ui/RepoView.cpp" line="1346"/>
         <location filename="../src/ui/RepoView.cpp" line="1931"/>
         <source>&lt;i&gt;no remote&lt;/i&gt;</source>
-        <translation>&lt;i&gt;sem remoto&lt;/i&gt;</translation>
+        <translation>&lt;i&gt;нет remote&lt;/i&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1257"/>
         <source>Unable to fetch. No upstream is configured for the current branch, and there isn&apos;t a remote called &apos;origin&apos;.</source>
-        <translation>Impossível obter. Não há montante configurado para o ramo actual e não há um remoto chamado &quot;origin&quot;.</translation>
+        <translation>Не могу забрать. Upstream не сконфигурирован для текущей ветки, и remote &apos;origin&apos; не существует.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1271"/>
         <location filename="../src/ui/RepoView.cpp" line="2992"/>
         <source>Fetch canceled.</source>
-        <translation>Obter cancelado.</translation>
+        <translation>Забор отменён.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1273"/>
         <source>fetch from</source>
-        <translation>obter de</translation>
+        <translation>забрать из</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1280"/>
@@ -4597,61 +4495,61 @@ was added to %1</source>
         <location filename="../src/ui/RepoView.cpp" line="2030"/>
         <location filename="../src/ui/RepoView.cpp" line="2197"/>
         <source>Everything up-to-date.</source>
-        <translation>Tudo actualizado.</translation>
+        <translation>Всё - новейшее.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1345"/>
         <location filename="../src/ui/RepoView.cpp" line="1450"/>
         <location filename="../src/ui/RepoView.cpp" line="2705"/>
         <source>&lt;i&gt;no branch&lt;/i&gt;</source>
-        <translation>&lt;i&gt;sem ramo&lt;/i&gt;</translation>
+        <translation>&lt;i&gt;нет ветки&lt;/i&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1347"/>
         <source>%1 from %2</source>
-        <translation>%1 de %2</translation>
+        <translation>%1 из %2</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1348"/>
         <location filename="../src/ui/RepoView.cpp" line="2481"/>
         <source>Pull</source>
-        <translation>Puxar</translation>
+        <translation>Утянуть</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1417"/>
         <source>&lt;i&gt;no upstream&lt;/i&gt;</source>
-        <translation>&lt;i&gt;sem montante&lt;/i&gt;</translation>
+        <translation>&lt;i&gt;нет upstream&lt;/i&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1440"/>
         <source>Merge</source>
-        <translation>Unir</translation>
+        <translation>Слить</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1441"/>
         <source>%1 into %2</source>
-        <translation>%1 em %2</translation>
+        <translation>%1 в %2</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1443"/>
         <source>Fast-forward</source>
-        <translation>Avanço rápido</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1444"/>
         <source>%2 to %1</source>
-        <translation>%2 para %1</translation>
+        <translation>%2 на %1</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1446"/>
         <location filename="../src/ui/RepoView.cpp" line="1762"/>
         <source>Rebase</source>
-        <translation>Rebasear</translation>
+        <translation>Перебазировать</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1447"/>
         <source>%2 on %1</source>
-        <translation>%2 em %1</translation>
+        <translation>%2 на %1</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1456"/>
@@ -4662,33 +4560,33 @@ was added to %1</source>
         <location filename="../src/ui/RepoView.cpp" line="1464"/>
         <location filename="../src/ui/RepoView.cpp" line="2014"/>
         <source>The current branch &apos;%1&apos; has no upstream branch.</source>
-        <translation>O ramo %1 actual não tem um ramo a montante.</translation>
+        <translation>Текущая ветка &apos;%1&apos; не имеет upstream-ветки.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1470"/>
         <location filename="../src/ui/RepoView.cpp" line="2960"/>
         <source>Already up-to-date.</source>
-        <translation>Já está actualizado.</translation>
+        <translation>Уже самое новое.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1475"/>
         <source>Unable to fast-forward.</source>
-        <translation>Impossível avançar rapidamente.</translation>
+        <translation>Не могу fast-forward.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1511"/>
         <source>fast-forward</source>
-        <translation>avançar rapidamente</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1524"/>
         <source>You may be able to reconcile your changes with the conflicting files by &lt;a href=&apos;action:stash&apos;&gt;stashing&lt;/a&gt; before you &lt;a href=&apos;%1&apos;&gt;fast-forward&lt;/a&gt;. Then &lt;a href=&apos;action:unstash&apos;&gt;unstash&lt;/a&gt; to restore your changes.</source>
-        <translation>Poderá conseguir reconciliar as suas alterações com os ficheiros em conflito se &lt;a href=&apos;action:stash&apos;&gt;ocultar&lt;/a&gt; antes de &lt;a href=&apos;%1&apos;&gt;avançar rapidamente&lt;/a&gt;. Em seguida, &lt;a href=&apos;action:unstash&apos;&gt;aplique&lt;/a&gt; para restaurar as alterações.</translation>
+        <translation>Вы могли бы согласовать ваши изменения с конфликтующими файлами путём &lt;a href=&apos;action:stash&apos;&gt;схоронения&lt;/a&gt; перед тем как вы &lt;a href=&apos;%1&apos;&gt;fast-forwardните&lt;/a&gt;. Потом &lt;a href=&apos;action:unstash&apos;&gt;вытащите из схрона&lt;/a&gt; для возвращения ваших изменений.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1536"/>
         <source>If you want to create a new merge commit instead of fast-forwarding, you can &lt;a href=&apos;%1&apos;&gt;merge without fast-forwarding &lt;/a&gt; instead.</source>
-        <translation>Se deseja criar uma nova submissão de união em vez de avançar rapidamente, pode antes &lt;a href=&apos;%1&apos;&gt;unir sem avançar rapidamente&lt;/a&gt;.</translation>
+        <translation>Если вы хотите создать новый коммит слияния вместо fast-forwardа, вы можете &lt;a href=&apos;%1&apos;&gt;слить без  fast-forwardа&lt;/a&gt;.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1556"/>
@@ -4696,51 +4594,51 @@ was added to %1</source>
         <location filename="../src/ui/RepoView.cpp" line="1634"/>
         <location filename="../src/ui/RepoView.cpp" line="1646"/>
         <source>merge</source>
-        <translation>unir</translation>
+        <translation>слить</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1563"/>
         <location filename="../src/ui/RepoView.cpp" line="1779"/>
         <source>You may be able to rebase by &lt;a href=&apos;action:stash&apos;&gt;stashing&lt;/a&gt; before trying to &lt;a href=&apos;action:merge&apos;&gt;merge&lt;/a&gt;. Then &lt;a href=&apos;action:unstash&apos;&gt;unstash&lt;/a&gt; to restore your changes.</source>
-        <translation>Poderá conseguir rebasear se &lt;a href=&apos;action:stash&apos;&gt;ocultar&lt;/a&gt; antes de tentar &lt;a href=&apos;action:merge&apos;&gt;unir&lt;/a&gt;. Em seguida, &lt;a href=&apos;action:unstash&apos;&gt;aplique&lt;/a&gt; para restaurar as alterações.</translation>
+        <translation>Вы могли бы перебазировать путём &lt;a href=&apos;action:stash&apos;&gt;схоронения&lt;/a&gt; перед попыткой &lt;a href=&apos;action:merge&apos;&gt;слить&lt;/a&gt;. Затем &lt;a href=&apos;action:unstash&apos;&gt;вытащите из схрона&lt;/a&gt; для восстановления ваших изменений.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1634"/>
         <location filename="../src/ui/RepoView.cpp" line="1665"/>
         <location filename="../src/ui/RepoView.cpp" line="1688"/>
         <source>Abort</source>
-        <translation>Abortar</translation>
+        <translation>Прервать</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1635"/>
         <source>Some merged files have unstaged changes</source>
-        <translation>Alguns ficheiros unidos têm alterações não adicionadas.</translation>
+        <translation>В некоторых слитых файлах есть недобавленные изменения</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1636"/>
         <source>abort merge</source>
-        <translation>abortar união</translation>
+        <translation>прервать слияние</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1650"/>
         <location filename="../src/ui/RepoView.cpp" line="1804"/>
         <location filename="../src/ui/RepoView.cpp" line="1809"/>
         <source>revert</source>
-        <translation>reverter</translation>
+        <translation>откатить</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1655"/>
         <location filename="../src/ui/RepoView.cpp" line="1850"/>
         <location filename="../src/ui/RepoView.cpp" line="1855"/>
         <source>cherry-pick</source>
-        <translation>escolher precisamente</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1661"/>
         <location filename="../src/ui/RepoView.cpp" line="1700"/>
         <location filename="../src/ui/RepoView.cpp" line="1716"/>
         <source>rebase</source>
-        <translation>rebasear</translation>
+        <translation>перебазировать</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1680"/>
@@ -4760,167 +4658,165 @@ was added to %1</source>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1706"/>
         <source>You may be able to rebase by &lt;a href=&apos;action:stash&apos;&gt;stashing&lt;/a&gt; before trying to &lt;a href=&apos;action:rebase&apos;&gt;rebase&lt;/a&gt;. Then &lt;a href=&apos;action:unstash&apos;&gt;unstash&lt;/a&gt; to restore your changes.</source>
-        <translation>Poderá conseguir rebasear se &lt;a href=&apos;action:stash&apos;&gt;ocultar&lt;/a&gt; antes de tentar &lt;a href=&apos;action:rebase&apos;&gt;rebasear&lt;/a&gt;. Em seguida, &lt;a href=&apos;action:unstash&apos;&gt;aplique&lt;/a&gt; para restaurar as alterações.</translation>
+        <translation>Вы могли бы перебазировать путём &lt;a href=&apos;action:stash&apos;&gt;схоронения&lt;/a&gt; перед попыткой &lt;a href=&apos;action:merge&apos;&gt;перебазировать&lt;/a&gt;. Затем &lt;a href=&apos;action:unstash&apos;&gt;вытащите из схрона&lt;/a&gt; для восстановления ваших изменений.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1723"/>
         <location filename="../src/ui/RepoView.cpp" line="1744"/>
         <source>%1/%2</source>
-        <translation>%1/%2</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1724"/>
         <source>%1 - %2</source>
-        <translation>%1 - %2</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1725"/>
         <source>Apply</source>
-        <translation>Aplicar</translation>
+        <translation>Применить</translation>
     </message>
     <message>
         <source>There was a merge conflict. The rebase has been aborted</source>
-        <translation type="vanished">Houve um conflito na união. Rebasear abortado.</translation>
+        <translation type="vanished">Конфликт слияния. Перебазирование прервано</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1749"/>
         <source>%1 - %2 &lt;i&gt;already applied&lt;/i&gt;</source>
-        <translation>%1 - %2 &lt;i&gt;já aplicado&lt;/i&gt;</translation>
+        <translation>%1 - %2 &lt;i&gt;уже применён&lt;/i&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1750"/>
         <source>%1 - %2 as %3</source>
-        <translation>%1 - %2 como %3</translation>
+        <translation>%1 - %2 как %3</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1772"/>
         <location filename="../src/ui/RepoView.cpp" line="1792"/>
         <location filename="../src/ui/RepoView.cpp" line="3865"/>
         <source>squash</source>
-        <translation>comprimir</translation>
+        <translation>объединить</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1800"/>
         <source>Revert</source>
-        <translation>Reverter</translation>
+        <translation>Откатить</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1817"/>
         <source>Revert &quot;%1&quot;
 
 This reverts commit %2.</source>
-        <translation>Reverter &quot;%1&quot;
-
-Isto reverte a submissão %2.</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1844"/>
         <source>&lt;i&gt;detached HEAD&lt;/i&gt;</source>
-        <translation>&lt;i&gt;HEAD desanexado&lt;/i&gt;</translation>
+        <translation>&lt;i&gt;отсоединённая HEAD&lt;/i&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1845"/>
         <source>%1 on %2</source>
-        <translation>%1 em %2</translation>
+        <translation>%1 на %2</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1846"/>
         <source>Cherry-pick</source>
-        <translation>Escolha precisa</translation>
+        <translation></translation>
     </message>
     <message>
         <source>Force Push?</source>
-        <translation type="vanished">Forçar envio?</translation>
+        <translation type="vanished">Принудительно запушить?</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1892"/>
         <source>Are you sure you want to force push?</source>
-        <translation>Tem a certeza de que deseja forçar o envio?</translation>
+        <translation>Хотите насильно запушить?</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1898"/>
         <source>The remote will lose any commits that are reachable only from the overwritten reference. Dropped commits may be unexpectedly reintroduced by clones that already contain those commits locally.</source>
-        <translation>O remoto perderá todas as submissões só alcançáveis a partir da referência sobrescrita. Submissões largadas podem ser inesperadamente reintroduzidas por clones que já contêm essas submissões localmente.</translation>
+        <translation>remote потеряет коммиты, которые достижимы только из перезаписанной ссылки. Выброшенные коммиты могут быть неожиданно возвращены клонами, которые уже содержат эти коммиты локально.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1903"/>
         <source>Force Push</source>
-        <translation>Forçar envio</translation>
+        <translation>Принудительный пуш</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1928"/>
         <source>&lt;i&gt;no reference&lt;/i&gt;</source>
-        <translation>&lt;i&gt;sem referência&lt;/i&gt;</translation>
+        <translation>&lt;i&gt;нет ссылки&lt;/i&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1970"/>
         <location filename="../src/ui/RepoView.cpp" line="2482"/>
         <source>Push</source>
-        <translation>Enviar</translation>
+        <translation>Запушить</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1970"/>
         <source>Push (Force)</source>
-        <translation>Enviar (forçar)</translation>
+        <translation>Запушить (принудительно)</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1971"/>
         <location filename="../src/ui/RepoView.cpp" line="2764"/>
         <source>%1 to %2</source>
-        <translation>%1 para %2</translation>
+        <translation>%1 в %2</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1975"/>
         <location filename="../src/ui/RepoView.cpp" line="2706"/>
         <source>You are not currently on a branch.</source>
-        <translation>Actualmente não está num ramo.</translation>
+        <translation>Вы сейчас не на ветке.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1978"/>
         <source>Create a commit to add the default &apos;%1&apos; branch.</source>
-        <translation>Cria uma submissão para adicionar o ramo &quot;%1&quot; predefinido.</translation>
+        <translation>Создать коммит и добавить по-умолчанию ветку &apos;%1&apos;.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1982"/>
         <source>You can &lt;a href=&apos;action:checkout&apos;&gt;checkout&lt;/a&gt; a branch then &lt;a href=&apos;action:push&apos;&gt;push&lt;/a&gt; again, or &lt;a href=&apos;action:push-to&apos;&gt;push to an explicit branch&lt;/a&gt;.</source>
-        <translation>Pode &lt;a href=&apos;action:checkout&apos;&gt;mudar&lt;/a&gt; um ramo e depois &lt;a href=&apos;action:push&apos;&gt;enviar&lt;/a&gt; novamente, ou &lt;a href=&apos;action:push-to&apos;&gt;enviar para um ramo explícito&lt;/a&gt;.</translation>
+        <translation>Вы можете &lt;a href=&apos;action:checkout&apos;&gt;перейти на&lt;/a&gt; ветку, затем &lt;a href=&apos;action:push&apos;&gt;запушить&lt;/a&gt; снова, или &lt;a href=&apos;action:push-to&apos;&gt;запушить на явную ветку&lt;/a&gt;.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1992"/>
         <source>The current branch &apos;%1&apos; has no default remote.</source>
-        <translation>O ramo &quot;%1&quot; actual não tem um remoto predefinido.</translation>
+        <translation>Текущая ветка &apos;%1&apos; не имеет remote по-умолчанию.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1995"/>
         <source>You may want to &lt;a href=&apos;action:add-remote?name=origin&apos;&gt;add a remote named &apos;origin&apos;&lt;/a&gt;. Then &lt;a href=&apos;action:push?set-upstream=true&apos;&gt;push and set the current branch&apos;s upstream&lt;/a&gt; to begin tracking a remote branch called &apos;origin/%1&apos;.</source>
-        <translation>Poderá querer &lt;a href=&apos;action:add-remote?name=origin&apos;&gt;adicionar um remoto chamado &quot;origin&quot;&lt;/a&gt;. Em seguida, &lt;a href=&apos;action:push?set-upstream=true&apos;&gt;envie e defina o montante do ramo actual&lt;/a&gt; para começar a rastrear um ramo remoto chamado &quot;origin/%1&quot;.</translation>
+        <translation>Ва могли хотеть &lt;a href=&apos;action:add-remote?name=origin&apos;&gt;добавить remote, названное &apos;origin&apos;&lt;/a&gt;. Тогда &lt;a href=&apos;action:push?set-upstream=true&apos;&gt;запушьте и установите upstream текущей ветки&lt;/a&gt;, чтобы начать отслеживать удаленную ветку, названную &apos;origin/%1&apos;.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2002"/>
         <source>You can also &lt;a href=&apos;action:push-to&apos;&gt;push to an explicit URL&lt;/a&gt; if you don&apos;t want to track a remote branch.</source>
-        <translation>Também pode &lt;a href=&apos;action:push-to&apos;&gt;enviar para um URL explícito&lt;/a&gt;, se não deseja rastrear um ramo remoto.</translation>
+        <translation>Вы также можете &lt;a href=&apos;action:push-to&apos;&gt;запушить на явный URL&lt;/a&gt;, если не хотите отслеживать remote branch.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2015"/>
         <source>To begin tracking a remote branch called &apos;%1&apos;, &lt;a href=&apos;action:push?set-upstream=true&apos;&gt;push and set the current branch&apos;s upstream&lt;/a&gt;.</source>
-        <translation>Para começar a rastrear um ramo remoto chamado &quot;%1&quot;, &lt;a href=&apos;action:push?set-upstream=true&apos;&gt;envie e defina o montante do ramo actual&lt;/a&gt;.</translation>
+        <translation>Чтобы начать отслеживать удаленную ветку, названную called &apos;%1&apos;, &lt;a href=&apos;action:push?set-upstream=true&apos;&gt;запушьте и установите upstream для текущей ветки&lt;/a&gt;.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2019"/>
         <source>To push without setting up tracking information, &lt;a href=&apos;action:push?ref=%1&apos;&gt;push &apos;%2&apos;&lt;/a&gt; explicitly.</source>
-        <translation>Para enviar sem definir informação de rastreio, &lt;a href=&apos;action:push?ref=%1&apos;&gt;envie &quot;%2&quot;&lt;/a&gt; explicitamente.</translation>
+        <translation>Чтобы запушить без установки информации для отслеживания, &lt;a href=&apos;action:push?ref=%1&apos;&gt;запушьте &apos;%2&apos;&lt;/a&gt; явно.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2074"/>
         <location filename="../src/ui/RepoView.cpp" line="2117"/>
         <location filename="../src/ui/RepoView.cpp" line="2159"/>
         <source>Push canceled.</source>
-        <translation>Envio cancelado.</translation>
+        <translation>Пуш отменён.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2087"/>
         <source>%1 (%2)</source>
-        <translation type="unfinished">%1 (%2)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2090"/>
@@ -4937,266 +4833,266 @@ URL: %1</source>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2163"/>
         <source>push to</source>
-        <translation>enviar para</translation>
+        <translation>запушить в</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2167"/>
         <source>The tag update may cause the remote to lose commits.</source>
-        <translation>A actualização da etiqueta pode provocar perda de submissões no remoto.</translation>
+        <translation>Обновление метки может привести к потере коммитов у remote.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2169"/>
         <source>If you want to risk the remote losing commits, you can &lt;a href=&apos;action:push?ref=%1&amp;to=%2&amp;force=true&apos;&gt;force push&lt;/a&gt;.</source>
-        <translation>Se deseja arriscar perder submissões no remoto, pode &lt;a href=&apos;action:push?ref=%1&amp;to=%2&amp;force=true&apos;&gt;forçar o envio&lt;/a&gt;.</translation>
+        <translation>Если вы хотите рискнуть потерей коммитов у remote, вы можете &lt;a href=&apos;action:push?ref=%1&amp;to=%2&amp;force=true&apos;&gt;запушить принудительно&lt;/a&gt;.</translation>
     </message>
     <message>
         <source>You may want to integrate remote commits first by &lt;a href=&apos;action:pull&apos;&gt;pulling&lt;/a&gt;. Then &lt;a href=&apos;action:push&apos;&gt;push&lt;/a&gt; again.</source>
-        <translation type="vanished">Poderá querer integrar as submissões remotas primeiro &lt;a href=&apos;action:pull&apos;&gt;puxando&lt;/a&gt;. Em seguida, &lt;a href=&apos;action:push&apos;&gt;envie&lt;/a&gt; novamente.</translation>
+        <translation type="vanished">Вы могли бы хотеть сначала интегрировать коммиты remote путём &lt;a href=&apos;action:pull&apos;&gt;утягивания&lt;/a&gt;. Затем &lt;a href=&apos;action:push&apos;&gt;запушьте&lt;/a&gt; снова.</translation>
     </message>
     <message>
         <source>If you really want the remote to lose commits, you may be able to &lt;a href=&apos;action:push?force=true&apos;&gt;force push&lt;/a&gt;.</source>
-        <translation type="vanished">Se realmente deseja que o remoto perca submissões, poderá ser capaz de &lt;a href=&apos;action:push?force=true&apos;&gt;forçar o envio&lt;/a&gt;.</translation>
+        <translation type="vanished">Если вы действительно хотите, чтобы remote потеряло коммиты, вы могли бы &lt;a href=&apos;action:push?force=true&apos;&gt;запушить принудительно&lt;/a&gt;.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2247"/>
         <source>Commit?</source>
-        <translation>Submeter?</translation>
+        <translation>Закоммитить?</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2248"/>
         <source>Are you sure you want to commit on a detached HEAD?</source>
-        <translation>Tem a certeza de que deseja submeter num HEAD desanexado?</translation>
+        <translation>Вы уверенны, что хотите закоммитить поверх отсоединённой HEAD?</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2254"/>
         <source>&lt;p&gt;You are in a detached HEAD state. You can still commit, but the new commit will not be reachable from any branch. If you want to commit to an existing branch, checkout the branch first.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Está num estado de HEAD desanexado. Ainda pode submeter, mas a nova submissão não estará alcançável por nenhum ramo. Se deseja submeter num ramo existente, mude o ramo primeiro.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Вы - в состоянии с отсоединённой HEAD. Вы всё ещё можете коммитить, но новый коммит не будет доступен из какой-либо ветки. Если вы хотите закоммитить на существующую ветку, сперва извлеките ветку.&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2259"/>
         <location filename="../src/ui/RepoView.cpp" line="2270"/>
         <source>Commit</source>
-        <translation>Submeter</translation>
+        <translation>Коммит</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2269"/>
         <location filename="../src/ui/RepoView.cpp" line="2396"/>
         <location filename="../src/ui/RepoView.cpp" line="3444"/>
         <source>&lt;i&gt;no commit&lt;/i&gt;</source>
-        <translation>&lt;i&gt;sem submissão&lt;/i&gt;</translation>
+        <translation>&lt;i&gt;нет коммита&lt;/i&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2275"/>
         <source>commit</source>
-        <translation>submeter</translation>
+        <translation>коммит</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2283"/>
         <source>This commit was signed with a generated user name and email.</source>
-        <translation>A submissão foi assinada com um utilizador e um email gerados.</translation>
+        <translation>Этот коммит был подписан сгенерированными именем пользователя и почтой.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2285"/>
         <source>Consider setting the user name and email in &lt;a href=&apos;action:config?global=true&apos;&gt;global settings&lt;/a&gt;.</source>
-        <translation>Considere definir o utilizador e o email nas &lt;a href=&apos;action:config?global=true&apos;&gt;definições globais&lt;/a&gt;.</translation>
+        <translation>Рассмотрите вариант установки имени и почты в &lt;a href=&apos;action:config?global=true&apos;&gt;глобальных настройках&lt;/a&gt;.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2287"/>
         <source>If you want to limit the name and email settings to this repository, &lt;a href=&apos;action:config&apos;&gt;edit repository settings&lt;/a&gt; instead.</source>
-        <translation>Se deseja limitar as definições de nome e email to a este repositório, &lt;a href=&apos;action:config&apos;&gt;edite antes as definições do repositório&lt;/a&gt;.</translation>
+        <translation>Если вы хотите ограничить настройки имени и почты только этим репозиторием, &lt;a href=&apos;action:config&apos;&gt;отредактируйте настройки репозитория&lt;/a&gt; вместо этого.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2291"/>
         <source>After settings have been updated, &lt;a href=&apos;action:amend&apos;&gt; amend this commit&lt;/a&gt; to record the new user name and email.</source>
-        <translation>Após actualizar as definições, &lt;a href=&apos;action:amend&apos;&gt; emende esta submissão&lt;/a&gt; para registar os novos utilizador e email.</translation>
+        <translation>После того, как настройки были обновлены, &lt;a href=&apos;action:amend&apos;&gt; дополните этот коммит&lt;/a&gt; для записи нового имени пользователя и почты.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2326"/>
         <source>file</source>
-        <translation>ficheiro</translation>
+        <translation>файл</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2326"/>
         <source>files</source>
-        <translation>ficheiros</translation>
+        <translation>файлы</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2327"/>
         <source>%1 - %2 %3</source>
-        <translation>%1 - %2 %3</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2328"/>
         <location filename="../src/ui/RepoView.cpp" line="2403"/>
         <location filename="../src/ui/RepoView.cpp" line="2496"/>
         <source>Checkout</source>
-        <translation>Mudar</translation>
+        <translation>Перейти</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2350"/>
         <source>Checkout Detached HEAD?</source>
-        <translation>Mudar HEAD desanexado?</translation>
+        <translation>Перейти на отсоединённую HEAD?</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2352"/>
         <source>Checkout Detached HEAD</source>
-        <translation>Mudar HEAD desanexado</translation>
+        <translation>Перейти на отсоединённую HEAD</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2361"/>
         <source>Checking out remote branch &apos;%1&apos; will result in a detached HEAD state. Do you want to reset the existing local branch &apos;%2&apos; to this commit instead?</source>
-        <translation>Mudar o ramo remoto &quot;%1&quot; resultará num estado de HEAD desanexado. Deseja antes repor o ramo local &quot;%2&quot; existente para esta submissão?</translation>
+        <translation>Извлечение удаленной ветки &apos;%1&apos; приведёт к состоянию отсоединённой HEAD. Хотите сбросить существующую локальную ветку &apos;%2&apos; на этот коммит вместо этого?</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2367"/>
         <source>Reset Local Branch</source>
-        <translation>Repor ramo local</translation>
+        <translation>Сбросить локальную ветку</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2373"/>
         <source>Checking out remote branch &apos;%1&apos; will result in a detached HEAD state. Do you want to create a new local branch called &apos;%2&apos; to track it instead?</source>
-        <translation>Mudar o ramo remoto &quot;%1&quot; resultará num estado de HEAD desanexado. Deseja antes criar um novo ramo local chamado &quot;%2&quot; para rastrear?</translation>
+        <translation>Извлечение удаленной ветки &apos;%1&apos; приведёт к состоянию отсоединённой HEAD. Хотите создать новую локальную ветку, названную &apos;%2&apos;, чтобы отслеживать её, вместо этого?</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2378"/>
         <source>Create a local branch to start tracking remote changes and make new commits. Check out the detached HEAD to temporarily put your working directory into the state of the remote branch.</source>
-        <translation>Criar um novo ramo para começar a rastrear alterações remotas e fazer novas submissões. Mudar o HEAD desanexado para pôr temporariamente a sua pasta de trabalho no estado do ramo remoto.</translation>
+        <translation>Создайте локальную ветку чтобы начать отслеживать изменения remote и создайте новые коммиты. Извлеките отсоединённую HEAD чтобы временно перевести вашу рабочую директорию в состояние удаленной ветки.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2383"/>
         <source>Create Local Branch</source>
-        <translation>Criar ramo local</translation>
+        <translation>Создать локальную ветку</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2408"/>
         <source>checkout</source>
-        <translation>mudar</translation>
+        <translation>перейти</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2420"/>
         <source>You may be able to reconcile your changes with the conflicting files by &lt;a href=&apos;action:stash&apos;&gt;stashing&lt;/a&gt; before you &lt;a href=&apos;action:checkout?%1&apos;&gt;checkout &apos;%2&apos;&lt;/a&gt;. Then &lt;a href=&apos;action:unstash&apos;&gt;unstash&lt;/a&gt; to restore your changes.</source>
-        <translation>Poderá reconciliar as suas alterações com os ficheiros em conflito &lt;a href=&apos;action:stash&apos;&gt;ocultando&lt;/a&gt; antes de &lt;a href=&apos;action:checkout?%1&apos;&gt;mudar &quot;%2&quot;&lt;/a&gt;. Em seguida, &lt;a href=&apos;action:unstash&apos;&gt;aplique&lt;/a&gt; para restaurar as alterações.</translation>
+        <translation>Вы могли бы согласовать ваши изменения с конфликтующими файлами путём &lt;a href=&apos;action:stash&apos;&gt;схоронения&lt;/a&gt; перед тем как вы &lt;a href=&apos;action:checkout?%1&apos;&gt;извлечёте&apos;%2&apos;&lt;/a&gt;. Потом &lt;a href=&apos;action:unstash&apos;&gt;вытащите из схрона&lt;/a&gt; для возвращения ваших изменений.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2447"/>
         <source>New Branch</source>
-        <translation>Novo ramo</translation>
+        <translation>Новая ветка</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2450"/>
         <source>create new branch</source>
-        <translation>criar novo ramo</translation>
+        <translation>создать новую ветку</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2502"/>
         <source>Rename</source>
-        <translation type="unfinished">Renomear</translation>
+        <translation type="unfinished">Переименовать</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2509"/>
         <source>Delete</source>
-        <translation type="unfinished">Eliminar</translation>
+        <translation type="unfinished">Удалить</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2521"/>
         <source>Push Tag to %1</source>
-        <translation type="unfinished">Enviar etiqueta para %1</translation>
+        <translation type="unfinished">Запушить метку в %1</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2527"/>
         <source>New Local Branch</source>
-        <translation type="unfinished">Novo ramo local</translation>
+        <translation type="unfinished">Новая локальная ветка</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2545"/>
         <source>Merge...</source>
-        <translation type="unfinished">Unir...</translation>
+        <translation type="unfinished">Слить...</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2546"/>
         <source>Rebase...</source>
-        <translation type="unfinished">Rebasear...</translation>
+        <translation type="unfinished">Перебазировать...</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2547"/>
         <source>Squash...</source>
-        <translation type="unfinished">Comprimir...</translation>
+        <translation type="unfinished">Объединить...</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2561"/>
         <source>(no branch)</source>
-        <translation>(sem ramo)</translation>
+        <translation>(без ветки)</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2562"/>
         <source>WIP on %1: %2 %3</source>
-        <translation>WIP em %1: %2 %3</translation>
+        <translation>WIP на %1: %2 %3</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2573"/>
         <source>&lt;i&gt;working directory&lt;/i&gt;</source>
-        <translation>&lt;i&gt;pasta de trabalho&lt;/i&gt;</translation>
+        <translation>&lt;i&gt;рабочая копия&lt;/i&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2574"/>
         <source>Stash</source>
-        <translation>Ocultar</translation>
+        <translation>Схрон</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2578"/>
         <source>stash</source>
-        <translation>ocultar</translation>
+        <translation>схрон</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2591"/>
         <source>Apply Stash</source>
-        <translation>Aplicar oculto</translation>
+        <translation>Применить схрон</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2593"/>
         <source>apply stash</source>
-        <translation>aplicar oculto</translation>
+        <translation>применить схрон</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2605"/>
         <source>Drop Stash</source>
-        <translation>Largar oculto</translation>
+        <translation>Выбросить содержимое схрона</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2607"/>
         <source>drop stash</source>
-        <translation>largar oculto</translation>
+        <translation>выбросить содержимое схрона</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2622"/>
         <source>Pop Stash</source>
-        <translation>Aplicar e apagar oculto</translation>
+        <translation>Извлечь из копилки</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2624"/>
         <source>pop stash</source>
-        <translation>aplicar e apagar oculto</translation>
+        <translation>вынуть из схрона</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2647"/>
         <source>%1 as %2</source>
-        <translation>%1 como %2</translation>
+        <translation>%1 как %2</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2648"/>
         <source>Tag</source>
-        <translation>Etiqueta</translation>
+        <translation>Метка</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2650"/>
         <source>tag</source>
-        <translation>etiqueta</translation>
+        <translation>метка</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2686"/>
         <location filename="../src/ui/RepoView.cpp" line="2763"/>
         <source>Amend</source>
-        <translation>Emendar</translation>
+        <translation>Дополнить</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2689"/>
@@ -5207,7 +5103,7 @@ URL: %1</source>
         <location filename="../src/ui/RepoView.cpp" line="2696"/>
         <source>%1 to %2</source>
         <comment>update ref</comment>
-        <translation type="unfinished">%1 para %2</translation>
+        <translation type="unfinished">%1 в %2</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2704"/>
@@ -5217,73 +5113,73 @@ URL: %1</source>
         <location filename="../src/ui/RepoView.cpp" line="2821"/>
         <location filename="../src/ui/RepoView.cpp" line="2893"/>
         <source>Reset</source>
-        <translation>Repor</translation>
+        <translation>Сбросить</translation>
     </message>
     <message>
         <source>Amend?</source>
-        <translation type="vanished">Emendar?</translation>
+        <translation type="vanished">Дополнить?</translation>
     </message>
     <message>
         <source>Reset?</source>
-        <translation type="vanished">Repor?</translation>
+        <translation type="vanished">Сбросить?</translation>
     </message>
     <message>
         <source>Are you sure you want to amend &apos;%1&apos;?</source>
-        <translation type="vanished">Tem a certeza de que deseja emendar &quot;%1&quot;?</translation>
+        <translation type="vanished">Вы уверены, что хотите дополнить &apos;%1&apos;?</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2726"/>
         <source>Are you sure you want to reset &apos;%1&apos; to &apos;%2&apos;?</source>
-        <translation>Tem a certeza de que deseja repor &quot;%1&quot; para &quot;%2&quot;?</translation>
+        <translation>Вы уверены, что хотите сбросить &apos;%1&apos; на &apos;%2&apos;?</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2733"/>
         <source>&lt;p&gt;Some commits may become unreachable from the current branch.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Algumas submissões podem ficar inalcançáveis a partir do ramo actual.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Некоторые коммиты могут стать недостижимы из текущей ветки.&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2739"/>
         <source>&lt;p&gt;Resetting will cause you to lose uncommitted changes. Untracked and ignored files will not be affected.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Repor causará a perda de alterações não submetidas. Ficheiros não rastreados e ignorados não serão afectados.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Сброс приведёт к тому, что вы потеряете незакоммиченные изменения. Неотслеживаемые и игнорируемые файлы не будут затронуты.&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2743"/>
         <source>&lt;p&gt;Your branch appears to be up-to-date with its upstream branch. Resetting may cause your branch history to diverge from the remote branch history.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;O seu ramo parece estar actualizado com o ramo a montante. Repor pode fazer com que o histórico do seu ramo divirja do histórico do ramo remoto.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Ваша ветка кажется уже самой новой, соответствующей своей upstream-ветке. Сброс может привести историю вашей ветки к расхождению с историей ветки remote.&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2690"/>
         <location filename="../src/ui/RepoView.cpp" line="2768"/>
         <source>amend</source>
-        <translation>emendar</translation>
+        <translation>дополнить</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2768"/>
         <source>reset</source>
-        <translation>repor</translation>
+        <translation>сбросить</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2892"/>
         <location filename="../src/ui/RepoView.cpp" line="2956"/>
         <source>%1 of %2 submodules</source>
-        <translation>%1 de %2 sub-módulos</translation>
+        <translation>%1 из %2 подмодулей</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2957"/>
         <location filename="../src/ui/RepoView.cpp" line="2982"/>
         <source>Update</source>
-        <translation>Actualizar</translation>
+        <translation>Обновить</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2833"/>
         <location filename="../src/ui/RepoView.cpp" line="2995"/>
         <source>update submodule</source>
-        <translation>actualizar sub-módulo</translation>
+        <translation>обновить подмодуль</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="107"/>
         <source>up-to-date</source>
-        <translation type="unfinished">actualizado</translation>
+        <translation type="unfinished">уже самое новое</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="109"/>
@@ -5373,7 +5269,7 @@ URL: %1</source>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1960"/>
         <source>Create Branch</source>
-        <translation type="unfinished">Criar ramo</translation>
+        <translation type="unfinished">Создать ветку</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="2051"/>
@@ -5622,12 +5518,12 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3465"/>
         <source>Invalid Submodule Repository</source>
-        <translation>Repositório de sub-módulo inválido</translation>
+        <translation>Неправильный репозиторий подмодуля</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3467"/>
         <source>The submodule &apos;%1&apos; doesn&apos;t have a valid repository. You may need to init and/or update the submodule to check out a repository.</source>
-        <translation>O sub-módulo &quot;%1&quot; não tem um repositório válido. Pode ter de inicializar e/ou actualizar o sub-módulo para mudar um repositório.</translation>
+        <translation>Подмодуль &apos;%1&apos; не имеет верного репозитория. Вам может быть нужно инициализировать и/или обновить подмодуль для извлечения репозитория.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3608"/>
@@ -5647,47 +5543,47 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3839"/>
         <source>There was a merge conflict.</source>
-        <translation>Houve um conflito de união.</translation>
+        <translation>Конфликт слияния.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3842"/>
         <source>Resolve conflicts, then commit to conclude the %1. See &lt;a href=&apos;expand&apos;&gt;details&lt;/a&gt;.</source>
-        <translation>Resolva os conflitos e submeta para concluir a %1. Veja os &lt;a href=&apos;expand&apos;&gt;detalhes&lt;/a&gt;.</translation>
+        <translation>Разрешите конфликты, затем закоммитьте, чтобы завершить %1. См. &lt;a href=&apos;expand&apos;&gt;подробности&lt;/a&gt;.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3844"/>
         <source>Resolve conflicts in each conflicted (!) file in one of the following ways:</source>
-        <translation>Resolva os conflitos em cada ficheiros (!) de uma das seguintes formas:</translation>
+        <translation>Разрешите конфликты в каждом конфликтующем (!) файле одним из следующих способов:</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3846"/>
         <source>1. Click the &apos;Ours&apos; or &apos;Theirs&apos; button to choose the correct change. Then click the &apos;Save&apos; button to apply.</source>
-        <translation>1. Clique em &quot;Nosso&quot; ou &quot;Deles&quot; para escolher a alteração correcta. Em seguida, clique em &quot;Gravar&quot; para aplicar.</translation>
+        <translation>1. Щёлкните кнопку &apos;Наш&apos; или &apos;Их&apos;, чтобы выбрать правильное изменение. Затем щёлкните кнопку &apos;Сохранить&apos;, чтобы применить.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3848"/>
         <source>2. Edit the file in the editor to make a different change. Remember to remove conflict markers.</source>
-        <translation>2. Edite o ficheiro no editor para fazer uma alteração diferente. Lembre-se de resolver os marcadores de conflito.</translation>
+        <translation>2. Редактируйте файл в редакторе, чтобы сделать разные изменения. Не забудьте удалить маркеры конфликта.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3850"/>
         <source>3. Use an external merge tool. Right-click on the files in the list and choose &apos;External Merge&apos;.</source>
-        <translation>3. Use uma ferramenta externa de união. Clique com o botão direito nos ficheiros da lista e escolha &quot;União externa&quot;.</translation>
+        <translation>3. Используйте внешний инструмент слияния. Щелчок правой на файлах в списке, и выберите &apos;Внешнее слияние&apos;.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3852"/>
         <source>After all conflicts in the file are resolved, click the check box to mark it as resolved.</source>
-        <translation>Após resolver todos os conflitos no ficheiro, clique na caixa para o marcar como resolvido. </translation>
+        <translation>После того, как все конфликты разрешены, кликните флажок, чтобы пометить их разрешёнными.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3854"/>
         <source>After all conflicted files are staged, commit to conclude the %1.</source>
-        <translation>Após adicionar todos os ficheiros em conflito, submeta para concluir a %1.</translation>
+        <translation>После того, как все конфликтующие файлы добавлены, закоммитьте, чтобы завершить %1.</translation>
     </message>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="3866"/>
         <source>You can &lt;a href=&apos;action:abort&apos;&gt;abort&lt;/a&gt; the %1 to return the repository to its previous state.</source>
-        <translation>Pode &lt;a href=&apos;action:abort&apos;&gt;abortar&lt;/a&gt; a %1 para devolver o repositório ao seu estado anterior.</translation>
+        <translation>Вы можете &lt;a href=&apos;action:abort&apos;&gt;прервать&lt;/a&gt; %1 , чтобы вернуть репозиторий в предыдущее состояние.</translation>
     </message>
 </context>
 <context>
@@ -5695,12 +5591,12 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/git/Repository.cpp" line="1317"/>
         <source>Unknown error</source>
-        <translation>Erro desconhecido</translation>
+        <translation>Неизвестная ошибка</translation>
     </message>
     <message>
         <location filename="../src/git/Repository.cpp" line="1387"/>
         <source>git-lfs not found</source>
-        <translation>git lfs não encontrado</translation>
+        <translation>git-lfs не найдена</translation>
     </message>
 </context>
 <context>
@@ -5728,7 +5624,7 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/ui/RepositoryNavigator.cpp" line="397"/>
         <source>Open</source>
-        <translation type="unfinished">Abrir</translation>
+        <translation type="unfinished">Открыть</translation>
     </message>
     <message>
         <location filename="../src/ui/RepositoryNavigator.cpp" line="403"/>
@@ -5743,7 +5639,7 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/ui/RepositoryNavigator.cpp" line="430"/>
         <source>Update</source>
-        <translation type="unfinished">Actualizar</translation>
+        <translation type="unfinished">Обновить</translation>
     </message>
     <message>
         <location filename="../src/ui/RepositoryNavigator.cpp" line="435"/>
@@ -5763,7 +5659,7 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/ui/RepositoryNavigator.cpp" line="456"/>
         <source>Apply Stash</source>
-        <translation type="unfinished">Aplicar oculto</translation>
+        <translation type="unfinished">Применить схрон</translation>
     </message>
     <message>
         <location filename="../src/ui/RepositoryNavigator.cpp" line="461"/>
@@ -5773,7 +5669,7 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/ui/RepositoryNavigator.cpp" line="466"/>
         <source>Drop Stash</source>
-        <translation type="unfinished">Largar oculto</translation>
+        <translation type="unfinished">Выбросить содержимое схрона</translation>
     </message>
 </context>
 <context>
@@ -5821,7 +5717,7 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="287"/>
         <source>Remote</source>
-        <translation type="unfinished">Remoto</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="288"/>
@@ -5871,12 +5767,12 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="297"/>
         <source>Tags</source>
-        <translation type="unfinished">Etiquetas</translation>
+        <translation type="unfinished">Метки</translation>
     </message>
     <message>
         <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="298"/>
         <source>Submodules</source>
-        <translation type="unfinished">Sub-módulos</translation>
+        <translation type="unfinished">Подмодули</translation>
     </message>
     <message>
         <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="339"/>
@@ -5994,7 +5890,7 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/ui/SearchField.cpp" line="92"/>
         <source>Search</source>
-        <translation>Procurar</translation>
+        <translation>Поиск</translation>
     </message>
 </context>
 <context>
@@ -6002,32 +5898,32 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="418"/>
         <source>Enable indexing</source>
-        <translation>Activar indexação</translation>
+        <translation>Включить индексацию</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="433"/>
         <source>terms</source>
-        <translation>termos</translation>
+        <translation>критерии</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="449"/>
         <source>lines</source>
-        <translation>linhas</translation>
+        <translation>строк</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="463"/>
         <source>Limit commits to:</source>
-        <translation>Limitar submissões a:</translation>
+        <translation>Ограничиться коммитами:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="464"/>
         <source>Diff context:</source>
-        <translation>Contexto de comparação:</translation>
+        <translation>Контекст diffа:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="480"/>
         <source>Remove Index</source>
-        <translation>Remover índice</translation>
+        <translation>Удалить индекс</translation>
     </message>
 </context>
 <context>
@@ -6035,32 +5931,32 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/conf/Settings.cpp" line="171"/>
         <source>Prompt to edit stash message before stashing</source>
-        <translation>Pedir para editar mensagem de ocultação antes de ocultar</translation>
+        <translation>Запрашивать редактировани сообщения коммита перед действиями со схроном</translation>
     </message>
     <message>
         <location filename="../src/conf/Settings.cpp" line="174"/>
         <source>Prompt to edit commit message before merging</source>
-        <translation>Pedir para editar mensagem de submissão antes de unir</translation>
+        <translation>Запрашивать редактировани сообщения коммита перед слиянием</translation>
     </message>
     <message>
         <location filename="../src/conf/Settings.cpp" line="177"/>
         <source>Prompt to edit commit message before reverting</source>
-        <translation>Pedir para editar mensagem de submissão antes de reverter</translation>
+        <translation>Запрашивать редактировани сообщения коммита перед откатом</translation>
     </message>
     <message>
         <location filename="../src/conf/Settings.cpp" line="180"/>
         <source>Prompt to edit commit message before cherry-picking</source>
-        <translation>Pedir para editar mensagem de submissão antes de escolher precisamente</translation>
+        <translation>Запрашивать редактировани сообщения коммита перед cherry-picking</translation>
     </message>
     <message>
         <location filename="../src/conf/Settings.cpp" line="183"/>
         <source>Prompt to stage directories</source>
-        <translation>Pedir para adicionar pastas</translation>
+        <translation>Подтверждать добавление директорий</translation>
     </message>
     <message>
         <location filename="../src/conf/Settings.cpp" line="186"/>
         <source>Prompt to stage large files</source>
-        <translation>Pedir para adicionar ficheiros grandes</translation>
+        <translation>Подтверждать добавление больших файлов</translation>
     </message>
 </context>
 <context>
@@ -6068,56 +5964,56 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="822"/>
         <source>Esc</source>
-        <translation>Esc</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="837"/>
         <source>Global git settings can be overridden for each repository in the corresponding repository configuration page.</source>
-        <translation>As definições globais do git podem ser sobrepostas para cada repositório na correspondente página de configuração do repositório.</translation>
+        <translation>Глобальные настройки git могут быть переопределены для каждого репозитория в его настройках.</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="854"/>
         <source>Edit Config File...</source>
-        <translation>Editar ficheiro de configuração...</translation>
+        <translation>Редактировать конфиг...</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="883"/>
         <source>General</source>
-        <translation>Geral</translation>
+        <translation>Общие</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="891"/>
         <source>Diff</source>
-        <translation>Comparação</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="899"/>
         <source>Tools</source>
-        <translation>Ferramentas</translation>
+        <translation>Инструменты</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="909"/>
         <source>Window</source>
-        <translation>Janela</translation>
+        <translation>Окно</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="917"/>
         <source>Editor</source>
-        <translation>Editor</translation>
+        <translation>Редактор</translation>
     </message>
     <message>
         <source>Update</source>
-        <translation type="vanished">Actualizar</translation>
+        <translation type="vanished">Обновить</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="925"/>
         <source>Plugins</source>
-        <translation>Extensões</translation>
+        <translation>Плагины</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="933"/>
         <source>Misc</source>
-        <translation>Misto</translation>
+        <translation>Прочее</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="941"/>
@@ -6127,7 +6023,7 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="951"/>
         <source>Terminal</source>
-        <translation>Terminal</translation>
+        <translation>Терминал</translation>
     </message>
 </context>
 <context>
@@ -6150,82 +6046,82 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/tools/ShowTool.cpp" line="103"/>
         <source>Show in %1</source>
-        <translation>Mostrar em %1</translation>
+        <translation>Показать в %1</translation>
     </message>
 </context>
 <context>
     <name>SideBar</name>
     <message>
         <source>Close</source>
-        <translation type="vanished">Fechar</translation>
+        <translation type="vanished">Закрыть</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="vanished">Remover</translation>
+        <translation type="vanished">Удалить</translation>
     </message>
     <message>
         <source>Authorize</source>
-        <translation type="vanished">Autorizar</translation>
+        <translation type="vanished">Авторизоваться</translation>
     </message>
     <message>
         <location filename="../src/ui/SideBar.cpp" line="59"/>
         <source>Clone Repository</source>
-        <translation>Clonar repositório</translation>
+        <translation>Клонировать репозиторий</translation>
     </message>
     <message>
         <location filename="../src/ui/SideBar.cpp" line="70"/>
         <source>Open Existing Repository</source>
-        <translation>Abrir repositório existente</translation>
+        <translation>Открыть существующий репозиторий</translation>
     </message>
     <message>
         <location filename="../src/ui/SideBar.cpp" line="73"/>
         <source>Open Repository</source>
-        <translation>Abrir repositório</translation>
+        <translation>Открыть репозиторий</translation>
     </message>
     <message>
         <location filename="../src/ui/SideBar.cpp" line="82"/>
         <source>Initialize New Repository</source>
-        <translation>Inicializar novo repositório</translation>
+        <translation>Инициилизировать новый репозиторий</translation>
     </message>
     <message>
         <source>Add %1 Account</source>
-        <translation type="vanished">Adicionar conta %1</translation>
+        <translation type="vanished">Добавить аккаунт %1</translation>
     </message>
     <message>
         <source>&lt;p&gt;Are you sure you want to remove the remote repository association for %1?&lt;/p&gt;&lt;p&gt;The local clone itself will not be affected.&lt;/p&gt;</source>
-        <translation type="vanished">&lt;p&gt;Tem a certeza de que deseja remover a associação ao repositório remoto para %1?&lt;/p&gt;&lt;p&gt;O clone local clone não será afectado.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Вы уверенны, что хотите удалить ассоциацию с удаленным репозиторием для %1?&lt;/p&gt;&lt;p&gt;Локальный клон сам затронут не будет.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Remove Repository Association?</source>
-        <translation type="vanished">Remover associação ao repositório?</translation>
+        <translation type="vanished">Удалить ассоциацию с репозиторием?</translation>
     </message>
     <message>
         <source>Clear All Recent</source>
-        <translation type="vanished">Limpar todos os recentes</translation>
+        <translation type="vanished">Очистить все недавние</translation>
     </message>
     <message>
         <source>Show Full Path</source>
-        <translation type="vanished">Mostrar caminho completo</translation>
+        <translation type="vanished">Показать полный путь</translation>
     </message>
     <message>
         <source>Filter Non-existent Paths</source>
-        <translation type="vanished">Filtrar caminhos não existentes</translation>
+        <translation type="vanished">Фильтровать несуществующие пути</translation>
     </message>
     <message>
         <source>Refresh Remote Accounts</source>
-        <translation type="vanished">Actualizar contas remotas</translation>
+        <translation type="vanished">Обновить удаленные аккаунты</translation>
     </message>
     <message>
         <source>Show Full Name</source>
-        <translation type="vanished">Mostrar nome completo</translation>
+        <translation type="vanished">Показать полное имя</translation>
     </message>
     <message>
         <source>&lt;p&gt;Are you sure you want to remove the %1 account for &apos;%2&apos;?&lt;/p&gt;&lt;p&gt;Only the account association will be removed. Remote configurations and local clones will not be affected.&lt;/p&gt;</source>
-        <translation type="vanished">&lt;p&gt;Tem a certeza de que deseja remover a conta %1 para &quot;%2&quot;?&lt;/p&gt;&lt;p&gt;Só a associação da conta será removida. Configurações remotas e clones locais não serão afectados.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Вы уверены, что хотите удалить аккаунт %1 для &apos;%2&apos;?&lt;/p&gt;&lt;p&gt;Только ассоциация с аккаунтом будет удалена. Настройки remotes и локальные клоны не будут затронуты.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Remove Account?</source>
-        <translation type="vanished">Remover conta?</translation>
+        <translation type="vanished">Удалить аккаунт?</translation>
     </message>
 </context>
 <context>
@@ -6233,108 +6129,108 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="371"/>
         <source>Choose Repository</source>
-        <translation>Escolher repositório</translation>
+        <translation>Выберите репозиторий</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="380"/>
         <source>Understand your history!</source>
-        <translation>Compreender o seu histórico!</translation>
+        <translation>Понимай свою историю!</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="435"/>
         <source>Clone Repository</source>
-        <translation>Clonar repositório</translation>
+        <translation>Клонировать репозиторий</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="446"/>
         <source>Open Existing Repository</source>
-        <translation>Abrir repositório existente</translation>
+        <translation>Открыть существующий репозиторий</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="450"/>
         <source>Open Repository</source>
-        <translation>Abrir repositório</translation>
+        <translation>Открыть репозиторий</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="458"/>
         <source>Initialize New Repository</source>
-        <translation>Inicializar novo repositório</translation>
+        <translation>Инициализировать новый репозиторий</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="472"/>
         <source>Clear All</source>
-        <translation>Limpar todos</translation>
+        <translation>Очистить всё</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="477"/>
         <source>Show Full Path</source>
-        <translation>Mostrar caminho completo</translation>
+        <translation>Показать полный путь</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="487"/>
         <source>Filter Non-existent Paths</source>
-        <translation>Filtrar caminhos não existentes</translation>
+        <translation>Показать несуществующие пути</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="495"/>
         <source>Repositories:</source>
-        <translation>Repositórios:</translation>
+        <translation>Репозитории:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="543"/>
         <source>Refresh</source>
-        <translation>Actualizar</translation>
+        <translation>Обновить</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="550"/>
         <source>Show Full Name</source>
-        <translation>Mostrar nome completo</translation>
+        <translation>Показать полное имя</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="578"/>
         <source>Remote:</source>
-        <translation>Remoto:</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="596"/>
         <source>View Getting Started Video</source>
-        <translation>Ver vídeos de aprendizagem</translation>
+        <translation>Показать вводное видео</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="715"/>
         <source>Clone</source>
-        <translation>Clonar</translation>
+        <translation>Клонировать</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="715"/>
         <source>Open</source>
-        <translation>Abrir</translation>
+        <translation>Открыть</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="781"/>
         <source>&lt;p&gt;Are you sure you want to remove the %1 account for &apos;%2&apos;?&lt;/p&gt;&lt;p&gt;Only the account association will be removed. Remote configurations and local clones will not be affected.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Tem a certeza de que deseja remover a conta %1 para &quot;%2&quot;?&lt;/p&gt;&lt;p&gt;Só a associação da conta será removida. Configurações remotas e clones locais não serão afectados.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Вы уверены, что хотите удалить аккаунт %1 для &apos;%2&apos;?&lt;/p&gt;&lt;p&gt;Только ассоциация с аккаунтом будет удалена. Конфигурации remote и локальные клоны не будут затронуты.&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="785"/>
         <source>Remove Account?</source>
-        <translation>Remover conta?</translation>
+        <translation>Удалить аккаунт?</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="788"/>
         <location filename="../src/dialogs/StartDialog.cpp" line="808"/>
         <source>Remove</source>
-        <translation>Remover</translation>
+        <translation>Удалить</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="803"/>
         <source>&lt;p&gt;Are you sure you want to remove the remote repository association for %1?&lt;/p&gt;&lt;p&gt;The local clone itself will not be affected.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Tem a certeza de que deseja remover a associação ao repositório remoto para %1?&lt;/p&gt;&lt;p&gt;O clone local clone não será afectado.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Вы уверены, что хотите удалить ассоциацию с удаленным репозиторием для %1?&lt;/p&gt;&lt;p&gt;Сам по себе локальный клон не будет затронут.&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/dialogs/StartDialog.cpp" line="806"/>
         <source>Remove Repository Association?</source>
-        <translation>Remover associação ao repositório?</translation>
+        <translation>Удалить ассоциацию с репозиторием?</translation>
     </message>
 </context>
 <context>
@@ -6342,7 +6238,7 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="67"/>
         <source>Name</source>
-        <translation>Nome</translation>
+        <translation>Имя</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="69"/>
@@ -6352,37 +6248,37 @@ The submodule will be removed from this project. Its working files and cached lo
     <message>
         <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="71"/>
         <source>URL</source>
-        <translation>URL</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="73"/>
         <source>Branch</source>
-        <translation>Ramo</translation>
+        <translation>Ветка</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="75"/>
         <source>Initialized</source>
-        <translation>Inicializado</translation>
+        <translation>Инициализирован</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="136"/>
         <source>Deinitializing &apos;%1&apos; will remove its working directory. Are you sure you want to deinitialize?</source>
-        <translation>Desinicializar &quot;%1&quot; removerá a sua pasta de trabalho. Tem a certeza de que o deseja fazer?</translation>
+        <translation>Деинициализация &apos;%1&apos; удалит его рабочую директорию. Вы уверены, что хотите деинициализировать?</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="140"/>
         <source>Deinitialize Submodule?</source>
-        <translation>Desinicializar sub-módulo?</translation>
+        <translation>Деинициализировать подмодуль?</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="146"/>
         <source>The submodule working directory contains uncommitted changes that will be lost if you continue.</source>
-        <translation>A pasta de trabalho do sub-módulo contém alterações não submetidas que serão perdidas se continuar.</translation>
+        <translation>Рабочая директория подмодуля содержит незакоммиченные изменения, которые будут потеряны, если вы продолжите.</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SubmoduleTableModel.cpp" line="150"/>
         <source>Deinitialize</source>
-        <translation>Desinicializar</translation>
+        <translation>Деинициализировать</translation>
     </message>
 </context>
 <context>
@@ -6399,113 +6295,117 @@ The submodule will be removed from this project. Its working files and cached lo
         <location filename="../src/dialogs/TagDialog.cpp" line="34"/>
         <location filename="../src/dialogs/TagDialog.cpp" line="71"/>
         <source>Create Tag</source>
-        <translation>Criar etiqueta</translation>
+        <translation>Создать метку</translation>
     </message>
     <message>
         <location filename="../src/dialogs/TagDialog.cpp" line="35"/>
         <source>Add a new tag at %1</source>
-        <translation>Adicionar nova etiqueta a %1</translation>
+        <translation>Добавить новую метку на %1</translation>
     </message>
     <message>
         <location filename="../src/dialogs/TagDialog.cpp" line="39"/>
         <source>Force (replace existing tag)</source>
-        <translation>Forçar (substituir etiqueta existente)</translation>
+        <translation>Принудительно (заменить существующую метку)</translation>
     </message>
     <message>
         <location filename="../src/dialogs/TagDialog.cpp" line="42"/>
         <source>Push to %1</source>
-        <translation>Enviar para %1</translation>
+        <translation>Запушить в %1</translation>
     </message>
     <message>
         <location filename="../src/dialogs/TagDialog.cpp" line="46"/>
         <source>Annotated</source>
-        <translation>Anotado</translation>
+        <translation>Анотированная</translation>
     </message>
     <message>
         <location filename="../src/dialogs/TagDialog.cpp" line="117"/>
         <source>Name</source>
-        <translation>Nome</translation>
+        <translation>Имя</translation>
     </message>
 </context>
 <context>
     <name>TemplateDialog</name>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="32"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="35"/>
         <source>Name</source>
-        <translation type="unfinished">Nome</translation>
+        <translation type="unfinished">Имя</translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="38"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="41"/>
         <source>Content</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="43"/>
-        <location filename="../src/ui/TemplateDialog.cpp" line="327"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="46"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="331"/>
         <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="52"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="55"/>
         <source>use %1 to declare the position of the cursor.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="56"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="59"/>
         <source>use ${files:x} to add all updated file names,
 x (number) determines the number of maximum files shown</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="66"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="69"/>
         <source>Remove</source>
-        <translation type="unfinished">Remover</translation>
+        <translation type="unfinished">Удалить</translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="72"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="75"/>
         <source>First template will be applied automatically</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="79"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="82"/>
         <source>Up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="80"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="83"/>
         <source>Down</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="95"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="98"/>
         <source>Import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="96"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="99"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="243"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="246"/>
         <source>Open File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="244"/>
-        <location filename="../src/ui/TemplateDialog.cpp" line="297"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="247"/>
+        <source>GitNortek Templates (*%1 *%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/TemplateDialog.cpp" line="301"/>
         <source>GitNortek Templates (*%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="294"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="298"/>
         <source>Save Templates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/TemplateDialog.cpp" line="323"/>
+        <location filename="../src/ui/TemplateDialog.cpp" line="327"/>
         <source>Replace</source>
-        <translation type="unfinished">Substituir</translation>
+        <translation type="unfinished">Заменить</translation>
     </message>
 </context>
 <context>
@@ -6514,22 +6414,22 @@ x (number) determines the number of maximum files shown</source>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="779"/>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="803"/>
         <source>Install</source>
-        <translation>Instalar</translation>
+        <translation>Установить</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="792"/>
         <source>Name:</source>
-        <translation>Nome:</translation>
+        <translation>Имя:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="793"/>
         <source>Location:</source>
-        <translation>Localização:</translation>
+        <translation>Место:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="803"/>
         <source>Uninstall</source>
-        <translation>Desinstalar</translation>
+        <translation>Отменить установку</translation>
     </message>
 </context>
 <context>
@@ -6547,7 +6447,7 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="118"/>
         <source>Ignore</source>
-        <translation type="unfinished">Ignorar</translation>
+        <translation type="unfinished">Игнорировать</translation>
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="137"/>
@@ -6569,17 +6469,17 @@ x (number) determines the number of maximum files shown</source>
     <name>ThemeDialog</name>
     <message>
         <source>Native Theme</source>
-        <translation type="vanished">Tema nativo</translation>
+        <translation type="vanished">Родная тема</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ThemeDialog.cpp" line="102"/>
         <source>A flexible look matching system colors</source>
-        <translation>Um aspecto flexível com as cores do sistema</translation>
+        <translation>&quot;Гибки вид, соответствующий системным цветам</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ThemeDialog.cpp" line="96"/>
         <source>Dark Theme</source>
-        <translation>Tema escuro</translation>
+        <translation>Тёмная тема</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ThemeDialog.cpp" line="89"/>
@@ -6599,7 +6499,7 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/dialogs/ThemeDialog.cpp" line="97"/>
         <source>A consistent look optimal for reducing eye strain</source>
-        <translation>Um aspecto consistente optimizado para reduzir a fadiga da vista</translation>
+        <translation>&quot;Последовательный&quot; вид, оптимальный для снижения нагрузки на глаза</translation>
     </message>
     <message>
         <location filename="../src/dialogs/ThemeDialog.cpp" line="101"/>
@@ -6612,42 +6512,42 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="737"/>
         <source>Show repository sidebar</source>
-        <translation>Mostrar barra lateral do repositório</translation>
+        <translation>Показать боковую панель репозитория</translation>
     </message>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="751"/>
         <source>Previous</source>
-        <translation>Anterior</translation>
+        <translation>Предыдущий</translation>
     </message>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="763"/>
         <source>Next</source>
-        <translation>Seguinte</translation>
+        <translation>Следующий</translation>
     </message>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="779"/>
         <source>Fetch</source>
-        <translation>Obter</translation>
+        <translation>Забрать</translation>
     </message>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="784"/>
         <source>Pull</source>
-        <translation>Puxar</translation>
+        <translation>Утянуть</translation>
     </message>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="790"/>
         <source>Merge</source>
-        <translation type="unfinished">Unir</translation>
+        <translation type="unfinished">Слить</translation>
     </message>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="794"/>
         <source>Rebase</source>
-        <translation type="unfinished">Rebasear</translation>
+        <translation type="unfinished">Перебазировать</translation>
     </message>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="802"/>
         <source>Push</source>
-        <translation>Enviar</translation>
+        <translation>Запушить</translation>
     </message>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="806"/>
@@ -6657,72 +6557,72 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="815"/>
         <source>Checkout</source>
-        <translation>Mudar</translation>
+        <translation>Перейти</translation>
     </message>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="827"/>
         <source>Stash</source>
-        <translation>Ocultar</translation>
+        <translation>Схрон</translation>
     </message>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="832"/>
         <source>Pop Stash</source>
-        <translation>Aplicar e limpar</translation>
+        <translation>Вынуть из схрона</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="857"/>
+        <location filename="../src/ui/ToolBar.cpp" line="858"/>
         <source>Open Terminal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="869"/>
+        <location filename="../src/ui/ToolBar.cpp" line="870"/>
         <source>Open file manager</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="881"/>
+        <location filename="../src/ui/ToolBar.cpp" line="882"/>
         <source>Configure Settings</source>
-        <translation>Configurar definições</translation>
+        <translation>Настроить</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="889"/>
+        <location filename="../src/ui/ToolBar.cpp" line="890"/>
         <source>Repository settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="893"/>
+        <location filename="../src/ui/ToolBar.cpp" line="894"/>
         <source>Application settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="900"/>
-        <location filename="../src/ui/ToolBar.cpp" line="1029"/>
+        <location filename="../src/ui/ToolBar.cpp" line="901"/>
+        <location filename="../src/ui/ToolBar.cpp" line="1030"/>
         <source>Show Log</source>
-        <translation>Mostrar diário</translation>
+        <translation>Показать журнал</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="918"/>
+        <location filename="../src/ui/ToolBar.cpp" line="919"/>
         <source>Double Tree View</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Diff View</source>
-        <translation type="vanished">Vista de comparação</translation>
+        <translation type="vanished">Смотреть diff</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="923"/>
+        <location filename="../src/ui/ToolBar.cpp" line="924"/>
         <source>Tree View</source>
-        <translation>Vista em árvore</translation>
+        <translation>Смотреть дерево</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="936"/>
+        <location filename="../src/ui/ToolBar.cpp" line="937"/>
         <source>Show Starred Commits</source>
-        <translation>Mostrar submissões com estrela</translation>
+        <translation>Показать отзвёзденные коммиты</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="1029"/>
+        <location filename="../src/ui/ToolBar.cpp" line="1030"/>
         <source>Hide Log</source>
-        <translation>Ocultar diário</translation>
+        <translation>Скрыть журнал</translation>
     </message>
 </context>
 <context>
@@ -6730,27 +6630,27 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="337"/>
         <source>Keep backup of merge files (.orig)</source>
-        <translation>Manter salvaguarda dos ficheiro de união (.orig)</translation>
+        <translation>Не удалять резервную копию файлов слияний (.orig)</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="344"/>
         <source>External editor:</source>
-        <translation>Editor externo:</translation>
+        <translation>Внешний редактор:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="345"/>
         <source>External diff:</source>
-        <translation>Comparação externa:</translation>
+        <translation>Внешний diff:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="346"/>
         <source>External merge:</source>
-        <translation>União externa:</translation>
+        <translation>Внешнее слияние:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="347"/>
         <source>Backup files:</source>
-        <translation>Ficheiros de salvaguarda:</translation>
+        <translation>Файлы резервных копий:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="350"/>
@@ -6765,7 +6665,7 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="390"/>
         <source>Configure</source>
-        <translation>Configurar</translation>
+        <translation>Конфигурировать</translation>
     </message>
 </context>
 <context>
@@ -6773,7 +6673,7 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/ui/TreeModel.cpp" line="143"/>
         <source>Submodule</source>
-        <translation>Sub-módulo</translation>
+        <translation>Подмодуль</translation>
     </message>
 </context>
 <context>
@@ -6781,12 +6681,12 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/ui/TreeView.cpp" line="99"/>
         <source>Directory</source>
-        <translation type="unfinished">Pasta</translation>
+        <translation type="unfinished">Директория</translation>
     </message>
     <message>
         <location filename="../src/ui/TreeView.cpp" line="99"/>
         <source>File</source>
-        <translation type="unfinished">Ficheiro</translation>
+        <translation type="unfinished">Файл</translation>
     </message>
     <message>
         <location filename="../src/ui/TreeView.cpp" line="100"/>
@@ -6801,18 +6701,18 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/ui/TreeView.cpp" line="107"/>
         <source>This action cannot be undone.</source>
-        <translation type="unfinished">Esta acção não pode ser desfeita.</translation>
+        <translation type="unfinished">Это дествие не может быть отменено.</translation>
     </message>
     <message>
         <location filename="../src/ui/TreeView.cpp" line="110"/>
         <location filename="../src/ui/TreeView.cpp" line="122"/>
         <source>Discard</source>
-        <translation type="unfinished">Descartar</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/TreeView.cpp" line="123"/>
         <source>discard</source>
-        <translation type="unfinished">descartar</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6837,57 +6737,57 @@ x (number) determines the number of maximum files shown</source>
     <name>UpToDateDialog</name>
     <message>
         <source>Already Up-to-date</source>
-        <translation type="vanished">Já está actualizado</translation>
+        <translation type="vanished">Уже самое новое</translation>
     </message>
     <message>
         <source>%1 is already up-to-date. You have version %2.</source>
-        <translation type="vanished">%1 já está actualizado. Tem a versão %2.</translation>
+        <translation type="vanished">%1 уже самое новое. У вас версия %2.</translation>
     </message>
 </context>
 <context>
     <name>UpdateDialog</name>
     <message>
         <source>Update %1</source>
-        <translation type="vanished">Actualizar %1</translation>
+        <translation type="vanished">Обновить %1</translation>
     </message>
     <message>
         <source>&lt;h3&gt;A new version of %1 is available!&lt;/h3&gt;&lt;p&gt;%1 %2 is now available - you have %3. Would you like to download it now?&lt;/p&gt;&lt;b&gt;Release Notes:&lt;/b&gt;</source>
-        <translation type="vanished">&lt;h3&gt;Está disponível uma nova versão de %1!&lt;/h3&gt;&lt;p&gt;%1 %2 está disponível - tem a %3. Deseja transferi-la agora?&lt;/p&gt;&lt;b&gt;Notas de lançamento:&lt;/b&gt;</translation>
+        <translation type="vanished">&lt;h3&gt;Новая версия  %1 доступна!&lt;/h3&gt;&lt;p&gt;%1 %2 теперь доступна - у вас же %3. Желаете загрузить её сейчас?&lt;/p&gt;&lt;b&gt;Примечания к релизу:&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Automatically download and install updates</source>
-        <translation type="vanished">Transferir e instalar actualizações automaticamente</translation>
+        <translation type="vanished">Автоматически загружать и ставить обновления</translation>
     </message>
     <message>
         <source>Install Update</source>
-        <translation type="vanished">Instalar actualização</translation>
+        <translation type="vanished">Установить обновление</translation>
     </message>
     <message>
         <source>Remind Me Later</source>
-        <translation type="vanished">Lembrar-me mais tarde</translation>
+        <translation type="vanished">Напомнить мне позже</translation>
     </message>
     <message>
         <source>Skip This Version</source>
-        <translation type="vanished">Ignorar esta versão</translation>
+        <translation type="vanished">Пропустить эту версию</translation>
     </message>
 </context>
 <context>
     <name>UpdatePanel</name>
     <message>
         <source>Check for updates automatically</source>
-        <translation type="vanished">Procurar actualizações automaticamente</translation>
+        <translation type="vanished">Проверять обновления автоматически</translation>
     </message>
     <message>
         <source>Automatically download and install updates</source>
-        <translation type="vanished">Transferir e instalar actualizações automaticamente</translation>
+        <translation type="vanished">Автоматически загружать и ставить обновления</translation>
     </message>
     <message>
         <source>Check Now</source>
-        <translation type="vanished">Procurar agora</translation>
+        <translation type="vanished">Проверить сейчас</translation>
     </message>
     <message>
         <source>Software Update:</source>
-        <translation type="vanished">Actualização do programa:</translation>
+        <translation type="vanished">Обновление ПО:</translation>
     </message>
 </context>
 <context>
@@ -6895,72 +6795,72 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/dialogs/UpdateSubmodulesDialog.cpp" line="109"/>
         <source>Recursive</source>
-        <translation>Recursiva</translation>
+        <translation>Рекурсивно</translation>
     </message>
     <message>
         <location filename="../src/dialogs/UpdateSubmodulesDialog.cpp" line="112"/>
         <source>Init</source>
-        <translation>Inicializar</translation>
+        <translation>Инициализировать</translation>
     </message>
     <message>
         <location filename="../src/dialogs/UpdateSubmodulesDialog.cpp" line="117"/>
         <source>Update</source>
-        <translation>Actualizar</translation>
+        <translation>Обновить</translation>
     </message>
 </context>
 <context>
     <name>Updater</name>
     <message>
         <source>Installer failed to start</source>
-        <translation type="vanished">Falha ao iniciar o instalador</translation>
+        <translation type="vanished">Установщик не смог запуститься</translation>
     </message>
     <message>
         <source>The disk image failed to mount successfully</source>
-        <translation type="vanished">Falha ao montar a imagem do disco</translation>
+        <translation type="vanished">Образ диска откне смог примонтироваться успешно</translation>
     </message>
     <message>
         <source>The existing bundle could not be moved to the trash</source>
-        <translation type="vanished">Impossível mover o pacoteexistente para o lixo </translation>
+        <translation type="vanished">Существующий бандл не может быть перемещён в Корзину</translation>
     </message>
     <message>
         <source>The new bundle could not be copied into place</source>
-        <translation type="vanished">Impossível copiar o novo pacote para o sítio</translation>
+        <translation type="vanished">Нвый бандл не может быть скопирован на [его] место</translation>
     </message>
     <message>
         <source>Helper application failed to start</source>
-        <translation type="vanished">Falha ao iniciar a aplicação de ajuda</translation>
+        <translation type="vanished">Помощник установщика не смог запуститься</translation>
     </message>
     <message>
         <source>Update Failed</source>
-        <translation type="vanished">Falha ao actualizar</translation>
+        <translation type="vanished">Обновление не удалось</translation>
     </message>
     <message>
         <source>Unable to check for updates</source>
-        <translation type="vanished">Impossível procurar actualizações</translation>
+        <translation type="vanished">Не могу проверить наличие обновлений</translation>
     </message>
     <message>
         <source>Unable to download update</source>
-        <translation type="vanished">Impossível transferir a actualização</translation>
+        <translation type="vanished">Не могу скачать обновление</translation>
     </message>
     <message>
         <source>Unable to open temporary file</source>
-        <translation type="vanished">Impossível abrir o ficheiro temporário</translation>
+        <translation type="vanished">Не могу открыть временный файл</translation>
     </message>
     <message>
         <source>Unable to install update</source>
-        <translation type="vanished">Impossível instalar a actualização</translation>
+        <translation type="vanished">Не могу установить обновление</translation>
     </message>
     <message>
         <source>Some windows failed to close</source>
-        <translation type="vanished">Algumas janelas falharam ao fechar</translation>
+        <translation type="vanished">Некоторые окна не смогли закрыться</translation>
     </message>
     <message>
         <source>Unknown install error</source>
-        <translation type="vanished">Erro de instalação desconhecido</translation>
+        <translation type="vanished">Неизвестная ошибка установки</translation>
     </message>
     <message>
         <source>Installer script failed: %1</source>
-        <translation type="vanished">Falha no script de instalação: %1</translation>
+        <translation type="vanished">Скрипт установщика не выполнил свою задачу: %1</translation>
     </message>
 </context>
 <context>
@@ -6968,66 +6868,66 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="459"/>
         <source>Add New Theme</source>
-        <translation>Adicionar novo tema</translation>
+        <translation>Добавить новую тему</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="460"/>
         <source>Edit Current Theme</source>
-        <translation>Editar o tema actual</translation>
+        <translation>Редактировать текущую тему</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="484"/>
         <source>Create Theme</source>
-        <translation>Criar tema</translation>
+        <translation>Создать тему</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="494"/>
         <source>Theme Name</source>
-        <translation>Nome do tema</translation>
+        <translation>Имя темы</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="526"/>
         <source>Restart?</source>
-        <translation>Reiniciar?</translation>
+        <translation>Перезапустить?</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="527"/>
         <source>The application must be restarted for the theme change to take effect.</source>
-        <translation>A aplicação tem de reiniciar para aplicar as alterações ao tema.</translation>
+        <translation>Приложение должно быть перезапущено для того чтобы тема заработала.</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="529"/>
         <source>Do you want to restart now?</source>
-        <translation>Deseja reiniciar agora?</translation>
+        <translation>Хотите перезапустить сейчас?</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="531"/>
         <source>Restart</source>
-        <translation>Reiniciar</translation>
+        <translation>Перезапуск</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="532"/>
         <source>Later</source>
-        <translation>Mais tarde</translation>
+        <translation>Позже</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="550"/>
         <source>Show full repository path</source>
-        <translation>Mostrar caminho completo do repositório</translation>
+        <translation>Показывать полный путь к репозиторию</translation>
     </message>
     <message>
         <source>Hide automatically</source>
-        <translation type="vanished">Ocultar automaticamente</translation>
+        <translation type="vanished">Скрывать автоматически</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="557"/>
         <source>Open submodules in tabs</source>
-        <translation>Abrir sub-módulos em separadores</translation>
+        <translation>Открыть подмодули во вкладках</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="565"/>
         <source>Open all repositories in tabs</source>
-        <translation>Abrir todos os repositórios em separadores</translation>
+        <translation>Открыть все репозитории во вкладках</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="572"/>
@@ -7052,21 +6952,21 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="640"/>
         <source>Theme:</source>
-        <translation>Tema:</translation>
+        <translation>Тема:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="641"/>
         <source>Title:</source>
-        <translation>Título:</translation>
+        <translation>Название:</translation>
     </message>
     <message>
         <source>Log:</source>
-        <translation type="vanished">Diário:</translation>
+        <translation type="vanished">Журнал:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="642"/>
         <source>Tabs:</source>
-        <translation>Separadores:</translation>
+        <translation>Вкладки:</translation>
     </message>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="644"/>
@@ -7076,7 +6976,7 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="647"/>
         <source>Prompt:</source>
-        <translation>Pedir:</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

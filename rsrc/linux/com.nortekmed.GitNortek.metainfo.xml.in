@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>@GITTYUP_IDENTIFIER@</id>
+  <id>@GITNORTEK_IDENTIFIER@</id>
   <metadata_license>FSFAP</metadata_license>
   <project_license>MIT</project_license>
   <name>GitNortek</name>
   <summary>NortekMed-maintained fork of Gittyup, a graphical Git client</summary>
-  <developer_name>NortekMed</developer_name>
+  <developer id="com.nortekmed">
+    <name>NortekMed</name>
+  </developer>
 
   <description>
     <p>GitNortek is a NortekMed-maintained fork of Gittyup, a graphical Git client designed to help you understand and manage your source code history.</p>
@@ -23,22 +25,9 @@
     </ul>
   </description>
 
-  <launchable type="desktop-id">@GITTYUP_IDENTIFIER@.desktop</launchable>
+  <launchable type="desktop-id">@GITNORTEK_IDENTIFIER@.desktop</launchable>
 
-  <screenshots>
-    <screenshot type="default">
-      <caption>The main view</caption>
-        <image>https://raw.githubusercontent.com/NortekMed/GitNortek/master/rsrc/screenshots/main_dark_orig.png</image>
-    </screenshot>
-    <screenshot>
-      <caption>Staging single lines</caption>
-        <image>https://raw.githubusercontent.com/NortekMed/GitNortek/master/rsrc/screenshots/double_treeview_single_line_staging.png</image>
-    </screenshot>
-    <screenshot>
-      <caption>Tree View</caption>
-        <image>https://raw.githubusercontent.com/NortekMed/GitNortek/master/rsrc/screenshots/treeview.png</image>
-    </screenshot>
-  </screenshots>
+  <!-- Add current GitNortek screenshots before publishing AppStream metadata. -->
 
   <url type="homepage">https://github.com/NortekMed/GitNortek</url>
   <url type="vcs-browser">https://github.com/NortekMed/GitNortek</url>

@@ -70,7 +70,7 @@ static LONG WINAPI exceptionFilter(PEXCEPTION_POINTERS info) {
 
   wchar_t fileName[MAX_PATH];
   const wchar_t *s = L"%s\\%s-%s-%04d%02d%02d-%02d%02d%02d-%ld-%ld.dmp";
-  StringCchPrintf(fileName, MAX_PATH, s, dir, GITTYUP_NAME, GITTYUP_VERSION,
+  StringCchPrintf(fileName, MAX_PATH, s, dir, GITNORTEK_NAME, GITNORTEK_VERSION,
                   localTime.wYear, localTime.wMonth, localTime.wDay,
                   localTime.wHour, localTime.wMinute, localTime.wSecond,
                   GetCurrentProcessId(), GetCurrentThreadId());
@@ -95,11 +95,11 @@ Application::Application(int &argc, char **argv, bool haltOnParseError)
     : QApplication(argc, argv) {
   Q_INIT_RESOURCE(resources);
 
-  setApplicationName(GITTYUP_NAME);
-  setApplicationDisplayName(GITTYUP_NAME);
-  setApplicationVersion(GITTYUP_VERSION);
-  setOrganizationDomain(GITTYUP_ORGANIZATION_DOMAIN);
-  setDesktopFileName(GITTYUP_IDENTIFIER);
+  setApplicationName(GITNORTEK_NAME);
+  setApplicationDisplayName(GITNORTEK_NAME);
+  setApplicationVersion(GITNORTEK_VERSION);
+  setOrganizationDomain(GITNORTEK_ORGANIZATION_DOMAIN);
+  setDesktopFileName(GITNORTEK_IDENTIFIER);
 
   // Register types that are queued at runtime.
   qRegisterMetaType<git::Id>();
@@ -186,7 +186,7 @@ Application::Application(int &argc, char **argv, bool haltOnParseError)
 
     QLocale locale;
     QDir l10n = Settings::l10nDir();
-    QString name = QString(GITTYUP_NAME).toLower();
+    QString name = QString(GITNORTEK_NAME).toLower();
     QTranslator *translator = new QTranslator(this);
     if (translator->load(locale, name, "_", l10n.absolutePath())) {
       installTranslator(translator);
@@ -318,25 +318,25 @@ static MainWindow *openOrSwitch(QDir repo) {
 }
 
 #if defined(Q_OS_LINUX)
-#define DBUS_SERVICE_NAME GITTYUP_IDENTIFIER
-#define DBUS_INTERFACE_NAME GITTYUP_DBUS_INTERFACE_NAME
-#define DBUS_OBJECT_PATH GITTYUP_DBUS_OBJECT_PATH
+#define DBUS_SERVICE_NAME GITNORTEK_IDENTIFIER
+#define DBUS_INTERFACE_NAME GITNORTEK_DBUS_INTERFACE_NAME
+#define DBUS_OBJECT_PATH GITNORTEK_DBUS_OBJECT_PATH
 
-DBusGittyup::DBusGittyup(QObject *parent) : QObject(parent) {}
+DBusGitNortek::DBusGitNortek(QObject *parent) : QObject(parent) {}
 
-void DBusGittyup::openRepository(const QString &repo) {
+void DBusGitNortek::openRepository(const QString &repo) {
   openOrSwitch(QDir(repo));
 }
 
-void DBusGittyup::openAndFocusRepository(const QString &repo) {
+void DBusGitNortek::openAndFocusRepository(const QString &repo) {
   openOrSwitch(QDir(repo))->activateWindow();
 }
 
-void DBusGittyup::setFocus() { MainWindow::activeWindow()->activateWindow(); }
+void DBusGitNortek::setFocus() { MainWindow::activeWindow()->activateWindow(); }
 
 #elif defined(Q_OS_WIN)
 #define COPYDATA_WINDOW_TITLE                                                  \
-  "Gittyup WM_COPYDATA receiver 16b8b3f6-6446-4fa7-8c72-53c25b1f206c"
+  "GitNortek WM_COPYDATA receiver 16b8b3f6-6446-4fa7-8c72-53c25b1f206c"
 enum CopyDataCommand { Focus = 0, FocusAndOpen = 1 };
 
 namespace {
@@ -447,7 +447,7 @@ void Application::registerService() {
   if (!bus.registerService(DBUS_SERVICE_NAME))
     return;
 
-  bus.registerObject(DBUS_OBJECT_PATH, DBUS_INTERFACE_NAME, new DBusGittyup(),
+  bus.registerObject(DBUS_OBJECT_PATH, DBUS_INTERFACE_NAME, new DBusGitNortek(),
                      QDBusConnection::ExportScriptableSlots);
 
 #elif defined(Q_OS_WIN)
