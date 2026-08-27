@@ -6,6 +6,7 @@
 //
 
 #include "RepositoryNavigator.h"
+#include "FontUtils.h"
 #include "RepositoryNavigatorModel.h"
 #include "RepoView.h"
 #include <QMenu>
@@ -108,7 +109,8 @@ SubmoduleVisual submoduleVisual(const QModelIndex &index,
 
 class NavigatorDelegate : public QStyledItemDelegate {
 public:
-  NavigatorDelegate(QObject *parent) : QStyledItemDelegate(parent) {}
+  NavigatorDelegate(const QFont &sectionFont, QObject *parent)
+      : QStyledItemDelegate(parent), mSectionFont(sectionFont) {}
 
   QSize sizeHint(const QStyleOptionViewItem &option,
                  const QModelIndex &index) const override {
@@ -134,7 +136,7 @@ public:
       text = palette.color(QPalette::Disabled, QPalette::Text);
 
     QRect content = option.rect.adjusted(section ? 8 : 6, 0, -8, 0);
-    QFont font = option.font;
+    QFont font = section ? mSectionFont : option.font;
     if (section) {
       font.setBold(true);
       font.setCapitalization(QFont::SmallCaps);
@@ -259,6 +261,9 @@ public:
     }
     painter->restore();
   }
+
+private:
+  QFont mSectionFont;
 };
 
 } // namespace
@@ -277,7 +282,7 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent) : QWidget(parent) {
   mView->setExpandsOnDoubleClick(false);
   mView->setIndentation(14);
   mView->setUniformRowHeights(true);
-  mView->setItemDelegate(new NavigatorDelegate(mView));
+  mView->setItemDelegate(new NavigatorDelegate(mView->font(), mView));
 
   mModel = new RepositoryNavigatorModel(mView);
   mView->setModel(mModel);
@@ -336,6 +341,14 @@ void RepositoryNavigator::setRepoView(RepoView *view) {
 RepositoryNavigatorModel *RepositoryNavigator::model() const { return mModel; }
 
 QTreeView *RepositoryNavigator::view() const { return mView; }
+
+void RepositoryNavigator::setBodyFont(const QFont &font) {
+  mView->setStyleSheet(
+      mView->styleSheet() +
+      QString("\nfont-size: %1pt;").arg(FontUtils::pointSize(font)));
+  mView->setFont(FontUtils::copySize(mView->font(), font));
+  mView->viewport()->update();
+}
 
 void RepositoryNavigator::restoreExpansion() {
   QSettings settings;

@@ -186,7 +186,9 @@ void TextEditor::applySettings() {
   // Set default font and size.
   Settings *settings = Settings::instance();
   QString family = settings->value(Setting::Id::FontFamily).toString();
-  int pointSize = settings->value(Setting::Id::FontSize).toInt();
+  int pointSize = mFontPointSizeOverride > 0
+                      ? mFontPointSizeOverride
+                      : settings->value(Setting::Id::FontSize).toInt();
   styleSetFont(STYLE_DEFAULT, QFont(family, pointSize));
 
   setUseTabs(settings->value(Setting::Id::UseTabsForIndent).toBool());
@@ -277,6 +279,13 @@ void TextEditor::applySettings() {
 
   // Size hint may have changed.
   updateGeometry();
+}
+
+void TextEditor::setFontPointSizeOverride(int pointSize) {
+  if (mFontPointSizeOverride == pointSize)
+    return;
+  mFontPointSizeOverride = pointSize;
+  applySettings();
 }
 
 QString TextEditor::lexer() const { return Settings::instance()->lexer(mPath); }

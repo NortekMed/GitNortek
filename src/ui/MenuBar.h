@@ -22,6 +22,8 @@ class MenuBar : public QMenuBar {
 public:
   MenuBar(QWidget *parent = nullptr);
 
+  void setBodyFont(const QFont &font);
+
   void update();
   void updateFile();
   void updateSave();

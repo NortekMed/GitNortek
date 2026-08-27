@@ -10,8 +10,11 @@
 #include "Test.h"
 #include "conf/RecentRepositories.h"
 #include "conf/RecentRepository.h"
+#include "editor/TextEditor.h"
 #include "git/Config.h"
 #include "ui/CommitList.h"
+#include "ui/DetailView.h"
+#include "ui/FontUtils.h"
 #include "ui/MainWindow.h"
 #include "ui/MenuBar.h"
 #include "ui/RepoView.h"
@@ -35,6 +38,7 @@ class TestMainWindow : public QObject {
 private slots:
   void initTestCase();
   void show();
+  void consistentBodyFontSize();
   void commitReferencesOnSecondLine();
   void toggleLogPanel();
   void preserveSelectionAfterRemoteUpdate();
@@ -82,6 +86,36 @@ void TestMainWindow::initTestCase() {
 void TestMainWindow::show() {
   mWindow->show();
   QVERIFY(qWaitForWindowActive(mWindow));
+}
+
+void TestMainWindow::consistentBodyFontSize() {
+  RepoView *view = mWindow->currentView();
+  CommitList *commits = view->findChild<CommitList *>();
+  DetailView *details = view->findChild<DetailView *>();
+  MenuBar *menuBar = MenuBar::instance(mWindow);
+  QVERIFY(commits);
+  QVERIFY(details);
+  QVERIFY(menuBar);
+
+  const int pointSize = 8;
+  QCOMPARE(FontUtils::pointSize(details->font()), pointSize);
+  for (QWidget *widget : details->findChildren<QWidget *>()) {
+    if (widget->inherits("QScrollBar"))
+      continue;
+    const QString message =
+        QString("%1 (%2)")
+            .arg(widget->metaObject()->className(), widget->objectName());
+    QVERIFY2(FontUtils::pointSize(widget->font()) == pointSize,
+             qPrintable(message));
+  }
+  QCOMPARE(FontUtils::pointSize(menuBar->font()), pointSize);
+  for (QMenu *menu : menuBar->findChildren<QMenu *>())
+    QCOMPARE(FontUtils::pointSize(menu->font()), pointSize);
+
+  const QList<TextEditor *> editors = view->findChildren<TextEditor *>();
+  QVERIFY(!editors.isEmpty());
+  for (TextEditor *editor : editors)
+    QCOMPARE(editor->styleFont(STYLE_DEFAULT).pointSize(), pointSize);
 }
 
 void TestMainWindow::commitReferencesOnSecondLine() {

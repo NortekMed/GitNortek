@@ -11,6 +11,7 @@
 #include "Editor.h"
 
 #include "ui/RepoView.h"
+#include "ui/FontUtils.h"
 #include "ui/MenuBar.h"
 #include "ui/EditorWindow.h"
 #include "ui/BlameEditor.h"
@@ -205,6 +206,7 @@ HunkWidget::HunkWidget(DiffView *view, const git::Diff &diff,
   connect(mHeader, &_HunkWidget::Header::discard, this, &HunkWidget::discard);
 
   mEditor = new Editor(this);
+  mEditor->setFontPointSizeOverride(FontUtils::pointSize(view->font()));
   mEditor->setLexer(patch.name());
   mEditor->setCaretStyle(CARETSTYLE_INVISIBLE);
   mEditor->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

@@ -8,6 +8,7 @@
 //
 
 #include "MenuBar.h"
+#include "FontUtils.h"
 #include "BlameEditor.h"
 #include "CommitList.h"
 #include "EditorWindow.h"
@@ -937,6 +938,14 @@ MenuBar::MenuBar(QWidget *parent) : QMenuBar(parent) {
 
   // Respond to window activation.
   connect(qApp, &QApplication::focusChanged, this, &MenuBar::update);
+}
+
+void MenuBar::setBodyFont(const QFont &font) {
+  setStyleSheet(styleSheet() + QString("\nfont-size: %1pt;")
+                                   .arg(FontUtils::pointSize(font)));
+  setFont(FontUtils::copySize(this->font(), font));
+  for (QMenu *menu : findChildren<QMenu *>())
+    menu->setFont(FontUtils::copySize(menu->font(), font));
 }
 
 void MenuBar::update() {

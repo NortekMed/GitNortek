@@ -14,12 +14,14 @@
 #include "CommitToolBar.h"
 #include "DetailView.h"
 #include "EditorWindow.h"
+#include "FontUtils.h"
 #include "History.h"
 #include "MainWindow.h"
 #include "MenuBar.h"
 #include "PathspecWidget.h"
 #include "qtsupport.h"
 #include "ReferenceWidget.h"
+#include "RepositoryNavigator.h"
 #include "RemoteCallbacks.h"
 #include "SearchField.h"
 #include "DoubleTreeWidget.h"
@@ -348,6 +350,28 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
   mPrimaryView->addWidget(mSideBar);
 
   mDetails = new DetailView(repo, mAvatarProvider, this);
+
+  QFont bodyFont = mCommits->font();
+  bodyFont.setPointSize(8);
+  auto applyBodyFont = [&bodyFont](QWidget *widget) {
+    if (!widget)
+      return;
+    const int pointSize = FontUtils::pointSize(bodyFont);
+    widget->setStyleSheet(widget->styleSheet() +
+                          QString("\nfont-size: %1pt;").arg(pointSize));
+    QList<QWidget *> widgets = widget->findChildren<QWidget *>();
+    widgets.prepend(widget);
+    for (QWidget *child : widgets)
+      child->setFont(FontUtils::copySize(child->font(), bodyFont));
+    for (TextEditor *editor : widget->findChildren<TextEditor *>())
+      editor->setFontPointSizeOverride(pointSize);
+  };
+  applyBodyFont(mDetails);
+  applyBodyFont(mFileInspectionWidget);
+  menuBar->setBodyFont(bodyFont);
+  if (RepositoryNavigator *navigator =
+          parent->findChild<RepositoryNavigator *>())
+    navigator->setBodyFont(bodyFont);
 
   // Respond to diff/tree mode change.
   connect(mDetails, &DetailView::viewModeChanged, this,

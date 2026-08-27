@@ -38,7 +38,7 @@
 
 namespace {
 
-const QString kNameFmt = "<p style='font-size: large'>%1</p>";
+const QString kNameFmt = "<p>%1</p>";
 const QString kLabelFmt = "<p style='color: gray; font-weight: bold'>%1</p>";
 
 } // namespace

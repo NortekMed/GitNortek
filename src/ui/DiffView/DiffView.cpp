@@ -149,10 +149,6 @@ void DiffView::setDiff(const git::Diff &diff) {
       button->setIconSize(QSize(32, 32));
       button->setFlat(true);
 
-      QFont buttonFont = button->font();
-      buttonFont.setPointSize(24);
-      button->setFont(buttonFont);
-
       // Open new editor associated with this view.
       connect(button, &QPushButton::clicked, view, &RepoView::newEditor);
 
@@ -160,10 +156,6 @@ void DiffView::setDiff(const git::Diff &diff) {
           new QLabel(tr("Or drag files here to copy into the repository"));
       label->setStyleSheet("color: #696969");
       label->setAlignment(Qt::AlignHCenter);
-
-      QFont labelFont = label->font();
-      labelFont.setPointSize(18);
-      label->setFont(labelFont);
 
       layout->addStretch();
       layout->addWidget(button, 0, Qt::AlignHCenter);

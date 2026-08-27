@@ -15,6 +15,7 @@
 #include "ui/CommitList.h"
 #include "ui/ConfigKeys.h"
 #include "ui/Footer.h"
+#include "ui/FontUtils.h"
 #include "ui/MainWindow.h"
 #include "ui/RepositoryNavigator.h"
 #include "ui/RepositoryNavigatorModel.h"
@@ -309,6 +310,11 @@ void TestRepositorySideBar::navigatorView() {
   QCOMPARE(view->objectName(), QString("RepositoryNavigationTree"));
   QVERIFY(view->focusPolicy() != Qt::NoFocus);
   QVERIFY(view->itemDelegate());
+  QFont bodyFont = view->font();
+  bodyFont.setPointSize(FontUtils::pointSize(bodyFont) + 2);
+  navigator.setBodyFont(bodyFont);
+  QCOMPARE(FontUtils::pointSize(view->font()),
+           FontUtils::pointSize(bodyFont));
   QCOMPARE(navigator.model()->index(0, 0).data().toString(), QString("Local"));
   QCOMPARE(view->itemDelegate()->sizeHint(QStyleOptionViewItem(),
                                           navigator.model()->index(0, 0))

@@ -26,6 +26,7 @@ public:
   void setRepoView(RepoView *view);
   RepositoryNavigatorModel *model() const;
   QTreeView *view() const;
+  void setBodyFont(const QFont &font);
 
 private:
   void restoreExpansion();

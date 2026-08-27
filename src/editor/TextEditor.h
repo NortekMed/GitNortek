@@ -86,6 +86,7 @@ public:
   TextEditor(QWidget *parent = nullptr);
 
   void applySettings();
+  void setFontPointSizeOverride(int pointSize);
 
   QString lexer() const;
 
@@ -157,6 +158,8 @@ protected:
   void Command(int cmdId);
 
 private:
+  int mFontPointSizeOverride = -1;
+
   int diagnosticMarker(int line);
   void loadMarkerIcon(Marker marker, const QIcon &icon);
   void loadMarkerPixmap(Marker marker, const QPixmap &pixmap);

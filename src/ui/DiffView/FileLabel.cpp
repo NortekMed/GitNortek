@@ -11,7 +11,6 @@ FileLabel::FileLabel(const QString &name, bool submodule, QWidget *parent)
 
   QFont font = this->font();
   font.setBold(true);
-  font.setPointSize(font.pointSize() + 3);
   if (submodule) {
     font.setUnderline(true);
     setCursor(Qt::PointingHandCursor);
