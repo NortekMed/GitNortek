@@ -3441,7 +3441,8 @@ bool RepoView::openSubmodule(const git::Submodule &submodule) {
   }
 
   if (Settings::instance()->value(Setting::Id::OpenSubmodulesInTabs).toBool())
-    return static_cast<MainWindow *>(window())->addTab(repo);
+    return static_cast<MainWindow *>(window())->addTab(
+        repo, mRepo.dir(false).dirName());
 
   return MainWindow::open(repo);
 }

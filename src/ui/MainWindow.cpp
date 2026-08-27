@@ -41,6 +41,7 @@ const int kDefaultWidth = 1200;
 const int kDefaultHeight = 800;
 
 const QString kPathKey = "path";
+const QString kTabContextKey = "tabContext";
 const QString kIndexKey = "index";
 const QString kStateKey = "state";
 const QString kActiveKey = "active";
@@ -50,9 +51,13 @@ const QString kWindowsGroup = "windows";
 
 class TabName {
 public:
-  TabName(const QString &path) : mPath(path) {}
+  TabName(const QString &path, const QString &context)
+      : mPath(path), mContext(context) {}
 
-  QString name() const { return mPath.section('/', -mSections); }
+  QString name() const {
+    QString name = mPath.section('/', -mSections);
+    return mContext.isEmpty() ? name : QString("%1 / %2").arg(mContext, name);
+  }
 
   void increment() { ++mSections; }
   int sections() const { return mSections; }
@@ -60,6 +65,7 @@ public:
 
 private:
   QString mPath;
+  QString mContext;
   int mSections = 1;
 };
 
@@ -221,7 +227,8 @@ TabWidget *MainWindow::tabWidget() const {
   return static_cast<TabWidget *>(splitter->widget(1));
 }
 
-RepoView *MainWindow::addTab(const QString &path, OpenSource source) {
+RepoView *MainWindow::addTab(const QString &path, OpenSource source,
+                             const QString &tabContext) {
   if (path.isEmpty())
     return nullptr;
 
@@ -229,6 +236,10 @@ RepoView *MainWindow::addTab(const QString &path, OpenSource source) {
   for (int i = 0; i < tabs->count(); i++) {
     RepoView *view = static_cast<RepoView *>(tabs->widget(i));
     if (path == view->repo().dir(false).path()) {
+      if (!tabContext.isEmpty()) {
+        view->setTabContext(tabContext);
+        updateTabNames();
+      }
       tabs->setCurrentIndex(i);
       return view;
     }
@@ -243,10 +254,11 @@ RepoView *MainWindow::addTab(const QString &path, OpenSource source) {
     return nullptr;
   }
 
-  return addTab(repo);
+  return addTab(repo, tabContext);
 }
 
-RepoView *MainWindow::addTab(const git::Repository &repo) {
+RepoView *MainWindow::addTab(const git::Repository &repo,
+                             const QString &tabContext) {
   // Update recent repository settings.
   QDir dir = repo.dir(false);
   RecentRepositories::instance()->add(dir.path());
@@ -255,12 +267,17 @@ RepoView *MainWindow::addTab(const git::Repository &repo) {
   for (int i = 0; i < tabs->count(); i++) {
     RepoView *view = static_cast<RepoView *>(tabs->widget(i));
     if (dir.path() == view->repo().dir(false).path()) {
+      if (!tabContext.isEmpty()) {
+        view->setTabContext(tabContext);
+        updateTabNames();
+      }
       tabs->setCurrentIndex(i);
       return view;
     }
   }
 
   RepoView *view = new RepoView(repo, this);
+  view->setTabContext(tabContext);
   view->detailSplitterMaximize(mMenuBar->isMaximized());
   git::RepositoryNotifier *notifier = repo.notifier();
   connect(notifier, &git::RepositoryNotifier::referenceUpdated, this,
@@ -324,6 +341,7 @@ bool MainWindow::restoreWindows() {
     int index = settings.value(kIndexKey).toInt();
     bool active = settings.value(kActiveKey).toBool();
     QStringList paths = settings.value(kPathKey).toStringList();
+    QStringList tabContexts = settings.value(kTabContextKey).toStringList();
     QByteArray state = settings.value(kStateKey).toByteArray();
     QByteArray geometry = settings.value(kGeometryKey).toByteArray();
     settings.endGroup();
@@ -333,16 +351,29 @@ bool MainWindow::restoreWindows() {
       continue;
 
     // Open a window new for the first valid repo.
-    MainWindow *window = open(paths.takeFirst());
-    while (!window && !paths.isEmpty())
-      window = open(paths.takeFirst());
+    MainWindow *window = nullptr;
+    QString firstContext;
+    while (!window && !paths.isEmpty()) {
+      QString path = paths.takeFirst();
+      firstContext =
+          tabContexts.isEmpty() ? QString() : tabContexts.takeFirst();
+      window = open(path);
+    }
 
     if (!window)
       continue;
 
+    if (!firstContext.isEmpty()) {
+      window->currentView()->setTabContext(firstContext);
+      window->updateTabNames();
+    }
+
     // Add the remainder as tabs.
-    foreach (const QString &path, paths)
-      window->addTab(path);
+    foreach (const QString &path, paths) {
+      QString context =
+          tabContexts.isEmpty() ? QString() : tabContexts.takeFirst();
+      window->addTab(path, OpenSource::Other, context);
+    }
 
     // Select saved index.
     window->tabWidget()->setCurrentIndex(index);
@@ -441,6 +472,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     settings.beginGroup(kWindowsGroup);
     settings.beginGroup(windowGroup());
     settings.setValue(kPathKey, paths());
+    settings.setValue(kTabContextKey, tabContexts());
     settings.setValue(kIndexKey, tabWidget()->currentIndex());
     settings.setValue(kActiveKey, this == activeWindow());
     settings.setValue(kStateKey, saveState());
@@ -515,7 +547,7 @@ void MainWindow::updateTabNames() {
   QList<TabName> fullNames;
 
   for (int i = 0; i < count(); ++i) {
-    TabName name(view(i)->repo().dir(false).path());
+    TabName name(view(i)->repo().dir(false).path(), view(i)->tabContext());
     names[name.name()].append(i);
     fullNames.append(name);
   }
@@ -633,6 +665,13 @@ QStringList MainWindow::paths() const {
   for (int i = 0; i < count(); ++i)
     paths.append(view(i)->repo().dir(false).path());
   return paths;
+}
+
+QStringList MainWindow::tabContexts() const {
+  QStringList contexts;
+  for (int i = 0; i < count(); ++i)
+    contexts.append(view(i)->tabContext());
+  return contexts;
 }
 
 QString MainWindow::windowGroup() const {

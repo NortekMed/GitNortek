@@ -1301,6 +1301,8 @@ void TestRepositorySideBar::submoduleInteraction() {
   QTRY_COMPARE(window.count(), 2);
   QCOMPARE(window.currentView()->repo().workdir().path(),
            parent->workdir().filePath("child"));
+  QCOMPARE(window.tabWidget()->tabText(window.tabWidget()->currentIndex()),
+           QString("%1 / child").arg(parent->workdir().dirName()));
 }
 
 void TestRepositorySideBar::cleanupTestCase() { mWindow->close(); }

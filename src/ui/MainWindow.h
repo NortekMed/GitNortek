@@ -38,8 +38,10 @@ public:
 
   TabWidget *tabWidget() const;
   RepoView *addTab(const QString &path,
-                   OpenSource source = OpenSource::Other);
-  RepoView *addTab(const git::Repository &repo);
+                   OpenSource source = OpenSource::Other,
+                   const QString &tabContext = QString());
+  RepoView *addTab(const git::Repository &repo,
+                   const QString &tabContext = QString());
 
   int count() const;
   RepoView *currentView() const;
@@ -76,6 +78,7 @@ private:
   static void warnInvalidRecentRepo(const QString &path);
 
   QStringList paths() const;
+  QStringList tabContexts() const;
   QString windowGroup() const;
 
   ToolBar *mToolBar;

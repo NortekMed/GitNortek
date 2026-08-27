@@ -86,6 +86,8 @@ public:
   void selectFirstCommit();
 
   git::Repository repo() const { return mRepo; }
+  QString tabContext() const { return mTabContext; }
+  void setTabContext(const QString &context) { mTabContext = context; }
   History *history() const { return mHistory; }
   Index *index() const { return mIndex; }
 
@@ -442,6 +444,7 @@ private:
   git::Signature getSignature(const ContributorInfo &info);
 
   git::Repository mRepo;
+  QString mTabContext;
 
   Index *mIndex;
   CommitAvatarProvider *mAvatarProvider;
