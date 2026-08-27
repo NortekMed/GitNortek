@@ -31,25 +31,18 @@
 namespace {
 
 const QString kIssueTracker =
-    QStringLiteral("https://github.com/Murmele/Gittyup/issues");
-
-const QString kUrl =
-    "https://stackoverflow.com/questions/tagged/gittyup?sort=frequent";
-
-const QString kUrlMatrix = "https://matrix.to/#/#Gittyup:matrix.org";
+    QStringLiteral("https://github.com/NortekMed/GitNortek/issues");
 
 const QString kSubtitleFmt = "<h4 style='margin-top: 0px; color: gray'>%2</h4>";
 
 const QString kTextFmt =
     "<p style='white-space: nowrap'><b style='font-size: large'>%1 v%2</b> "
-    "- %3 - %4<br>Copyright © 2021-" +
-    QString::number(CURR_YEAR) +
+    "- %3 - %4<br>Copyright © 2026 GitNortek contributors"
+    "<br>Copyright © 2021-" + QString::number(CURR_YEAR) +
     " Gittyup contributors"
     "<br>Copyright © 2016-2020 Scientific Toolworks, Inc. and "
-    "contributors</p><p> If you have a question that might benefit the "
-    "community, consider asking it on <a href='%5'>Stack Overflow</a> by "
-    "including 'gittyup' in the tags. Otherwise, contact us at "
-    "<a href='%6'>%6</a> or ask in the matrix channel: <a href='%7'>%7</a>";
+    "contributors</p><p>GitNortek is based on Gittyup. Report issues at "
+    "<a href='%5'>%5</a>.</p>";
 
 const QString kStyleSheet = "h3 {"
                             "  text-decoration: underline"
@@ -73,8 +66,9 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent) {
   QIcon icon(":/Gittyup.iconset/icon_128x128.png");
   IconLabel *iconLabel = new IconLabel(icon, 128, 128, this);
 
-  QIcon title(":/logo-type_light@2x.png");
-  IconLabel *titleLabel = new IconLabel(title, 163, 38, this);
+  QLabel *titleLabel = new QLabel(name, this);
+  titleLabel->setAlignment(Qt::AlignHCenter);
+  titleLabel->setStyleSheet("font-size: 24px; font-weight: bold");
 
   QString subtitleText = kSubtitleFmt.arg(tr("Understand your history!"));
   QLabel *subtitle = new QLabel(subtitleText, this);
@@ -90,8 +84,7 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent) {
   QDateTime dateTime = QDateTime::fromString(GITTYUP_BUILD_DATE, Qt::ISODate);
   QString date =
       dateTime.date().toString(QLocale().dateFormat(QLocale::LongFormat));
-  QString text = kTextFmt.arg(name, version, date, revision, kUrl,
-                              kIssueTracker, kUrlMatrix);
+  QString text = kTextFmt.arg(name, version, date, revision, kIssueTracker);
   QLabel *label = new QLabel(text, this);
   label->setWordWrap(true);
   label->setTextInteractionFlags(kTextFlags);

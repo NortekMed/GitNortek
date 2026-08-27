@@ -54,8 +54,6 @@ public:
 
   void registerActions(QWidget *parent) const;
 
-  static const QString donationUrlLiberapay;
-
 private:
   QWidget *window() const;
   /*!

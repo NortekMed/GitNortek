@@ -2,22 +2,13 @@
 
 GitNortek is a NortekMed-maintained fork of [Gittyup](https://github.com/Murmele/Gittyup), a graphical Git client designed to help you understand and manage your source code history.
 
-This fork is maintained at [NortekMed/Gittyup](https://github.com/NortekMed/Gittyup) and carries NortekMed-specific naming, packaging, and integration changes. GitNortek is based on Gittyup, which is a continuation of the [GitAhead](https://github.com/gitahead/gitahead) client.
+This fork is maintained at [NortekMed/GitNortek](https://github.com/NortekMed/GitNortek) and carries NortekMed-specific naming, packaging, and integration changes. GitNortek is based on Gittyup, which is a continuation of the [GitAhead](https://github.com/gitahead/gitahead) client.
 
-GitNortek packages are produced by the NortekMed fork release workflow when available. Upstream Gittyup packages remain available from the upstream project but are not GitNortek builds.
-
-GitNortek can be built from source by following the directions in the [GitNortek repository](https://github.com/NortekMed/Gittyup#how-to-build).
+GitNortek can be built from source by following the directions in the [GitNortek repository](https://github.com/NortekMed/GitNortek#how-to-build).
 
 To see the changes of the current version please have a look at the <A href="#changelog">changelog</A> section
 
 ![GitNortek](/rsrc/screenshots/main_dark_orig.png)
-
-Project Lineage
-===============
-
-GitNortek is a fork of [Gittyup](https://github.com/Murmele/Gittyup). Upstream Gittyup project resources, issue history, and release notes remain useful for understanding the base application.
-
-For GitNortek-specific changes, packaging, or bugs, use the [NortekMed fork repository](https://github.com/NortekMed/Gittyup).
 
 Multi language support
 ======================

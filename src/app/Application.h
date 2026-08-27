@@ -13,9 +13,6 @@
 #include "Theme.h"
 #include <QApplication>
 
-class QNetworkAccessManager;
-class QNetworkReply;
-class QSslError;
 class QUrlQuery;
 
 class Application : public QApplication {
@@ -24,7 +21,6 @@ class Application : public QApplication {
 public:
   Application(int &argc, char **argv, bool haltOnParseError = false);
 
-  void autoUpdate();
   bool restoreWindows();
   bool runSingleInstance();
 
@@ -38,8 +34,6 @@ protected:
 
 private:
   void registerService();
-  void handleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
-
   QString mPathspec = QString();
   QScopedPointer<Theme> mTheme;
   QStringList mPositionalArguments;

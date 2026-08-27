@@ -22,7 +22,6 @@ public:
     Tools,
     Window,
     Editor,
-    Update,
     Plugins,
     Misc,
     Hotkeys,

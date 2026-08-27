@@ -39,7 +39,6 @@
 #include "index/Index.h"
 #include "log/LogEntry.h"
 #include "log/LogView.h"
-#include "update/Updater.h"
 #include "util/Debug.h"
 #include <QApplication>
 #include <QClipboard>
@@ -65,9 +64,6 @@ void openCloneDialog(CloneDialog::Kind kind) {
 }
 
 } // namespace
-
-const QString MenuBar::donationUrlLiberapay =
-    QStringLiteral("https://liberapay.com/Gittyup/donate");
 
 bool MenuBar::sDebugMenuVisible = false;
 
@@ -856,19 +852,11 @@ MenuBar::MenuBar(QWidget *parent) : QMenuBar(parent) {
   connect(about, &QAction::triggered,
           [] { AboutDialog::openSharedInstance(); });
 
-  QAction *update = help->addAction(tr("Check For Updates..."));
-  update->setMenuRole(QAction::ApplicationSpecificRole);
-  connect(update, &QAction::triggered, Updater::instance(), &Updater::update);
-
   QAction *plugin = help->addAction(tr("Plugin Documentation..."));
   connect(plugin, &QAction::triggered, [] {
     QString url = Settings::docDir().filePath("plugin.html");
     QDesktopServices::openUrl(QUrl::fromLocalFile(url));
   });
-
-  QAction *donation = help->addAction(tr("Support us via Liberapay"));
-  connect(donation, &QAction::triggered,
-          [] { QDesktopServices::openUrl(QUrl(donationUrlLiberapay)); });
 
   // Debug
   if (sDebugMenuVisible) {

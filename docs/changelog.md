@@ -28,6 +28,8 @@ Bug Fix and Feature release
 * Show Blame and Diff in the branch and commit pane when files are selected, with more default space for the commit history
 * Use the full repository sidebar for navigation and keep only the 20 most recent repositories
 * Brand Linux application and packages as GitNortek
+* Complete the public GitNortek branding cleanup, remove the inherited upstream updater, and direct support requests to the NortekMed issue tracker
+* Rename the NortekMed repository to `NortekMed/GitNortek`
 * Refresh repositories automatically when Git metadata changes
 * Improve diff, blame, commit description, and large binary refresh performance
 * Fix path filtering, detached HEAD selection, merge tool visibility, and macOS Finder integration

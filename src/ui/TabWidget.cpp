@@ -26,8 +26,7 @@
 namespace {
 
 const QString kLinkFmt = "<a href='%1'>%2</a>";
-const QString kSupportLink = "https://matrix.to/#/#Gittyup:matrix.org";
-const QString kVideoLink = "TODO";
+const QString kSupportLink = "https://github.com/NortekMed/GitNortek/issues";
 
 class DefaultWidget : public QFrame {
   Q_OBJECT
@@ -97,10 +96,7 @@ public:
     }
 
     layout->addWidget(addSeparator());
-    // TODO: uncomment as soon as we have videos
-    // layout->addWidget(addLink(tr("View getting started videos"),
-    // kVideoLink));
-    layout->addWidget(addLink(tr("Contact us for support"), kSupportLink));
+    layout->addWidget(addLink(tr("Report an issue"), kSupportLink));
   }
 
 private:

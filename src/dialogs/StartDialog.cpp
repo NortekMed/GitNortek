@@ -373,8 +373,9 @@ StartDialog::StartDialog(QWidget *parent) : QDialog(parent) {
   QIcon icon(":/Gittyup.iconset/icon_128x128.png");
   IconLabel *iconLabel = new IconLabel(icon, 128, 128, this);
 
-  QIcon title(":/logo-type_light@2x.png");
-  IconLabel *titleLabel = new IconLabel(title, 163, 38, this);
+  QLabel *titleLabel = new QLabel(QCoreApplication::applicationName(), this);
+  titleLabel->setAlignment(Qt::AlignHCenter);
+  titleLabel->setStyleSheet("font-size: 24px; font-weight: bold");
 
   QString subtitleText = kSubtitleFmt.arg(tr("Understand your history!"));
   QLabel *subtitle = new QLabel(subtitleText, this);

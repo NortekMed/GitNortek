@@ -30,7 +30,7 @@ runner environment.
   virtual disk.
 - Runner: GitHub Actions Runner 2.336.0 with automatic updates disabled.
 - Runner group: `Public-Releases`.
-- Allowed repository: `NortekMed/Gittyup`.
+- Allowed repository: `NortekMed/GitNortek`.
 - Labels: `nortek-public-linux` and `gitnortek-linux`, in addition to the
   standard self-hosted Linux x64 labels.
 - Network: dedicated NAT network with access to private IPv4 ranges rejected.

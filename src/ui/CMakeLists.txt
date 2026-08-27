@@ -77,7 +77,6 @@ target_link_libraries(
   loglib
   plugins
   tools
-  update
   watcher
   Qt6::Concurrent
   Qt6::Network

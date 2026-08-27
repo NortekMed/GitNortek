@@ -3,7 +3,7 @@ GitNortek
 
 GitNortek is a NortekMed-maintained fork of [Gittyup](https://github.com/Murmele/Gittyup), a graphical Git client designed to help you understand and manage your source code history.
 
-This fork is maintained at [NortekMed/Gittyup](https://github.com/NortekMed/Gittyup) and carries NortekMed-specific naming, packaging, and integration changes.
+This fork is maintained at [NortekMed/GitNortek](https://github.com/NortekMed/GitNortek) and carries NortekMed-specific naming, packaging, and integration changes.
 
 GitNortek is based on Gittyup, which is a continuation of the [GitAhead](https://github.com/gitahead/gitahead) client.
 
@@ -13,7 +13,6 @@ Table of contents
 =================
 <!--ts-->
    * [Features](#features)
-   * [Project Lineage](#project-lineage)
    * [Build Environment](#build-environment)
    * [Dependencies](#dependencies)
    * [How to Build](#how-to-build)
@@ -25,13 +24,6 @@ Table of contents
 Features
 ---------------
 GitNortek keeps the core Gittyup feature set and adds NortekMed-specific naming, packaging, and integration changes.
-
-Project Lineage
----------------
-
-GitNortek is a fork of [Gittyup](https://github.com/Murmele/Gittyup). Upstream Gittyup project resources, issue history, and release notes remain useful for understanding the base application.
-
-For GitNortek-specific changes, packaging, or bugs, use the [NortekMed fork repository](https://github.com/NortekMed/Gittyup).
 
 Build Environment
 -----------------
@@ -118,26 +110,7 @@ How to Install
 -----------------
 ### Linux
 
-GitNortek packages are produced by the NortekMed fork release workflow when available. Upstream Gittyup packages remain available from the upstream project but are not GitNortek builds.
-
-**Arch Linux**
-
-Install the upstream `gittyup` package from the Arch User Repository if you want upstream Gittyup rather than GitNortek.
-
-	git clone https://aur.archlinux.org/gittyup.git
-	cd gittyup
-	makepkg -si
-
-Or use an AUR helper.
-Install `gittyup-git` for the upstream VCS build.
-
-### Mac OS
-
-**Homebrew**
-
-Install the upstream `gittyup` cask from [Homebrew](https://formulae.brew.sh/cask/gittyup) if you want upstream Gittyup rather than GitNortek.
-
-    brew install gittyup
+Install a GitNortek package from the [NortekMed repository releases](https://github.com/NortekMed/GitNortek/releases) when available, or build GitNortek from source using the instructions above.
 
 How to Contribute
 -----------------

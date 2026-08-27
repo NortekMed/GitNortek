@@ -4,27 +4,27 @@
 <context>
     <name>AboutDialog</name>
     <message>
-        <location filename="../src/dialogs/AboutDialog.cpp" line="71"/>
+        <location filename="../src/dialogs/AboutDialog.cpp" line="64"/>
         <source>About %1</source>
         <translation>Über %1</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/AboutDialog.cpp" line="79"/>
+        <location filename="../src/dialogs/AboutDialog.cpp" line="73"/>
         <source>Understand your history!</source>
         <translation>Verstehe Deine History!</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/AboutDialog.cpp" line="101"/>
+        <location filename="../src/dialogs/AboutDialog.cpp" line="94"/>
         <source>Changelog</source>
         <translation>Änderungslog</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/AboutDialog.cpp" line="102"/>
+        <location filename="../src/dialogs/AboutDialog.cpp" line="95"/>
         <source>Acknowledgments</source>
         <translation>Danksagungen</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/AboutDialog.cpp" line="104"/>
+        <location filename="../src/dialogs/AboutDialog.cpp" line="97"/>
         <source>Privacy</source>
         <translation>Datenschutz</translation>
     </message>
@@ -378,14 +378,12 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../src/app/Application.cpp" line="509"/>
         <source>SSL Errors</source>
-        <translation>SSL-Fehler</translation>
+        <translation type="vanished">SSL-Fehler</translation>
     </message>
     <message>
-        <location filename="../src/app/Application.cpp" line="511"/>
         <source>Failed to set up SSL session. Do you want to ignore these errors?</source>
-        <translation>SSL-Sitzung konnte nicht initialisiert werden. Willst Du den Fehler ignorieren?</translation>
+        <translation type="vanished">SSL-Sitzung konnte nicht initialisiert werden. Willst Du den Fehler ignorieren?</translation>
     </message>
 </context>
 <context>
@@ -1199,38 +1197,42 @@
 <context>
     <name>DefaultWidget</name>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="42"/>
+        <location filename="../src/ui/TabWidget.cpp" line="41"/>
         <source>Clone repository</source>
         <translation>Repository klonen</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="54"/>
+        <location filename="../src/ui/TabWidget.cpp" line="53"/>
         <source>Open existing repository</source>
         <translation>Bestehendes Repository öffnen</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="58"/>
+        <location filename="../src/ui/TabWidget.cpp" line="57"/>
         <source>Open Repository</source>
         <translation>Repository öffnen</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="68"/>
+        <location filename="../src/ui/TabWidget.cpp" line="67"/>
         <source>Initialize new repository</source>
         <translation>Neues Repository initialisieren</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="88"/>
+        <location filename="../src/ui/TabWidget.cpp" line="87"/>
         <source>Add %1 account</source>
         <translation>%1-Account hinzufügen</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/TabWidget.cpp" line="99"/>
+        <source>Report an issue</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>View getting started videos</source>
         <translation type="vanished">Hilfe-Videos ansehen</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="103"/>
         <source>Contact us for support</source>
-        <translation>Kontaktiere uns für Support</translation>
+        <translation type="vanished">Kontaktiere uns für Support</translation>
     </message>
 </context>
 <context>
@@ -1505,24 +1507,20 @@ These settings will not be saved permanently</source>
 <context>
     <name>DownloadDialog</name>
     <message>
-        <location filename="../src/update/DownloadDialog.cpp" line="25"/>
         <source>Update %1</source>
-        <translation>Update %1</translation>
+        <translation type="vanished">Update %1</translation>
     </message>
     <message>
-        <location filename="../src/update/DownloadDialog.cpp" line="34"/>
         <source>Downloading %1...</source>
-        <translation>Lade %1 herunter...</translation>
+        <translation type="vanished">Lade %1 herunter...</translation>
     </message>
     <message>
-        <location filename="../src/update/DownloadDialog.cpp" line="60"/>
         <source>Download Complete!</source>
-        <translation>Download vollständig!</translation>
+        <translation type="vanished">Download vollständig!</translation>
     </message>
     <message>
-        <location filename="../src/update/DownloadDialog.cpp" line="61"/>
         <source>Install and Restart</source>
-        <translation>Installieren und neu starten</translation>
+        <translation type="vanished">Installieren und neu starten</translation>
     </message>
 </context>
 <context>
@@ -1554,57 +1552,57 @@ These settings will not be saved permanently</source>
 <context>
     <name>EditorPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="682"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="681"/>
         <source>Show whitespace</source>
         <translation>Leerzeichen zeigen</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="691"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="690"/>
         <source>Tabs</source>
         <translation>Tabs</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="692"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="691"/>
         <source>Spaces</source>
         <translation>Leerzeichen</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="713"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="712"/>
         <source>Show heat map</source>
         <translation>Heat-Map anzeigen</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="722"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="721"/>
         <source>Font:</source>
         <translation>Schriftart:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="723"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="722"/>
         <source>Font size:</source>
         <translation>Schriftgröße:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="724"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="723"/>
         <source>Whitespace:</source>
         <translation>Leerzeichen:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="725"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="724"/>
         <source>Indent using:</source>
         <translation>Einzug mit:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="726"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="725"/>
         <source>Indent width:</source>
         <translation>Einzugs-Breite:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="727"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="726"/>
         <source>Tab width:</source>
         <translation>Tab-Breite:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="728"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="727"/>
         <source>Blame margin:</source>
         <translation>Blame-Seitenrand:</translation>
     </message>
@@ -2165,13 +2163,13 @@ These settings will not be saved permanently</source>
 <context>
     <name>GeneralPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="96"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="95"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="78"/>
         <source>Fetch every</source>
         <translation>Fetchen alle</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="103"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="102"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="85"/>
         <source>minutes</source>
         <translation>Minuten</translation>
@@ -2185,73 +2183,73 @@ These settings will not be saved permanently</source>
         <translation type="vanished">Submodule nach pull aktualisieren</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="107"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="106"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="89"/>
         <source>Update submodules after pull and clone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="109"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="108"/>
         <source>Check submodules for updates when opening repositories</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="110"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="109"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="90"/>
         <source>Prune when fetching</source>
         <translation>Beim Fetchen aufräumen</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="111"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="110"/>
         <source>No translation</source>
         <translation>Keine Übersetzung</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="132"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="131"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="93"/>
         <source>User name:</source>
         <translation>Benutzername:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="133"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="132"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="94"/>
         <source>User email:</source>
         <translation>E-Mail-Adresse:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="134"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="133"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="95"/>
         <source>Automatic actions:</source>
         <translation>Automatische Aktionen:</translation>
     </message>
     <message>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="137"/>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="138"/>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="139"/>
         <source>Language:</source>
         <translation>Sprache:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="272"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="271"/>
         <source>No credential store set</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="273"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="272"/>
         <source>No credential store is set. Go to the application settings to set the desired credential store</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="279"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="278"/>
         <source></source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="288"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="287"/>
         <source>Available Credential stores</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="121"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="120"/>
         <source>Store credentials in secure storage</source>
         <translation>Zugangsdaten in sicherem Speicher hinterlegen</translation>
     </message>
@@ -2260,27 +2258,27 @@ These settings will not be saved permanently</source>
         <translation type="vanished">Benutzungsdaten erfassen</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="125"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="124"/>
         <source>&lt;a href=&apos;view&apos;&gt;View privacy policy&lt;/a&gt;</source>
         <translation>&lt;a href=&apos;view&apos;&gt;Datenschutzerklärung ansehen&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="141"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="140"/>
         <source>Credential store type:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="142"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="141"/>
         <source>Available Credential stores:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="147"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="146"/>
         <source>Only allow a single running instance</source>
         <translation>Nur eine laufende Instanz zulassen</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="140"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="139"/>
         <source>Credentials:</source>
         <translation>Zugangsdaten:</translation>
     </message>
@@ -2297,7 +2295,7 @@ These settings will not be saved permanently</source>
         <translation type="vanished">Dateimanager-Befehl:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="150"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="149"/>
         <source>Single instance:</source>
         <translation>Einzelne Instanz:</translation>
     </message>
@@ -2810,469 +2808,463 @@ Beispiele
 <context>
     <name>MenuBar</name>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="263"/>
+        <location filename="../src/ui/MenuBar.cpp" line="259"/>
         <source>File</source>
         <translation>Datei</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="265"/>
+        <location filename="../src/ui/MenuBar.cpp" line="261"/>
         <source>New File</source>
         <translation>Neue Datei</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="279"/>
+        <location filename="../src/ui/MenuBar.cpp" line="275"/>
         <source>New Window</source>
         <translation>Neues Fenster</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="283"/>
+        <location filename="../src/ui/MenuBar.cpp" line="279"/>
         <source>Clone Repository...</source>
         <translation>Repository klonen...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="288"/>
+        <location filename="../src/ui/MenuBar.cpp" line="284"/>
         <source>Initialize New Repository...</source>
         <translation>Neues Repository initialisieren...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="295"/>
+        <location filename="../src/ui/MenuBar.cpp" line="291"/>
         <source>Open Repository...</source>
         <translation>Repository öffnen...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="300"/>
+        <location filename="../src/ui/MenuBar.cpp" line="296"/>
         <source>Open Repository</source>
         <translation>Repository öffnen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="307"/>
+        <location filename="../src/ui/MenuBar.cpp" line="303"/>
         <source>Open Recent</source>
         <translation>Zuletzt geöffnet</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="323"/>
+        <location filename="../src/ui/MenuBar.cpp" line="319"/>
         <source>Close</source>
         <translation>Schließen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="340"/>
+        <location filename="../src/ui/MenuBar.cpp" line="336"/>
         <source>Save</source>
         <translation>Speichern</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="349"/>
+        <location filename="../src/ui/MenuBar.cpp" line="345"/>
         <source>Exit</source>
         <translation>Beenden</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="356"/>
+        <location filename="../src/ui/MenuBar.cpp" line="352"/>
         <source>Edit</source>
         <translation>Bearbeiten</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="358"/>
+        <location filename="../src/ui/MenuBar.cpp" line="354"/>
         <source>Undo</source>
         <translation>Rückgängig</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="371"/>
+        <location filename="../src/ui/MenuBar.cpp" line="367"/>
         <source>Redo</source>
         <translation>Wiederholen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="386"/>
+        <location filename="../src/ui/MenuBar.cpp" line="382"/>
         <source>Cut</source>
         <translation>Ausschneiden</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="399"/>
+        <location filename="../src/ui/MenuBar.cpp" line="395"/>
         <source>Copy</source>
         <translation>Kopieren</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="414"/>
+        <location filename="../src/ui/MenuBar.cpp" line="410"/>
         <source>Paste</source>
         <translation>Einfügen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="427"/>
+        <location filename="../src/ui/MenuBar.cpp" line="423"/>
         <source>Select All</source>
         <translation>Alles markieren</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="442"/>
+        <location filename="../src/ui/MenuBar.cpp" line="438"/>
         <source>Find...</source>
         <translation>Suchen...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="454"/>
+        <location filename="../src/ui/MenuBar.cpp" line="450"/>
         <source>Find Next</source>
         <translation>Nächstes suchen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="465"/>
+        <location filename="../src/ui/MenuBar.cpp" line="461"/>
         <source>Find Previous</source>
         <translation>Vorheriges suchen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="476"/>
+        <location filename="../src/ui/MenuBar.cpp" line="472"/>
         <source>Use Selection for Find</source>
         <translation>Auswahl für Suche benutzen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1054"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1042"/>
         <source>Show Double Tree View</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="493"/>
+        <location filename="../src/ui/MenuBar.cpp" line="489"/>
         <source>View</source>
         <translation>Anzeige</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="495"/>
+        <location filename="../src/ui/MenuBar.cpp" line="491"/>
         <source>Refresh</source>
         <translation>Aktualisieren</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="500"/>
+        <location filename="../src/ui/MenuBar.cpp" line="496"/>
         <source>Report Repository Diagnostics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="506"/>
-        <location filename="../src/ui/MenuBar.cpp" line="1052"/>
+        <location filename="../src/ui/MenuBar.cpp" line="502"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1040"/>
         <source>Show Log</source>
         <translation>Log anzeigen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="513"/>
+        <location filename="../src/ui/MenuBar.cpp" line="509"/>
         <source>Normal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="513"/>
+        <location filename="../src/ui/MenuBar.cpp" line="509"/>
         <source>Maximize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="532"/>
-        <location filename="../src/ui/MenuBar.cpp" line="1053"/>
+        <location filename="../src/ui/MenuBar.cpp" line="528"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1041"/>
         <source>Show Tree View</source>
         <translation>Baumansicht benutzen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="540"/>
+        <location filename="../src/ui/MenuBar.cpp" line="536"/>
         <source>Hide Menu Bar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="548"/>
+        <location filename="../src/ui/MenuBar.cpp" line="544"/>
         <source>Repository</source>
         <translation>Repository</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="550"/>
+        <location filename="../src/ui/MenuBar.cpp" line="546"/>
         <source>Configure Repository...</source>
         <translation>Repository konfigurieren...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="557"/>
+        <location filename="../src/ui/MenuBar.cpp" line="553"/>
         <source>Stage All</source>
         <translation>Alles stagen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="561"/>
+        <location filename="../src/ui/MenuBar.cpp" line="557"/>
         <source>Unstage All</source>
         <translation>Alles unstagen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="567"/>
+        <location filename="../src/ui/MenuBar.cpp" line="563"/>
         <source>Commit</source>
         <translation>Committen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="571"/>
+        <location filename="../src/ui/MenuBar.cpp" line="567"/>
         <source>Amend Commit</source>
         <translation>Commit amenden</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="577"/>
+        <location filename="../src/ui/MenuBar.cpp" line="573"/>
         <source>Git LFS</source>
         <translation>GIT LFS</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="578"/>
+        <location filename="../src/ui/MenuBar.cpp" line="574"/>
         <source>Remove all locks</source>
         <translation>Alle Sperren entfernen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="586"/>
+        <location filename="../src/ui/MenuBar.cpp" line="582"/>
         <source>Initialize</source>
         <translation>Initialisieren</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="592"/>
+        <location filename="../src/ui/MenuBar.cpp" line="588"/>
         <source>Remote</source>
         <translation>Remote</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="594"/>
+        <location filename="../src/ui/MenuBar.cpp" line="590"/>
         <source>Configure Remotes...</source>
         <translation>Remotes konfigurieren...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="602"/>
+        <location filename="../src/ui/MenuBar.cpp" line="598"/>
         <source>Fetch</source>
         <translation>Fetchen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="606"/>
+        <location filename="../src/ui/MenuBar.cpp" line="602"/>
         <source>Fetch All</source>
         <translation>Alle Fetchen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="610"/>
+        <location filename="../src/ui/MenuBar.cpp" line="606"/>
         <source>Fetch From...</source>
         <translation>Fetchen von...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="619"/>
+        <location filename="../src/ui/MenuBar.cpp" line="615"/>
         <source>Pull</source>
         <translation>Pullen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="623"/>
+        <location filename="../src/ui/MenuBar.cpp" line="619"/>
         <source>Pull From...</source>
         <translation>Pullen von...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="632"/>
+        <location filename="../src/ui/MenuBar.cpp" line="628"/>
         <source>Push</source>
         <translation>Pushen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="636"/>
+        <location filename="../src/ui/MenuBar.cpp" line="632"/>
         <source>Force Push...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="641"/>
+        <location filename="../src/ui/MenuBar.cpp" line="637"/>
         <source>Push To...</source>
         <translation>Pushen nach...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="649"/>
+        <location filename="../src/ui/MenuBar.cpp" line="645"/>
         <source>Branch</source>
         <translation>Branch</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="651"/>
+        <location filename="../src/ui/MenuBar.cpp" line="647"/>
         <source>Configure Branches...</source>
         <translation>Branches konfigurieren...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="657"/>
+        <location filename="../src/ui/MenuBar.cpp" line="653"/>
         <source>New Branch...</source>
         <translation>Neuer Branch...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="662"/>
+        <location filename="../src/ui/MenuBar.cpp" line="658"/>
         <source>Rename Branch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="670"/>
+        <location filename="../src/ui/MenuBar.cpp" line="666"/>
         <source>Checkout Current</source>
         <translation>Aktuellen auschecken</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="681"/>
+        <location filename="../src/ui/MenuBar.cpp" line="677"/>
         <source>Checkout...</source>
         <translation>Auschecken...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="688"/>
+        <location filename="../src/ui/MenuBar.cpp" line="684"/>
         <source>Merge...</source>
         <translation>Mergen...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="700"/>
+        <location filename="../src/ui/MenuBar.cpp" line="696"/>
         <source>Rebase...</source>
         <translation>Rebasen...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="712"/>
+        <location filename="../src/ui/MenuBar.cpp" line="708"/>
         <source>Squash...</source>
         <translation>Squashen...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="726"/>
+        <location filename="../src/ui/MenuBar.cpp" line="722"/>
         <source>Abort Merge</source>
         <translation>Merge abbrechen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="731"/>
+        <location filename="../src/ui/MenuBar.cpp" line="727"/>
         <source>Submodule</source>
         <translation>Submodul</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="733"/>
+        <location filename="../src/ui/MenuBar.cpp" line="729"/>
         <source>Configure Submodules...</source>
         <translation>Submodule konfigurieren...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="741"/>
+        <location filename="../src/ui/MenuBar.cpp" line="737"/>
         <source>Check for Updates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="747"/>
+        <location filename="../src/ui/MenuBar.cpp" line="743"/>
         <source>Update All</source>
         <translation>Alle updaten</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="752"/>
+        <location filename="../src/ui/MenuBar.cpp" line="748"/>
         <source>Update...</source>
         <translation>Updaten...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="768"/>
+        <location filename="../src/ui/MenuBar.cpp" line="764"/>
         <source>Open</source>
         <translation>Öffnen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="786"/>
+        <location filename="../src/ui/MenuBar.cpp" line="782"/>
         <source>Stash</source>
         <translation>Stash</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="788"/>
+        <location filename="../src/ui/MenuBar.cpp" line="784"/>
         <source>Show Stashes</source>
         <translation>Stashes anzeigen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="797"/>
+        <location filename="../src/ui/MenuBar.cpp" line="793"/>
         <source>Stash...</source>
         <translation>Stashen...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="801"/>
+        <location filename="../src/ui/MenuBar.cpp" line="797"/>
         <source>Pop Stash</source>
         <translation>Stash poppen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="806"/>
+        <location filename="../src/ui/MenuBar.cpp" line="802"/>
         <source>History</source>
         <translation>History</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="808"/>
+        <location filename="../src/ui/MenuBar.cpp" line="804"/>
         <source>Back</source>
         <translation>Zurück</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="813"/>
+        <location filename="../src/ui/MenuBar.cpp" line="809"/>
         <source>Forward</source>
         <translation>Vorwärts</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="819"/>
+        <location filename="../src/ui/MenuBar.cpp" line="815"/>
         <source>Window</source>
         <translation>Fenster</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="820"/>
+        <location filename="../src/ui/MenuBar.cpp" line="816"/>
         <source>Show Previous Tab</source>
         <translation>Zeige vorherigen Tab</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="829"/>
+        <location filename="../src/ui/MenuBar.cpp" line="825"/>
         <source>Show Next Tab</source>
         <translation>Zeige nächsten Tab</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="840"/>
+        <location filename="../src/ui/MenuBar.cpp" line="836"/>
         <source>Show Repository Chooser...</source>
         <translation>Zeige Repository-Auswahl...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="845"/>
+        <location filename="../src/ui/MenuBar.cpp" line="841"/>
         <source>Tools</source>
         <translation>Extras</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="846"/>
+        <location filename="../src/ui/MenuBar.cpp" line="842"/>
         <source>Options...</source>
         <translation>Optionen...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="852"/>
+        <location filename="../src/ui/MenuBar.cpp" line="848"/>
         <source>Help</source>
         <translation>Hilfe</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="854"/>
+        <location filename="../src/ui/MenuBar.cpp" line="850"/>
         <source>About %1</source>
         <translation>Über %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="859"/>
         <source>Check For Updates...</source>
-        <translation>Auf Updates prüfen...</translation>
+        <translation type="vanished">Auf Updates prüfen...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="863"/>
+        <location filename="../src/ui/MenuBar.cpp" line="855"/>
         <source>Plugin Documentation...</source>
         <translation>Plugin-Dokumentation...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="869"/>
-        <source>Support us via Liberapay</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/MenuBar.cpp" line="875"/>
+        <location filename="../src/ui/MenuBar.cpp" line="863"/>
         <source>Debug</source>
         <translation>Debuggen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="876"/>
+        <location filename="../src/ui/MenuBar.cpp" line="864"/>
         <source>Abort</source>
         <translation>Abstürzen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="889"/>
+        <location filename="../src/ui/MenuBar.cpp" line="877"/>
         <source>Log Indexer Progress</source>
         <translation>Indexer-Fortschritt loggen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="895"/>
+        <location filename="../src/ui/MenuBar.cpp" line="883"/>
         <source>Log Credential Helper</source>
         <translation>Credential-Helper loggen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="901"/>
+        <location filename="../src/ui/MenuBar.cpp" line="889"/>
         <source>Log Remote Connection</source>
         <translation>Remote-Verbindung loggen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="907"/>
+        <location filename="../src/ui/MenuBar.cpp" line="895"/>
         <source>Log Debug Messages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="915"/>
+        <location filename="../src/ui/MenuBar.cpp" line="903"/>
         <source>Load All Diffs</source>
         <translation>Alle Diffs laden</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="929"/>
+        <location filename="../src/ui/MenuBar.cpp" line="917"/>
         <source>Walk Commits</source>
         <translation>Commits durchgehen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1052"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1040"/>
         <source>Hide Log</source>
         <translation>Log verstecken</translation>
     </message>
@@ -3281,27 +3273,27 @@ Beispiele
         <translation type="vanished">Unterschiede anzeigen</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1103"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1091"/>
         <source>Merge</source>
         <translation>Merge</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1113"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1101"/>
         <source>Revert</source>
         <translation>Revert</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1119"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1107"/>
         <source>Cherry-pick</source>
         <translation>Cherry-Pick</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1125"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1113"/>
         <source>Rebase</source>
         <translation>Rebase</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1131"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1119"/>
         <source>Abort %1</source>
         <translation>%1 abbrechen</translation>
     </message>
@@ -3386,12 +3378,12 @@ Beispiele
 <context>
     <name>MiscPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="794"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="751"/>
         <source>Path to SSH config file:</source>
         <translation>Pfad zur SSH-Konfigurations-Datei:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="795"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="752"/>
         <source>Path to default / fallback SSH key file:</source>
         <translation>Pfad zur Standard- / Fallback-SSH-Schlüssel-Datei:</translation>
     </message>
@@ -3628,11 +3620,6 @@ Beispiele
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/app/Gittyup.cpp" line="25"/>
-        <source>Your global GIT configuration is invalid, Gittyup won&apos;t run properly until this is fixed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../src/ui/DiffTreeModel.cpp" line="27"/>
         <source>File Name</source>
         <translation type="unfinished"></translation>
@@ -3842,6 +3829,11 @@ Beispiele
     <message>
         <location filename="../src/ui/RepositoryNavigator.cpp" line="43"/>
         <source>%1↓</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/app/Gittyup.cpp" line="25"/>
+        <source>Your global Git configuration is invalid. GitNortek won&apos;t run properly until this is fixed</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -6050,67 +6042,66 @@ The submodule will be removed from this project. Its working files and cached lo
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="880"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="837"/>
         <source>Global git settings can be overridden for each repository in the corresponding repository configuration page.</source>
         <translation>Globale GIT-Einstellungen können für jedes Repository in den entsprechenden Einstellungs-Seiten überschrieben werden.</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="897"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="854"/>
         <source>Edit Config File...</source>
         <translation>Konfigurations-Datei bearbeiten...</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="926"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="883"/>
         <source>General</source>
         <translation>Allgemein</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="934"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="891"/>
         <source>Diff</source>
         <translation>Diff</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="942"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="899"/>
         <source>Tools</source>
         <translation>Tools</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="952"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="909"/>
         <source>Window</source>
         <translation>Fenster</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="960"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="917"/>
         <source>Editor</source>
         <translation>Editor</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="968"/>
         <source>Update</source>
-        <translation>Update</translation>
+        <translation type="vanished">Update</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="976"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="925"/>
         <source>Plugins</source>
         <translation>Plugins</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="984"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="933"/>
         <source>Misc</source>
         <translation>Sonstiges</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="992"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="941"/>
         <source>Hotkeys</source>
         <translation>Hotkeys</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="1002"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="951"/>
         <source>Terminal</source>
         <translation>Terminal</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="865"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="822"/>
         <source>Esc</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6221,103 +6212,103 @@ The submodule will be removed from this project. Its working files and cached lo
         <translation>Repository auswählen</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="379"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="380"/>
         <source>Understand your history!</source>
         <translation>Verstehe Deine History!</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="434"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="435"/>
         <source>Clone Repository</source>
         <translation>Repository klonen</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="445"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="446"/>
         <source>Open Existing Repository</source>
         <translation>Bestehendes Repository öffnen</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="449"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="450"/>
         <source>Open Repository</source>
         <translation>Repository öffnen</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="457"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="458"/>
         <source>Initialize New Repository</source>
         <translation>Neues Repository initialisieren</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="471"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="472"/>
         <source>Clear All</source>
         <translation>Alle Leeren</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="476"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="477"/>
         <source>Show Full Path</source>
         <translation>Vollständigen Pfad anzeigen</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="486"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="487"/>
         <source>Filter Non-existent Paths</source>
         <translation>Non-Existente Pfade filtern</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="494"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="495"/>
         <source>Repositories:</source>
         <translation>Repositories:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="542"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="543"/>
         <source>Refresh</source>
         <translation>Aktualisieren</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="549"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="550"/>
         <source>Show Full Name</source>
         <translation>Vollständigen Namen anzeigen</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="577"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="578"/>
         <source>Remote:</source>
         <translation>Remote:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="595"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="596"/>
         <source>View Getting Started Video</source>
         <translation>Hilfe-Video ansehen</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="714"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="715"/>
         <source>Clone</source>
         <translation>Klonen</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="714"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="715"/>
         <source>Open</source>
         <translation>Öffnen</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="780"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="781"/>
         <source>&lt;p&gt;Are you sure you want to remove the %1 account for &apos;%2&apos;?&lt;/p&gt;&lt;p&gt;Only the account association will be removed. Remote configurations and local clones will not be affected.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Bist Du sicher, dass Du den %1-Account für &apos;%2&apos; entfernen möchtest?&lt;/p&gt;&lt;p&gt;Nur die Account-Zuordnung ist davon betroffen; Remote-Einstellungen und lokale Klone werden nicht betroffen sein.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="784"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="785"/>
         <source>Remove Account?</source>
         <translation>Account entfernen?</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="787"/>
-        <location filename="../src/dialogs/StartDialog.cpp" line="807"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="788"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="808"/>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="802"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="803"/>
         <source>&lt;p&gt;Are you sure you want to remove the remote repository association for %1?&lt;/p&gt;&lt;p&gt;The local clone itself will not be affected.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Bist Du sicher, dass Du die Zuordnung zum entfernten Repository für %1 entfernen willst?&lt;/p&gt;&lt;p&gt;Der lokale Klon selber wird nicht betroffen sein.&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="805"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="806"/>
         <source>Remove Repository Association?</source>
         <translation>Zuordnung zu entferntem Repository entfernen?</translation>
     </message>
@@ -6479,7 +6470,7 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/ui/TemplateDialog.cpp" line="244"/>
         <location filename="../src/ui/TemplateDialog.cpp" line="297"/>
-        <source>Gittyup Templates (*%1)</source>
+        <source>GitNortek Templates (*%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6496,23 +6487,23 @@ x (number) determines the number of maximum files shown</source>
 <context>
     <name>TerminalPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="822"/>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="846"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="779"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="803"/>
         <source>Install</source>
         <translation>Installieren</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="835"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="792"/>
         <source>Name:</source>
         <translation>Name:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="836"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="793"/>
         <source>Location:</source>
         <translation>Ort:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="846"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="803"/>
         <source>Uninstall</source>
         <translation>Deinstallieren</translation>
     </message>
@@ -6568,7 +6559,7 @@ x (number) determines the number of maximum files shown</source>
     </message>
     <message>
         <location filename="../src/dialogs/ThemeDialog.cpp" line="89"/>
-        <source>Pick a theme for Gittyup</source>
+        <source>Pick a theme for GitNortek</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6713,42 +6704,42 @@ x (number) determines the number of maximum files shown</source>
 <context>
     <name>ToolsPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="338"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="337"/>
         <source>Keep backup of merge files (.orig)</source>
         <translation>Backups von Merge-Dateien (.orig) behalten</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="345"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="344"/>
         <source>External editor:</source>
         <translation>Externer Editor:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="346"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="345"/>
         <source>External diff:</source>
         <translation>Externes Diff:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="347"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="346"/>
         <source>External merge:</source>
         <translation>Externes Merge:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="348"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="347"/>
         <source>Backup files:</source>
         <translation>Backup-Dateien:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="351"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="350"/>
         <source>Terminal emulator command:</source>
         <translation type="unfinished">Terminal-Emulator-Befehl:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="363"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="362"/>
         <source>File manager command:</source>
         <translation type="unfinished">Dateimanager-Befehl:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="391"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="390"/>
         <source>Configure</source>
         <translation>Konfigurieren</translation>
     </message>
@@ -6828,91 +6819,58 @@ x (number) determines the number of maximum files shown</source>
 <context>
     <name>UpToDateDialog</name>
     <message>
-        <location filename="../src/update/UpToDateDialog.cpp" line="19"/>
         <source>Already Up-to-date</source>
-        <translation>Bereits aktuell</translation>
+        <translation type="vanished">Bereits aktuell</translation>
     </message>
     <message>
-        <location filename="../src/update/UpToDateDialog.cpp" line="30"/>
         <source>%1 is already up-to-date. You have version %2.</source>
-        <translation>%1 ist bereits aktuell. Du hast Version %2.</translation>
+        <translation type="vanished">%1 ist bereits aktuell. Du hast Version %2.</translation>
     </message>
 </context>
 <context>
     <name>UpdateDialog</name>
     <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="51"/>
         <source>Update %1</source>
-        <translation>Aktualisiere %1</translation>
+        <translation type="vanished">Aktualisiere %1</translation>
     </message>
     <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="61"/>
-        <location filename="../src/update/UpdateDialog.cpp" line="85"/>
-        <source>&lt;h3&gt;A new version of %1 is available!&lt;/h3&gt;&lt;p&gt;%1 %2 is now available - you have %3. The new version will be soon available in your package manager. Just update your system.&lt;/p&gt;&lt;b&gt;Release Notes:&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="68"/>
         <source>&lt;h3&gt;A new version of %1 is available!&lt;/h3&gt;&lt;p&gt;%1 %2 is now available - you have %3. Would you like to download it now?&lt;/p&gt;&lt;b&gt;Release Notes:&lt;/b&gt;</source>
-        <translation>&lt;h3&gt;Eine neue Version von %1 is verfügbar!&lt;/h3&gt;&lt;p&gt;%1 %2 ist jetzt verfügbar - Du hast %3. Möchtest Du es jetzt herunterladen?&lt;/p&gt;&lt;b&gt;Release Notes:&lt;/b&gt;</translation>
+        <translation type="vanished">&lt;h3&gt;Eine neue Version von %1 is verfügbar!&lt;/h3&gt;&lt;p&gt;%1 %2 ist jetzt verfügbar - Du hast %3. Möchtest Du es jetzt herunterladen?&lt;/p&gt;&lt;b&gt;Release Notes:&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="75"/>
-        <source>&lt;h3&gt;A new version of %1 is available!&lt;/h3&gt;&lt;p&gt;%1 %2 is now available - you have %3.&lt;/p&gt;&lt;p&gt;If you downloaded the flatpak package over a package manager or from flathub.org &lt;br/&gt;you don&apos;t have to install manually a new version. It will be available within the next &lt;br/&gt;days during your system update: &lt;code&gt;flatpak update&lt;/code&gt;&lt;/p&gt;&lt;b&gt;Release Notes:&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="100"/>
         <source>Automatically download and install updates</source>
-        <translation>Automatisch Updates herunterladen und installieren</translation>
+        <translation type="vanished">Automatisch Updates herunterladen und installieren</translation>
     </message>
     <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="112"/>
         <source>Install Update</source>
-        <translation>Installiere Update</translation>
+        <translation type="vanished">Installiere Update</translation>
     </message>
     <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="114"/>
         <source>Remind Me Later</source>
-        <translation>Erinner mich später</translation>
+        <translation type="vanished">Erinner mich später</translation>
     </message>
     <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="118"/>
         <source>Skip This Version</source>
-        <translation>Diese Version überspringen</translation>
-    </message>
-    <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="138"/>
-        <source>Ok</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="150"/>
-        <source>Donate</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Diese Version überspringen</translation>
     </message>
 </context>
 <context>
     <name>UpdatePanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="739"/>
         <source>Check for updates automatically</source>
-        <translation>Automatisch auf Updates prüfen</translation>
+        <translation type="vanished">Automatisch auf Updates prüfen</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="751"/>
         <source>Automatically download and install updates</source>
-        <translation>Automatisch Updates herunterladen und installieren</translation>
+        <translation type="vanished">Automatisch Updates herunterladen und installieren</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="761"/>
         <source>Check Now</source>
-        <translation>Jetzt prüfen</translation>
+        <translation type="vanished">Jetzt prüfen</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="766"/>
         <source>Software Update:</source>
-        <translation>Software-Update:</translation>
+        <translation type="vanished">Software-Update:</translation>
     </message>
 </context>
 <context>
@@ -6936,127 +6894,107 @@ x (number) determines the number of maximum files shown</source>
 <context>
     <name>Updater</name>
     <message>
-        <location filename="../src/update/Updater.cpp" line="100"/>
         <source>Update Failed</source>
-        <translation>Update fehlgeschlagen</translation>
+        <translation type="vanished">Update fehlgeschlagen</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="115"/>
         <source>Unable to check for updates</source>
-        <translation>Kann nicht auf Updates prüfen</translation>
+        <translation type="vanished">Kann nicht auf Updates prüfen</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="199"/>
         <source>Unable to download update</source>
-        <translation>Kann Update nicht herunterladen</translation>
+        <translation type="vanished">Kann Update nicht herunterladen</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="202"/>
         <source>Unable to open temporary file</source>
-        <translation>Kann temporäre Datei nicht öffnen</translation>
+        <translation type="vanished">Kann temporäre Datei nicht öffnen</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="259"/>
         <source>Unable to install update</source>
-        <translation>Kann Update nicht installieren</translation>
-    </message>
-    <message>
-        <location filename="../src/update/Updater.cpp" line="262"/>
-        <source>Some windows failed to close. You can download the binary manually from %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Kann Update nicht installieren</translation>
     </message>
     <message>
         <source>Some windows failed to close</source>
         <translation type="vanished">Einige Fenster konnten nicht geschlossen werden</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="270"/>
         <source>Unknown install error</source>
-        <translation>Unbekannter Installations-Fehler</translation>
+        <translation type="vanished">Unbekannter Installations-Fehler</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="333"/>
-        <location filename="../src/update/Updater.cpp" line="361"/>
         <source>Installer script failed: %1</source>
-        <translation>Installer-Skript schlug fehl: %1</translation>
+        <translation type="vanished">Installer-Skript schlug fehl: %1</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater_mac.mm" line="117"/>
-        <location filename="../src/update/Updater.cpp" line="348"/>
-        <location filename="../src/update/Updater.cpp" line="370"/>
         <source>Helper application failed to start</source>
-        <translation>Helfer-Programm konnte nicht gestartet werden</translation>
+        <translation type="vanished">Helfer-Programm konnte nicht gestartet werden</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater_win.cpp" line="23"/>
         <source>Installer failed to start</source>
-        <translation>Installer konnte nicht gestartet werden</translation>
+        <translation type="vanished">Installer konnte nicht gestartet werden</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater_mac.mm" line="77"/>
         <source>The disk image failed to mount successfully</source>
-        <translation>Das Volumen-Abbild konnte nicht eingehangen werden</translation>
+        <translation type="vanished">Das Volumen-Abbild konnte nicht eingehangen werden</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater_mac.mm" line="96"/>
         <source>The existing bundle could not be moved to the trash</source>
-        <translation>Das bereits vorhandene Paket konnte nicht in den Papierkorb verschoben werden</translation>
+        <translation type="vanished">Das bereits vorhandene Paket konnte nicht in den Papierkorb verschoben werden</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater_mac.mm" line="108"/>
         <source>The new bundle could not be copied into place</source>
-        <translation>Das neue Paket konnte nicht an den Zielort verschoben werden</translation>
+        <translation type="vanished">Das neue Paket konnte nicht an den Zielort verschoben werden</translation>
     </message>
 </context>
 <context>
     <name>WindowPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="460"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="459"/>
         <source>Add New Theme</source>
         <translation>Neues Thema hinzufügen</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="461"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="460"/>
         <source>Edit Current Theme</source>
         <translation>Aktuelles Thema bearbeiten</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="485"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="484"/>
         <source>Create Theme</source>
         <translation>Thema erstellen</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="495"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="494"/>
         <source>Theme Name</source>
         <translation>Name des Themas</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="527"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="526"/>
         <source>Restart?</source>
         <translation>Neustart?</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="528"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="527"/>
         <source>The application must be restarted for the theme change to take effect.</source>
         <translation>Die Anwendung muss neu gestartet werden, damit die Änderungen am Thema übernommen werden.</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="530"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="529"/>
         <source>Do you want to restart now?</source>
         <translation>Möchtest Du jetzt neu starten?</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="532"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="531"/>
         <source>Restart</source>
         <translation>Neustart</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="533"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="532"/>
         <source>Later</source>
         <translation>Später</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="551"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="550"/>
         <source>Show full repository path</source>
         <translation>Zeige vollen Repository-Pfad</translation>
     </message>
@@ -7065,42 +7003,42 @@ x (number) determines the number of maximum files shown</source>
         <translation type="vanished">Automatisch verstecken</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="558"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="557"/>
         <source>Open submodules in tabs</source>
         <translation>Submodule in Tabs öffnen</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="566"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="565"/>
         <source>Open all repositories in tabs</source>
         <translation>Alle Repositories in Tabs öffnen</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="573"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="572"/>
         <source>Hide Menubar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="578"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="577"/>
         <source>Show Avatars</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="579"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="578"/>
         <source>Download commit-author avatars from GitHub when an account is configured, with Gravatar as a fallback. Images are cached in memory for this session only.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="588"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="587"/>
         <source>Show Window Maximized when opened</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="641"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="640"/>
         <source>Theme:</source>
         <translation>Thema:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="642"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="641"/>
         <source>Title:</source>
         <translation>Titel:</translation>
     </message>
@@ -7109,17 +7047,17 @@ x (number) determines the number of maximum files shown</source>
         <translation type="vanished">Log:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="643"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="642"/>
         <source>Tabs:</source>
         <translation>Tabs:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="645"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="644"/>
         <source>View:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="648"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="647"/>
         <source>Prompt:</source>
         <translation>Aufforderungen:</translation>
     </message>

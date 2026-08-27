@@ -26,7 +26,7 @@
 
 namespace git {
 
-const QString kUrl = "https://github.com/Murmele/Gittyup";
+const QString kUrl = "https://github.com/NortekMed/GitNortek";
 const QString kUpdateCheckRemote = "gitnortek-submodule-check";
 
 Result fail(const QString &message) {

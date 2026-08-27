@@ -241,7 +241,7 @@ void TemplateDialog::importTemplates(QString filename) {
   if (filename.isEmpty()) {
     filename = QFileDialog::getOpenFileName(
         this, tr("Open File"), "/home",
-        tr("Gittyup Templates (*%1)").arg(kTemplateFileExtension));
+        tr("GitNortek Templates (*%1)").arg(kTemplateFileExtension));
   }
 
   mNew.clear();
@@ -294,7 +294,7 @@ void TemplateDialog::exportTemplates(QString filename) {
         this, tr("Save Templates"),
         QStringLiteral("/home/%1%2")
             .arg("GittyupTemplates", kTemplateFileExtension),
-        tr("Gittyup Templates (*%1)").arg(kTemplateFileExtension));
+        tr("GitNortek Templates (*%1)").arg(kTemplateFileExtension));
   }
 
   QString templatesStr;

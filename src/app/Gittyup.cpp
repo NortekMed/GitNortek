@@ -22,17 +22,12 @@ int main(int argc, char *argv[]) {
   if (!git::Config::global().isValid()) {
     QMessageBox::warning(
         nullptr, GITTYUP_NAME,
-        QObject::tr("Your global GIT configuration is invalid, Gittyup won't "
+        QObject::tr("Your global Git configuration is invalid. GitNortek won't "
                     "run properly until this is fixed"));
   }
 
-  // Restore windows before checking for updates so that
-  // the update dialog pops up on top of the other windows.
   if (!app.restoreWindows())
     MainWindow::open();
-
-  // Check for updates.
-  app.autoUpdate();
 
   return app.exec();
 }

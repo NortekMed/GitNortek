@@ -74,7 +74,6 @@ target_link_libraries(
   conf
   git
   ui
-  update
   Qt6::Widgets)
 
 set_target_properties(app PROPERTIES AUTOMOC ON)
@@ -166,7 +165,7 @@ else()
   endif()
 endif()
 
-add_dependencies(gitnortek gitnortek-indexer gitnortek-relauncher)
+add_dependencies(gitnortek gitnortek-indexer)
 
 install(
   TARGETS gitnortek
@@ -177,23 +176,6 @@ if(APPLE)
   get_target_property(QT_LIBRARY Qt6::Core LOCATION)
   get_filename_component(QT_FRAMEWORK ${QT_LIBRARY} DIRECTORY)
   get_filename_component(RPATH ${QT_FRAMEWORK} DIRECTORY)
-
-  # Fixup relauncher RPATH.
-  set(RELAUNCHER ${CONTENTS_DIR}/MacOS/gitnortek-relauncher)
-  install(
-    CODE "execute_process(COMMAND
-		${CMAKE_INSTALL_NAME_TOOL} -delete_rpath \"${RPATH}\"
-	  \"\${CMAKE_INSTALL_PREFIX}/${RELAUNCHER}\"
-  )
-execute_process(COMMAND
-	${CMAKE_INSTALL_NAME_TOOL} -add_rpath \"/usr/local/qt\"
-	  \"\${CMAKE_INSTALL_PREFIX}/${RELAUNCHER}\"
-  )
-execute_process(COMMAND
-	${CMAKE_INSTALL_NAME_TOOL} -add_rpath \"@loader_path/../Frameworks\"
-	  \"\${CMAKE_INSTALL_PREFIX}/${RELAUNCHER}\"
-  )"
-    COMPONENT ${GITTYUP_NAME})
 
   # Fixup indexer RPATH.
   set(INDEXER ${CONTENTS_DIR}/MacOS/gitnortek-indexer)

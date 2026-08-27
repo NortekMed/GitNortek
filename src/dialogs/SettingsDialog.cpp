@@ -26,7 +26,6 @@
 #include "ui/MenuBar.h"
 #include "ui/RepoView.h"
 #include "languages.h"
-#include "update/Updater.h"
 #include <QAction>
 #include <QActionGroup>
 #include <QApplication>
@@ -729,48 +728,6 @@ public:
   }
 };
 
-class UpdatePanel : public QWidget {
-  Q_OBJECT
-
-public:
-  UpdatePanel(QWidget *parent = nullptr) : QWidget(parent) {
-    Settings *settings = Settings::instance();
-
-    QString checkText = tr("Check for updates automatically");
-    QCheckBox *check = new QCheckBox(checkText, this);
-    check->setChecked(
-        settings->value(Setting::Id::CheckForUpdatesAutomatically).toBool());
-    connect(check, &QCheckBox::toggled, [](bool checked) {
-      Settings::instance()->setValue(Setting::Id::CheckForUpdatesAutomatically,
-                                     checked);
-    });
-
-#if !defined(Q_OS_LINUX) || defined(FLATPAK)
-    // On linux the packages get installed over the package manager. So
-    // no manual download is needed
-    QString downloadText = tr("Automatically download and install updates");
-    QCheckBox *download = new QCheckBox(downloadText, this);
-    download->setChecked(
-        settings->value(Setting::Id::InstallUpdatesAutomatically).toBool());
-    connect(download, &QCheckBox::toggled, [](bool checked) {
-      Settings::instance()->setValue(Setting::Id::InstallUpdatesAutomatically,
-                                     checked);
-    });
-#endif
-
-    QPushButton *button = new QPushButton(tr("Check Now"), this);
-    connect(button, &QPushButton::clicked, Updater::instance(),
-            &Updater::update);
-
-    QFormLayout *layout = new QFormLayout(this);
-    layout->addRow(tr("Software Update:"), check);
-#if !defined(Q_OS_LINUX) || defined(FLATPAK)
-    layout->addRow(QString(), download);
-#endif
-    layout->addRow(QString(), button);
-  }
-};
-
 class MiscPanel : public QWidget {
   Q_OBJECT
 
@@ -963,14 +920,6 @@ SettingsDialog::SettingsDialog(Index index, QWidget *parent)
   editor->setCheckable(true);
 
   stack->addWidget(new EditorPanel(this));
-
-  // Add update panel.
-  QAction *update = toolbar->addAction(QIcon(":/update.png"), tr("Update"));
-  update->setData(Update);
-  update->setActionGroup(actions);
-  update->setCheckable(true);
-
-  stack->addWidget(new UpdatePanel(this));
 
   // Add plugins panel.
   QAction *plugins = toolbar->addAction(QIcon(":/plugins.png"), tr("Plugins"));

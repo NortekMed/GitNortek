@@ -30,9 +30,6 @@ void Setting::initialize(QMap<Id, QString> &keys) {
   keys[Id::DontTranslate] = "translation/disable";
   keys[Id::Language] = "translation/language";
   keys[Id::AllowSingleInstanceOnly] = "singleInstance";
-  keys[Id::CheckForUpdatesAutomatically] = "update/check";
-  keys[Id::InstallUpdatesAutomatically] = "update/download";
-  keys[Id::SkippedUpdates] = "update/skip";
   keys[Id::SshConfigFilePath] = "ssh/configFilePath";
   keys[Id::SshKeyFilePath] = "ssh/keyFilePath";
   keys[Id::CommitMergeImmediately] = "merge/commit";

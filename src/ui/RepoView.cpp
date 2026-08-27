@@ -1023,9 +1023,9 @@ void RepoView::startIndexing() {
 
   QDir dir(QCoreApplication::applicationDirPath());
 #ifdef WIN32
-  auto indexer_cmd = dir.filePath("gittyup-indexer.exe");
+  auto indexer_cmd = dir.filePath("gitnortek-indexer.exe");
 #else
-  auto indexer_cmd = dir.filePath("gittyup-indexer");
+  auto indexer_cmd = dir.filePath("gitnortek-indexer");
 #endif
   QFileInfo check_file(indexer_cmd);
   if (!check_file.isFile()) {

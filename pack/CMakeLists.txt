@@ -12,7 +12,7 @@ set(MAC $<PLATFORM_ID:Darwin>)
 set(GITTYUP_PACK_WIN64 OFF)
 if(WIN32)
   if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
-    message(FATAL_ERROR "Gittyup packaging: Windows is 64-bit (x64) only.")
+    message(FATAL_ERROR "GitNortek packaging: Windows is 64-bit (x64) only.")
   endif()
   set(GITTYUP_PACK_WIN64 ON)
 endif()
@@ -178,7 +178,7 @@ if(NOT APPLE)
   endif()
 
   # libssh2 (submodule) installs its DLL without COMPONENT ${GITTYUP_NAME};
-  # CPack only installs that component, so ship the DLL from Gittyup's pack
+  # CPack only installs that component, so ship the DLL from GitNortek's pack
   # rules.
   if(GITTYUP_PACK_WIN64
      AND NOT USE_SYSTEM_LIBSSH2
@@ -297,7 +297,7 @@ set(CPACK_PACKAGE_DIRECTORY ${CMAKE_BINARY_DIR}/pack)
 set(CPACK_PACKAGE_INSTALL_DIRECTORY ${GITTYUP_NAME})
 set(CPACK_PACKAGE_VENDOR "NortekMed")
 set(CPACK_PACKAGE_CONTACT "NortekMed")
-set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/NortekMed/Gittyup")
+set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/NortekMed/GitNortek")
 set(CPACK_PACKAGE_VERSION ${GITTYUP_RPM_VERSION})
 set(CPACK_PACKAGE_VERSION_MAJOR ${GITTYUP_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${GITTYUP_VERSION_MINOR})

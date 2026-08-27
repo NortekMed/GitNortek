@@ -28,7 +28,7 @@ strong {
 </head>
 <body>
 
-# Gittyup Plugin API
+# GitNortek Plugin API
 
 ---
 
@@ -37,11 +37,9 @@ strong {
 Plugins allow the application to be extended to flag errors in diffs.
 Plugins are Lua scripts that detect one or more error kind. The name
 of the script defines the name of the plugin category in the settings
-interface. Plugins should be saved to one of the following locations:
-
-* (Windows) - %APPDATA%\Gittyup\plugins
-* (Linux) - ~/.config/Gittyup/plugins
-* (macOS) - ~/Library/Application Support/Gittyup/plugins
+interface. Save plugins in the `plugins` subdirectory of GitNortek's
+application configuration data location. The base location is determined by
+the operating system and Qt configuration.
 
 ---
 

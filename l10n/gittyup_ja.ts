@@ -4,27 +4,27 @@
 <context>
     <name>AboutDialog</name>
     <message>
-        <location filename="../src/dialogs/AboutDialog.cpp" line="71"/>
+        <location filename="../src/dialogs/AboutDialog.cpp" line="64"/>
         <source>About %1</source>
         <translation>%1 について</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/AboutDialog.cpp" line="79"/>
+        <location filename="../src/dialogs/AboutDialog.cpp" line="73"/>
         <source>Understand your history!</source>
         <translation>Git の履歴を見やすく管理</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/AboutDialog.cpp" line="101"/>
+        <location filename="../src/dialogs/AboutDialog.cpp" line="94"/>
         <source>Changelog</source>
         <translation>変更履歴</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/AboutDialog.cpp" line="102"/>
+        <location filename="../src/dialogs/AboutDialog.cpp" line="95"/>
         <source>Acknowledgments</source>
         <translation>謝辞</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/AboutDialog.cpp" line="104"/>
+        <location filename="../src/dialogs/AboutDialog.cpp" line="97"/>
         <source>Privacy</source>
         <translation>プライバシー</translation>
     </message>
@@ -378,14 +378,12 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../src/app/Application.cpp" line="509"/>
         <source>SSL Errors</source>
-        <translation>SSL エラー</translation>
+        <translation type="vanished">SSL エラー</translation>
     </message>
     <message>
-        <location filename="../src/app/Application.cpp" line="511"/>
         <source>Failed to set up SSL session. Do you want to ignore these errors?</source>
-        <translation>SSL セッションのセットアップに失敗しました。これらのエラーを無視しますか？</translation>
+        <translation type="vanished">SSL セッションのセットアップに失敗しました。これらのエラーを無視しますか？</translation>
     </message>
 </context>
 <context>
@@ -1192,38 +1190,42 @@
 <context>
     <name>DefaultWidget</name>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="42"/>
+        <location filename="../src/ui/TabWidget.cpp" line="41"/>
         <source>Clone repository</source>
         <translation>リポジトリをクローン</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="54"/>
+        <location filename="../src/ui/TabWidget.cpp" line="53"/>
         <source>Open existing repository</source>
         <translation>既存のリポジトリを開く</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="58"/>
+        <location filename="../src/ui/TabWidget.cpp" line="57"/>
         <source>Open Repository</source>
         <translation>リポジトリを開く</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="68"/>
+        <location filename="../src/ui/TabWidget.cpp" line="67"/>
         <source>Initialize new repository</source>
         <translation>新しいリポジトリを作成</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="88"/>
+        <location filename="../src/ui/TabWidget.cpp" line="87"/>
         <source>Add %1 account</source>
         <translation>%1 アカウントを追加</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/TabWidget.cpp" line="99"/>
+        <source>Report an issue</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>View getting started videos</source>
         <translation type="vanished">解説動画を観る</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="103"/>
         <source>Contact us for support</source>
-        <translation>サポートに関するお問い合わせ</translation>
+        <translation type="vanished">サポートに関するお問い合わせ</translation>
     </message>
 </context>
 <context>
@@ -1490,24 +1492,20 @@ These settings will not be saved permanently</source>
 <context>
     <name>DownloadDialog</name>
     <message>
-        <location filename="../src/update/DownloadDialog.cpp" line="25"/>
         <source>Update %1</source>
-        <translation>%1 を更新</translation>
+        <translation type="vanished">%1 を更新</translation>
     </message>
     <message>
-        <location filename="../src/update/DownloadDialog.cpp" line="34"/>
         <source>Downloading %1...</source>
-        <translation>%1 をダウンロードしています...</translation>
+        <translation type="vanished">%1 をダウンロードしています...</translation>
     </message>
     <message>
-        <location filename="../src/update/DownloadDialog.cpp" line="60"/>
         <source>Download Complete!</source>
-        <translation>ダウンロードが完了しました！</translation>
+        <translation type="vanished">ダウンロードが完了しました！</translation>
     </message>
     <message>
-        <location filename="../src/update/DownloadDialog.cpp" line="61"/>
         <source>Install and Restart</source>
-        <translation>インストールと再起動を行う</translation>
+        <translation type="vanished">インストールと再起動を行う</translation>
     </message>
 </context>
 <context>
@@ -1539,57 +1537,57 @@ These settings will not be saved permanently</source>
 <context>
     <name>EditorPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="682"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="681"/>
         <source>Show whitespace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="691"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="690"/>
         <source>Tabs</source>
         <translation>タブ</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="692"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="691"/>
         <source>Spaces</source>
         <translation>スペース</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="713"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="712"/>
         <source>Show heat map</source>
         <translation>ヒートマップを表示</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="722"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="721"/>
         <source>Font:</source>
         <translation>フォント:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="723"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="722"/>
         <source>Font size:</source>
         <translation>フォントの大きさ:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="724"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="723"/>
         <source>Whitespace:</source>
         <translation type="unfinished">空白:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="725"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="724"/>
         <source>Indent using:</source>
         <translation>インデント文字:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="726"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="725"/>
         <source>Indent width:</source>
         <translation>インデントの幅:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="727"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="726"/>
         <source>Tab width:</source>
         <translation>タブの幅:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="728"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="727"/>
         <source>Blame margin:</source>
         <translation>執筆者の履歴:</translation>
     </message>
@@ -2130,13 +2128,13 @@ These settings will not be saved permanently</source>
 <context>
     <name>GeneralPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="96"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="95"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="78"/>
         <source>Fetch every</source>
         <translation>毎回</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="103"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="102"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="85"/>
         <source>minutes</source>
         <translation>分おきにフェッチ</translation>
@@ -2150,18 +2148,18 @@ These settings will not be saved permanently</source>
         <translation type="vanished">プル後にサブモジュールを更新</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="110"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="109"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="90"/>
         <source>Prune when fetching</source>
         <translation>フェッチ時、既に存在しないブランチへの参照を解除</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="111"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="110"/>
         <source>No translation</source>
         <translation>翻訳を無効化</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="121"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="120"/>
         <source>Store credentials in secure storage</source>
         <translation>資格情報を安全なストレージに保管</translation>
     </message>
@@ -2170,87 +2168,87 @@ These settings will not be saved permanently</source>
         <translation type="vanished">使用状況の収集を許可</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="107"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="106"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="89"/>
         <source>Update submodules after pull and clone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="109"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="108"/>
         <source>Check submodules for updates when opening repositories</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="125"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="124"/>
         <source>&lt;a href=&apos;view&apos;&gt;View privacy policy&lt;/a&gt;</source>
         <translation>&lt;a href=&apos;view&apos;&gt;プライバシーポリシーについて&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="132"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="131"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="93"/>
         <source>User name:</source>
         <translation>ユーザー名:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="133"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="132"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="94"/>
         <source>User email:</source>
         <translation>ユーザーの E メール:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="134"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="133"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="95"/>
         <source>Automatic actions:</source>
         <translation>自動アクション:</translation>
     </message>
     <message>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="137"/>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="138"/>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="139"/>
         <source>Language:</source>
         <translation>言語:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="140"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="139"/>
         <source>Credentials:</source>
         <translation>資格情報:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="141"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="140"/>
         <source>Credential store type:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="142"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="141"/>
         <source>Available Credential stores:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="147"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="146"/>
         <source>Only allow a single running instance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="150"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="149"/>
         <source>Single instance:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="272"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="271"/>
         <source>No credential store set</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="273"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="272"/>
         <source>No credential store is set. Go to the application settings to set the desired credential store</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="279"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="278"/>
         <source></source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="288"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="287"/>
         <source>Available Credential stores</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2761,17 +2759,17 @@ Examples
 <context>
     <name>MenuBar</name>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="263"/>
+        <location filename="../src/ui/MenuBar.cpp" line="259"/>
         <source>File</source>
         <translation>ファイル</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="265"/>
+        <location filename="../src/ui/MenuBar.cpp" line="261"/>
         <source>New File</source>
         <translation>新しいファイル</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="279"/>
+        <location filename="../src/ui/MenuBar.cpp" line="275"/>
         <source>New Window</source>
         <translation>新しいウィンドウ</translation>
     </message>
@@ -2780,7 +2778,7 @@ Examples
         <translation type="vanished">Ctrl+Meta+N</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="283"/>
+        <location filename="../src/ui/MenuBar.cpp" line="279"/>
         <source>Clone Repository...</source>
         <translation>リポジトリをクローン...</translation>
     </message>
@@ -2789,7 +2787,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+N</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="288"/>
+        <location filename="../src/ui/MenuBar.cpp" line="284"/>
         <source>Initialize New Repository...</source>
         <translation>新しいリポジトリを作成...</translation>
     </message>
@@ -2798,107 +2796,107 @@ Examples
         <translation type="vanished">Ctrl+Alt+N</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="295"/>
+        <location filename="../src/ui/MenuBar.cpp" line="291"/>
         <source>Open Repository...</source>
         <translation>リポジトリを開く...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="300"/>
+        <location filename="../src/ui/MenuBar.cpp" line="296"/>
         <source>Open Repository</source>
         <translation>リポジトリを開く</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="307"/>
+        <location filename="../src/ui/MenuBar.cpp" line="303"/>
         <source>Open Recent</source>
         <translation>最近使ったリポジトリを開く</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="323"/>
+        <location filename="../src/ui/MenuBar.cpp" line="319"/>
         <source>Close</source>
         <translation>閉じる</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="340"/>
+        <location filename="../src/ui/MenuBar.cpp" line="336"/>
         <source>Save</source>
         <translation>保存</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="349"/>
+        <location filename="../src/ui/MenuBar.cpp" line="345"/>
         <source>Exit</source>
         <translation>終了</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="356"/>
+        <location filename="../src/ui/MenuBar.cpp" line="352"/>
         <source>Edit</source>
         <translation>編集</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="358"/>
+        <location filename="../src/ui/MenuBar.cpp" line="354"/>
         <source>Undo</source>
         <translation>元に戻す</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="371"/>
+        <location filename="../src/ui/MenuBar.cpp" line="367"/>
         <source>Redo</source>
         <translation>やり直す</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="386"/>
+        <location filename="../src/ui/MenuBar.cpp" line="382"/>
         <source>Cut</source>
         <translation>切り取り</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="399"/>
+        <location filename="../src/ui/MenuBar.cpp" line="395"/>
         <source>Copy</source>
         <translation>コピー</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="414"/>
+        <location filename="../src/ui/MenuBar.cpp" line="410"/>
         <source>Paste</source>
         <translation>貼り付け</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="427"/>
+        <location filename="../src/ui/MenuBar.cpp" line="423"/>
         <source>Select All</source>
         <translation>全て選択</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="442"/>
+        <location filename="../src/ui/MenuBar.cpp" line="438"/>
         <source>Find...</source>
         <translation>検索...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="454"/>
+        <location filename="../src/ui/MenuBar.cpp" line="450"/>
         <source>Find Next</source>
         <translation>次を検索</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="465"/>
+        <location filename="../src/ui/MenuBar.cpp" line="461"/>
         <source>Find Previous</source>
         <translation>前を検索</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="476"/>
+        <location filename="../src/ui/MenuBar.cpp" line="472"/>
         <source>Use Selection for Find</source>
         <translation>選択したテキストで検索</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="500"/>
+        <location filename="../src/ui/MenuBar.cpp" line="496"/>
         <source>Report Repository Diagnostics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="636"/>
+        <location filename="../src/ui/MenuBar.cpp" line="632"/>
         <source>Force Push...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="741"/>
+        <location filename="../src/ui/MenuBar.cpp" line="737"/>
         <source>Check for Updates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1054"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1042"/>
         <source>Show Double Tree View</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2907,54 +2905,54 @@ Examples
         <translation type="vanished">Ctrl+E</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="493"/>
+        <location filename="../src/ui/MenuBar.cpp" line="489"/>
         <source>View</source>
         <translation>表示</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="495"/>
+        <location filename="../src/ui/MenuBar.cpp" line="491"/>
         <source>Refresh</source>
         <translation>再読み込み</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="506"/>
-        <location filename="../src/ui/MenuBar.cpp" line="1052"/>
+        <location filename="../src/ui/MenuBar.cpp" line="502"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1040"/>
         <source>Show Log</source>
         <translation>ログを表示</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="513"/>
+        <location filename="../src/ui/MenuBar.cpp" line="509"/>
         <source>Normal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="513"/>
+        <location filename="../src/ui/MenuBar.cpp" line="509"/>
         <source>Maximize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="532"/>
-        <location filename="../src/ui/MenuBar.cpp" line="1053"/>
+        <location filename="../src/ui/MenuBar.cpp" line="528"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1041"/>
         <source>Show Tree View</source>
         <translation>ツリービューを表示</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="540"/>
+        <location filename="../src/ui/MenuBar.cpp" line="536"/>
         <source>Hide Menu Bar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="548"/>
+        <location filename="../src/ui/MenuBar.cpp" line="544"/>
         <source>Repository</source>
         <translation>リポジトリ</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="550"/>
+        <location filename="../src/ui/MenuBar.cpp" line="546"/>
         <source>Configure Repository...</source>
         <translation>リポジトリの設定...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="557"/>
+        <location filename="../src/ui/MenuBar.cpp" line="553"/>
         <source>Stage All</source>
         <translation>全てステージに上げる</translation>
     </message>
@@ -2963,7 +2961,7 @@ Examples
         <translation type="vanished">Ctrl++</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="561"/>
+        <location filename="../src/ui/MenuBar.cpp" line="557"/>
         <source>Unstage All</source>
         <translation>全てステージから降ろす</translation>
     </message>
@@ -2972,7 +2970,7 @@ Examples
         <translation type="vanished">Ctrl+-</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="567"/>
+        <location filename="../src/ui/MenuBar.cpp" line="563"/>
         <source>Commit</source>
         <translation>コミット</translation>
     </message>
@@ -2981,7 +2979,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+C</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="571"/>
+        <location filename="../src/ui/MenuBar.cpp" line="567"/>
         <source>Amend Commit</source>
         <translation>最後のコミットを修正</translation>
     </message>
@@ -2990,32 +2988,32 @@ Examples
         <translation type="vanished">Ctrl+Shift+A</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="577"/>
+        <location filename="../src/ui/MenuBar.cpp" line="573"/>
         <source>Git LFS</source>
         <translation>Git LFS</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="578"/>
+        <location filename="../src/ui/MenuBar.cpp" line="574"/>
         <source>Remove all locks</source>
         <translation>全てのロックを解除</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="586"/>
+        <location filename="../src/ui/MenuBar.cpp" line="582"/>
         <source>Initialize</source>
         <translation>初期化</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="592"/>
+        <location filename="../src/ui/MenuBar.cpp" line="588"/>
         <source>Remote</source>
         <translation>リモート</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="594"/>
+        <location filename="../src/ui/MenuBar.cpp" line="590"/>
         <source>Configure Remotes...</source>
         <translation>リモートの設定...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="602"/>
+        <location filename="../src/ui/MenuBar.cpp" line="598"/>
         <source>Fetch</source>
         <translation>フェッチ</translation>
     </message>
@@ -3024,7 +3022,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+Alt+F</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="606"/>
+        <location filename="../src/ui/MenuBar.cpp" line="602"/>
         <source>Fetch All</source>
         <translation>全てフェッチ</translation>
     </message>
@@ -3033,7 +3031,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+Alt+A</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="610"/>
+        <location filename="../src/ui/MenuBar.cpp" line="606"/>
         <source>Fetch From...</source>
         <translation>指定先からフェッチ...</translation>
     </message>
@@ -3042,7 +3040,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+F</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="619"/>
+        <location filename="../src/ui/MenuBar.cpp" line="615"/>
         <source>Pull</source>
         <translation>プル</translation>
     </message>
@@ -3051,7 +3049,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+Alt+L</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="623"/>
+        <location filename="../src/ui/MenuBar.cpp" line="619"/>
         <source>Pull From...</source>
         <translation>指定先からプル...</translation>
     </message>
@@ -3060,7 +3058,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+L</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="632"/>
+        <location filename="../src/ui/MenuBar.cpp" line="628"/>
         <source>Push</source>
         <translation>プッシュ</translation>
     </message>
@@ -3069,7 +3067,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+Alt+P</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="641"/>
+        <location filename="../src/ui/MenuBar.cpp" line="637"/>
         <source>Push To...</source>
         <translation>指定先へプッシュ...</translation>
     </message>
@@ -3078,27 +3076,27 @@ Examples
         <translation type="vanished">Ctrl+Shift+P</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="649"/>
+        <location filename="../src/ui/MenuBar.cpp" line="645"/>
         <source>Branch</source>
         <translation>ブランチ</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="651"/>
+        <location filename="../src/ui/MenuBar.cpp" line="647"/>
         <source>Configure Branches...</source>
         <translation>ブランチの設定...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="657"/>
+        <location filename="../src/ui/MenuBar.cpp" line="653"/>
         <source>New Branch...</source>
         <translation>新しいブランチ...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="662"/>
+        <location filename="../src/ui/MenuBar.cpp" line="658"/>
         <source>Rename Branch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="670"/>
+        <location filename="../src/ui/MenuBar.cpp" line="666"/>
         <source>Checkout Current</source>
         <translation>選択中のブランチをチェックアウト</translation>
     </message>
@@ -3107,7 +3105,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+Alt+H</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="681"/>
+        <location filename="../src/ui/MenuBar.cpp" line="677"/>
         <source>Checkout...</source>
         <translation>チェックアウト...</translation>
     </message>
@@ -3116,7 +3114,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+H</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="688"/>
+        <location filename="../src/ui/MenuBar.cpp" line="684"/>
         <source>Merge...</source>
         <translation>マージ...</translation>
     </message>
@@ -3125,7 +3123,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+M</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="700"/>
+        <location filename="../src/ui/MenuBar.cpp" line="696"/>
         <source>Rebase...</source>
         <translation>リベース...</translation>
     </message>
@@ -3134,7 +3132,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+R</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="712"/>
+        <location filename="../src/ui/MenuBar.cpp" line="708"/>
         <source>Squash...</source>
         <translation>スカッシュ...</translation>
     </message>
@@ -3143,22 +3141,22 @@ Examples
         <translation type="vanished">Ctrl+Shift+Q</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="726"/>
+        <location filename="../src/ui/MenuBar.cpp" line="722"/>
         <source>Abort Merge</source>
         <translation>マージを中断</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="731"/>
+        <location filename="../src/ui/MenuBar.cpp" line="727"/>
         <source>Submodule</source>
         <translation>サブモジュール</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="733"/>
+        <location filename="../src/ui/MenuBar.cpp" line="729"/>
         <source>Configure Submodules...</source>
         <translation>サブモジュールの設定...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="747"/>
+        <location filename="../src/ui/MenuBar.cpp" line="743"/>
         <source>Update All</source>
         <translation>全て更新</translation>
     </message>
@@ -3167,7 +3165,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+Alt+U</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="752"/>
+        <location filename="../src/ui/MenuBar.cpp" line="748"/>
         <source>Update...</source>
         <translation>更新...</translation>
     </message>
@@ -3176,22 +3174,22 @@ Examples
         <translation type="vanished">Ctrl+Shift+U</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="768"/>
+        <location filename="../src/ui/MenuBar.cpp" line="764"/>
         <source>Open</source>
         <translation>開く</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="786"/>
+        <location filename="../src/ui/MenuBar.cpp" line="782"/>
         <source>Stash</source>
         <translation>スタッシュ</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="788"/>
+        <location filename="../src/ui/MenuBar.cpp" line="784"/>
         <source>Show Stashes</source>
         <translation>スタッシュを表示</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="797"/>
+        <location filename="../src/ui/MenuBar.cpp" line="793"/>
         <source>Stash...</source>
         <translation>スタッシュへ預ける...</translation>
     </message>
@@ -3200,7 +3198,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+T</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="801"/>
+        <location filename="../src/ui/MenuBar.cpp" line="797"/>
         <source>Pop Stash</source>
         <translation>スタッシュから引き出す</translation>
     </message>
@@ -3209,37 +3207,37 @@ Examples
         <translation type="vanished">Ctrl+Shift+Alt+T</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="806"/>
+        <location filename="../src/ui/MenuBar.cpp" line="802"/>
         <source>History</source>
         <translation>履歴</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="808"/>
+        <location filename="../src/ui/MenuBar.cpp" line="804"/>
         <source>Back</source>
         <translation>戻る</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="813"/>
+        <location filename="../src/ui/MenuBar.cpp" line="809"/>
         <source>Forward</source>
         <translation>進む</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="819"/>
+        <location filename="../src/ui/MenuBar.cpp" line="815"/>
         <source>Window</source>
         <translation>ウィンドウ</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="820"/>
+        <location filename="../src/ui/MenuBar.cpp" line="816"/>
         <source>Show Previous Tab</source>
         <translation>前のタブを表示</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="829"/>
+        <location filename="../src/ui/MenuBar.cpp" line="825"/>
         <source>Show Next Tab</source>
         <translation>次のタブを表示</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="840"/>
+        <location filename="../src/ui/MenuBar.cpp" line="836"/>
         <source>Show Repository Chooser...</source>
         <translation>リポジトリ選択画面を表示...</translation>
     </message>
@@ -3248,82 +3246,76 @@ Examples
         <translation type="vanished">Ctrl+Shift+O</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="845"/>
+        <location filename="../src/ui/MenuBar.cpp" line="841"/>
         <source>Tools</source>
         <translation>ツール</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="846"/>
+        <location filename="../src/ui/MenuBar.cpp" line="842"/>
         <source>Options...</source>
         <translation>オプション...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="852"/>
+        <location filename="../src/ui/MenuBar.cpp" line="848"/>
         <source>Help</source>
         <translation>ヘルプ</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="854"/>
+        <location filename="../src/ui/MenuBar.cpp" line="850"/>
         <source>About %1</source>
         <translation>%1 について</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="859"/>
         <source>Check For Updates...</source>
-        <translation>新しいバージョンを確認...</translation>
+        <translation type="vanished">新しいバージョンを確認...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="863"/>
+        <location filename="../src/ui/MenuBar.cpp" line="855"/>
         <source>Plugin Documentation...</source>
         <translation>プラグインについてのドキュメント...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="869"/>
-        <source>Support us via Liberapay</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/MenuBar.cpp" line="875"/>
+        <location filename="../src/ui/MenuBar.cpp" line="863"/>
         <source>Debug</source>
         <translation>デバッグ</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="876"/>
+        <location filename="../src/ui/MenuBar.cpp" line="864"/>
         <source>Abort</source>
         <translation>中断</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="889"/>
+        <location filename="../src/ui/MenuBar.cpp" line="877"/>
         <source>Log Indexer Progress</source>
         <translation>インデックス構築状況のログを取る</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="895"/>
+        <location filename="../src/ui/MenuBar.cpp" line="883"/>
         <source>Log Credential Helper</source>
         <translation>資格情報ヘルパーのログを取る</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="901"/>
+        <location filename="../src/ui/MenuBar.cpp" line="889"/>
         <source>Log Remote Connection</source>
         <translation>リモート接続のログを取る</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="907"/>
+        <location filename="../src/ui/MenuBar.cpp" line="895"/>
         <source>Log Debug Messages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="915"/>
+        <location filename="../src/ui/MenuBar.cpp" line="903"/>
         <source>Load All Diffs</source>
         <translation>全ての差分を読み込む</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="929"/>
+        <location filename="../src/ui/MenuBar.cpp" line="917"/>
         <source>Walk Commits</source>
         <translation>コミットを走査</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1052"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1040"/>
         <source>Hide Log</source>
         <translation>ログを隠す</translation>
     </message>
@@ -3332,27 +3324,27 @@ Examples
         <translation type="vanished">差分ビューを表示</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1103"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1091"/>
         <source>Merge</source>
         <translation>マージ</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1113"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1101"/>
         <source>Revert</source>
         <translation>取り消し</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1119"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1107"/>
         <source>Cherry-pick</source>
         <translation>取り込み</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1125"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1113"/>
         <source>Rebase</source>
         <translation>リベース</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1131"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1119"/>
         <source>Abort %1</source>
         <translation>%1を中断</translation>
     </message>
@@ -3429,12 +3421,12 @@ Examples
 <context>
     <name>MiscPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="794"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="751"/>
         <source>Path to SSH config file:</source>
         <translation>SSH 構成ファイルへのパス:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="795"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="752"/>
         <source>Path to default / fallback SSH key file:</source>
         <translation>既定 / フォールバックの SSH 鍵ファイルへのパス:</translation>
     </message>
@@ -3671,11 +3663,6 @@ Examples
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/app/Gittyup.cpp" line="25"/>
-        <source>Your global GIT configuration is invalid, Gittyup won&apos;t run properly until this is fixed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../src/ui/DiffTreeModel.cpp" line="27"/>
         <source>File Name</source>
         <translation type="unfinished"></translation>
@@ -3885,6 +3872,11 @@ Examples
     <message>
         <location filename="../src/ui/RepositoryNavigator.cpp" line="43"/>
         <source>%1↓</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/app/Gittyup.cpp" line="25"/>
+        <source>Your global Git configuration is invalid. GitNortek won&apos;t run properly until this is fixed</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -6073,67 +6065,66 @@ The submodule will be removed from this project. Its working files and cached lo
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="865"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="822"/>
         <source>Esc</source>
         <translation>Esc</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="880"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="837"/>
         <source>Global git settings can be overridden for each repository in the corresponding repository configuration page.</source>
         <translation>Git のグローバル設定は、各リポジトリの設定から上書きできます。</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="897"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="854"/>
         <source>Edit Config File...</source>
         <translation>設定ファイルを編集...</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="926"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="883"/>
         <source>General</source>
         <translation>一般</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="934"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="891"/>
         <source>Diff</source>
         <translation>差分</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="942"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="899"/>
         <source>Tools</source>
         <translation>ツール</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="952"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="909"/>
         <source>Window</source>
         <translation>ウィンドウ</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="960"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="917"/>
         <source>Editor</source>
         <translation>エディター</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="968"/>
         <source>Update</source>
-        <translation>更新</translation>
+        <translation type="vanished">更新</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="976"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="925"/>
         <source>Plugins</source>
         <translation>プラグイン</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="984"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="933"/>
         <source>Misc</source>
         <translation>その他</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="992"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="941"/>
         <source>Hotkeys</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="1002"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="951"/>
         <source>Terminal</source>
         <translation>端末</translation>
     </message>
@@ -6244,103 +6235,103 @@ The submodule will be removed from this project. Its working files and cached lo
         <translation>リポジトリを選択</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="379"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="380"/>
         <source>Understand your history!</source>
         <translation>Git の履歴を見やすく管理</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="434"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="435"/>
         <source>Clone Repository</source>
         <translation>リポジトリをクローン</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="445"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="446"/>
         <source>Open Existing Repository</source>
         <translation>既存のリポジトリを開く</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="449"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="450"/>
         <source>Open Repository</source>
         <translation>リポジトリを開く</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="457"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="458"/>
         <source>Initialize New Repository</source>
         <translation>新しいリポジトリを作成</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="471"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="472"/>
         <source>Clear All</source>
         <translation>全て消去</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="476"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="477"/>
         <source>Show Full Path</source>
         <translation>完全なパスを表示</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="486"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="487"/>
         <source>Filter Non-existent Paths</source>
         <translation>存在しないパスを除去</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="494"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="495"/>
         <source>Repositories:</source>
         <translation>リポジトリ:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="542"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="543"/>
         <source>Refresh</source>
         <translation>再読み込み</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="549"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="550"/>
         <source>Show Full Name</source>
         <translation>完全な名前を表示</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="577"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="578"/>
         <source>Remote:</source>
         <translation>リモート:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="595"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="596"/>
         <source>View Getting Started Video</source>
         <translation>解説動画を観る</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="714"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="715"/>
         <source>Clone</source>
         <translation>クローン</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="714"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="715"/>
         <source>Open</source>
         <translation>開く</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="780"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="781"/>
         <source>&lt;p&gt;Are you sure you want to remove the %1 account for &apos;%2&apos;?&lt;/p&gt;&lt;p&gt;Only the account association will be removed. Remote configurations and local clones will not be affected.&lt;/p&gt;</source>
         <translation>&lt;p&gt;%1 アカウント &apos;%2&apos; を削除しますか？&lt;/p&gt;&lt;p&gt;アカウントへの関連付けのみが解除されます。リモートの設定と、ローカルのクローンには影響しません。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="784"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="785"/>
         <source>Remove Account?</source>
         <translation>アカウントを削除しますか？</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="787"/>
-        <location filename="../src/dialogs/StartDialog.cpp" line="807"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="788"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="808"/>
         <source>Remove</source>
         <translation>削除</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="802"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="803"/>
         <source>&lt;p&gt;Are you sure you want to remove the remote repository association for %1?&lt;/p&gt;&lt;p&gt;The local clone itself will not be affected.&lt;/p&gt;</source>
         <translation>&lt;p&gt;リモートリポジトリ %1 への関連付けを解除しますか？&lt;/p&gt;&lt;p&gt;ローカルのクローンには影響しません。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="805"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="806"/>
         <source>Remove Repository Association?</source>
         <translation>リポジトリへの関連付けを解除しますか？</translation>
     </message>
@@ -6502,7 +6493,7 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/ui/TemplateDialog.cpp" line="244"/>
         <location filename="../src/ui/TemplateDialog.cpp" line="297"/>
-        <source>Gittyup Templates (*%1)</source>
+        <source>GitNortek Templates (*%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6519,23 +6510,23 @@ x (number) determines the number of maximum files shown</source>
 <context>
     <name>TerminalPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="822"/>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="846"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="779"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="803"/>
         <source>Install</source>
         <translation>インストール</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="835"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="792"/>
         <source>Name:</source>
         <translation>名前:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="836"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="793"/>
         <source>Location:</source>
         <translation>場所:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="846"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="803"/>
         <source>Uninstall</source>
         <translation>アンインストール</translation>
     </message>
@@ -6591,7 +6582,7 @@ x (number) determines the number of maximum files shown</source>
     </message>
     <message>
         <location filename="../src/dialogs/ThemeDialog.cpp" line="89"/>
-        <source>Pick a theme for Gittyup</source>
+        <source>Pick a theme for GitNortek</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6736,42 +6727,42 @@ x (number) determines the number of maximum files shown</source>
 <context>
     <name>ToolsPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="338"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="337"/>
         <source>Keep backup of merge files (.orig)</source>
         <translation>マージファイルのバックアップを取る (.orig)</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="345"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="344"/>
         <source>External editor:</source>
         <translation>外部エディター:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="346"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="345"/>
         <source>External diff:</source>
         <translation>外部差分ツール:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="347"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="346"/>
         <source>External merge:</source>
         <translation>外部マージツール:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="348"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="347"/>
         <source>Backup files:</source>
         <translation>ファイルのバックアップ:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="351"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="350"/>
         <source>Terminal emulator command:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="363"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="362"/>
         <source>File manager command:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="391"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="390"/>
         <source>Configure</source>
         <translation>設定</translation>
     </message>
@@ -6844,91 +6835,58 @@ x (number) determines the number of maximum files shown</source>
 <context>
     <name>UpToDateDialog</name>
     <message>
-        <location filename="../src/update/UpToDateDialog.cpp" line="19"/>
         <source>Already Up-to-date</source>
-        <translation>既に最新です</translation>
+        <translation type="vanished">既に最新です</translation>
     </message>
     <message>
-        <location filename="../src/update/UpToDateDialog.cpp" line="30"/>
         <source>%1 is already up-to-date. You have version %2.</source>
-        <translation>既に最新版 (バージョン %2) の %1 をお使いです。</translation>
+        <translation type="vanished">既に最新版 (バージョン %2) の %1 をお使いです。</translation>
     </message>
 </context>
 <context>
     <name>UpdateDialog</name>
     <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="51"/>
         <source>Update %1</source>
-        <translation>%1 を更新</translation>
+        <translation type="vanished">%1 を更新</translation>
     </message>
     <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="61"/>
-        <location filename="../src/update/UpdateDialog.cpp" line="85"/>
-        <source>&lt;h3&gt;A new version of %1 is available!&lt;/h3&gt;&lt;p&gt;%1 %2 is now available - you have %3. The new version will be soon available in your package manager. Just update your system.&lt;/p&gt;&lt;b&gt;Release Notes:&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="68"/>
         <source>&lt;h3&gt;A new version of %1 is available!&lt;/h3&gt;&lt;p&gt;%1 %2 is now available - you have %3. Would you like to download it now?&lt;/p&gt;&lt;b&gt;Release Notes:&lt;/b&gt;</source>
-        <translation>&lt;h3&gt;新しい %1 のバージョンが利用できます。&lt;/h3&gt;&lt;p&gt;%1 %2 を利用できます (現在 %3 をお使いです)。すぐにダウンロードしますか？&lt;/p&gt;&lt;b&gt;新機能と変更点:&lt;/b&gt;</translation>
+        <translation type="vanished">&lt;h3&gt;新しい %1 のバージョンが利用できます。&lt;/h3&gt;&lt;p&gt;%1 %2 を利用できます (現在 %3 をお使いです)。すぐにダウンロードしますか？&lt;/p&gt;&lt;b&gt;新機能と変更点:&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="75"/>
-        <source>&lt;h3&gt;A new version of %1 is available!&lt;/h3&gt;&lt;p&gt;%1 %2 is now available - you have %3.&lt;/p&gt;&lt;p&gt;If you downloaded the flatpak package over a package manager or from flathub.org &lt;br/&gt;you don&apos;t have to install manually a new version. It will be available within the next &lt;br/&gt;days during your system update: &lt;code&gt;flatpak update&lt;/code&gt;&lt;/p&gt;&lt;b&gt;Release Notes:&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="100"/>
         <source>Automatically download and install updates</source>
-        <translation>自動的に更新のダウンロードとインストールを行う</translation>
+        <translation type="vanished">自動的に更新のダウンロードとインストールを行う</translation>
     </message>
     <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="112"/>
         <source>Install Update</source>
-        <translation>更新をインストール</translation>
+        <translation type="vanished">更新をインストール</translation>
     </message>
     <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="114"/>
         <source>Remind Me Later</source>
-        <translation>後で通知</translation>
+        <translation type="vanished">後で通知</translation>
     </message>
     <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="118"/>
         <source>Skip This Version</source>
-        <translation>このバージョンは無視</translation>
-    </message>
-    <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="138"/>
-        <source>Ok</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="150"/>
-        <source>Donate</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">このバージョンは無視</translation>
     </message>
 </context>
 <context>
     <name>UpdatePanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="739"/>
         <source>Check for updates automatically</source>
-        <translation>自動的に更新を確認</translation>
+        <translation type="vanished">自動的に更新を確認</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="751"/>
         <source>Automatically download and install updates</source>
-        <translation>自動的に更新のダウンロードとインストールを行う</translation>
+        <translation type="vanished">自動的に更新のダウンロードとインストールを行う</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="761"/>
         <source>Check Now</source>
-        <translation>今すぐ確認</translation>
+        <translation type="vanished">今すぐ確認</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="766"/>
         <source>Software Update:</source>
-        <translation>ソフトウェアの更新:</translation>
+        <translation type="vanished">ソフトウェアの更新:</translation>
     </message>
 </context>
 <context>
@@ -6952,127 +6910,107 @@ x (number) determines the number of maximum files shown</source>
 <context>
     <name>Updater</name>
     <message>
-        <location filename="../src/update/Updater_win.cpp" line="23"/>
         <source>Installer failed to start</source>
-        <translation>インストーラーの開始に失敗しました</translation>
+        <translation type="vanished">インストーラーの開始に失敗しました</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater_mac.mm" line="77"/>
         <source>The disk image failed to mount successfully</source>
-        <translation>ディスクイメージを正しくマウントできませんでした</translation>
+        <translation type="vanished">ディスクイメージを正しくマウントできませんでした</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater_mac.mm" line="96"/>
         <source>The existing bundle could not be moved to the trash</source>
-        <translation>既存のバンドルをゴミ箱へ移動できませんでした</translation>
+        <translation type="vanished">既存のバンドルをゴミ箱へ移動できませんでした</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater_mac.mm" line="108"/>
         <source>The new bundle could not be copied into place</source>
-        <translation>新しいバンドルを、対象の場所へコピーできませんでした</translation>
+        <translation type="vanished">新しいバンドルを、対象の場所へコピーできませんでした</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater_mac.mm" line="117"/>
-        <location filename="../src/update/Updater.cpp" line="348"/>
-        <location filename="../src/update/Updater.cpp" line="370"/>
         <source>Helper application failed to start</source>
-        <translation>補助アプリケーションの開始に失敗しました</translation>
+        <translation type="vanished">補助アプリケーションの開始に失敗しました</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="100"/>
         <source>Update Failed</source>
-        <translation>更新に失敗しました</translation>
+        <translation type="vanished">更新に失敗しました</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="115"/>
         <source>Unable to check for updates</source>
-        <translation>更新を確認できませんでした</translation>
+        <translation type="vanished">更新を確認できませんでした</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="199"/>
         <source>Unable to download update</source>
-        <translation>更新をダウンロードできませんでした</translation>
+        <translation type="vanished">更新をダウンロードできませんでした</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="202"/>
         <source>Unable to open temporary file</source>
-        <translation>一時ファイルを開けませんでした</translation>
+        <translation type="vanished">一時ファイルを開けませんでした</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="259"/>
         <source>Unable to install update</source>
-        <translation>更新をインストールできませんでした</translation>
-    </message>
-    <message>
-        <location filename="../src/update/Updater.cpp" line="262"/>
-        <source>Some windows failed to close. You can download the binary manually from %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">更新をインストールできませんでした</translation>
     </message>
     <message>
         <source>Some windows failed to close</source>
         <translation type="vanished">一部のウィンドウを閉じられませんでした</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="270"/>
         <source>Unknown install error</source>
-        <translation>不明なインストールエラー</translation>
+        <translation type="vanished">不明なインストールエラー</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="333"/>
-        <location filename="../src/update/Updater.cpp" line="361"/>
         <source>Installer script failed: %1</source>
-        <translation>インストーラーのスクリプトが失敗しました: %1</translation>
+        <translation type="vanished">インストーラーのスクリプトが失敗しました: %1</translation>
     </message>
 </context>
 <context>
     <name>WindowPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="460"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="459"/>
         <source>Add New Theme</source>
         <translation>新しいテーマを追加</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="461"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="460"/>
         <source>Edit Current Theme</source>
         <translation>現在のテーマを編集</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="485"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="484"/>
         <source>Create Theme</source>
         <translation>テーマを作成</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="495"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="494"/>
         <source>Theme Name</source>
         <translation>テーマ名</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="527"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="526"/>
         <source>Restart?</source>
         <translation>再起動しますか？</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="528"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="527"/>
         <source>The application must be restarted for the theme change to take effect.</source>
         <translation>テーマの変更を適用するには、アプリケーションを再起動する必要があります。</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="530"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="529"/>
         <source>Do you want to restart now?</source>
         <translation>今すぐ再起動しますか？</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="532"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="531"/>
         <source>Restart</source>
         <translation>再起動</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="533"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="532"/>
         <source>Later</source>
         <translation>後で</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="551"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="550"/>
         <source>Show full repository path</source>
         <translation>リポジトリの完全なパスを表示</translation>
     </message>
@@ -7081,42 +7019,42 @@ x (number) determines the number of maximum files shown</source>
         <translation type="vanished">自動的に隠す</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="558"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="557"/>
         <source>Open submodules in tabs</source>
         <translation>サブモジュールをタブに開く</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="566"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="565"/>
         <source>Open all repositories in tabs</source>
         <translation>全てのリポジトリをタブに開く</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="573"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="572"/>
         <source>Hide Menubar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="578"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="577"/>
         <source>Show Avatars</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="579"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="578"/>
         <source>Download commit-author avatars from GitHub when an account is configured, with Gravatar as a fallback. Images are cached in memory for this session only.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="588"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="587"/>
         <source>Show Window Maximized when opened</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="641"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="640"/>
         <source>Theme:</source>
         <translation>テーマ:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="642"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="641"/>
         <source>Title:</source>
         <translation>タイトル:</translation>
     </message>
@@ -7125,17 +7063,17 @@ x (number) determines the number of maximum files shown</source>
         <translation type="vanished">ログ:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="643"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="642"/>
         <source>Tabs:</source>
         <translation>タブ:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="645"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="644"/>
         <source>View:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="648"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="647"/>
         <source>Prompt:</source>
         <translation>質問:</translation>
     </message>

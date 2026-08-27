@@ -15,7 +15,6 @@
 #include "ui/MenuBar.h"
 #include "ui/RepoView.h"
 #include "ui/TabWidget.h"
-#include "update/Updater.h"
 #include "languages.h"
 #include "util/Debug.h"
 #include <QCloseEvent>
@@ -25,14 +24,11 @@
 #include <QFileInfo>
 #include <QFontDatabase>
 #include <QMessageBox>
-#include <QNetworkAccessManager>
 #include <QNetworkProxyFactory>
-#include <QNetworkReply>
 #include <QOperatingSystemVersion>
 #include <QPalette>
 #include <QSettings>
 #include <QStyle>
-#include <QTimer>
 #include <QTranslator>
 #include <QUrlQuery>
 #include <QUuid>
@@ -68,8 +64,8 @@ static LONG WINAPI exceptionFilter(PEXCEPTION_POINTERS info) {
   GetTempPath(MAX_PATH, temp);
 
   wchar_t dir[MAX_PATH];
-  const wchar_t *gittyup_name = L"%sGittyup";
-  StringCchPrintf(dir, MAX_PATH, gittyup_name, temp);
+  const wchar_t *gitnortek_name = L"%sGitNortek";
+  StringCchPrintf(dir, MAX_PATH, gitnortek_name, temp);
   CreateDirectory(dir, NULL);
 
   wchar_t fileName[MAX_PATH];
@@ -108,13 +104,9 @@ Application::Application(int &argc, char **argv, bool haltOnParseError)
   // Register types that are queued at runtime.
   qRegisterMetaType<git::Id>();
 
-  // Connect updater signals.
-  connect(Updater::instance(), &Updater::sslErrors, this,
-          &Application::handleSslErrors);
-
   // Parse command line arguments.
   QCommandLineParser parser;
-  parser.setApplicationDescription("Gittyup" BUILD_DESCRIPTION);
+  parser.setApplicationDescription("GitNortek" BUILD_DESCRIPTION);
   parser.addHelpOption();
   parser.addVersionOption();
   parser.addPositionalArgument("repository",
@@ -260,23 +252,6 @@ Application::Application(int &argc, char **argv, bool haltOnParseError)
     sendPostedEvents(nullptr, QEvent::DeferredDelete);
     git::Repository::shutdown();
   });
-}
-
-void Application::autoUpdate() {
-  // Check for updates.
-  if (Settings::instance()
-          ->value(Setting::Id::CheckForUpdatesAutomatically)
-          .toBool()) {
-    // Check now.
-    Updater::instance()->update(true);
-
-    // Set a timer to check daily.
-    QTimer *timer = new QTimer(this);
-    QObject::connect(timer, &QTimer::timeout,
-                     [] { Updater::instance()->update(true); });
-
-    timer->start(24 * 60 * 60 * 1000);
-  }
 }
 
 bool Application::restoreWindows() {
@@ -495,30 +470,4 @@ bool Application::event(QEvent *event) {
     MainWindow::open(static_cast<QFileOpenEvent *>(event)->file());
 
   return QApplication::event(event);
-}
-
-void Application::handleSslErrors(QNetworkReply *reply,
-                                  const QList<QSslError> &errors) {
-  QSettings settings;
-  if (settings.value("ssl/ignore").toBool()) {
-    // FIXME: Ignore individual errors?
-    reply->ignoreSslErrors(errors);
-    return;
-  }
-
-  QString title = tr("SSL Errors");
-  QString text =
-      tr("Failed to set up SSL session. Do you want to ignore these errors?");
-  auto buttons = QMessageBox::Abort | QMessageBox::Ignore;
-  QMessageBox msg(QMessageBox::Warning, title, text, buttons);
-
-  QString message;
-  foreach (const QSslError &error, errors)
-    message.append(QString("<p>%1</p>").arg(error.errorString()));
-  msg.setInformativeText(message);
-
-  if (msg.exec()) {
-    reply->ignoreSslErrors(errors);
-    settings.setValue("ssl/ignore", true);
-  }
 }

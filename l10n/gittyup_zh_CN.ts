@@ -4,27 +4,27 @@
 <context>
     <name>AboutDialog</name>
     <message>
-        <location filename="../src/dialogs/AboutDialog.cpp" line="71"/>
+        <location filename="../src/dialogs/AboutDialog.cpp" line="64"/>
         <source>About %1</source>
         <translation>关于 %1</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/AboutDialog.cpp" line="79"/>
+        <location filename="../src/dialogs/AboutDialog.cpp" line="73"/>
         <source>Understand your history!</source>
         <translation>了解您的提交历史！</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/AboutDialog.cpp" line="101"/>
+        <location filename="../src/dialogs/AboutDialog.cpp" line="94"/>
         <source>Changelog</source>
         <translation>变更日志</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/AboutDialog.cpp" line="102"/>
+        <location filename="../src/dialogs/AboutDialog.cpp" line="95"/>
         <source>Acknowledgments</source>
         <translation>致谢</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/AboutDialog.cpp" line="104"/>
+        <location filename="../src/dialogs/AboutDialog.cpp" line="97"/>
         <source>Privacy</source>
         <translation>隐私</translation>
     </message>
@@ -378,14 +378,12 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../src/app/Application.cpp" line="509"/>
         <source>SSL Errors</source>
-        <translation>SSL错误</translation>
+        <translation type="vanished">SSL错误</translation>
     </message>
     <message>
-        <location filename="../src/app/Application.cpp" line="511"/>
         <source>Failed to set up SSL session. Do you want to ignore these errors?</source>
-        <translation>无法设置SSL会话。您要忽略这些错误吗？</translation>
+        <translation type="vanished">无法设置SSL会话。您要忽略这些错误吗？</translation>
     </message>
 </context>
 <context>
@@ -1192,38 +1190,42 @@
 <context>
     <name>DefaultWidget</name>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="42"/>
+        <location filename="../src/ui/TabWidget.cpp" line="41"/>
         <source>Clone repository</source>
         <translation>克隆仓库</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="54"/>
+        <location filename="../src/ui/TabWidget.cpp" line="53"/>
         <source>Open existing repository</source>
         <translation>打开现有仓库</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="58"/>
+        <location filename="../src/ui/TabWidget.cpp" line="57"/>
         <source>Open Repository</source>
         <translation>打开仓库</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="68"/>
+        <location filename="../src/ui/TabWidget.cpp" line="67"/>
         <source>Initialize new repository</source>
         <translation>初始化新的仓库</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="88"/>
+        <location filename="../src/ui/TabWidget.cpp" line="87"/>
         <source>Add %1 account</source>
         <translation>添加%1个帐户</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/TabWidget.cpp" line="99"/>
+        <source>Report an issue</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>View getting started videos</source>
         <translation type="vanished">查看入门视频</translation>
     </message>
     <message>
-        <location filename="../src/ui/TabWidget.cpp" line="103"/>
         <source>Contact us for support</source>
-        <translation>联系我们以获得支持</translation>
+        <translation type="vanished">联系我们以获得支持</translation>
     </message>
 </context>
 <context>
@@ -1491,24 +1493,20 @@ These settings will not be saved permanently</source>
 <context>
     <name>DownloadDialog</name>
     <message>
-        <location filename="../src/update/DownloadDialog.cpp" line="25"/>
         <source>Update %1</source>
-        <translation>更新%1</translation>
+        <translation type="vanished">更新%1</translation>
     </message>
     <message>
-        <location filename="../src/update/DownloadDialog.cpp" line="34"/>
         <source>Downloading %1...</source>
-        <translation>正在下载%1 ...</translation>
+        <translation type="vanished">正在下载%1 ...</translation>
     </message>
     <message>
-        <location filename="../src/update/DownloadDialog.cpp" line="60"/>
         <source>Download Complete!</source>
-        <translation>下载完成！</translation>
+        <translation type="vanished">下载完成！</translation>
     </message>
     <message>
-        <location filename="../src/update/DownloadDialog.cpp" line="61"/>
         <source>Install and Restart</source>
-        <translation>安装并重启</translation>
+        <translation type="vanished">安装并重启</translation>
     </message>
 </context>
 <context>
@@ -1540,57 +1538,57 @@ These settings will not be saved permanently</source>
 <context>
     <name>EditorPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="682"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="681"/>
         <source>Show whitespace</source>
         <translation>显示空白字符</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="691"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="690"/>
         <source>Tabs</source>
         <translation>标签页</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="692"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="691"/>
         <source>Spaces</source>
         <translation>空间</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="713"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="712"/>
         <source>Show heat map</source>
         <translation>显示热图</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="722"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="721"/>
         <source>Font:</source>
         <translation>字体：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="723"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="722"/>
         <source>Font size:</source>
         <translation>字体大小：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="724"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="723"/>
         <source>Whitespace:</source>
         <translation>空格：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="725"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="724"/>
         <source>Indent using:</source>
         <translation>缩进使用：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="726"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="725"/>
         <source>Indent width:</source>
         <translation>缩进宽度：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="727"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="726"/>
         <source>Tab width:</source>
         <translation>标签页宽度：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="728"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="727"/>
         <source>Blame margin:</source>
         <translation>追踪边际：</translation>
     </message>
@@ -2131,13 +2129,13 @@ These settings will not be saved permanently</source>
 <context>
     <name>GeneralPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="96"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="95"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="78"/>
         <source>Fetch every</source>
         <translation>获取每个</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="103"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="102"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="85"/>
         <source>minutes</source>
         <translation>分</translation>
@@ -2151,18 +2149,18 @@ These settings will not be saved permanently</source>
         <translation type="vanished">拉取后更新子模块</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="110"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="109"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="90"/>
         <source>Prune when fetching</source>
         <translation>获取时清除</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="111"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="110"/>
         <source>No translation</source>
         <translation>没有翻译</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="121"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="120"/>
         <source>Store credentials in secure storage</source>
         <translation>将凭证存储在安全存储中</translation>
     </message>
@@ -2171,87 +2169,87 @@ These settings will not be saved permanently</source>
         <translation type="vanished">允许收集使用情况数据</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="107"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="106"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="89"/>
         <source>Update submodules after pull and clone</source>
         <translation>在拉取和克隆后更新子模块</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="109"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="108"/>
         <source>Check submodules for updates when opening repositories</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="125"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="124"/>
         <source>&lt;a href=&apos;view&apos;&gt;View privacy policy&lt;/a&gt;</source>
         <translation>&lt;a href=&apos;view&apos;&gt;查看隐私政策&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="132"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="131"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="93"/>
         <source>User name:</source>
         <translation>用户名：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="133"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="132"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="94"/>
         <source>User email:</source>
         <translation>用户电子邮件：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="134"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="133"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="95"/>
         <source>Automatic actions:</source>
         <translation>自动动作：</translation>
     </message>
     <message>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="137"/>
         <location filename="../src/dialogs/SettingsDialog.cpp" line="138"/>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="139"/>
         <source>Language:</source>
         <translation>语言：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="140"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="139"/>
         <source>Credentials:</source>
         <translation>证书：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="141"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="140"/>
         <source>Credential store type:</source>
         <translation>凭据存储类型：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="142"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="141"/>
         <source>Available Credential stores:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="147"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="146"/>
         <source>Only allow a single running instance</source>
         <translation>仅允许单个正在运行的实例</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="150"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="149"/>
         <source>Single instance:</source>
         <translation>单个实例：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="272"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="271"/>
         <source>No credential store set</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="273"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="272"/>
         <source>No credential store is set. Go to the application settings to set the desired credential store</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="279"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="278"/>
         <source></source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="288"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="287"/>
         <source>Available Credential stores</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2762,17 +2760,17 @@ Examples
 <context>
     <name>MenuBar</name>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="263"/>
+        <location filename="../src/ui/MenuBar.cpp" line="259"/>
         <source>File</source>
         <translation>文件</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="265"/>
+        <location filename="../src/ui/MenuBar.cpp" line="261"/>
         <source>New File</source>
         <translation>新建文件</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="279"/>
+        <location filename="../src/ui/MenuBar.cpp" line="275"/>
         <source>New Window</source>
         <translation>新建窗口</translation>
     </message>
@@ -2781,7 +2779,7 @@ Examples
         <translation type="vanished">Ctrl+Meta+N</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="283"/>
+        <location filename="../src/ui/MenuBar.cpp" line="279"/>
         <source>Clone Repository...</source>
         <translation>克隆仓库...</translation>
     </message>
@@ -2790,7 +2788,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+N</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="288"/>
+        <location filename="../src/ui/MenuBar.cpp" line="284"/>
         <source>Initialize New Repository...</source>
         <translation>初始化新仓库...</translation>
     </message>
@@ -2799,107 +2797,107 @@ Examples
         <translation type="vanished">Ctrl+Alt+N</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="295"/>
+        <location filename="../src/ui/MenuBar.cpp" line="291"/>
         <source>Open Repository...</source>
         <translation>打开仓库...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="300"/>
+        <location filename="../src/ui/MenuBar.cpp" line="296"/>
         <source>Open Repository</source>
         <translation>打开仓库</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="307"/>
+        <location filename="../src/ui/MenuBar.cpp" line="303"/>
         <source>Open Recent</source>
         <translation>打开最近</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="323"/>
+        <location filename="../src/ui/MenuBar.cpp" line="319"/>
         <source>Close</source>
         <translation>关闭</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="340"/>
+        <location filename="../src/ui/MenuBar.cpp" line="336"/>
         <source>Save</source>
         <translation>保存</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="349"/>
+        <location filename="../src/ui/MenuBar.cpp" line="345"/>
         <source>Exit</source>
         <translation>退出</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="356"/>
+        <location filename="../src/ui/MenuBar.cpp" line="352"/>
         <source>Edit</source>
         <translation>编辑</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="358"/>
+        <location filename="../src/ui/MenuBar.cpp" line="354"/>
         <source>Undo</source>
         <translation>撤消</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="371"/>
+        <location filename="../src/ui/MenuBar.cpp" line="367"/>
         <source>Redo</source>
         <translation>重做</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="386"/>
+        <location filename="../src/ui/MenuBar.cpp" line="382"/>
         <source>Cut</source>
         <translation>剪切</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="399"/>
+        <location filename="../src/ui/MenuBar.cpp" line="395"/>
         <source>Copy</source>
         <translation>复制</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="414"/>
+        <location filename="../src/ui/MenuBar.cpp" line="410"/>
         <source>Paste</source>
         <translation>粘贴</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="427"/>
+        <location filename="../src/ui/MenuBar.cpp" line="423"/>
         <source>Select All</source>
         <translation>全选</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="442"/>
+        <location filename="../src/ui/MenuBar.cpp" line="438"/>
         <source>Find...</source>
         <translation>查找...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="454"/>
+        <location filename="../src/ui/MenuBar.cpp" line="450"/>
         <source>Find Next</source>
         <translation>查找下一个</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="465"/>
+        <location filename="../src/ui/MenuBar.cpp" line="461"/>
         <source>Find Previous</source>
         <translation>查找上一个</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="476"/>
+        <location filename="../src/ui/MenuBar.cpp" line="472"/>
         <source>Use Selection for Find</source>
         <translation>查找选择的内容</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="500"/>
+        <location filename="../src/ui/MenuBar.cpp" line="496"/>
         <source>Report Repository Diagnostics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="636"/>
+        <location filename="../src/ui/MenuBar.cpp" line="632"/>
         <source>Force Push...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="741"/>
+        <location filename="../src/ui/MenuBar.cpp" line="737"/>
         <source>Check for Updates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1054"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1042"/>
         <source>Show Double Tree View</source>
         <translation>显示双树视图</translation>
     </message>
@@ -2908,54 +2906,54 @@ Examples
         <translation type="vanished">Ctrl+E</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="493"/>
+        <location filename="../src/ui/MenuBar.cpp" line="489"/>
         <source>View</source>
         <translation>查看</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="495"/>
+        <location filename="../src/ui/MenuBar.cpp" line="491"/>
         <source>Refresh</source>
         <translation>刷新</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="506"/>
-        <location filename="../src/ui/MenuBar.cpp" line="1052"/>
+        <location filename="../src/ui/MenuBar.cpp" line="502"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1040"/>
         <source>Show Log</source>
         <translation>显示日志</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="513"/>
+        <location filename="../src/ui/MenuBar.cpp" line="509"/>
         <source>Normal</source>
         <translation>正常</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="513"/>
+        <location filename="../src/ui/MenuBar.cpp" line="509"/>
         <source>Maximize</source>
         <translation>最大化</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="532"/>
-        <location filename="../src/ui/MenuBar.cpp" line="1053"/>
+        <location filename="../src/ui/MenuBar.cpp" line="528"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1041"/>
         <source>Show Tree View</source>
         <translation>显示树状视图</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="540"/>
+        <location filename="../src/ui/MenuBar.cpp" line="536"/>
         <source>Hide Menu Bar</source>
         <translation>隐藏菜单栏</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="548"/>
+        <location filename="../src/ui/MenuBar.cpp" line="544"/>
         <source>Repository</source>
         <translation>仓库</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="550"/>
+        <location filename="../src/ui/MenuBar.cpp" line="546"/>
         <source>Configure Repository...</source>
         <translation>配置仓库...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="557"/>
+        <location filename="../src/ui/MenuBar.cpp" line="553"/>
         <source>Stage All</source>
         <translation>暂存全部</translation>
     </message>
@@ -2964,7 +2962,7 @@ Examples
         <translation type="vanished">Ctrl++</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="561"/>
+        <location filename="../src/ui/MenuBar.cpp" line="557"/>
         <source>Unstage All</source>
         <translation>取消暂存全部</translation>
     </message>
@@ -2973,7 +2971,7 @@ Examples
         <translation type="vanished">Ctrl+-</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="567"/>
+        <location filename="../src/ui/MenuBar.cpp" line="563"/>
         <source>Commit</source>
         <translation>提交</translation>
     </message>
@@ -2982,7 +2980,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+C</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="571"/>
+        <location filename="../src/ui/MenuBar.cpp" line="567"/>
         <source>Amend Commit</source>
         <translation>修改提交</translation>
     </message>
@@ -2991,32 +2989,32 @@ Examples
         <translation type="vanished">Ctrl+Shift+A</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="577"/>
+        <location filename="../src/ui/MenuBar.cpp" line="573"/>
         <source>Git LFS</source>
         <translation>Git LFS</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="578"/>
+        <location filename="../src/ui/MenuBar.cpp" line="574"/>
         <source>Remove all locks</source>
         <translation>移除所有锁定</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="586"/>
+        <location filename="../src/ui/MenuBar.cpp" line="582"/>
         <source>Initialize</source>
         <translation>初始化</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="592"/>
+        <location filename="../src/ui/MenuBar.cpp" line="588"/>
         <source>Remote</source>
         <translation>远程</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="594"/>
+        <location filename="../src/ui/MenuBar.cpp" line="590"/>
         <source>Configure Remotes...</source>
         <translation>配置远程...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="602"/>
+        <location filename="../src/ui/MenuBar.cpp" line="598"/>
         <source>Fetch</source>
         <translation>获取</translation>
     </message>
@@ -3025,7 +3023,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+Alt+F</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="606"/>
+        <location filename="../src/ui/MenuBar.cpp" line="602"/>
         <source>Fetch All</source>
         <translation>获取全部</translation>
     </message>
@@ -3034,7 +3032,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+Alt+A</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="610"/>
+        <location filename="../src/ui/MenuBar.cpp" line="606"/>
         <source>Fetch From...</source>
         <translation>获取自...</translation>
     </message>
@@ -3043,7 +3041,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+F</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="619"/>
+        <location filename="../src/ui/MenuBar.cpp" line="615"/>
         <source>Pull</source>
         <translation>拉取</translation>
     </message>
@@ -3052,7 +3050,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+Alt+L</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="623"/>
+        <location filename="../src/ui/MenuBar.cpp" line="619"/>
         <source>Pull From...</source>
         <translation>拉取自...</translation>
     </message>
@@ -3061,7 +3059,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+L</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="632"/>
+        <location filename="../src/ui/MenuBar.cpp" line="628"/>
         <source>Push</source>
         <translation>推送</translation>
     </message>
@@ -3070,7 +3068,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+Alt+P</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="641"/>
+        <location filename="../src/ui/MenuBar.cpp" line="637"/>
         <source>Push To...</source>
         <translation>推送至...</translation>
     </message>
@@ -3079,27 +3077,27 @@ Examples
         <translation type="vanished">Ctrl+Shift+P</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="649"/>
+        <location filename="../src/ui/MenuBar.cpp" line="645"/>
         <source>Branch</source>
         <translation>分支</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="651"/>
+        <location filename="../src/ui/MenuBar.cpp" line="647"/>
         <source>Configure Branches...</source>
         <translation>配置分支...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="657"/>
+        <location filename="../src/ui/MenuBar.cpp" line="653"/>
         <source>New Branch...</source>
         <translation>新建分支...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="662"/>
+        <location filename="../src/ui/MenuBar.cpp" line="658"/>
         <source>Rename Branch</source>
         <translation>重命名分支</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="670"/>
+        <location filename="../src/ui/MenuBar.cpp" line="666"/>
         <source>Checkout Current</source>
         <translation>检出（Checkout）当前</translation>
     </message>
@@ -3108,7 +3106,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+Alt+H</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="681"/>
+        <location filename="../src/ui/MenuBar.cpp" line="677"/>
         <source>Checkout...</source>
         <translation>检出（Checkout）...</translation>
     </message>
@@ -3117,7 +3115,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+H</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="688"/>
+        <location filename="../src/ui/MenuBar.cpp" line="684"/>
         <source>Merge...</source>
         <translation>合并（Merge）...</translation>
     </message>
@@ -3126,7 +3124,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+M</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="700"/>
+        <location filename="../src/ui/MenuBar.cpp" line="696"/>
         <source>Rebase...</source>
         <translation>变基（Rebase）...</translation>
     </message>
@@ -3135,7 +3133,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+R</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="712"/>
+        <location filename="../src/ui/MenuBar.cpp" line="708"/>
         <source>Squash...</source>
         <translation>聚合（Squash）...</translation>
     </message>
@@ -3144,22 +3142,22 @@ Examples
         <translation type="vanished">Ctrl+Shift+Q</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="726"/>
+        <location filename="../src/ui/MenuBar.cpp" line="722"/>
         <source>Abort Merge</source>
         <translation>中止合并（Merge）</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="731"/>
+        <location filename="../src/ui/MenuBar.cpp" line="727"/>
         <source>Submodule</source>
         <translation>子模块</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="733"/>
+        <location filename="../src/ui/MenuBar.cpp" line="729"/>
         <source>Configure Submodules...</source>
         <translation>配置子模块...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="747"/>
+        <location filename="../src/ui/MenuBar.cpp" line="743"/>
         <source>Update All</source>
         <translation>更新全部</translation>
     </message>
@@ -3168,7 +3166,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+Alt+U</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="752"/>
+        <location filename="../src/ui/MenuBar.cpp" line="748"/>
         <source>Update...</source>
         <translation>更新...</translation>
     </message>
@@ -3177,22 +3175,22 @@ Examples
         <translation type="vanished">Ctrl+Shift+U</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="768"/>
+        <location filename="../src/ui/MenuBar.cpp" line="764"/>
         <source>Open</source>
         <translation>打开</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="786"/>
+        <location filename="../src/ui/MenuBar.cpp" line="782"/>
         <source>Stash</source>
         <translation>贮藏</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="788"/>
+        <location filename="../src/ui/MenuBar.cpp" line="784"/>
         <source>Show Stashes</source>
         <translation>显示贮藏区备份</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="797"/>
+        <location filename="../src/ui/MenuBar.cpp" line="793"/>
         <source>Stash...</source>
         <translation>备份未提交修改到贮藏区</translation>
     </message>
@@ -3201,7 +3199,7 @@ Examples
         <translation type="vanished">Ctrl+Shift+T</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="801"/>
+        <location filename="../src/ui/MenuBar.cpp" line="797"/>
         <source>Pop Stash</source>
         <translation>应用备份并从贮藏区删除</translation>
     </message>
@@ -3210,37 +3208,37 @@ Examples
         <translation type="vanished">Ctrl+Shift+Alt+T</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="806"/>
+        <location filename="../src/ui/MenuBar.cpp" line="802"/>
         <source>History</source>
         <translation>历史</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="808"/>
+        <location filename="../src/ui/MenuBar.cpp" line="804"/>
         <source>Back</source>
         <translation>退回</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="813"/>
+        <location filename="../src/ui/MenuBar.cpp" line="809"/>
         <source>Forward</source>
         <translation>前进</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="819"/>
+        <location filename="../src/ui/MenuBar.cpp" line="815"/>
         <source>Window</source>
         <translation>窗口</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="820"/>
+        <location filename="../src/ui/MenuBar.cpp" line="816"/>
         <source>Show Previous Tab</source>
         <translation>显示上一个标签页</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="829"/>
+        <location filename="../src/ui/MenuBar.cpp" line="825"/>
         <source>Show Next Tab</source>
         <translation>显示下一个标签页</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="840"/>
+        <location filename="../src/ui/MenuBar.cpp" line="836"/>
         <source>Show Repository Chooser...</source>
         <translation>显示仓库选择器...</translation>
     </message>
@@ -3249,82 +3247,80 @@ Examples
         <translation type="vanished">Ctrl+Shift+O</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="845"/>
+        <location filename="../src/ui/MenuBar.cpp" line="841"/>
         <source>Tools</source>
         <translation>工具</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="846"/>
+        <location filename="../src/ui/MenuBar.cpp" line="842"/>
         <source>Options...</source>
         <translation>选项...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="852"/>
+        <location filename="../src/ui/MenuBar.cpp" line="848"/>
         <source>Help</source>
         <translation>帮助</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="854"/>
+        <location filename="../src/ui/MenuBar.cpp" line="850"/>
         <source>About %1</source>
         <translation>关于%1</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="859"/>
         <source>Check For Updates...</source>
-        <translation>检查更新...</translation>
+        <translation type="vanished">检查更新...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="863"/>
+        <location filename="../src/ui/MenuBar.cpp" line="855"/>
         <source>Plugin Documentation...</source>
         <translation>插件文档...</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="869"/>
         <source>Support us via Liberapay</source>
-        <translation>通过Liberapay支持我们</translation>
+        <translation type="vanished">通过Liberapay支持我们</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="875"/>
+        <location filename="../src/ui/MenuBar.cpp" line="863"/>
         <source>Debug</source>
         <translation>除错</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="876"/>
+        <location filename="../src/ui/MenuBar.cpp" line="864"/>
         <source>Abort</source>
         <translation>中止</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="889"/>
+        <location filename="../src/ui/MenuBar.cpp" line="877"/>
         <source>Log Indexer Progress</source>
         <translation>日志索引器进度</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="895"/>
+        <location filename="../src/ui/MenuBar.cpp" line="883"/>
         <source>Log Credential Helper</source>
         <translation>日志凭证助手</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="901"/>
+        <location filename="../src/ui/MenuBar.cpp" line="889"/>
         <source>Log Remote Connection</source>
         <translation>记录远程连接</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="907"/>
+        <location filename="../src/ui/MenuBar.cpp" line="895"/>
         <source>Log Debug Messages</source>
         <translation>日志调试消息</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="915"/>
+        <location filename="../src/ui/MenuBar.cpp" line="903"/>
         <source>Load All Diffs</source>
         <translation>加载所有差异</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="929"/>
+        <location filename="../src/ui/MenuBar.cpp" line="917"/>
         <source>Walk Commits</source>
         <translation>遍历提交</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1052"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1040"/>
         <source>Hide Log</source>
         <translation>隐藏日志</translation>
     </message>
@@ -3333,27 +3329,27 @@ Examples
         <translation type="vanished">显示差异视图</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1103"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1091"/>
         <source>Merge</source>
         <translation>合并</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1113"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1101"/>
         <source>Revert</source>
         <translation>还原</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1119"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1107"/>
         <source>Cherry-pick</source>
         <translation>拣选操作</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1125"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1113"/>
         <source>Rebase</source>
         <translation>变基</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1131"/>
+        <location filename="../src/ui/MenuBar.cpp" line="1119"/>
         <source>Abort %1</source>
         <translation>中止%1</translation>
     </message>
@@ -3430,12 +3426,12 @@ Examples
 <context>
     <name>MiscPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="794"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="751"/>
         <source>Path to SSH config file:</source>
         <translation>SSH配置文件的路径：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="795"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="752"/>
         <source>Path to default / fallback SSH key file:</source>
         <translation>默认/后备SSH密钥文件的路径：</translation>
     </message>
@@ -3672,9 +3668,8 @@ Examples
         <translation>工作区文件</translation>
     </message>
     <message>
-        <location filename="../src/app/Gittyup.cpp" line="25"/>
         <source>Your global GIT configuration is invalid, Gittyup won&apos;t run properly until this is fixed</source>
-        <translation>你的全局Git配置无效，修复此问题前Gittyup将无法正常运行</translation>
+        <translation type="vanished">你的全局Git配置无效，修复此问题前Gittyup将无法正常运行</translation>
     </message>
     <message>
         <location filename="../src/ui/DiffTreeModel.cpp" line="27"/>
@@ -3886,6 +3881,11 @@ Examples
     <message>
         <location filename="../src/ui/RepositoryNavigator.cpp" line="43"/>
         <source>%1↓</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/app/Gittyup.cpp" line="25"/>
+        <source>Your global Git configuration is invalid. GitNortek won&apos;t run properly until this is fixed</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -6080,67 +6080,66 @@ The submodule will be removed from this project. Its working files and cached lo
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="865"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="822"/>
         <source>Esc</source>
         <translation>退出</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="880"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="837"/>
         <source>Global git settings can be overridden for each repository in the corresponding repository configuration page.</source>
         <translation>可以在相应的仓库配置页面中为每个仓库覆盖全局git设置。</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="897"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="854"/>
         <source>Edit Config File...</source>
         <translation>编辑配置文件...</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="926"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="883"/>
         <source>General</source>
         <translation>一般</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="934"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="891"/>
         <source>Diff</source>
         <translation>比较</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="942"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="899"/>
         <source>Tools</source>
         <translation>工具</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="952"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="909"/>
         <source>Window</source>
         <translation>窗口</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="960"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="917"/>
         <source>Editor</source>
         <translation>编辑器</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="968"/>
         <source>Update</source>
-        <translation>更新</translation>
+        <translation type="vanished">更新</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="976"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="925"/>
         <source>Plugins</source>
         <translation>插件</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="984"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="933"/>
         <source>Misc</source>
         <translation>其他</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="992"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="941"/>
         <source>Hotkeys</source>
         <translation>快捷键</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="1002"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="951"/>
         <source>Terminal</source>
         <translation>终端</translation>
     </message>
@@ -6251,103 +6250,103 @@ The submodule will be removed from this project. Its working files and cached lo
         <translation>选择仓库</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="379"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="380"/>
         <source>Understand your history!</source>
         <translation>了解您的历史！</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="434"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="435"/>
         <source>Clone Repository</source>
         <translation>克隆仓库</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="445"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="446"/>
         <source>Open Existing Repository</source>
         <translation>打开现有仓库</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="449"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="450"/>
         <source>Open Repository</source>
         <translation>打开仓库</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="457"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="458"/>
         <source>Initialize New Repository</source>
         <translation>初始化新仓库</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="471"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="472"/>
         <source>Clear All</source>
         <translation>全部清除</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="476"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="477"/>
         <source>Show Full Path</source>
         <translation>显示完整路径</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="486"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="487"/>
         <source>Filter Non-existent Paths</source>
         <translation>过滤不存在​​的路径</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="494"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="495"/>
         <source>Repositories:</source>
         <translation>仓库：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="542"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="543"/>
         <source>Refresh</source>
         <translation>刷新</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="549"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="550"/>
         <source>Show Full Name</source>
         <translation>显示全名</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="577"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="578"/>
         <source>Remote:</source>
         <translation>远程：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="595"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="596"/>
         <source>View Getting Started Video</source>
         <translation>查看入门视频</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="714"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="715"/>
         <source>Clone</source>
         <translation>克隆</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="714"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="715"/>
         <source>Open</source>
         <translation>打开</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="780"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="781"/>
         <source>&lt;p&gt;Are you sure you want to remove the %1 account for &apos;%2&apos;?&lt;/p&gt;&lt;p&gt;Only the account association will be removed. Remote configurations and local clones will not be affected.&lt;/p&gt;</source>
         <translation>&lt;p&gt;确定要删除“%2”的%1个帐户吗？&lt;/p&gt;&lt;p&gt;仅会删除帐户关联。远程配置和本地克隆将不受影响。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="784"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="785"/>
         <source>Remove Account?</source>
         <translation>删除帐户？</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="787"/>
-        <location filename="../src/dialogs/StartDialog.cpp" line="807"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="788"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="808"/>
         <source>Remove</source>
         <translation>删除</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="802"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="803"/>
         <source>&lt;p&gt;Are you sure you want to remove the remote repository association for %1?&lt;/p&gt;&lt;p&gt;The local clone itself will not be affected.&lt;/p&gt;</source>
         <translation>&lt;p&gt;确定要删除%1的远程仓库关联吗？&lt;/p&gt;&lt;p&gt;本地克隆本身不会受到影响。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/StartDialog.cpp" line="805"/>
+        <location filename="../src/dialogs/StartDialog.cpp" line="806"/>
         <source>Remove Repository Association?</source>
         <translation>删除仓库关联？</translation>
     </message>
@@ -6509,8 +6508,12 @@ x (number) determines the number of maximum files shown</source>
     <message>
         <location filename="../src/ui/TemplateDialog.cpp" line="244"/>
         <location filename="../src/ui/TemplateDialog.cpp" line="297"/>
+        <source>GitNortek Templates (*%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Gittyup Templates (*%1)</source>
-        <translation>Gittyup模板(*%1)</translation>
+        <translation type="vanished">Gittyup模板(*%1)</translation>
     </message>
     <message>
         <location filename="../src/ui/TemplateDialog.cpp" line="294"/>
@@ -6526,23 +6529,23 @@ x (number) determines the number of maximum files shown</source>
 <context>
     <name>TerminalPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="822"/>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="846"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="779"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="803"/>
         <source>Install</source>
         <translation>安装</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="835"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="792"/>
         <source>Name:</source>
         <translation>名称:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="836"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="793"/>
         <source>Location:</source>
         <translation>位置：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="846"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="803"/>
         <source>Uninstall</source>
         <translation>卸载</translation>
     </message>
@@ -6597,9 +6600,13 @@ x (number) determines the number of maximum files shown</source>
         <translation>黑暗主题</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/ThemeDialog.cpp" line="89"/>
         <source>Pick a theme for Gittyup</source>
-        <translation>选择Gittyup主题</translation>
+        <translation type="vanished">选择Gittyup主题</translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/ThemeDialog.cpp" line="89"/>
+        <source>Pick a theme for GitNortek</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/dialogs/ThemeDialog.cpp" line="92"/>
@@ -6743,42 +6750,42 @@ x (number) determines the number of maximum files shown</source>
 <context>
     <name>ToolsPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="338"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="337"/>
         <source>Keep backup of merge files (.orig)</source>
         <translation>保留合并文件（.orig）的备份</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="345"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="344"/>
         <source>External editor:</source>
         <translation>外部编辑器：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="346"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="345"/>
         <source>External diff:</source>
         <translation>外部差异比较：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="347"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="346"/>
         <source>External merge:</source>
         <translation>外部合并：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="348"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="347"/>
         <source>Backup files:</source>
         <translation>备份文件：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="351"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="350"/>
         <source>Terminal emulator command:</source>
         <translation>终端模拟器命令：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="363"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="362"/>
         <source>File manager command:</source>
         <translation>文件管理器命令：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="391"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="390"/>
         <source>Configure</source>
         <translation>配置</translation>
     </message>
@@ -6851,91 +6858,74 @@ x (number) determines the number of maximum files shown</source>
 <context>
     <name>UpToDateDialog</name>
     <message>
-        <location filename="../src/update/UpToDateDialog.cpp" line="19"/>
         <source>Already Up-to-date</source>
-        <translation>已经是最新的</translation>
+        <translation type="vanished">已经是最新的</translation>
     </message>
     <message>
-        <location filename="../src/update/UpToDateDialog.cpp" line="30"/>
         <source>%1 is already up-to-date. You have version %2.</source>
-        <translation>%1已经是最新的。您拥有的版本是%2。</translation>
+        <translation type="vanished">%1已经是最新的。您拥有的版本是%2。</translation>
     </message>
 </context>
 <context>
     <name>UpdateDialog</name>
     <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="51"/>
         <source>Update %1</source>
-        <translation>更新%1</translation>
+        <translation type="vanished">更新%1</translation>
     </message>
     <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="61"/>
-        <location filename="../src/update/UpdateDialog.cpp" line="85"/>
         <source>&lt;h3&gt;A new version of %1 is available!&lt;/h3&gt;&lt;p&gt;%1 %2 is now available - you have %3. The new version will be soon available in your package manager. Just update your system.&lt;/p&gt;&lt;b&gt;Release Notes:&lt;/b&gt;</source>
-        <translation>&lt;h3&gt;1%的新版本已可用！&lt;/h3&gt;&lt;p&gt;现已推出 %1 %2版本——当前使用的是%3。新版本很快会在你的软件包管理器中提供，只需更新系统即可。&lt;/p&gt;&lt;b&gt;发行说明：&lt;/b&gt;</translation>
+        <translation type="vanished">&lt;h3&gt;1%的新版本已可用！&lt;/h3&gt;&lt;p&gt;现已推出 %1 %2版本——当前使用的是%3。新版本很快会在你的软件包管理器中提供，只需更新系统即可。&lt;/p&gt;&lt;b&gt;发行说明：&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="68"/>
         <source>&lt;h3&gt;A new version of %1 is available!&lt;/h3&gt;&lt;p&gt;%1 %2 is now available - you have %3. Would you like to download it now?&lt;/p&gt;&lt;b&gt;Release Notes:&lt;/b&gt;</source>
-        <translation>&lt;h3&gt;%1的新版本已可用！&lt;/h3&gt;&lt;p&gt;现已推出 %1 %2版本——你当前使用的是%3。您要立即下载吗？&lt;/p&gt;&lt;b&gt;发行说明：&lt;/b&gt;</translation>
+        <translation type="vanished">&lt;h3&gt;%1的新版本已可用！&lt;/h3&gt;&lt;p&gt;现已推出 %1 %2版本——你当前使用的是%3。您要立即下载吗？&lt;/p&gt;&lt;b&gt;发行说明：&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="75"/>
         <source>&lt;h3&gt;A new version of %1 is available!&lt;/h3&gt;&lt;p&gt;%1 %2 is now available - you have %3.&lt;/p&gt;&lt;p&gt;If you downloaded the flatpak package over a package manager or from flathub.org &lt;br/&gt;you don&apos;t have to install manually a new version. It will be available within the next &lt;br/&gt;days during your system update: &lt;code&gt;flatpak update&lt;/code&gt;&lt;/p&gt;&lt;b&gt;Release Notes:&lt;/b&gt;</source>
-        <translation>&lt;h3&gt;%1 的新版本现已可用！&lt;/h3&gt;&lt;p&gt;现已推出 %1 %2版本——你当前使用的是%3。&lt;/p&gt;&lt;p&gt;如果你是通过软件包管理器或从flathub.org下载的Flatpak安装包，&lt;br/&gt;无需手动安装新版本。它将在未来几天内随系统更新自动可用：&lt;br/&gt;执行命令：&lt;code&gt;flatpak update&lt;/code&gt;&lt;/p&gt;&lt;b&gt;发行说明：&lt;/b&gt;</translation>
+        <translation type="vanished">&lt;h3&gt;%1 的新版本现已可用！&lt;/h3&gt;&lt;p&gt;现已推出 %1 %2版本——你当前使用的是%3。&lt;/p&gt;&lt;p&gt;如果你是通过软件包管理器或从flathub.org下载的Flatpak安装包，&lt;br/&gt;无需手动安装新版本。它将在未来几天内随系统更新自动可用：&lt;br/&gt;执行命令：&lt;code&gt;flatpak update&lt;/code&gt;&lt;/p&gt;&lt;b&gt;发行说明：&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="100"/>
         <source>Automatically download and install updates</source>
-        <translation>自动下载并安装更新</translation>
+        <translation type="vanished">自动下载并安装更新</translation>
     </message>
     <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="112"/>
         <source>Install Update</source>
-        <translation>安装更新</translation>
+        <translation type="vanished">安装更新</translation>
     </message>
     <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="114"/>
         <source>Remind Me Later</source>
-        <translation>稍后提醒我</translation>
+        <translation type="vanished">稍后提醒我</translation>
     </message>
     <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="118"/>
         <source>Skip This Version</source>
-        <translation>跳过此版本</translation>
+        <translation type="vanished">跳过此版本</translation>
     </message>
     <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="138"/>
         <source>Ok</source>
-        <translation>确认</translation>
+        <translation type="vanished">确认</translation>
     </message>
     <message>
-        <location filename="../src/update/UpdateDialog.cpp" line="150"/>
         <source>Donate</source>
-        <translation>捐赠</translation>
+        <translation type="vanished">捐赠</translation>
     </message>
 </context>
 <context>
     <name>UpdatePanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="739"/>
         <source>Check for updates automatically</source>
-        <translation>自动检查更新</translation>
+        <translation type="vanished">自动检查更新</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="751"/>
         <source>Automatically download and install updates</source>
-        <translation>自动下载并安装更新</translation>
+        <translation type="vanished">自动下载并安装更新</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="761"/>
         <source>Check Now</source>
-        <translation>现在检查</translation>
+        <translation type="vanished">现在检查</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="766"/>
         <source>Software Update:</source>
-        <translation>软件更新：</translation>
+        <translation type="vanished">软件更新：</translation>
     </message>
 </context>
 <context>
@@ -6959,127 +6949,111 @@ x (number) determines the number of maximum files shown</source>
 <context>
     <name>Updater</name>
     <message>
-        <location filename="../src/update/Updater_win.cpp" line="23"/>
         <source>Installer failed to start</source>
-        <translation>安装程序无法启动</translation>
+        <translation type="vanished">安装程序无法启动</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater_mac.mm" line="77"/>
         <source>The disk image failed to mount successfully</source>
-        <translation>磁盘映像安装失败</translation>
+        <translation type="vanished">磁盘映像安装失败</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater_mac.mm" line="96"/>
         <source>The existing bundle could not be moved to the trash</source>
-        <translation>现有的包无法移至垃圾箱</translation>
+        <translation type="vanished">现有的包无法移至垃圾箱</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater_mac.mm" line="108"/>
         <source>The new bundle could not be copied into place</source>
-        <translation>新的包无法复制到位</translation>
+        <translation type="vanished">新的包无法复制到位</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater_mac.mm" line="117"/>
-        <location filename="../src/update/Updater.cpp" line="348"/>
-        <location filename="../src/update/Updater.cpp" line="370"/>
         <source>Helper application failed to start</source>
-        <translation>帮助应用程序无法启动</translation>
+        <translation type="vanished">帮助应用程序无法启动</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="100"/>
         <source>Update Failed</source>
-        <translation>更新失败</translation>
+        <translation type="vanished">更新失败</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="115"/>
         <source>Unable to check for updates</source>
-        <translation>无法检查更新</translation>
+        <translation type="vanished">无法检查更新</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="199"/>
         <source>Unable to download update</source>
-        <translation>无法下载更新</translation>
+        <translation type="vanished">无法下载更新</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="202"/>
         <source>Unable to open temporary file</source>
-        <translation>无法打开临时文件</translation>
+        <translation type="vanished">无法打开临时文件</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="259"/>
         <source>Unable to install update</source>
-        <translation>无法安装更新</translation>
+        <translation type="vanished">无法安装更新</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="262"/>
         <source>Some windows failed to close. You can download the binary manually from %1</source>
-        <translation>一些窗口无法关闭。您可以从%1手动下载二进制文件</translation>
+        <translation type="vanished">一些窗口无法关闭。您可以从%1手动下载二进制文件</translation>
     </message>
     <message>
         <source>Some windows failed to close</source>
         <translation type="vanished">一些窗口无法关闭</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="270"/>
         <source>Unknown install error</source>
-        <translation>未知的安装错误</translation>
+        <translation type="vanished">未知的安装错误</translation>
     </message>
     <message>
-        <location filename="../src/update/Updater.cpp" line="333"/>
-        <location filename="../src/update/Updater.cpp" line="361"/>
         <source>Installer script failed: %1</source>
-        <translation>安装脚本失败：%1</translation>
+        <translation type="vanished">安装脚本失败：%1</translation>
     </message>
 </context>
 <context>
     <name>WindowPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="460"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="459"/>
         <source>Add New Theme</source>
         <translation>添加新主题</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="461"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="460"/>
         <source>Edit Current Theme</source>
         <translation>编辑当前主题</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="485"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="484"/>
         <source>Create Theme</source>
         <translation>创建主题</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="495"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="494"/>
         <source>Theme Name</source>
         <translation>主题名称</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="527"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="526"/>
         <source>Restart?</source>
         <translation>重启？</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="528"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="527"/>
         <source>The application must be restarted for the theme change to take effect.</source>
         <translation>必须重启应用程序，主题更改才能生效。</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="530"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="529"/>
         <source>Do you want to restart now?</source>
         <translation>您要立即重启吗？</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="532"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="531"/>
         <source>Restart</source>
         <translation>重启</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="533"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="532"/>
         <source>Later</source>
         <translation>推后</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="551"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="550"/>
         <source>Show full repository path</source>
         <translation>显示完整的仓库路径</translation>
     </message>
@@ -7088,42 +7062,42 @@ x (number) determines the number of maximum files shown</source>
         <translation type="vanished">自动隐藏</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="558"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="557"/>
         <source>Open submodules in tabs</source>
         <translation>在标签页中打开子模块</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="566"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="565"/>
         <source>Open all repositories in tabs</source>
         <translation>在标签页中打开所有仓库</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="573"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="572"/>
         <source>Hide Menubar</source>
         <translation>隐藏菜单栏</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="578"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="577"/>
         <source>Show Avatars</source>
         <translation>显示头像</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="579"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="578"/>
         <source>Download commit-author avatars from GitHub when an account is configured, with Gravatar as a fallback. Images are cached in memory for this session only.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="588"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="587"/>
         <source>Show Window Maximized when opened</source>
         <translation>打开时最大化显示窗口</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="641"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="640"/>
         <source>Theme:</source>
         <translation>主题：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="642"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="641"/>
         <source>Title:</source>
         <translation>标题：</translation>
     </message>
@@ -7132,17 +7106,17 @@ x (number) determines the number of maximum files shown</source>
         <translation type="vanished">日志：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="643"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="642"/>
         <source>Tabs:</source>
         <translation>标签页：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="645"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="644"/>
         <source>View:</source>
         <translation>查看：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="648"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="647"/>
         <source>Prompt:</source>
         <translation>提示：</translation>
     </message>

@@ -28,21 +28,21 @@
   <screenshots>
     <screenshot type="default">
       <caption>The main view</caption>
-        <image>https://raw.githubusercontent.com/NortekMed/Gittyup/master/rsrc/screenshots/main_dark_orig.png</image>
+        <image>https://raw.githubusercontent.com/NortekMed/GitNortek/master/rsrc/screenshots/main_dark_orig.png</image>
     </screenshot>
     <screenshot>
       <caption>Staging single lines</caption>
-        <image>https://raw.githubusercontent.com/NortekMed/Gittyup/master/rsrc/screenshots/double_treeview_single_line_staging.png</image>
+        <image>https://raw.githubusercontent.com/NortekMed/GitNortek/master/rsrc/screenshots/double_treeview_single_line_staging.png</image>
     </screenshot>
     <screenshot>
       <caption>Tree View</caption>
-        <image>https://raw.githubusercontent.com/NortekMed/Gittyup/master/rsrc/screenshots/treeview.png</image>
+        <image>https://raw.githubusercontent.com/NortekMed/GitNortek/master/rsrc/screenshots/treeview.png</image>
     </screenshot>
   </screenshots>
 
-  <url type="homepage">https://github.com/NortekMed/Gittyup</url>
-  <url type="vcs-browser">https://github.com/NortekMed/Gittyup</url>
-  <url type="bugtracker">https://github.com/NortekMed/Gittyup/issues</url>
+  <url type="homepage">https://github.com/NortekMed/GitNortek</url>
+  <url type="vcs-browser">https://github.com/NortekMed/GitNortek</url>
+  <url type="bugtracker">https://github.com/NortekMed/GitNortek/issues</url>
 
   <provides>
     <binary>gitnortek</binary>
