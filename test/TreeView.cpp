@@ -1,5 +1,6 @@
 #include "Test.h"
 #include "ui/DiffView/DiffView.h"
+#include "ui/DiffView/FileWidget.h"
 #include "ui/CommitList.h"
 #include "ui/MainWindow.h"
 #include "ui/DoubleTreeWidget.h"
@@ -8,6 +9,7 @@
 #include "ui/TreeProxy.h"
 #include "ui/FileContextMenu.h"
 #include "conf/Settings.h"
+#include "editor/TextEditor.h"
 
 #include <QHBoxLayout>
 #include <QCheckBox>
@@ -293,6 +295,7 @@ void TestTreeView::fileMergeCrash() {
 }
 
 void TestTreeView::committedFileInspection() {
+  Settings::instance()->setDiffMode(Settings::DiffMode::Inline);
   INIT_REPO("TestRepository.zip", false);
 
   QStackedWidget *primaryView =
@@ -328,6 +331,64 @@ void TestTreeView::committedFileInspection() {
   QVERIFY(primaryView->currentWidget() != fileInspection);
   QVERIFY(QMetaObject::invokeMethod(committedFiles, "fileSelectionRequested"));
   QCOMPARE(primaryView->currentWidget(), fileInspection);
+
+  auto *diffButton = repoView->findChild<QPushButton *>("DiffViewButton");
+  auto *inlineMode = repoView->findChild<QToolButton *>("InlineDiffMode");
+  auto *hunkMode = repoView->findChild<QToolButton *>("HunkDiffMode");
+  auto *splitMode = repoView->findChild<QToolButton *>("SplitDiffMode");
+  auto *diffView = repoView->findChild<DiffView *>();
+  QVERIFY(diffButton);
+  QVERIFY(inlineMode);
+  QVERIFY(hunkMode);
+  QVERIFY(splitMode);
+  QVERIFY(diffView);
+  QVERIFY(diffButton->isChecked());
+  QVERIFY(inlineMode->isChecked());
+  auto fileForEditor = [](QWidget *widget) {
+    while (widget && !qobject_cast<FileWidget *>(widget))
+      widget = widget->parentWidget();
+    return qobject_cast<FileWidget *>(widget);
+  };
+  const QList<TextEditor *> initialEditors = diffView->editors();
+  QVERIFY(!initialEditors.isEmpty());
+  auto *fileWidget = fileForEditor(initialEditors.first());
+  QVERIFY(fileWidget);
+
+  const QString selectedFile =
+      committedFiles->selectionModel()->selectedIndexes().first().data(
+          Qt::EditRole).toString();
+  auto verifySelection = [&] {
+    const QModelIndexList selected =
+        committedFiles->selectionModel()->selectedIndexes();
+    QVERIFY(!selected.isEmpty());
+    QCOMPARE(selected.first().data(Qt::EditRole).toString(), selectedFile);
+    QCOMPARE(primaryView->currentWidget(), fileInspection);
+  };
+  auto hasVisiblePresentation = [fileWidget](const QString &name) {
+    for (QWidget *view : fileWidget->findChildren<QWidget *>(name)) {
+      if (view->isVisible())
+        return true;
+    }
+    return false;
+  };
+
+  mouseClick(hunkMode, Qt::LeftButton);
+  QCOMPARE(Settings::instance()->diffMode(), Settings::DiffMode::Hunk);
+  verifySelection();
+  QVERIFY(!diffView->editors().isEmpty());
+  QCOMPARE(fileForEditor(diffView->editors().first()), fileWidget);
+  mouseClick(splitMode, Qt::LeftButton);
+  QCOMPARE(Settings::instance()->diffMode(), Settings::DiffMode::Split);
+  verifySelection();
+  QCOMPARE(diffView->editors().size(), 2);
+  QCOMPARE(fileForEditor(diffView->editors().first()), fileWidget);
+  QTRY_VERIFY(hasVisiblePresentation("SplitFileDiff"));
+  mouseClick(inlineMode, Qt::LeftButton);
+  QCOMPARE(Settings::instance()->diffMode(), Settings::DiffMode::Inline);
+  verifySelection();
+  QCOMPARE(diffView->editors().size(), 1);
+  QCOMPARE(fileForEditor(diffView->editors().first()), fileWidget);
+  QTRY_VERIFY(hasVisiblePresentation("InlineFileDiff"));
 
   QToolButton *close =
       repoView->findChild<QToolButton *>("CloseFileInspection");
@@ -535,6 +596,27 @@ void TestTreeView::externalRefreshPreservesSelection() {
   refresh(repoView);
   QCOMPARE(commits->selectedRange(), QString("status"));
 
+  auto *doubleTree = repoView->findChild<DoubleTreeWidget *>();
+  QVERIFY(doubleTree);
+  auto *unstagedFiles = doubleTree->findChild<TreeView *>("Unstaged");
+  auto *diffView = repoView->findChild<DiffView *>();
+  QVERIFY(unstagedFiles);
+  QVERIFY(diffView);
+  QTRY_VERIFY(unstagedFiles->model()->rowCount() > 0);
+  const QModelIndexList files = unstagedFiles->model()->match(
+      unstagedFiles->model()->index(0, 0), Qt::EditRole, QString("file.txt"), 1,
+      Qt::MatchExactly | Qt::MatchRecursive);
+  QVERIFY(!files.isEmpty());
+  unstagedFiles->selectionModel()->setCurrentIndex(
+      files.first(),
+      QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+  QVERIFY(QMetaObject::invokeMethod(unstagedFiles, "fileSelectionRequested"));
+  FileWidget *visibleFile = diffView->widget()->findChild<FileWidget *>();
+  QVERIFY(visibleFile);
+  QCOMPARE(visibleFile->name(), QString("file.txt"));
+  QVERIFY(!visibleFile->editors().isEmpty());
+  QVERIFY(visibleFile->editors().first()->length() > 0);
+
   detailRefreshes = 0;
   invalidDetails = 0;
   QSignalSpy dirtyStatus(repoView, &RepoView::statusChanged);
@@ -543,6 +625,12 @@ void TestTreeView::externalRefreshPreservesSelection() {
   QCOMPARE(commits->selectedRange(), QString("status"));
   QCOMPARE(detailRefreshes, 1);
   QCOMPARE(invalidDetails, 0);
+  QCOMPARE(doubleTree->selectedFile(), QString("file.txt"));
+  visibleFile = diffView->widget()->findChild<FileWidget *>();
+  QVERIFY(visibleFile);
+  QCOMPARE(visibleFile->name(), QString("file.txt"));
+  QVERIFY(!visibleFile->editors().isEmpty());
+  QVERIFY(visibleFile->editors().first()->length() > 0);
 }
 
 TEST_MAIN(TestTreeView)

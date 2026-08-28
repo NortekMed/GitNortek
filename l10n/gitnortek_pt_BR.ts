@@ -1708,13 +1708,13 @@ These settings will not be saved permanently</source>
 <context>
     <name>DiffView</name>
     <message>
-        <location filename="../src/ui/DiffView/DiffView.cpp" line="146"/>
+        <location filename="../src/ui/DiffView/DiffView.cpp" line="147"/>
         <source>Add new file</source>
         <translatorcomment>Adiciona novo arquivo.</translatorcomment>
         <translation>Adicionar novo arquivo</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/DiffView.cpp" line="156"/>
+        <location filename="../src/ui/DiffView/DiffView.cpp" line="157"/>
         <source>Or drag files here to copy into the repository</source>
         <translatorcomment>Arraste os arquivos para copiar para o repositório.</translatorcomment>
         <translation>Ou arraste os arquivos aqui para copiar para o repositório</translation>
@@ -1723,121 +1723,156 @@ These settings will not be saved permanently</source>
 <context>
     <name>DoubleTreeWidget</name>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="95"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="119"/>
         <source>Blame</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="97"/>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="999"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="121"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="1091"/>
         <source>Show Blame Editor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="98"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="122"/>
         <source>Diff</source>
         <translation type="unfinished">Diff</translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="100"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="124"/>
         <source>Show Diff View</source>
         <translation type="unfinished">Mostrar comparação</translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="109"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="133"/>
         <source>Close Blame and Diff</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="110"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="134"/>
         <source>Close</source>
         <translation type="unfinished">Fechar</translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="225"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="142"/>
+        <source>Inline complete-file view</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="146"/>
+        <source>Hunk view</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="150"/>
+        <source>Split view</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="163"/>
+        <source>WS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="165"/>
+        <source>Ignore leading/trailing whitespace in Inline and Split views</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="176"/>
+        <source>Wrap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="177"/>
+        <source>Word wrap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="308"/>
         <source>Mark All Resolved</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="247"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="330"/>
         <source>Mark all files resolved?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="248"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="331"/>
         <source>The Current version will be kept for every conflicted file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="255"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="338"/>
         <source>Some conflicts were not resolved</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="256"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="339"/>
         <source>These files changed or could not be saved:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="261"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="344"/>
         <source>Unresolved only</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="267"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="350"/>
         <source>Previous unresolved file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="273"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="356"/>
         <source>Next unresolved file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="277"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="360"/>
         <source>Show all files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="280"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="363"/>
         <source>Stage All Changes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="668"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="760"/>
         <source>Resolved Files (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="672"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="764"/>
         <source>Conflicted Files (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="686"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="778"/>
         <source>%1 of %2 resolved | %3 blocks remaining</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="691"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="783"/>
         <source>%1 unresolved files | %2 blocks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="887"/>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="958"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="977"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="1050"/>
         <source>Discard unsaved Output?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="888"/>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="959"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="978"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="1051"/>
         <source>The edited conflict Output has not been saved or staged.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="997"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="1089"/>
         <source>Blame is unavailable until this conflict is resolved.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2456,56 +2491,61 @@ Mode %1</source>
 <context>
     <name>FileWidget</name>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="118"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="123"/>
         <source>LFS</source>
         <translatorcomment>Large Storage File...</translatorcomment>
         <translation>LFS</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="124"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="137"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="129"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="142"/>
         <source>Unlock</source>
         <translatorcomment>Desbloquear...</translatorcomment>
         <translation>Desbloquear</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="125"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="138"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="130"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="143"/>
         <source>Lock</source>
         <translatorcomment>Bloquear...</translatorcomment>
         <translation>Bloquear</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="142"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="537"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="147"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="563"/>
         <source>Show Object</source>
         <translatorcomment>Mostrar Objeto...</translatorcomment>
         <translation>Mostrar Objeto</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="151"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="156"/>
         <source>Edit File</source>
         <translatorcomment>Editar arquivo...</translatorcomment>
         <translation>Editar arquivo</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="157"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="162"/>
         <source>Discard File</source>
         <translatorcomment>Descartar arquivo</translatorcomment>
         <translation>Descartar arquivo</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="513"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="533"/>
         <source>Diff not shown because it contains %1 changed lines.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="948"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="773"/>
+        <source>Complete-file view is unavailable for files larger than 32 MiB; showing hunks instead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1060"/>
         <source>Unselected changes</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="949"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1061"/>
         <source>%n conflict chunk(s) still use the Base output. Saving Output may omit Current and Incoming changes.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -2513,97 +2553,97 @@ Mode %1</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="956"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1068"/>
         <source>Save Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="958"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1070"/>
         <source>Create and Stage Conflict Chunks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1014"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1126"/>
         <source>Directory</source>
         <translatorcomment>Diretório...</translatorcomment>
         <translation>Diretório</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1015"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1127"/>
         <source>File</source>
         <translatorcomment>Arquivo...</translatorcomment>
         <translation>Arquivo</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1016"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1128"/>
         <source>Remove %1?</source>
         <translatorcomment>Remoção...</translatorcomment>
         <translation>Remover %1?</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1017"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1129"/>
         <source>Discard Changes?</source>
         <translatorcomment>Descarta mudanças...</translatorcomment>
         <translation>Descartar mudanças?</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1019"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1131"/>
         <source>Are you sure you want to remove &apos;%1&apos;?</source>
         <translatorcomment>Confirmação de remoção...</translatorcomment>
         <translation>Tem certeza de que deseja remover &apos;%1&apos;?</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1020"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1132"/>
         <source>Are you sure you want to discard all changes in &apos;%1&apos;?</source>
         <translatorcomment>Confirmação de descarte de alteração...</translatorcomment>
         <translation>Tem certeza de que deseja descartar todas as alterações em &apos;%1&apos;?</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1025"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1137"/>
         <source>This action cannot be undone.</source>
         <translatorcomment>Informe de que ação não pode ser desfeita.</translatorcomment>
         <translation>Essa ação não pode ser desfeita.</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1027"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1139"/>
         <source>Remove %1</source>
         <translatorcomment>Remoção...</translatorcomment>
         <translation>Remover %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1028"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1140"/>
         <source>Discard Changes</source>
         <translatorcomment>Descarta mudanças...</translatorcomment>
         <translation>Descartar mudanças</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/DiffView.cpp" line="489"/>
+        <location filename="../src/ui/DiffView/DiffView.cpp" line="509"/>
         <source>Discard</source>
         <translatorcomment>Descarta...</translatorcomment>
         <translation>Descartar</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/DiffView.cpp" line="490"/>
+        <location filename="../src/ui/DiffView/DiffView.cpp" line="510"/>
         <source>discard</source>
         <translatorcomment>Descarta...</translatorcomment>
         <translation>descartar</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="164"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="168"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="169"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="173"/>
         <source>Collapse File</source>
         <translatorcomment>Recolher arquivo...</translatorcomment>
         <translation>Recolher arquivo</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="165"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="169"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="170"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="174"/>
         <source>Expand File</source>
         <translatorcomment>Expande arquivo...</translatorcomment>
         <translation>Expandir arquivo</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="536"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="562"/>
         <source>Show Pointer</source>
         <translatorcomment>Mostrar ponteiro...</translatorcomment>
         <translation>Mostrar ponteiro</translation>
@@ -2894,7 +2934,7 @@ Mode %1</source>
 <context>
     <name>HunkWidget</name>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="189"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="194"/>
         <source>Save</source>
         <translatorcomment>Salvar...</translatorcomment>
         <translation>Salvar</translation>
@@ -2915,29 +2955,29 @@ Mode %1</source>
         <translation type="vanished">Use o outro</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="97"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="100"/>
         <source>Edit Hunk</source>
         <translatorcomment>Editar alteração(ões)...</translatorcomment>
         <translation>Editar alteração(ões)</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="103"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="106"/>
         <source>Discard Hunk</source>
         <translatorcomment>Descarta alteração(ões)...</translatorcomment>
         <translation>Descartar alteração(ões)</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="465"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="477"/>
         <source>Discard selected lines?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="469"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="481"/>
         <source>Are you sure you want to discard the changes in hunk from line %1 to %2 in &apos;%3&apos;?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="481"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="493"/>
         <source>Discard selected lines</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2947,7 +2987,7 @@ Mode %1</source>
         <translation type="vanished">Descartar alteração(ões)?</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="468"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="480"/>
         <source>Are you sure you want to remove &apos;%1&apos;?</source>
         <translatorcomment>Confirmação de remoção...</translatorcomment>
         <translation>Tem certeza de que deseja remover &apos;%1&apos;?</translation>
@@ -2958,67 +2998,77 @@ Mode %1</source>
         <translation type="vanished">Tem certeza de que deseja descartar as alterações inicianda na linha %1 em &apos;%2&apos;?</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="478"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="490"/>
         <source>This action cannot be undone.</source>
         <translatorcomment>Informe de que a ação naõ pode ser desfeita...</translatorcomment>
         <translation>Essa ação não pode ser desfeita.</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="110"/>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="113"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="116"/>
         <source>Collapse Hunk</source>
         <translatorcomment>Recolhe trecho alterado...</translatorcomment>
         <translation>Recolher alteração(ões)</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="176"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="181"/>
         <source>Open in External Merge Tool</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="68"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="201"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="71"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="206"/>
         <source>Clear</source>
         <translation type="unfinished">Limpar</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="75"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="280"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="78"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="291"/>
         <source>Current</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="82"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="281"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="85"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="292"/>
         <source>Incoming</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="87"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="90"/>
         <source>Both</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="111"/>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="114"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="117"/>
         <source>Expand Hunk</source>
         <translatorcomment>Expande trecho alterado...</translatorcomment>
         <translation>Expandir alteração(ões)</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="296"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="171"/>
+        <source>Unstage Hunk</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="172"/>
+        <source>Stage Hunk</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="308"/>
         <source>Esc</source>
         <translatorcomment>Esc...</translatorcomment>
         <translation>Esc</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="323"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="335"/>
         <source>Fix</source>
         <translatorcomment>Resolve problema...</translatorcomment>
         <translation>Resolver</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="376"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="388"/>
         <source>Edit</source>
         <translatorcomment>Editar...</translatorcomment>
         <translation>Editar</translation>
@@ -4453,32 +4503,32 @@ Exemplos
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="42"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="44"/>
         <source>Expand all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="43"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="45"/>
         <source>Collapse all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="44"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="46"/>
         <source>Staged Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="45"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="47"/>
         <source>Unstaged Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="46"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="48"/>
         <source>Committed Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="47"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="49"/>
         <source>Workdir Files</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6975,32 +7025,32 @@ The submodule will be removed from this project. Its working files and cached lo
 <context>
     <name>Settings</name>
     <message>
-        <location filename="../src/conf/Settings.cpp" line="171"/>
+        <location filename="../src/conf/Settings.cpp" line="173"/>
         <source>Prompt to edit stash message before stashing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/conf/Settings.cpp" line="174"/>
+        <location filename="../src/conf/Settings.cpp" line="176"/>
         <source>Prompt to edit commit message before merging</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/conf/Settings.cpp" line="177"/>
+        <location filename="../src/conf/Settings.cpp" line="179"/>
         <source>Prompt to edit commit message before reverting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/conf/Settings.cpp" line="180"/>
+        <location filename="../src/conf/Settings.cpp" line="182"/>
         <source>Prompt to edit commit message before cherry-picking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/conf/Settings.cpp" line="183"/>
+        <location filename="../src/conf/Settings.cpp" line="185"/>
         <source>Prompt to stage directories</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/conf/Settings.cpp" line="186"/>
+        <location filename="../src/conf/Settings.cpp" line="188"/>
         <source>Prompt to stage large files</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7856,30 +7906,40 @@ x (number) determines the number of maximum files shown</source>
 <context>
     <name>_FileWidget::Header</name>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="288"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="314"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="299"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="325"/>
         <source>Incoming: Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="296"/>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="307"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="318"/>
         <source>Current: Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="322"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="333"/>
         <source>both: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="326"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="337"/>
         <source>ours: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="330"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="341"/>
         <source>theirs: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="427"/>
+        <source>Unstage File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="428"/>
+        <source>Stage File</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -71,7 +71,7 @@ private:
 
   void treeModelStateChanged(const QModelIndex &index, int checkState);
   void storeSelection();
-  void loadSelection();
+  bool loadSelection();
   void filesSelected(const QModelIndexList &indexes);
   void openFileInspection();
   void loadEditorContent(const QModelIndexList &indexes);

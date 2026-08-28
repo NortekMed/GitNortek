@@ -10,6 +10,7 @@
 #include "Test.h"
 #include "conf/RecentRepositories.h"
 #include "conf/RecentRepository.h"
+#include "conf/Settings.h"
 #include "dialogs/RenameBranchDialog.h"
 #include "editor/TextEditor.h"
 #include "git/Config.h"
@@ -43,6 +44,7 @@ private slots:
   void show();
   void initialRefreshOnce();
   void navigatorRefreshCoalesced();
+  void diffPresentationControls();
   void consistentBodyFontSize();
   void commitReferencesOnSecondLine();
   void toggleLogPanel();
@@ -113,6 +115,41 @@ void TestMainWindow::navigatorRefreshCoalesced() {
   emit mRepo->notifier()->referenceUpdated(mRepo->head());
 
   QTRY_COMPARE(reset.count(), 1);
+}
+
+void TestMainWindow::diffPresentationControls() {
+  Settings *settings = Settings::instance();
+  QToolButton *inlineMode = mWindow->findChild<QToolButton *>("InlineDiffMode");
+  QToolButton *hunkMode = mWindow->findChild<QToolButton *>("HunkDiffMode");
+  QToolButton *splitMode = mWindow->findChild<QToolButton *>("SplitDiffMode");
+  QToolButton *ignoreWhitespace =
+      mWindow->findChild<QToolButton *>("IgnoreEdgeWhitespace");
+  QToolButton *wordWrap = mWindow->findChild<QToolButton *>("DiffWordWrap");
+  QVERIFY(inlineMode);
+  QVERIFY(hunkMode);
+  QVERIFY(splitMode);
+  QVERIFY(ignoreWhitespace);
+  QVERIFY(wordWrap);
+
+  mouseClick(hunkMode, Qt::LeftButton);
+  QCOMPARE(settings->diffMode(), Settings::DiffMode::Hunk);
+  QVERIFY(hunkMode->isChecked());
+  QVERIFY(!inlineMode->isChecked());
+  mouseClick(splitMode, Qt::LeftButton);
+  QCOMPARE(settings->diffMode(), Settings::DiffMode::Split);
+  QVERIFY(splitMode->isChecked());
+
+  const bool ignored = settings->isEdgeWhitespaceIgnored();
+  mouseClick(ignoreWhitespace, Qt::LeftButton);
+  QCOMPARE(settings->isEdgeWhitespaceIgnored(), !ignored);
+  const bool wrapped = settings->isTextEditorWrapLines();
+  mouseClick(wordWrap, Qt::LeftButton);
+  QCOMPARE(settings->isTextEditorWrapLines(), !wrapped);
+
+  settings->setEdgeWhitespaceIgnored(ignored);
+  settings->setTextEditorWrapLines(wrapped);
+  mouseClick(inlineMode, Qt::LeftButton);
+  QCOMPARE(settings->diffMode(), Settings::DiffMode::Inline);
 }
 
 void TestMainWindow::consistentBodyFontSize() {

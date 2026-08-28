@@ -28,6 +28,8 @@
 #include <QCheckBox>
 #include <QLabel>
 #include <QMessageBox>
+#include <QPainter>
+#include <QPixmap>
 #include <QPushButton>
 #include <QStackedWidget>
 #include <QStyle>
@@ -45,6 +47,28 @@ const QString kStagedFiles = QString(QObject::tr("Staged Files"));
 const QString kUnstagedFiles = QString(QObject::tr("Unstaged Files"));
 const QString kCommitedFiles = QString(QObject::tr("Committed Files"));
 const QString kAllFiles = QString(QObject::tr("Workdir Files"));
+
+QIcon diffModeIcon(Settings::DiffMode mode) {
+  QPixmap pixmap(18, 18);
+  pixmap.fill(Qt::transparent);
+  QPainter painter(&pixmap);
+  painter.setPen(QPen(QColor(145, 155, 170), 1));
+  painter.drawRect(1, 2, 15, 13);
+  if (mode == Settings::DiffMode::Split) {
+    painter.drawLine(8, 2, 8, 15);
+    for (int y : {5, 8, 11}) {
+      painter.drawLine(3, y, 6, y);
+      painter.drawLine(10, y, 14, y);
+    }
+  } else {
+    if (mode == Settings::DiffMode::Hunk)
+      painter.drawLine(2, 5, 15, 5);
+    const int start = mode == Settings::DiffMode::Hunk ? 8 : 5;
+    for (int y = start; y <= 12; y += 3)
+      painter.drawLine(4, y, 13, y);
+  }
+  return QIcon(pixmap);
+}
 
 class SegmentedButton : public QWidget {
 public:
@@ -111,6 +135,61 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   closeButton->setAutoRaise(true);
   closeButton->setIcon(style()->standardIcon(QStyle::SP_TitleBarCloseButton));
 
+  SegmentedButton *diffModes = new SegmentedButton(this);
+  QToolButton *inlineMode = new QToolButton(this);
+  inlineMode->setObjectName("InlineDiffMode");
+  inlineMode->setIcon(diffModeIcon(Settings::DiffMode::Inline));
+  diffModes->addButton(inlineMode, tr("Inline complete-file view"), true);
+  QToolButton *hunkMode = new QToolButton(this);
+  hunkMode->setObjectName("HunkDiffMode");
+  hunkMode->setIcon(diffModeIcon(Settings::DiffMode::Hunk));
+  diffModes->addButton(hunkMode, tr("Hunk view"), true);
+  QToolButton *splitMode = new QToolButton(this);
+  splitMode->setObjectName("SplitDiffMode");
+  splitMode->setIcon(diffModeIcon(Settings::DiffMode::Split));
+  diffModes->addButton(splitMode, tr("Split view"), true);
+  const QList<QToolButton *> modeButtons = {inlineMode, hunkMode, splitMode};
+  modeButtons.at(static_cast<int>(Settings::instance()->diffMode()))
+      ->setChecked(true);
+  connect(diffModes->buttonGroup(), &QButtonGroup::idClicked, this,
+          [this](int id) {
+            Settings::instance()->setDiffMode(
+                static_cast<Settings::DiffMode>(id));
+            mDiffView->rebuildPresentations();
+          });
+
+  QToolButton *ignoreWhitespace = new QToolButton(this);
+  ignoreWhitespace->setObjectName("IgnoreEdgeWhitespace");
+  ignoreWhitespace->setText(tr("WS"));
+  ignoreWhitespace->setToolTip(
+      tr("Ignore leading/trailing whitespace in Inline and Split views"));
+  ignoreWhitespace->setCheckable(true);
+  ignoreWhitespace->setChecked(
+      Settings::instance()->isEdgeWhitespaceIgnored());
+  connect(ignoreWhitespace, &QToolButton::toggled, this, [this](bool checked) {
+    Settings::instance()->setEdgeWhitespaceIgnored(checked);
+    mDiffView->rebuildPresentations();
+  });
+
+  QToolButton *wordWrap = new QToolButton(this);
+  wordWrap->setObjectName("DiffWordWrap");
+  wordWrap->setText(tr("Wrap"));
+  wordWrap->setToolTip(tr("Word wrap"));
+  wordWrap->setCheckable(true);
+  wordWrap->setChecked(Settings::instance()->isTextEditorWrapLines());
+  connect(wordWrap, &QToolButton::toggled, this, [](bool checked) {
+    Settings::instance()->setTextEditorWrapLines(checked);
+  });
+  connect(Settings::instance(), &Settings::settingsChanged, this,
+          [modeButtons, ignoreWhitespace, wordWrap] {
+            Settings *settings = Settings::instance();
+            modeButtons.at(static_cast<int>(settings->diffMode()))
+                ->setChecked(true);
+            ignoreWhitespace->setChecked(
+                settings->isEdgeWhitespaceIgnored());
+            wordWrap->setChecked(settings->isTextEditorWrapLines());
+          });
+
   QAction *singleTree = setupAppearanceAction(
       "Single View", Setting::Id::ShowChangedFilesInSingleView);
   QAction *listView =
@@ -129,6 +208,9 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   buttonLayout->addStretch();
   buttonLayout->addWidget(segmentedButton);
   buttonLayout->addStretch();
+  buttonLayout->addWidget(diffModes);
+  buttonLayout->addWidget(ignoreWhitespace);
+  buttonLayout->addWidget(wordWrap);
   buttonLayout->addWidget(contextButton);
   buttonLayout->addWidget(closeButton);
 
@@ -143,6 +225,7 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   fileViewLayout->addLayout(buttonLayout);
   fileViewLayout->addWidget(mFileView);
   mFileView->setCurrentIndex(DoubleTreeWidget::Diff);
+  mDiffButton->setChecked(true);
   mFileView->show();
   QWidget *fileView = new QWidget(this);
   fileView->setObjectName("FileInspectionView");
@@ -320,6 +403,10 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   setLayout(layout);
 
   const QButtonGroup *viewGroup = segmentedButton->buttonGroup();
+  connect(mFileView, &QStackedWidget::currentChanged, this, [this](int id) {
+    mBlameButton->setChecked(id == Blame);
+    mDiffButton->setChecked(id == Diff);
+  });
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
   connect(
       viewGroup, QOverload<int>::of(&QButtonGroup::idClicked), this,
@@ -615,8 +702,13 @@ void DoubleTreeWidget::setDiff(const git::Diff &diff, const QString &file,
   mDiffView->setDiff(diff);
 
   // Restore selection.
-  if (diff.isValid() && !mFileInspectionClosed)
-    loadSelection();
+  if (diff.isValid() && !mFileInspectionClosed && loadSelection()) {
+    QModelIndexList selected = stagedFiles->selectionModel()->selectedIndexes();
+    selected.append(unstagedFiles->selectionModel()->selectedIndexes());
+    loadEditorContent(selected);
+    if (mDiff.isConflicted() && mConflictAutoOpenEnabled)
+      repoView->setFileInspectionVisible(true);
+  }
 
   mIgnoreSelectionChange = ignoreSelectionChange;
 
@@ -765,7 +857,7 @@ void DoubleTreeWidget::storeSelection() {
   mSelectedFile.filename = "";
 }
 
-void DoubleTreeWidget::loadSelection() {
+bool DoubleTreeWidget::loadSelection() {
   QModelIndex index;
   Qt::CheckState state;
 
@@ -836,9 +928,7 @@ void DoubleTreeWidget::loadSelection() {
         index, QItemSelectionModel::Select);
   }
   mIgnoreSelectionChange = ignoreSelectionChange;
-  if (mDiff.isConflicted() && index.isValid() && !mFileInspectionClosed &&
-      mConflictAutoOpenEnabled)
-    openFileInspection();
+  return index.isValid();
 }
 
 void DoubleTreeWidget::treeModelStateChanged(const QModelIndex &index,
@@ -938,6 +1028,8 @@ void DoubleTreeWidget::openFileInspection() {
 
   mConflictAutoOpenEnabled = true;
   mFileInspectionClosed = false;
+  mBlameButton->setChecked(mFileView->currentIndex() == Blame);
+  mDiffButton->setChecked(mFileView->currentIndex() == Diff);
   loadEditorContent(selected);
   RepoView::parentView(this)->setFileInspectionVisible(true);
 }

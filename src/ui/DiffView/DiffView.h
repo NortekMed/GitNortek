@@ -87,6 +87,7 @@ public:
    * It fetches the files then from the diffTreeModel and the selection model
    */
   void updateFiles();
+  void rebuildPresentations();
 
   const QList<PluginRef> &plugins() const { return mPlugins; }
   const Account::CommitComments &comments() const { return mComments; }

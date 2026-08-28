@@ -16,6 +16,7 @@
 #include "ui/DiffTreeModel.h"
 #include "ui/DoubleTreeWidget.h"
 #include "ui/HotkeyManager.h"
+#include "conf/Settings.h"
 #include "git/Tree.h"
 #include <QScrollBar>
 #include <QPushButton>
@@ -247,7 +248,9 @@ void DiffView::loadStagedPatches() {
   if (mDiff.isStatusDiff()) {
     if (git::Reference head = repo.head()) {
       if (git::Commit commit = head.target()) {
-        mStagedDiff = repo.diffTreeToIndex(commit.tree());
+        Settings *settings = Settings::instance();
+        mStagedDiff = repo.diffTreeToIndex(
+            commit.tree(), git::Index(), settings->isWhitespaceIgnored());
         for (int i = 0; i < mStagedDiff.count(); ++i)
           mStagedPatches[mStagedDiff.name(i)] = i;
       }
@@ -298,21 +301,38 @@ void DiffView::updateFiles() {
   mFiles.clear();
 
   if (canFetchMore())
-    fetchMore();
+    fetchMore(-1);
+}
+
+void DiffView::rebuildPresentations() {
+  for (FileWidget *file : std::as_const(mFiles))
+    file->rebuildPresentation();
 }
 
 QList<TextEditor *> DiffView::editors() {
   fetchAll();
   QList<TextEditor *> editors;
-  foreach (QWidget *widget, mFiles) {
-    foreach (HunkWidget *hunk, static_cast<FileWidget *>(widget)->hunks())
-      editors.append(hunk->editor());
-  }
+  for (FileWidget *file : std::as_const(mFiles))
+    editors.append(file->editors());
 
   return editors;
 }
 
 void DiffView::ensureVisible(TextEditor *editor, int pos) {
+  for (FileWidget *file : std::as_const(mFiles)) {
+    if (!file->containsEditor(editor))
+      continue;
+
+    const int y = file->y() + editor->mapTo(file, QPoint()).y() +
+                  editor->pointFromPosition(pos).y();
+    QScrollBar *scrollBar = verticalScrollBar();
+    if (y < scrollBar->value())
+      scrollBar->setValue(y);
+    else if (y >= scrollBar->value() + scrollBar->pageStep())
+      scrollBar->setValue(y - scrollBar->pageStep() + editor->textHeight(0));
+    return;
+  }
+
   HunkWidget *hunk = static_cast<HunkWidget *>(editor->parentWidget());
   hunk->header()->button()->setChecked(true);
 
