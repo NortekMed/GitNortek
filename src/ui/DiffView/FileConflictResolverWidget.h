@@ -6,6 +6,7 @@
 #include <QWidget>
 
 class QLabel;
+class QPlainTextEdit;
 class QToolButton;
 
 class FileConflictResolverWidget : public QWidget {
@@ -17,6 +18,15 @@ public:
                                       QWidget *parent = nullptr);
 
   git::Patch::ConflictResolution resolution() const;
+  bool outputDeleted() const { return mOutputKind == DeletedOutput; }
+  bool outputUsesBlob() const {
+    return mOutputKind != DeletedOutput && mOutputId.isValid();
+  }
+  git::Id outputId() const { return mOutputId; }
+  git_filemode_t outputMode() const { return mOutputMode; }
+  bool hasUnsavedOutput() const;
+  QByteArray output() const;
+  void acceptCurrent();
 
 signals:
   void resolutionChanged();
@@ -27,14 +37,26 @@ private:
                       git::Patch::ConflictResolution resolution,
                       const QString &objectName);
   void select(git::Patch::ConflictResolution resolution);
+  void setOutput(const git::Id &id, git_filemode_t mode);
   void updateUi();
+
+  enum OutputKind { TextOutput, BlobOutput, DeletedOutput };
 
   git::Patch mPatch;
   git::Index::Conflict mConflict;
   git::Patch::ConflictResolution mResolution = git::Patch::Unresolved;
   QToolButton *mCurrent = nullptr;
   QToolButton *mIncoming = nullptr;
-  QLabel *mResult = nullptr;
+  QPlainTextEdit *mOutputText = nullptr;
+  QLabel *mOutputInfo = nullptr;
+  git::Id mOutputId;
+  git_filemode_t mOutputMode = GIT_FILEMODE_UNREADABLE;
+  OutputKind mOutputKind = TextOutput;
+  bool mUpdatingOutput = false;
+  OutputKind mInitialOutputKind = TextOutput;
+  git_filemode_t mInitialOutputMode = GIT_FILEMODE_UNREADABLE;
+  git::Id mInitialOutputId;
+  QByteArray mInitialOutput;
 };
 
 #endif // FILECONFLICTRESOLVERWIDGET_H

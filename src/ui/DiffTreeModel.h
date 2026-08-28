@@ -17,6 +17,7 @@
 #include <QAbstractItemModel>
 #include <QAbstractListModel>
 #include <QFileIconProvider>
+#include <QSet>
 #include "git/Index.h"
 
 class Node : public QObject // item of the model
@@ -98,7 +99,8 @@ public:
   DiffTreeModel(const git::Repository &repo, QObject *parent = nullptr);
   virtual ~DiffTreeModel();
 
-  void setDiff(const git::Diff &diff = git::Diff());
+  void setDiff(const git::Diff &diff = git::Diff(),
+               const QStringList &resolvedPaths = {});
   void setTree(const git::Tree &tree, const git::Diff &diff = git::Diff());
   void refresh(const QStringList &paths);
   void setMultiColumn(bool);
@@ -171,6 +173,7 @@ private:
   git::Diff mDiff;
   Node *mRoot{nullptr};
   git::Repository mRepo;
+  QSet<QString> mResolvedPaths;
 
   bool mListView = false;
   bool mMultiColumn{true};

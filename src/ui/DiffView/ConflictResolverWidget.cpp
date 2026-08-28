@@ -61,10 +61,13 @@ private:
 class SourceLineRow : public QWidget {
 public:
   SourceLineRow(const QString &text, bool selectable,
-                const std::function<void()> &toggle, QWidget *parent = nullptr)
+                const std::function<void()> &toggle,
+                const QString &proposalColor = {}, QWidget *parent = nullptr)
       : QWidget(parent), mSelectable(selectable) {
     setMouseTracking(true);
     setFixedHeight(fontMetrics().height() + 6);
+    if (selectable)
+      setStyleSheet(QString("background: %1;").arg(proposalColor));
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setContentsMargins(4, 1, 6, 1);
@@ -108,16 +111,21 @@ class ConflictSourcePanel : public QWidget {
 public:
   ConflictSourcePanel(const QString &title, const QString &objectName,
                       const QString &headerColor, QWidget *parent = nullptr)
-      : QWidget(parent) {
+      : QWidget(parent), mProposalColor(headerColor) {
     setObjectName(objectName);
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 
-    QLabel *header = new QLabel(title, this);
-    header->setContentsMargins(10, 7, 10, 7);
-    header->setStyleSheet(
-        QString("font-weight: 700; background: %1;").arg(headerColor));
+    QWidget *header = new QWidget(this);
+    header->setStyleSheet(QString("background: %1;").arg(headerColor));
+    QHBoxLayout *headerLayout = new QHBoxLayout(header);
+    headerLayout->setContentsMargins(10, 5, 10, 5);
+    mMaster = new QCheckBox(title, header);
+    mMaster->setObjectName(objectName + "Master");
+    mMaster->setTristate(true);
+    mMaster->setStyleSheet("font-weight: 700;");
+    headerLayout->addWidget(mMaster);
     layout->addWidget(header);
 
     mScroll = new QScrollArea(this);
@@ -136,7 +144,7 @@ public:
                             const std::function<void()> &toggle,
                             const QString &objectName) {
     QWidget *row = new QWidget(mContent);
-    row->setStyleSheet("background: palette(alternate-base);");
+    row->setStyleSheet(QString("background: %1;").arg(mProposalColor));
     QHBoxLayout *layout = new QHBoxLayout(row);
     layout->setContentsMargins(8, 4, 8, 4);
     QCheckBox *check = new QCheckBox(text, row);
@@ -150,17 +158,26 @@ public:
 
   SourceLineRow *addLine(const QString &text, bool selectable,
                          const std::function<void()> &toggle = {}) {
-    SourceLineRow *row = new SourceLineRow(text, selectable, toggle, mContent);
+    SourceLineRow *row =
+        new SourceLineRow(text, selectable, toggle, mProposalColor, mContent);
     mRows->insertWidget(mRows->count() - 1, row);
     return row;
   }
 
   QScrollBar *verticalScrollBar() const { return mScroll->verticalScrollBar(); }
 
+  void connectMaster(const std::function<void()> &toggle) {
+    connect(mMaster, &QCheckBox::clicked, toggle);
+  }
+
+  void setMasterState(Qt::CheckState state) { mMaster->setCheckState(state); }
+
 private:
   QScrollArea *mScroll = nullptr;
   QWidget *mContent = nullptr;
   QVBoxLayout *mRows = nullptr;
+  QCheckBox *mMaster = nullptr;
+  QString mProposalColor;
 };
 
 ConflictResolverWidget::ConflictResolverWidget(const git::Patch &patch,
@@ -190,6 +207,8 @@ ConflictResolverWidget::ConflictResolverWidget(const git::Patch &patch,
   mIncomingPanel = new ConflictSourcePanel(
       tr("Incoming - %1").arg(title.arg(incomingId).arg(conflictCount)),
       "ConflictIncomingPanel", "rgba(9, 105, 218, 0.18)", sources);
+  mCurrentPanel->connectMaster([this] { toggleAll(Current); });
+  mIncomingPanel->connectMaster([this] { toggleAll(Incoming); });
   sources->addWidget(mCurrentPanel);
   sources->addWidget(mIncomingPanel);
   sources->setSizes({500, 500});
@@ -238,13 +257,15 @@ ConflictResolverWidget::ConflictResolverWidget(const git::Patch &patch,
       const QString text = lineText(fileLines.at(fileLine));
       mCurrentPanel->addLine(text, false);
       mIncomingPanel->addLine(text, false);
-      resultText.append(repo.decode(fileLines.at(fileLine)));
+      resultText.append(resultLine(fileLines.at(fileLine)));
       ++fileLine;
     }
 
     BlockState state;
     state.block = block;
     state.resultStart = resultText.size();
+    for (const QByteArray &line : block.ancestorLines)
+      resultText.append(resultLine(line));
     state.resultEnd = resultText.size();
     mBlocks.append(state);
 
@@ -299,7 +320,7 @@ ConflictResolverWidget::ConflictResolverWidget(const git::Patch &patch,
     const QString text = lineText(fileLines.at(fileLine));
     mCurrentPanel->addLine(text, false);
     mIncomingPanel->addLine(text, false);
-    resultText.append(repo.decode(fileLines.at(fileLine)));
+    resultText.append(resultLine(fileLines.at(fileLine)));
     ++fileLine;
   }
 
@@ -365,12 +386,18 @@ ConflictResolverWidget::ConflictResolverWidget(const git::Patch &patch,
       if (mBlocks.at(block).block.incomingLines.isEmpty())
         mBlocks[block].selections.append({Incoming, -1});
     }
-    replaceResultBlock(block);
+    if (!mBlocks.at(block).selections.isEmpty())
+      replaceResultBlock(block);
     updateBlockUi(block);
   }
+  mInitialOutput = result();
 }
 
 bool ConflictResolverWidget::isComplete() const { return !mBlocks.isEmpty(); }
+
+bool ConflictResolverWidget::hasUnsavedOutput() const {
+  return result() != mInitialOutput;
+}
 
 int ConflictResolverWidget::untouchedBlockCount() const {
   int count = 0;
@@ -382,10 +409,49 @@ int ConflictResolverWidget::untouchedBlockCount() const {
 }
 
 QByteArray ConflictResolverWidget::result() const {
+  return encodeResult(mResult->toPlainText());
+}
+
+QByteArray ConflictResolverWidget::resultWithConflictChunks() const {
+  if (!mResultRangesValid)
+    return {};
+
   QString text = mResult->toPlainText();
+  for (int block = mBlocks.size() - 1; block >= 0; --block) {
+    const BlockState &state = mBlocks.at(block);
+    if (!state.selections.isEmpty())
+      continue;
+    text.replace(state.resultStart, state.resultEnd - state.resultStart,
+                 conflictChunk(state));
+  }
+  return encodeResult(text);
+}
+
+QByteArray ConflictResolverWidget::encodeResult(QString text) const {
   if (mCrLf)
     text.replace('\n', "\r\n");
   return QStringEncoder{mPatch.repo().encoding()}.encode(text);
+}
+
+QString ConflictResolverWidget::conflictChunk(const BlockState &state) const {
+  QString text = "<<<<<<< Current\n";
+  for (const QByteArray &line : state.block.currentLines)
+    text.append(lineText(line)).append('\n');
+  text.append("||||||| Base\n");
+  for (const QByteArray &line : state.block.ancestorLines)
+    text.append(lineText(line)).append('\n');
+  text.append("=======\n");
+  for (const QByteArray &line : state.block.incomingLines)
+    text.append(lineText(line)).append('\n');
+  text.append(">>>>>>> Incoming\n");
+  return text;
+}
+
+void ConflictResolverWidget::acceptAll() {
+  setAllSelected(Current, false);
+  setAllSelected(Incoming, false);
+  setAllSelected(Current, true);
+  setAllSelected(Incoming, true);
 }
 
 void ConflictResolverWidget::toggleBlock(int block, Side side) {
@@ -435,16 +501,51 @@ void ConflictResolverWidget::toggleLine(int block, Side side, int line) {
   updateBlockUi(block);
 }
 
+void ConflictResolverWidget::toggleAll(Side side) {
+  bool all = !mBlocks.isEmpty();
+  for (const BlockState &state : std::as_const(mBlocks))
+    all = all && allSelected(state, side);
+  setAllSelected(side, !all);
+}
+
+void ConflictResolverWidget::setAllSelected(Side side, bool selected) {
+  for (int block = 0; block < mBlocks.size(); ++block) {
+    BlockState &state = mBlocks[block];
+    for (int i = state.selections.size() - 1; i >= 0; --i) {
+      if (state.selections.at(i).side == side)
+        state.selections.removeAt(i);
+    }
+    if (selected) {
+      const QList<QByteArray> &lines = side == Current
+                                           ? state.block.currentLines
+                                           : state.block.incomingLines;
+      if (lines.isEmpty()) {
+        state.selections.append({side, -1});
+      } else {
+        for (int line = 0; line < lines.size(); ++line)
+          state.selections.append({side, line});
+      }
+    }
+    if (mResultRangesValid)
+      replaceResultBlock(block);
+    updateBlockUi(block);
+  }
+}
+
 void ConflictResolverWidget::replaceResultBlock(int block) {
   BlockState &state = mBlocks[block];
   QString text;
+  if (state.selections.isEmpty()) {
+    for (const QByteArray &line : state.block.ancestorLines)
+      text.append(resultLine(line));
+  }
   for (const Selection &selection : state.selections) {
     if (selection.line < 0)
       continue;
     const QList<QByteArray> &lines = selection.side == Current
                                          ? state.block.currentLines
                                          : state.block.incomingLines;
-    text.append(mPatch.repo().decode(lines.at(selection.line)));
+    text.append(resultLine(lines.at(selection.line)));
   }
 
   QTextCursor cursor(mResult->document());
@@ -482,7 +583,22 @@ void ConflictResolverWidget::updateBlockUi(int block) {
   else if (incoming)
     resolution = git::Patch::Theirs;
   mPatch.setConflictResolution(block, resolution);
+  updateMasterUi();
   emit completenessChanged(isComplete());
+}
+
+void ConflictResolverWidget::updateMasterUi() {
+  auto stateFor = [this](Side side) {
+    bool any = false;
+    bool all = !mBlocks.isEmpty();
+    for (const BlockState &state : std::as_const(mBlocks)) {
+      any = any || anySelected(state, side);
+      all = all && allSelected(state, side);
+    }
+    return all ? Qt::Checked : (any ? Qt::PartiallyChecked : Qt::Unchecked);
+  };
+  mCurrentPanel->setMasterState(stateFor(Current));
+  mIncomingPanel->setMasterState(stateFor(Incoming));
 }
 
 bool ConflictResolverWidget::contains(const BlockState &state, Side side,
@@ -507,11 +623,27 @@ bool ConflictResolverWidget::allSelected(const BlockState &state,
   return true;
 }
 
-QString ConflictResolverWidget::lineText(const QByteArray &line) const {
+bool ConflictResolverWidget::anySelected(const BlockState &state,
+                                         Side side) const {
+  for (const Selection &selection : state.selections) {
+    if (selection.side == side)
+      return true;
+  }
+  return false;
+}
+
+QString ConflictResolverWidget::resultLine(const QByteArray &line) const {
   QString text = mPatch.repo().decode(line);
+  if (text.endsWith("\r\n")) {
+    text.chop(2);
+    text.append('\n');
+  }
+  return text;
+}
+
+QString ConflictResolverWidget::lineText(const QByteArray &line) const {
+  QString text = resultLine(line);
   if (text.endsWith('\n'))
-    text.chop(1);
-  if (text.endsWith('\r'))
     text.chop(1);
   return text;
 }

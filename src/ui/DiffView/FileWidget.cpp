@@ -19,6 +19,7 @@
 #include "ui/Badge.h"
 #include "ui/FileContextMenu.h"
 #include "git/Repository.h"
+#include "tools/ExternalTool.h"
 
 #include "git/Buffer.h"
 #include "git/Blob.h"
@@ -29,12 +30,60 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QMessageBox>
+#include <QPointer>
 #include <QPushButton>
 #include <QSaveFile>
 
 namespace {
 bool disclosure = false;
 constexpr int kMaxDisplayedChangedLines = 5000;
+
+bool resolveTextOutput(const git::Patch &patch,
+                       const git::Index::Conflict &conflict,
+                       const QByteArray &result) {
+  git::Repository repo = patch.repo();
+  if (!patch.conflictFileMatches() ||
+      !repo.index().conflictMatches(patch.name(), conflict))
+    return false;
+
+  const QString path = repo.workdir().filePath(patch.name());
+  const QByteArray original = patch.conflictFileContent();
+  QSaveFile file(path);
+  if (!file.open(QFile::WriteOnly) || file.write(result) != result.size())
+    return false;
+
+  QFile current(path);
+  if (!current.open(QFile::ReadOnly) || current.readAll() != original) {
+    file.cancelWriting();
+    return false;
+  }
+  current.close();
+  if (!file.commit())
+    return false;
+
+  if (repo.index().resolveConflict(patch.name(), conflict))
+    return true;
+
+  QFile resolvedFile(path);
+  if (resolvedFile.open(QFile::ReadOnly) && resolvedFile.readAll() == result) {
+    resolvedFile.close();
+    QSaveFile restore(path);
+    if (restore.open(QFile::WriteOnly) &&
+        restore.write(original) == original.size())
+      restore.commit();
+  }
+  return false;
+}
+
+bool regularTextSide(const git::Repository &repo, const git::Id &id,
+                     git_filemode_t mode) {
+  if (id.isNull())
+    return true;
+  if (mode != GIT_FILEMODE_BLOB && mode != GIT_FILEMODE_BLOB_EXECUTABLE)
+    return false;
+  const git::Blob blob = repo.lookupBlob(id);
+  return blob.isValid() && !blob.isBinary();
+}
 } // namespace
 
 _FileWidget::Header::Header(const git::Diff &diff, const git::Patch &patch,
@@ -45,7 +94,7 @@ _FileWidget::Header::Header(const git::Diff &diff, const git::Patch &patch,
 
   QString name = patch.name();
   mCheck = new QCheckBox(this);
-  mCheck->setVisible(diff.isStatusDiff());
+  mCheck->setVisible(diff.isStatusDiff() && !patch.isConflicted());
   mCheck->setTristate(true);
 
   mStatusBadge = new Badge({}, this);
@@ -131,15 +180,30 @@ _FileWidget::Header::Header(const git::Diff &diff, const git::Patch &patch,
   mDisclosureButton->setVisible(disclosure);
   buttons->addWidget(mDisclosureButton);
 
+  mExternalMerge = new QToolButton(this);
+  mExternalMerge->setObjectName("ConflictExternalMerge");
+  mExternalMerge->setText(HunkWidget::tr("Open in External Merge Tool"));
+  connect(mExternalMerge, &QToolButton::clicked, this, [this] {
+    ExternalTool *tool =
+        ExternalTool::create(mPatch.name(), mDiff, mPatch.repo(), false, this);
+    if (!tool || tool->kind() != ExternalTool::Merge || !tool->isValid() ||
+        !tool->start()) {
+      if (tool)
+        tool->deleteLater();
+    }
+  });
+
   mMarkResolved = new QToolButton(this);
   mMarkResolved->setObjectName("ConflictMarkResolved");
-  mMarkResolved->setText(HunkWidget::tr("Mark Resolved"));
+  mMarkResolved->setText(HunkWidget::tr("Save"));
   mMarkResolved->setEnabled(false);
   mMarkResolved->setStyleSheet(
-      "QToolButton { background: #b8860b; color: white; border-radius: 3px; "
-      "padding: 4px 10px; font-weight: 700; }"
-      "QToolButton:disabled { background: palette(mid); color: "
-      "palette(disabled-text); }");
+      "QToolButton { background: #36c96b; color: #102817; border: 1px solid "
+      "#2ead5b; border-radius: 3px; padding: 4px 10px; font-weight: 700; }"
+      "QToolButton:hover { background: #4bd77d; }"
+      "QToolButton:pressed { background: #2eaa59; color: white; }"
+      "QToolButton:disabled { background: #71877a; color: #e5ebe7; "
+      "border-color: #71877a; }");
 
   mClear = new QToolButton(this);
   mClear->setObjectName("ConflictFileClear");
@@ -176,6 +240,7 @@ _FileWidget::Header::Header(const git::Diff &diff, const git::Patch &patch,
     mMarkResolved->setEnabled(!mPatch.hasMalformedConflicts());
   });
 
+  buttons->addWidget(mExternalMerge);
   buttons->addWidget(mClear);
   buttons->addWidget(mCurrent);
   buttons->addWidget(mIncoming);
@@ -280,6 +345,13 @@ void _FileWidget::Header::updatePatch(const git::Patch &patch) {
 
   mCurrent->setVisible(isConflicted && showFileSolverButtons);
   mIncoming->setVisible(isConflicted && showFileSolverButtons);
+  if (isConflicted) {
+    const git::Index::Conflict conflict = mDiff.index().conflict(patch.name());
+    mExternalMerge->setVisible(!conflict.ours.isNull() &&
+                               !conflict.theirs.isNull());
+  } else {
+    mExternalMerge->setVisible(false);
+  }
   mMarkResolved->setVisible(isConflicted);
   mClear->setVisible(showFileSolverButtons &&
                      mResolution != git::Patch::Unresolved);
@@ -362,7 +434,8 @@ FileWidget::FileWidget(DiffView *view, const git::Diff &diff,
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
 
-  bool binary = patch.isBinary();
+  bool binary =
+      patch.isBinary() && !(patch.isConflicted() && patch.count() > 0);
   if (patch.isUntracked()) {
     QFile dev(path);
     if (dev.open(QFile::ReadOnly)) {
@@ -524,6 +597,58 @@ void FileWidget::setStageState(git::Index::StagedState state) {
 
 QModelIndex FileWidget::modelIndex() { return mModelIndex; }
 
+QStringList FileWidget::resolveAllConflicts(const git::Diff &diff) {
+  QStringList failed;
+  if (!diff.isValid())
+    return failed;
+
+  for (int i = 0; i < diff.count(); ++i) {
+    const git::Patch patch = diff.patch(i);
+    if (!patch.isConflicted())
+      continue;
+
+    git::Repository repo = patch.repo();
+    const git::Index::Conflict conflict = repo.index().conflict(patch.name());
+    bool resolved = false;
+    if (patch.conflictFileMatches() && patch.count() > 0 &&
+        !patch.hasMalformedConflicts()) {
+      ConflictResolverWidget resolver(patch);
+      resolver.acceptAll();
+      resolved = resolveTextOutput(patch, conflict, resolver.result());
+    } else if (patch.conflictFileMatches() && !patch.hasMalformedConflicts()) {
+      const bool oursText =
+          regularTextSide(repo, conflict.ours, conflict.oursMode);
+      const bool theirsText =
+          regularTextSide(repo, conflict.theirs, conflict.theirsMode);
+      if (oursText && theirsText && conflict.oursMode == conflict.theirsMode &&
+          !conflict.ours.isNull() && !conflict.theirs.isNull() &&
+          conflict.ours != conflict.theirs) {
+        const QByteArray result = repo.lookupBlob(conflict.ours).content() +
+                                  repo.lookupBlob(conflict.theirs).content();
+        resolved = resolveTextOutput(patch, conflict, result);
+      } else {
+        git::Id id = conflict.ours;
+        git_filemode_t mode = conflict.oursMode;
+        if (oursText && theirsText && conflict.ours.isNull() &&
+            !conflict.theirs.isNull()) {
+          id = conflict.theirs;
+          mode = conflict.theirsMode;
+        } else if (oursText && theirsText && conflict.theirs.isNull() &&
+                   !conflict.ours.isNull()) {
+          id = conflict.ours;
+          mode = conflict.oursMode;
+        }
+        resolved =
+            repo.index().resolveConflict(patch.name(), conflict, id, mode);
+      }
+    }
+
+    if (!resolved)
+      failed.append(patch.name());
+  }
+  return failed;
+}
+
 QToolButton *_FileWidget::Header::markResolvedButton() const {
   return mMarkResolved;
 }
@@ -607,6 +732,11 @@ void FileWidget::updatePatch(const git::Patch &patch, const git::Patch &staged,
 _FileWidget::Header *FileWidget::header() const { return mHeader; }
 
 QString FileWidget::name() const { return mPatch.name(); }
+
+bool FileWidget::hasUnsavedConflictOutput() const {
+  return (mResolver && mResolver->hasUnsavedOutput()) ||
+         (mFileResolver && mFileResolver->hasUnsavedOutput());
+}
 
 QList<HunkWidget *> FileWidget::hunks() const { return mHunks; }
 
@@ -812,9 +942,7 @@ void FileWidget::updateMarkResolvedState() {
     const git::Index::Conflict conflict =
         mPatch.repo().index().conflict(mPatch.name());
     bool bothDeleted = conflict.ours.isNull() && conflict.theirs.isNull();
-    bool sideSelected =
-        mFileResolver && mFileResolver->resolution() != git::Patch::Unresolved;
-    mHeader->setMarkResolvedEnabled(bothDeleted || sideSelected);
+    mHeader->setMarkResolvedEnabled(bothDeleted || mFileResolver);
     return;
   }
 
@@ -833,91 +961,88 @@ void FileWidget::markResolved() {
   if (!mPatch.isConflicted() || mPatch.hasMalformedConflicts())
     return;
 
-  git::Repository repo = mPatch.repo();
-  QString path = repo.workdir().filePath(mPatch.name());
-  RepoView *view = RepoView::parentView(this);
-  if (!mPatch.conflictFileMatches()) {
-    view->refresh();
+  const git::Patch patch = mPatch;
+  QPointer<FileWidget> guard(this);
+  git::Repository repo = patch.repo();
+  QString path = repo.workdir().filePath(patch.name());
+  QPointer<RepoView> view = RepoView::parentView(this);
+  if (!patch.conflictFileMatches()) {
+    if (view)
+      view->refresh();
     return;
   }
-  const git::Index::Conflict conflict = mDiff.index().conflict(mPatch.name());
+  const git::Index::Conflict conflict = mDiff.index().conflict(patch.name());
 
-  if (mPatch.count() > 0) {
+  if (patch.count() > 0) {
     if (!mResolver || !mResolver->isComplete())
       return;
+    QByteArray result = mResolver->result();
     const int untouched = mResolver->untouchedBlockCount();
-    if (untouched > 0 &&
-        QMessageBox::warning(
-            this, tr("Resolve blocks without source selections?"),
-            tr("%n conflict block(s) have no Current or Incoming selection. "
-               "The Result will be used exactly as shown.",
-               nullptr, untouched),
-            QMessageBox::Ok | QMessageBox::Cancel,
-            QMessageBox::Cancel) != QMessageBox::Ok)
-      return;
-    const QByteArray result = mResolver->result();
-    QByteArray original;
-    for (const QByteArray &line : mPatch.conflictFileLines())
-      original.append(line);
-
-    if (!repo.index().conflictMatches(mPatch.name(), conflict)) {
-      view->refresh();
-      return;
-    }
-
-    QSaveFile file(path);
-    if (!file.open(QFile::WriteOnly))
-      return;
-    if (file.write(result) != result.size() || !file.commit())
-      return;
-
-    if (!repo.index().resolveConflict(mPatch.name(), conflict)) {
-      QFile current(path);
-      if (current.open(QFile::ReadOnly) && current.readAll() == result) {
-        current.close();
-        QSaveFile restore(path);
-        if (restore.open(QFile::WriteOnly) &&
-            restore.write(original) == original.size())
-          restore.commit();
+    if (untouched > 0) {
+      const bool canCreateChunks = mResolver->canCreateConflictChunks();
+      const QByteArray conflictChunks =
+          canCreateChunks ? mResolver->resultWithConflictChunks()
+                          : QByteArray();
+      QMessageBox message(QMessageBox::Warning, tr("Unselected changes"),
+                          tr("%n conflict chunk(s) still use the Base output. "
+                             "Saving Output may omit Current and Incoming "
+                             "changes.",
+                             nullptr, untouched),
+                          QMessageBox::NoButton);
+      message.setWindowModality(Qt::ApplicationModal);
+      QPushButton *saveOutput =
+          message.addButton(tr("Save Output"), QMessageBox::AcceptRole);
+      QPushButton *createChunks = message.addButton(
+          tr("Create and Stage Conflict Chunks"), QMessageBox::ActionRole);
+      createChunks->setEnabled(canCreateChunks);
+      message.addButton(QMessageBox::Cancel);
+      message.exec();
+      if (message.clickedButton() == createChunks) {
+        result = conflictChunks;
+      } else if (message.clickedButton() != saveOutput) {
+        return;
       }
-      view->refresh();
+    }
+    if (!resolveTextOutput(patch, conflict, result)) {
+      if (view)
+        view->refresh();
       return;
     }
 
-    for (int i = 0; i < mPatch.count(); ++i)
-      mPatch.setConflictResolution(i, git::Patch::Unresolved);
+    if (guard) {
+      for (int i = 0; i < guard->mPatch.count(); ++i)
+        guard->mPatch.setConflictResolution(i, git::Patch::Unresolved);
+    }
   } else {
-    const git::Patch::ConflictResolution resolution =
-        mFileResolver ? mFileResolver->resolution() : git::Patch::Unresolved;
+    if (!mFileResolver)
+      return;
     git::Id id;
     git_filemode_t mode = GIT_FILEMODE_UNREADABLE;
-
-    if (resolution == git::Patch::Ours) {
-      id = conflict.ours;
-      mode = conflict.oursMode;
-    } else if (resolution == git::Patch::Theirs) {
-      id = conflict.theirs;
-      mode = conflict.theirsMode;
-    } else if (!conflict.ours.isNull() || !conflict.theirs.isNull()) {
-      return;
-    }
-
-    if (id.isNull()) {
-      if (mode != GIT_FILEMODE_UNREADABLE)
+    if (mFileResolver->outputDeleted()) {
+      if (!repo.index().resolveConflict(patch.name(), conflict, id, mode))
+        return;
+    } else if (mFileResolver->outputUsesBlob()) {
+      id = mFileResolver->outputId();
+      mode = mFileResolver->outputMode();
+      if (!id.isValid() || mode == GIT_FILEMODE_UNREADABLE ||
+          !repo.index().resolveConflict(patch.name(), conflict, id, mode))
         return;
     } else {
-      if (!id.isValid() || mode == GIT_FILEMODE_UNREADABLE)
+      const QByteArray result = mFileResolver->output();
+      if (!resolveTextOutput(patch, conflict, result)) {
+        if (view)
+          view->refresh();
         return;
+      }
     }
 
-    if (!repo.index().resolveConflict(mPatch.name(), conflict, id, mode))
-      return;
-
-    view->refresh();
+    if (view)
+      view->refresh();
     return;
   }
 
-  view->refresh();
+  if (view)
+    view->refresh();
 }
 
 void FileWidget::discard() {

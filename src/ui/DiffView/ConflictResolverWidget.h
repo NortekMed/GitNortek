@@ -20,6 +20,10 @@ public:
   bool isComplete() const;
   int untouchedBlockCount() const;
   QByteArray result() const;
+  QByteArray resultWithConflictChunks() const;
+  bool canCreateConflictChunks() const { return mResultRangesValid; }
+  bool hasUnsavedOutput() const;
+  void acceptAll();
 
 signals:
   void completenessChanged(bool complete);
@@ -45,10 +49,17 @@ private:
 
   void toggleBlock(int block, Side side);
   void toggleLine(int block, Side side, int line);
+  void toggleAll(Side side);
+  void setAllSelected(Side side, bool selected);
   void replaceResultBlock(int block);
   void updateBlockUi(int block);
+  void updateMasterUi();
   bool contains(const BlockState &state, Side side, int line) const;
   bool allSelected(const BlockState &state, Side side) const;
+  bool anySelected(const BlockState &state, Side side) const;
+  QByteArray encodeResult(QString text) const;
+  QString conflictChunk(const BlockState &state) const;
+  QString resultLine(const QByteArray &line) const;
   QString lineText(const QByteArray &line) const;
   QString incomingCommit() const;
 
@@ -60,6 +71,7 @@ private:
   bool mUpdatingResult = false;
   bool mResultRangesValid = true;
   bool mCrLf = false;
+  QByteArray mInitialOutput;
 };
 
 #endif // CONFLICTRESOLVERWIDGET_H

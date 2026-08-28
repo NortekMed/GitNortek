@@ -18,6 +18,7 @@
 #include "Debug.h"
 #include "conf/Settings.h"
 #include "DiffView/DiffView.h"
+#include "DiffView/FileWidget.h"
 #include "git/Index.h"
 #include "git/Config.h"
 #include "git/Patch.h"
@@ -26,6 +27,7 @@
 #include <QHBoxLayout>
 #include <QCheckBox>
 #include <QLabel>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QStackedWidget>
 #include <QStyle>
@@ -182,8 +184,9 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
           });
 
   QHBoxLayout *hBoxLayout = new QHBoxLayout();
-  QLabel *label = new QLabel(kStagedFiles);
-  hBoxLayout->addWidget(label);
+  mStagedFilesLabel = new QLabel(kStagedFiles);
+  mStagedFilesLabel->setObjectName("StagedFilesLabel");
+  hBoxLayout->addWidget(mStagedFilesLabel);
   hBoxLayout->addStretch();
   collapseButtonStagedFiles =
       new StatePushButton(kCollapseAll, kExpandAll, this);
@@ -213,12 +216,51 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
 
   hBoxLayout = new QHBoxLayout();
   mUnstagedCommitedFiles = new QLabel(kUnstagedFiles);
+  mUnstagedCommitedFiles->setObjectName("UnstagedFilesLabel");
   hBoxLayout->addWidget(mUnstagedCommitedFiles);
   mConflictSummary = new QLabel(this);
   mConflictSummary->setObjectName("ConflictSummary");
   mConflictSummary->setVisible(false);
   hBoxLayout->addWidget(mConflictSummary);
   hBoxLayout->addStretch();
+  mMarkAllResolved = new QPushButton(tr("Mark All Resolved"), this);
+  mMarkAllResolved->setObjectName("MarkAllResolved");
+  mMarkAllResolved->setStyleSheet(QStringLiteral(
+      "QPushButton#MarkAllResolved {"
+      "  background-color: #d6a321; color: #241a00;"
+      "  border: 1px solid #b8860b; border-radius: 3px; padding: 4px 10px;"
+      "  font-weight: 700;"
+      "}"
+      "QPushButton#MarkAllResolved:hover { background-color: #e7b53b; }"
+      "QPushButton#MarkAllResolved:pressed {"
+      "  background-color: #b8860b; color: #ffffff;"
+      "}"
+      "QPushButton#MarkAllResolved:disabled {"
+      "  background-color: #756a4d; color: #ddd6c2; border-color: #756a4d;"
+      "}"));
+  mMarkAllResolved->setVisible(false);
+  connect(mMarkAllResolved, &QPushButton::clicked, this, [this] {
+    int conflicts = 0;
+    for (int i = 0; i < mDiff.count(); ++i)
+      conflicts += mDiff.patch(i).isConflicted();
+    if (conflicts == 0 ||
+        QMessageBox::warning(
+            this, tr("Mark all files resolved?"),
+            tr("Current changes will be followed by Incoming changes for all "
+               "text conflicts. Current will be kept for binary and file-type "
+               "conflicts."),
+            QMessageBox::Ok | QMessageBox::Cancel,
+            QMessageBox::Cancel) != QMessageBox::Ok)
+      return;
+
+    const QStringList failed = FileWidget::resolveAllConflicts(mDiff);
+    if (!failed.isEmpty())
+      QMessageBox::warning(this, tr("Some conflicts were not resolved"),
+                           tr("These files changed or could not be saved:\n%1")
+                               .arg(failed.join('\n')));
+    RepoView::parentView(this)->refresh();
+  });
+  hBoxLayout->addWidget(mMarkAllResolved);
   mUnresolvedOnly = new QCheckBox(tr("Unresolved only"), this);
   mUnresolvedOnly->setObjectName("UnresolvedOnly");
   mUnresolvedOnly->setVisible(false);
@@ -347,7 +389,15 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
           [this] { selectAdjacentConflict(1); });
 
   connect(repo.notifier(), &git::RepositoryNotifier::indexChanged, this,
-          [this](const QStringList &paths) {
+          [this, repo](const QStringList &paths) {
+            if (repo.state() != GIT_REPOSITORY_STATE_NONE) {
+              for (const QString &path : paths) {
+                const int index = mDiff.indexOf(path);
+                if (index >= 0 && mDiff.patch(index).isConflicted() &&
+                    !repo.index().hasConflict(path))
+                  mResolvedConflictPaths.insert(path);
+              }
+            }
             mDiffTreeModel->refresh(paths);
             QMetaObject::invokeMethod(
                 this, [this] { updateStageAllChangesButton(); },
@@ -484,6 +534,9 @@ void DoubleTreeWidget::setDiff(const git::Diff &diff, const QString &file,
                         << "Counter: " << mSetDiffCounter);
 
   mDiff = diff;
+  RepoView *repoView = RepoView::parentView(this);
+  if (repoView->repo().state() == GIT_REPOSITORY_STATE_NONE)
+    mResolvedConflictPaths.clear();
 
   // Remember selection.
   storeSelection();
@@ -510,18 +563,20 @@ void DoubleTreeWidget::setDiff(const git::Diff &diff, const QString &file,
   model->enableListView(listView);
   model->setMultiColumn(multiColumn);
   const bool commitDiff = diff.isValid() && !diff.isStatusDiff();
+  const bool conflictMode =
+      diff.isValid() && diff.isStatusDiff() && diff.isConflicted();
   const bool showAllFiles = commitDiff && mShowAllFiles->isChecked();
   if (showAllFiles)
-    model->setTree(RepoView::parentView(this)->tree(), diff);
+    model->setTree(repoView->tree(), diff);
   else
-    model->setDiff(diff);
+    model->setDiff(diff, mResolvedConflictPaths.values());
   stagedFiles->setRootIsDecorated(!listView);
   unstagedFiles->setRootIsDecorated(!listView);
   // mUnstagedCommitedFiles->setVisible(!singleTree);
   collapseButtonStagedFiles->setVisible(!listView);
   collapseButtonUnstagedFiles->setVisible(!listView);
-  updateStageAllChangesButton();
   updateConflictUi();
+  updateStageAllChangesButton();
 
   unstagedFiles->updateView(); // Must be before expandAll/collapseAll is done,
                                // otherwise the collapse counter is wrong
@@ -530,7 +585,8 @@ void DoubleTreeWidget::setDiff(const git::Diff &diff, const QString &file,
   // If statusDiff, there exist no staged/unstaged, but only
   // the commited files must be shown
   if (!diff.isValid() || diff.isStatusDiff()) {
-    mUnstagedCommitedFiles->setText(singleTree ? kAllFiles : kUnstagedFiles);
+    if (!conflictMode)
+      mUnstagedCommitedFiles->setText(singleTree ? kAllFiles : kUnstagedFiles);
     mUnstagedCommitedFiles->setEnabled(true);
     mShowAllFiles->setVisible(false);
     if (diff.isValid() && diff.count() < fileCountExpansionThreshold)
@@ -538,8 +594,8 @@ void DoubleTreeWidget::setDiff(const git::Diff &diff, const QString &file,
     else
       stagedFiles->collapseAll();
 
-    proxy->enableFilter(!singleTree);
-    mStagedWidget->setVisible(!singleTree);
+    proxy->enableFilter(conflictMode || !singleTree);
+    mStagedWidget->setVisible(conflictMode || !singleTree);
   } else {
     mUnstagedCommitedFiles->setText(kCommitedFiles);
     mUnstagedCommitedFiles->setEnabled(!showAllFiles);
@@ -579,23 +635,42 @@ void DoubleTreeWidget::cancelBackgroundTasks() { mEditor->cancelBlame(); }
 
 void DoubleTreeWidget::updateStageAllChangesButton() {
   const bool statusDiff = mDiff.isValid() && mDiff.isStatusDiff();
-  mStageAllChanges->setVisible(statusDiff);
-  mStageAllChanges->setEnabled(statusDiff &&
+  const bool conflictMode = statusDiff && mDiff.isConflicted();
+  mStageAllChanges->setVisible(statusDiff && !conflictMode);
+  mStageAllChanges->setEnabled(statusDiff && !conflictMode &&
                                RepoView::parentView(this)->isStageEnabled());
 }
 
 void DoubleTreeWidget::updateConflictUi() {
   int unresolvedFiles = 0;
   int unresolvedBlocks = 0;
+  int resolvedFiles = 0;
   if (mDiff.isValid() && mDiff.isStatusDiff()) {
     for (int i = 0; i < mDiff.count(); ++i) {
       git::Patch patch = mDiff.patch(i);
-      if (!patch.isConflicted())
-        continue;
-      ++unresolvedFiles;
-      unresolvedBlocks += patch.count();
+      if (patch.isConflicted()) {
+        ++unresolvedFiles;
+        unresolvedBlocks += patch.count();
+      } else if (mDiff.index().isStaged(patch.name()) == git::Index::Staged) {
+        ++resolvedFiles;
+      }
     }
   }
+  for (const QString &path : std::as_const(mResolvedConflictPaths)) {
+    if (!mDiff.isValid() || mDiff.indexOf(path) < 0)
+      ++resolvedFiles;
+  }
+
+  const bool conflictMode = unresolvedFiles > 0;
+  static_cast<TreeProxy *>(stagedFiles->model())->setConflictMode(conflictMode);
+  static_cast<TreeProxy *>(unstagedFiles->model())
+      ->setConflictMode(conflictMode);
+  mStagedFilesLabel->setText(conflictMode
+                                 ? tr("Resolved Files (%1)").arg(resolvedFiles)
+                                 : kStagedFiles);
+  if (conflictMode)
+    mUnstagedCommitedFiles->setText(
+        tr("Conflicted Files (%1)").arg(unresolvedFiles));
 
   if (unresolvedFiles == 0) {
     mConflictSessionTotal = 0;
@@ -605,10 +680,10 @@ void DoubleTreeWidget::updateConflictUi() {
   }
 
   QString summary;
-  int resolvedFiles = mConflictSessionTotal - unresolvedFiles;
-  if (resolvedFiles > 0) {
+  int sessionResolvedFiles = mConflictSessionTotal - unresolvedFiles;
+  if (sessionResolvedFiles > 0) {
     summary = tr("%1 of %2 resolved | %3 blocks remaining")
-                  .arg(resolvedFiles)
+                  .arg(sessionResolvedFiles)
                   .arg(mConflictSessionTotal)
                   .arg(unresolvedBlocks);
   } else {
@@ -620,7 +695,8 @@ void DoubleTreeWidget::updateConflictUi() {
 
   bool visible = unresolvedFiles > 0;
   mConflictSummary->setVisible(visible);
-  mUnresolvedOnly->setVisible(visible);
+  mMarkAllResolved->setVisible(visible);
+  mUnresolvedOnly->setVisible(false);
   mPreviousConflict->setVisible(visible);
   mNextConflict->setVisible(visible);
 }
@@ -689,7 +765,28 @@ void DoubleTreeWidget::loadSelection() {
   QModelIndex index;
   Qt::CheckState state;
 
-  if (mSelectedFile.filename != "") {
+  if (mDiff.isConflicted()) {
+    int start = 0;
+    for (int i = 0; i < mDiff.count(); ++i) {
+      if (mDiff.patch(i).name() == mSelectedFile.filename) {
+        start = i + 1;
+        if (mDiff.patch(i).isConflicted())
+          start = i;
+        break;
+      }
+    }
+    for (int offset = 0; offset < mDiff.count(); ++offset) {
+      const git::Patch patch = mDiff.patch((start + offset) % mDiff.count());
+      if (patch.isConflicted()) {
+        index = mDiffTreeModel->index(patch.name());
+        mSelectedFile.filename = patch.name();
+        mSelectedFile.stagedModel = false;
+        break;
+      }
+    }
+  }
+
+  if (!mDiff.isConflicted() && mSelectedFile.filename != "") {
     index = mDiffTreeModel->index(mSelectedFile.filename);
 
     if (!index.isValid()) {
@@ -708,9 +805,10 @@ void DoubleTreeWidget::loadSelection() {
         mDiffTreeModel->data(index, Qt::CheckStateRole).toInt());
   }
 
-  if (!index.isValid() ||
-      (mSelectedFile.stagedModel && state != Qt::CheckState::Checked) ||
-      (!mSelectedFile.stagedModel && state != Qt::CheckState::Unchecked)) {
+  if (!mDiff.isConflicted() &&
+      (!index.isValid() ||
+       (mSelectedFile.stagedModel && state != Qt::CheckState::Checked) ||
+       (!mSelectedFile.stagedModel && state != Qt::CheckState::Unchecked))) {
     mSelectedFile.filename = "";
     if (mDiffTreeModel->rowCount() > 0) {
       index = mDiffTreeModel->index(0, 0);
@@ -734,6 +832,8 @@ void DoubleTreeWidget::loadSelection() {
         index, QItemSelectionModel::Select);
   }
   mIgnoreSelectionChange = ignoreSelectionChange;
+  if (mDiff.isConflicted() && index.isValid() && !mFileInspectionClosed)
+    openFileInspection();
 }
 
 void DoubleTreeWidget::treeModelStateChanged(const QModelIndex &index,
@@ -768,6 +868,34 @@ void DoubleTreeWidget::collapseCountChanged(int count) {
 void DoubleTreeWidget::filesSelected(const QModelIndexList &indexes) {
   if (mIgnoreSelectionChange)
     return;
+
+  const QString requestedName =
+      indexes.size() == 1 ? indexes.first().data(Qt::EditRole).toString()
+                          : QString();
+  const QList<FileWidget *> files =
+      mDiffView->widget()->findChildren<FileWidget *>();
+  for (auto it = files.crbegin(); it != files.crend(); ++it) {
+    FileWidget *file = *it;
+    if (!file->hasUnsavedConflictOutput() || file->name() == requestedName)
+      continue;
+    if (QMessageBox::warning(
+            this, tr("Discard unsaved Output?"),
+            tr("The edited conflict Output has not been saved or staged."),
+            QMessageBox::Discard | QMessageBox::Cancel,
+            QMessageBox::Cancel) == QMessageBox::Discard)
+      break;
+
+    const QModelIndex source = mDiffTreeModel->index(file->name());
+    const QModelIndex previous =
+        static_cast<TreeProxy *>(unstagedFiles->model())->mapFromSource(source);
+    mIgnoreSelectionChange = true;
+    stagedFiles->deselectAll();
+    unstagedFiles->selectionModel()->setCurrentIndex(
+        previous,
+        QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    mIgnoreSelectionChange = false;
+    return;
+  }
 
   QObject *obj = QObject::sender();
   if (obj && !indexes.isEmpty()) {
@@ -809,6 +937,26 @@ void DoubleTreeWidget::openFileInspection() {
 }
 
 void DoubleTreeWidget::closeFileInspection() {
+  QModelIndexList selected = stagedFiles->selectionModel()->selectedIndexes();
+  selected.append(unstagedFiles->selectionModel()->selectedIndexes());
+  const QString selectedName =
+      selected.isEmpty() ? QString()
+                         : selected.first().data(Qt::EditRole).toString();
+  const QList<FileWidget *> files =
+      mDiffView->widget()->findChildren<FileWidget *>();
+  for (auto it = files.crbegin(); it != files.crend(); ++it) {
+    if ((*it)->name() != selectedName)
+      continue;
+    if ((*it)->hasUnsavedConflictOutput() &&
+        QMessageBox::warning(
+            this, tr("Discard unsaved Output?"),
+            tr("The edited conflict Output has not been saved or staged."),
+            QMessageBox::Discard | QMessageBox::Cancel,
+            QMessageBox::Cancel) != QMessageBox::Discard)
+      return;
+    break;
+  }
+
   bool ignoreSelectionChange = mIgnoreSelectionChange;
   mIgnoreSelectionChange = true;
   stagedFiles->deselectAll();

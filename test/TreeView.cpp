@@ -11,6 +11,7 @@
 
 #include <QHBoxLayout>
 #include <QCheckBox>
+#include <QLabel>
 #include <QPushButton>
 #include <QStackedWidget>
 #include <QTextEdit>
@@ -411,18 +412,14 @@ void TestTreeView::conflictedAndStagedFile() {
 
   auto *unresolvedOnly = doubleTree->findChild<QCheckBox *>("UnresolvedOnly");
   QVERIFY(unresolvedOnly);
-  QTRY_VERIFY(unresolvedOnly->isVisible());
+  QVERIFY(!unresolvedOnly->isVisible());
 
-  auto *unstagedProxy = static_cast<TreeProxy *>(unstagedTree->model());
-  unstagedProxy->enableFilter(false);
-  unstagedProxy->setUnresolvedOnly(false);
-  QModelIndex folder = unstagedProxy->index(0, 0);
-  QCOMPARE(unstagedProxy->rowCount(folder), 2);
-
-  mouseClick(unresolvedOnly, Qt::LeftButton);
-  folder = unstagedProxy->index(0, 0);
-  QCOMPARE(unstagedProxy->rowCount(folder), 1);
-  QCOMPARE(unstagedProxy->index(0, 0, folder).data(), "conflictedFile.txt");
+  auto *conflictedLabel = doubleTree->findChild<QLabel *>("UnstagedFilesLabel");
+  auto *resolvedLabel = doubleTree->findChild<QLabel *>("StagedFilesLabel");
+  QVERIFY(conflictedLabel);
+  QVERIFY(resolvedLabel);
+  QVERIFY(conflictedLabel->text().startsWith("Conflicted Files"));
+  QVERIFY(resolvedLabel->text().startsWith("Resolved Files"));
 
   stagedTree->deselectAll();
   unstagedTree->deselectAll();

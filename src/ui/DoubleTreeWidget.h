@@ -14,6 +14,7 @@
 #include "DetailView.h"
 #include "git/Index.h"
 #include <QModelIndexList>
+#include <QSet>
 #include "conf/Settings.h"
 
 class QTreeView;
@@ -88,9 +89,11 @@ private:
   StatePushButton *collapseButtonStagedFiles{nullptr};
   StatePushButton *collapseButtonUnstagedFiles{nullptr};
   QPushButton *mStageAllChanges{nullptr};
+  QLabel *mStagedFilesLabel{nullptr};
   QLabel *mUnstagedCommitedFiles{nullptr};
   QCheckBox *mShowAllFiles{nullptr};
   QLabel *mConflictSummary{nullptr};
+  QPushButton *mMarkAllResolved{nullptr};
   QCheckBox *mUnresolvedOnly{nullptr};
   QToolButton *mPreviousConflict{nullptr};
   QToolButton *mNextConflict{nullptr};
@@ -132,6 +135,7 @@ private:
 
   uint32_t mSetDiffCounter{0};
   int mConflictSessionTotal{0};
+  QSet<QString> mResolvedConflictPaths;
 
   friend class TestTreeView;
 };

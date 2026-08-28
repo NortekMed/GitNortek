@@ -7,6 +7,7 @@
 #include <QPlainTextEdit>
 #include <QToolButton>
 #include <QVBoxLayout>
+#include <QStringConverter>
 
 FileConflictResolverWidget::FileConflictResolverWidget(
     const git::Patch &patch, const git::Index::Conflict &conflict,
@@ -30,22 +31,74 @@ FileConflictResolverWidget::FileConflictResolverWidget(
                                    "ConflictFileIncomingChoice"));
   layout->addWidget(sides, 1);
 
-  mResult = new QLabel(this);
-  mResult->setObjectName("FileConflictResult");
-  mResult->setContentsMargins(10, 8, 10, 8);
-  mResult->setStyleSheet(
+  QFrame *output = new QFrame(this);
+  output->setFrameShape(QFrame::StyledPanel);
+  QVBoxLayout *outputLayout = new QVBoxLayout(output);
+  QLabel *outputHeader = new QLabel(tr("Output"), output);
+  outputHeader->setStyleSheet(
       "font-weight: 700; background: rgba(191, 135, 0, 0.20);");
-  layout->addWidget(mResult);
+  outputHeader->setContentsMargins(10, 7, 10, 7);
+  outputLayout->addWidget(outputHeader);
+  mOutputText = new QPlainTextEdit(output);
+  mOutputText->setObjectName("FileConflictOutput");
+  mOutputText->setLineWrapMode(QPlainTextEdit::NoWrap);
+  outputLayout->addWidget(mOutputText, 1);
+  mOutputInfo = new QLabel(output);
+  mOutputInfo->setObjectName("FileConflictOutputInfo");
+  mOutputInfo->setAlignment(Qt::AlignCenter);
+  outputLayout->addWidget(mOutputInfo, 1);
+  layout->addWidget(output, 1);
 
-  if (conflict.ours.isNull() && conflict.theirs.isNull())
-    mResult->setText(tr("Result: Delete file"));
-  else
+  connect(mOutputText, &QPlainTextEdit::textChanged, this, [this] {
+    if (mUpdatingOutput)
+      return;
+    mOutputKind = TextOutput;
+    mOutputId = {};
+    mResolution = git::Patch::Unresolved;
     updateUi();
+    emit resolutionChanged();
+  });
+
+  if (!conflict.ancestor.isNull()) {
+    setOutput(conflict.ancestor, conflict.ancestorMode);
+  } else if (conflict.ours.isNull() && conflict.theirs.isNull()) {
+    mOutputKind = DeletedOutput;
+    updateUi();
+  } else {
+    mOutputKind = TextOutput;
+    mOutputMode = conflict.oursMode != GIT_FILEMODE_UNREADABLE
+                      ? conflict.oursMode
+                      : conflict.theirsMode;
+    mUpdatingOutput = true;
+    mOutputText->clear();
+    mUpdatingOutput = false;
+    updateUi();
+  }
+  mInitialOutputKind = mOutputKind;
+  mInitialOutputMode = mOutputMode;
+  mInitialOutputId = mOutputId;
+  if (mOutputKind == TextOutput)
+    mInitialOutput = this->output();
 }
 
 git::Patch::ConflictResolution FileConflictResolverWidget::resolution() const {
   return mResolution;
 }
+
+bool FileConflictResolverWidget::hasUnsavedOutput() const {
+  if (mOutputKind != mInitialOutputKind || mOutputMode != mInitialOutputMode)
+    return true;
+  if (mOutputKind == TextOutput)
+    return output() != mInitialOutput;
+  return mOutputId != mInitialOutputId;
+}
+
+QByteArray FileConflictResolverWidget::output() const {
+  return QStringEncoder{mPatch.repo().encoding()}.encode(
+      mOutputText->toPlainText());
+}
+
+void FileConflictResolverWidget::acceptCurrent() { select(git::Patch::Ours); }
 
 QWidget *FileConflictResolverWidget::createSide(
     const QString &title, const git::Id &id, git_filemode_t mode,
@@ -110,23 +163,53 @@ QWidget *FileConflictResolverWidget::createSide(
 void FileConflictResolverWidget::select(
     git::Patch::ConflictResolution resolution) {
   mResolution = resolution;
+  if (resolution == git::Patch::Ours)
+    setOutput(mConflict.ours, mConflict.oursMode);
+  else
+    setOutput(mConflict.theirs, mConflict.theirsMode);
   updateUi();
   emit resolutionChanged();
+}
+
+void FileConflictResolverWidget::setOutput(const git::Id &id,
+                                           git_filemode_t mode) {
+  mOutputId = id;
+  mOutputMode = mode;
+  if (id.isNull()) {
+    mOutputKind = DeletedOutput;
+    updateUi();
+    return;
+  }
+
+  const git::Blob blob = mPatch.repo().lookupBlob(id);
+  if (!blob.isValid() || blob.isBinary()) {
+    mOutputKind = BlobOutput;
+    updateUi();
+    return;
+  }
+
+  mOutputKind = TextOutput;
+  mUpdatingOutput = true;
+  mOutputText->setPlainText(mPatch.repo().decode(blob.content()));
+  mUpdatingOutput = false;
+  updateUi();
 }
 
 void FileConflictResolverWidget::updateUi() {
   mCurrent->setChecked(mResolution == git::Patch::Ours);
   mIncoming->setChecked(mResolution == git::Patch::Theirs);
-  if (mResolution == git::Patch::Unresolved) {
-    mResult->setText(tr("Result: Choose Current or Incoming"));
-    return;
+  mOutputText->setVisible(mOutputKind == TextOutput);
+  mOutputInfo->setVisible(mOutputKind != TextOutput);
+  if (mOutputKind == DeletedOutput) {
+    mOutputInfo->setText(tr("Deleted file"));
+  } else if (mOutputKind == BlobOutput) {
+    const git::Blob blob = mPatch.repo().lookupBlob(mOutputId);
+    mOutputInfo->setText(
+        blob.isValid()
+            ? tr("Binary output\n%1\nMode %2")
+                  .arg(locale().formattedDataSize(blob.content().size()),
+                       QString::number(mOutputMode, 8))
+            : tr("Output object unavailable\nMode %1")
+                  .arg(QString::number(mOutputMode, 8)));
   }
-
-  const bool current = mResolution == git::Patch::Ours;
-  const git::Id &id = current ? mConflict.ours : mConflict.theirs;
-  if (id.isNull())
-    mResult->setText(tr("Result: Delete file"));
-  else
-    mResult->setText(
-        tr("Result: Keep %1").arg(current ? tr("Current") : tr("Incoming")));
 }

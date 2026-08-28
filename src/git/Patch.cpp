@@ -10,10 +10,12 @@
 #include "Patch.h"
 #include "Blob.h"
 #include "Id.h"
+#include "Index.h"
 #include "Repository.h"
 #include "git2/config.h"
 #include "git2/filter.h"
 #include "git2/index.h"
+#include "git2/merge.h"
 #include <QDataStream>
 #include <QFile>
 #include <QFileInfo>
@@ -24,6 +26,86 @@ namespace git {
 namespace {
 
 const QString kConflictResolutionFile = "conflicts";
+
+QList<QByteArray> splitLines(const QByteArray &content) {
+  QList<QByteArray> lines;
+  int start = 0;
+  while (start < content.size()) {
+    const int newline = content.indexOf('\n', start);
+    if (newline < 0) {
+      lines.append(content.mid(start));
+      break;
+    }
+    lines.append(content.mid(start, newline - start + 1));
+    start = newline + 1;
+  }
+  return lines;
+}
+
+QList<QByteArray> conflictResolverLines(const Repository &repo,
+                                        const QString &path) {
+  const Index::Conflict conflict = repo.index().conflict(path);
+  if (!conflict.isValid() || conflict.ours.isNull() || conflict.theirs.isNull())
+    return {};
+
+  const auto regularFile = [](git_filemode_t mode) {
+    return mode == GIT_FILEMODE_BLOB || mode == GIT_FILEMODE_BLOB_EXECUTABLE;
+  };
+  if (!regularFile(conflict.oursMode) ||
+      conflict.oursMode != conflict.theirsMode ||
+      (!conflict.ancestor.isNull() &&
+       conflict.ancestorMode != conflict.oursMode))
+    return {};
+
+  const Blob current = repo.lookupBlob(conflict.ours);
+  const Blob incoming = repo.lookupBlob(conflict.theirs);
+  if (!current.isValid() || !incoming.isValid() || current.isBinary() ||
+      incoming.isBinary())
+    return {};
+
+  const Blob ancestor = repo.lookupBlob(conflict.ancestor);
+  if (!conflict.ancestor.isNull() &&
+      (!ancestor.isValid() || ancestor.isBinary()))
+    return {};
+
+  const QByteArray encodedPath = path.toUtf8();
+  const QByteArray ancestorContent =
+      conflict.ancestor.isNull() ? QByteArray() : ancestor.content();
+  const QByteArray currentContent = current.content();
+  const QByteArray incomingContent = incoming.content();
+  git_merge_file_input ancestorInput = GIT_MERGE_FILE_INPUT_INIT;
+  ancestorInput.ptr = ancestorContent.constData();
+  ancestorInput.size = ancestorContent.size();
+  ancestorInput.path = encodedPath.constData();
+  ancestorInput.mode =
+      conflict.ancestor.isNull() ? conflict.oursMode : conflict.ancestorMode;
+  git_merge_file_input currentInput = GIT_MERGE_FILE_INPUT_INIT;
+  currentInput.ptr = currentContent.constData();
+  currentInput.size = currentContent.size();
+  currentInput.path = encodedPath.constData();
+  currentInput.mode = conflict.oursMode;
+  git_merge_file_input incomingInput = GIT_MERGE_FILE_INPUT_INIT;
+  incomingInput.ptr = incomingContent.constData();
+  incomingInput.size = incomingContent.size();
+  incomingInput.path = encodedPath.constData();
+  incomingInput.mode = conflict.theirsMode;
+
+  git_merge_file_options options = GIT_MERGE_FILE_OPTIONS_INIT;
+  options.flags = GIT_MERGE_FILE_STYLE_DIFF3;
+  options.ancestor_label = "Base";
+  options.our_label = "Current";
+  options.their_label = "Incoming";
+  git_merge_file_result result = {};
+  if (git_merge_file(&result, &ancestorInput, &currentInput, &incomingInput,
+                     &options))
+    return {};
+
+  const QByteArray content(result.ptr, result.len);
+  git_merge_file_result_free(&result);
+  if (!content.contains("<<<<<<<"))
+    return {};
+  return splitLines(content);
+}
 
 QMap<QString, QMap<int, int>> readConflictResolutions(const Repository &repo) {
   QFile file(repo.appDir().filePath(kConflictResolutionFile));
@@ -81,6 +163,10 @@ Patch::Patch(git_patch *patch) : d(patch, git_patch_free) {
     mConflictFileContent.append(line);
     line = file.readLine();
   }
+
+  const QList<QByteArray> resolverLines = conflictResolverLines(repo, name());
+  if (!resolverLines.isEmpty())
+    mConflictFileLines = resolverLines;
 
   int lineCount = mConflictFileLines.size();
   git_config *cfg = NULL;
@@ -350,6 +436,10 @@ QList<Patch::ConflictBlock> Patch::conflictBlocks() const {
     blocks.append({conflict.min, conflict.max,
                    mConflictFileLines.mid(conflict.min + 1,
                                           currentEnd - conflict.min - 1),
+                   conflict.base >= 0 ? mConflictFileLines.mid(
+                                            conflict.base + 1,
+                                            conflict.mid - conflict.base - 1)
+                                      : QList<QByteArray>(),
                    mConflictFileLines.mid(conflict.mid + 1,
                                           conflict.max - conflict.mid - 1)});
   }

@@ -70,6 +70,7 @@ private:
   FileLabel *mFileLabel{nullptr};
 
   QToolButton *mMarkResolved = nullptr;
+  QToolButton *mExternalMerge = nullptr;
   QToolButton *mClear = nullptr;
   QToolButton *mCurrent = nullptr;
   QToolButton *mIncoming = nullptr;
@@ -101,6 +102,8 @@ public:
   void updateHunks(git::Patch stagedPatch);
   _FileWidget::Header *header() const;
   QString name() const;
+  bool hasUnsavedConflictOutput() const;
+  static QStringList resolveAllConflicts(const git::Diff &diff);
 
   QList<HunkWidget *> hunks() const;
 

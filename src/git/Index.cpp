@@ -79,6 +79,15 @@ Index::Conflict Index::conflict(const QString &path) const {
   return {ancestorId, oursId, theirsId, ancestorMode, oursMode, theirsMode};
 }
 
+bool Index::hasConflict(const QString &path) const {
+  const QByteArray encodedPath = path.toUtf8();
+  const git_index_entry *ancestor = nullptr;
+  const git_index_entry *ours = nullptr;
+  const git_index_entry *theirs = nullptr;
+  return git_index_conflict_get(&ancestor, &ours, &theirs, d->index,
+                                encodedPath) == 0;
+}
+
 bool Index::conflictMatches(const QString &path, const Conflict &expected) {
   if (git_index_read(d->index, false))
     return false;

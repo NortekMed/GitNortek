@@ -48,6 +48,7 @@ public:
   bool isValid() const { return !d.isNull(); }
 
   Conflict conflict(const QString &path) const;
+  bool hasConflict(const QString &path) const;
   bool conflictMatches(const QString &path, const Conflict &expected);
   bool resolveConflict(const QString &path, const Conflict &expected);
   bool resolveConflict(const QString &path, const Conflict &expected,

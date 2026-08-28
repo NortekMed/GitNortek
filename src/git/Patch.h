@@ -36,6 +36,7 @@ public:
     int startMarker;
     int endMarker;
     QList<QByteArray> currentLines;
+    QList<QByteArray> ancestorLines;
     QList<QByteArray> incomingLines;
   };
 
@@ -110,6 +111,7 @@ public:
   void setConflictResolution(int hidx, ConflictResolution resolution);
   QList<ConflictBlock> conflictBlocks() const;
   QList<QByteArray> conflictFileLines() const { return mConflictFileLines; }
+  QByteArray conflictFileContent() const { return mConflictFileContent; }
   bool conflictFileMatches() const;
   bool resolveConflicts(const QList<ConflictResolution> &resolutions,
                         QByteArray &result) const;
