@@ -1032,6 +1032,7 @@ void TestRepositorySideBar::submoduleInteraction() {
   git.start(GIT_EXECUTABLE, {"commit", "-am", "origin change"});
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
+  git::Id originCommit = child->head().target().id();
 
   Settings::instance()->setValue(Setting::Id::OpenSubmodulesInTabs, true);
   MainWindow window(parent);
@@ -1073,9 +1074,10 @@ void TestRepositorySideBar::submoduleInteraction() {
   QList<QPair<QString, bool>> cleanMenu =
       contextMenuItems(navigator->view(), submodule);
   QCOMPARE(menuTexts(cleanMenu),
-           QStringList({"Open", "Commit Changes", "Update", "Modify...",
-                        "Delete Submodule..."}));
+           QStringList({"Open", "Commit Changes", "Check for Updates",
+                        "Update", "Modify...", "Delete Submodule..."}));
   QVERIFY(!cleanMenu.at(1).second);
+  QVERIFY(cleanMenu.at(2).second);
 
   git::Submodule selected =
       submodule.data(RepositoryNavigatorModel::SubmoduleRole)
@@ -1104,7 +1106,7 @@ void TestRepositorySideBar::submoduleInteraction() {
   bool statusesChanged = false;
   connect(parentView, &RepoView::submoduleUpdateStatusesChanged,
           [&statusesChanged] { statusesChanged = true; });
-  parentView->checkSubmoduleUpdates();
+  parentView->checkSubmoduleUpdates(QList<git::Submodule>{selected});
   QTRY_VERIFY(statusesChanged);
   submodules = navigator->model()->sectionIndex(
       RepositoryNavigatorModel::Section::Submodules);
@@ -1168,6 +1170,40 @@ void TestRepositorySideBar::submoduleInteraction() {
 
   selected = parentView->repo().lookupSubmodule("child");
   git::Id localCommit = selected.workdirId();
+
+  QVERIFY(parentView->openSubmodule(selected));
+  RepoView *childView = window.currentView();
+  QVERIFY(childView && childView != parentView);
+  QSignalSpy pushedStatusChanged(
+      parentView, &RepoView::submoduleUpdateStatusesChanged);
+
+  git.setWorkingDirectory(child->workdir().path());
+  git.start(GIT_EXECUTABLE,
+            {"fetch", parent->workdir().filePath("child"), childBranch});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE, {"reset", "--hard", localCommit.toString()});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  childView->pushSucceeded(childView->repo().workdir().canonicalPath());
+  QTRY_VERIFY(!pushedStatusChanged.isEmpty());
+
+  window.tabWidget()->setCurrentWidget(parentView);
+  submodules = navigator->model()->sectionIndex(
+      RepositoryNavigatorModel::Section::Submodules);
+  submodule = navigator->model()->index(0, 0, submodules);
+  QCOMPARE(submodule.data(RepositoryNavigatorModel::OriginAheadRole).toInt(),
+           0);
+  QCOMPARE(submodule.data(RepositoryNavigatorModel::OriginBehindRole).toInt(),
+           0);
+
+  git.start(GIT_EXECUTABLE, {"reset", "--hard", originCommit.toString()});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  pushedStatusChanged.clear();
+  parentView->checkSubmoduleUpdates(QList<git::Submodule>{selected}, true);
+  QTRY_VERIFY(!pushedStatusChanged.isEmpty());
+
   parentView->commitSubmoduleChanges(selected);
   submodules = navigator->model()->sectionIndex(
       RepositoryNavigatorModel::Section::Submodules);
@@ -1246,10 +1282,11 @@ void TestRepositorySideBar::submoduleInteraction() {
 
   QList<QPair<QString, bool>> menu =
       contextMenuItems(navigator->view(), submodule);
-  QCOMPARE(menuTexts(menu), QStringList({"Open", "Commit Changes", "Update",
-                                         "Modify...", "Delete Submodule..."}));
-  for (const auto &item : menu)
-    QVERIFY2(item.second, qPrintable(item.first));
+  QCOMPARE(menuTexts(menu),
+           QStringList({"Open", "Commit Changes", "Check for Updates",
+                        "Update", "Modify...", "Delete Submodule..."}));
+  for (int i = 0; i < menu.size(); ++i)
+    QCOMPARE(menu.at(i).second, i != 2);
 
   selected = submodule.data(RepositoryNavigatorModel::SubmoduleRole)
                  .value<git::Submodule>();

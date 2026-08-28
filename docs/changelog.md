@@ -45,6 +45,7 @@ Bug Fix and Feature release
 * Keep the operation log open until manually collapsed and leave its toggle bar visible
 * Avoid repeating destination commit IDs in generated submodule update messages
 * Handle update checks for uninitialized submodules without reporting missing `.git` paths
+* Refresh submodule origin indicators after pushes and add contextual update checks
 * Report only genuinely unavailable submodules in pre-push warnings with actionable error details
 * Show the parent repository in tabs opened for submodules
 * Confirm before creating or tracking a remote branch on the first push, and remove automatic pushing after each commit

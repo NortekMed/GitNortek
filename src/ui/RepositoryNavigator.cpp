@@ -393,6 +393,13 @@ void RepositoryNavigator::showContextMenu(const QPoint &point) {
           });
       commitChanges->setEnabled(
           initialized && mRepoView->canCommitSubmoduleChanges(submodule));
+      QAction *checkUpdates = menu.addAction(
+          tr("Check for Updates"), mRepoView,
+          [view = mRepoView, submodule] {
+            if (view)
+              view->checkSubmoduleUpdates(QList<git::Submodule>{submodule});
+          });
+      checkUpdates->setEnabled(initialized && !submodule.branch().isEmpty());
       RepositoryNavigatorModel::OriginState originState =
           index.data(RepositoryNavigatorModel::OriginStateRole)
               .value<RepositoryNavigatorModel::OriginState>();
