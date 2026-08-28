@@ -3,6 +3,8 @@
 #include "conf/Setting.h"
 #include "conf/Settings.h"
 #include <QFileInfo>
+#include <QSettings>
+#include <QTemporaryDir>
 
 using namespace QTest;
 
@@ -12,6 +14,9 @@ class TestSetting : public QObject {
 private slots:
   void defines_a_non_empty_settings_key_for_each_id();
   void defines_each_settings_key_only_once();
+  void defaults_diff_presentation_settings();
+  void persists_diff_mode();
+  void persists_edge_whitespace();
   void resolves_about_documents();
 
 private:
@@ -64,6 +69,47 @@ void TestSetting::defines_each_settings_key_only_once() {
   }
 }
 
+void TestSetting::defaults_diff_presentation_settings() {
+  Settings *settings = Settings::instance();
+  QCOMPARE(settings->diffMode(), Settings::DiffMode::Inline);
+  QVERIFY(!settings->isEdgeWhitespaceIgnored());
+}
+
+void TestSetting::persists_diff_mode() {
+  Settings *settings = Settings::instance();
+
+  settings->setDiffMode(Settings::DiffMode::Hunk);
+  QCOMPARE(settings->diffMode(), Settings::DiffMode::Hunk);
+  QCOMPARE(QSettings().value("diff/mode").toInt(),
+           static_cast<int>(Settings::DiffMode::Hunk));
+
+  settings->setDiffMode(Settings::DiffMode::Split);
+  QCOMPARE(settings->diffMode(), Settings::DiffMode::Split);
+  QCOMPARE(QSettings().value("diff/mode").toInt(),
+           static_cast<int>(Settings::DiffMode::Split));
+
+  settings->setDiffMode(Settings::DiffMode::Inline);
+  QCOMPARE(settings->diffMode(), Settings::DiffMode::Inline);
+  QCOMPARE(QSettings().value("diff/mode").toInt(),
+           static_cast<int>(Settings::DiffMode::Inline));
+
+  settings->setDiffMode(static_cast<Settings::DiffMode>(99));
+  QCOMPARE(settings->diffMode(), Settings::DiffMode::Inline);
+  settings->setDiffMode(Settings::DiffMode::Inline);
+}
+
+void TestSetting::persists_edge_whitespace() {
+  Settings *settings = Settings::instance();
+
+  settings->setEdgeWhitespaceIgnored(true);
+  QVERIFY(settings->isEdgeWhitespaceIgnored());
+  QVERIFY(QSettings().value("diff/whitespace/ignoreEdge").toBool());
+
+  settings->setEdgeWhitespaceIgnored(false);
+  QVERIFY(!settings->isEdgeWhitespaceIgnored());
+  QVERIFY(!QSettings().value("diff/whitespace/ignoreEdge").toBool());
+}
+
 void TestSetting::resolves_about_documents() {
   const QDir dir = Settings::docDir();
   QVERIFY(QFileInfo::exists(dir.filePath("changelog.html")));
@@ -71,6 +117,14 @@ void TestSetting::resolves_about_documents() {
   QVERIFY(QFileInfo::exists(dir.filePath("privacy.html")));
 }
 
-TEST_MAIN(TestSetting)
+int main(int argc, char *argv[]) {
+  QTemporaryDir settings;
+  if (!settings.isValid())
+    return 1;
+  QSettings::setDefaultFormat(QSettings::IniFormat);
+  QSettings::setPath(QSettings::IniFormat, QSettings::UserScope,
+                     settings.path());
+  return Test::runTest<TestSetting>(argc, argv);
+}
 
 #include "Setting.moc"

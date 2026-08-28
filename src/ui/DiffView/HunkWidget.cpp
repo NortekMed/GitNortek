@@ -55,8 +55,11 @@ _HunkWidget::Header::Header(const git::Diff &diff, const git::Patch &patch,
   setObjectName("HunkHeader");
   mCheck = new QCheckBox(this);
   mCheck->setTristate(true);
-  mCheck->setVisible(diff.isStatusDiff() && !submodule &&
-                     !patch.isConflicted());
+  mCheck->setVisible(false);
+  mStageButton = new QPushButton(this);
+  mStageButton->setObjectName("StageHunkButton");
+  mStageButton->setVisible(diff.isStatusDiff() && !submodule &&
+                           !patch.isConflicted());
 
   QString label_string = (index >= 0) ? patch.header(index) : QString();
   label_string = label_string.trimmed().toHtmlEscaped();
@@ -130,11 +133,11 @@ _HunkWidget::Header::Header(const git::Diff &diff, const git::Patch &patch,
   buttons->addWidget(edit);
   if (discard)
     buttons->addWidget(discard);
+  buttons->addWidget(mStageButton);
   buttons->addWidget(mButton);
 
   QHBoxLayout *layout = new QHBoxLayout(this);
   layout->setContentsMargins(4, 4, 4, 4);
-  layout->addWidget(mCheck);
   layout->addWidget(label, 1);
   layout->addStretch();
   layout->addLayout(buttons);
@@ -148,6 +151,11 @@ _HunkWidget::Header::Header(const git::Diff &diff, const git::Patch &patch,
       emit stageStateChanged(Qt::Unchecked);
     }
   });
+  connect(mStageButton, &QPushButton::clicked, this, [this] {
+    const bool stage = mCheck->checkState() != Qt::Checked;
+    mButton->setChecked(!stage);
+    emit stageStateChanged(stage ? Qt::Checked : Qt::Unchecked);
+  });
 }
 
 void _HunkWidget::Header::setCheckState(
@@ -159,6 +167,9 @@ void _HunkWidget::Header::setCheckState(
     mCheck->setCheckState(Qt::Unchecked);
   else
     mCheck->setCheckState(Qt::PartiallyChecked);
+  mStageButton->setText(mCheck->checkState() == Qt::Checked
+                            ? HunkWidget::tr("Unstage Hunk")
+                            : HunkWidget::tr("Stage Hunk"));
 }
 
 QCheckBox *_HunkWidget::Header::check() const { return mCheck; }
@@ -217,6 +228,7 @@ HunkWidget::HunkWidget(DiffView *view, const git::Diff &diff,
   if (index >= 0)
     mEditor->setLineCount(patch.lineCount(index));
   mEditor->setStatusDiff(diff.isStatusDiff());
+  mEditor->setMarginWidthN(TextEditor::Margin::Staged, 0);
 
   connect(mEditor, &TextEditor::updateUi, MenuBar::instance(this),
           &MenuBar::updateCutCopyPaste);

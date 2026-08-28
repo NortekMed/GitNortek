@@ -20,6 +20,8 @@ class Settings : public QObject {
   Q_OBJECT
 
 public:
+  enum class DiffMode { Inline, Hunk, Split };
+
   QVariant value(Setting::Id id);
   QVariant value(Setting::Id id, const QVariant &defaultValue);
   void setValue(Setting::Id id, const QVariant &value);
@@ -40,9 +42,14 @@ public:
   bool isTextEditorWrapLines();
   void setTextEditorWrapLines(bool wrapLines);
 
+  DiffMode diffMode();
+  void setDiffMode(DiffMode mode);
+
   // ignore whitespace
   bool isWhitespaceIgnored();
   void setWhitespaceIgnored(bool ignored);
+  bool isEdgeWhitespaceIgnored();
+  void setEdgeWhitespaceIgnored(bool ignored);
 
   // last repository path
   QString lastPath();
