@@ -11,6 +11,7 @@ Bug Fix and Feature release
 * Add Ptyxis terminal auto-detection on Linux
 * Add Tamil translation
 * Add repository navigator context actions for branches and submodules, including permanent submodule removal
+* Rename local and remote branches and delete remote branches from branch context menus
 * Show colored Pin summaries on the left and aligned P and O delta columns for submodules in the repository navigator
 * Mark the checked-out local branch with a green checkbox and color ahead and behind indicators
 * Align Compact Mode into configurable columns with content-aware widths, bottom-connected stash ancestry, and side-connected merge and divergence curves

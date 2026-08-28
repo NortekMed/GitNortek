@@ -28,6 +28,57 @@ const QString kBranchMergeFmt = "branch.%1.merge";
 DeleteBranchDialog::DeleteBranchDialog(const git::Branch &branch,
                                        QWidget *parent)
     : QMessageBox(parent) {
+  if (branch.isRemoteBranch()) {
+    QString name = branch.name();
+    git::Remote remote = branch.remote();
+    setWindowTitle(tr("Delete Remote Branch?"));
+    setText(
+        tr("Are you sure you want to delete remote branch '%1'?").arg(name));
+    setStandardButtons(QMessageBox::Cancel);
+
+    QPushButton *remove = addButton(tr("Delete"), QMessageBox::AcceptRole);
+    remove->setEnabled(remote.isValid());
+    connect(remove, &QPushButton::clicked, [this, branch, name, remote] {
+      RepoView *view = RepoView::parentView(this);
+      git::Repository repo = view->repo();
+      QString remoteName = remote.name();
+      QString branchName = name.mid(remoteName.size() + 1);
+      QString text = tr("delete '%1' from '%2'").arg(branchName, remoteName);
+      LogEntry *entry = view->addLogEntry(text, tr("Push"));
+      QFutureWatcher<git::Result> *watcher =
+          new QFutureWatcher<git::Result>(view);
+      RemoteCallbacks *callbacks =
+          new RemoteCallbacks(RemoteCallbacks::Send, entry, remote.url(),
+                              remoteName, watcher, repo);
+
+      entry->setBusy(true);
+      QStringList refspecs(QString(":refs/heads/%1").arg(branchName));
+      git::Result (git::Remote::*push)(
+          git::Remote::Callbacks *, const QStringList &) = &git::Remote::push;
+      watcher->setFuture(QtConcurrent::run(push, remote, callbacks, refspecs));
+
+      connect(watcher, &QFutureWatcher<git::Result>::finished, watcher,
+              [branch, entry, watcher, callbacks, remoteName] {
+                entry->setBusy(false);
+                git::Result result = watcher->result();
+                if (callbacks->isCanceled()) {
+                  entry->addEntry(LogEntry::Error, tr("Push canceled."));
+                } else if (!result) {
+                  QString err = result.errorString();
+                  QString fmt = tr("Unable to push to %1 - %2");
+                  entry->addEntry(LogEntry::Error, fmt.arg(remoteName, err));
+                } else if (!callbacks->wasRejected()) {
+                  git::Branch(branch).remove();
+                }
+
+                watcher->deleteLater();
+              });
+    });
+
+    remove->setFocus();
+    return;
+  }
+
   QString text = tr("Are you sure you want to delete local branch '%1'?");
   setWindowTitle(tr("Delete Branch?"));
   setText(text.arg(branch.name()));

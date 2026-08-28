@@ -2469,7 +2469,7 @@ void RepoView::promptToDeleteBranch(const git::Reference &ref) {
 }
 
 void RepoView::promptToRenameBranch(const git::Branch &branch) {
-  Q_ASSERT(branch.isValid() && branch.isLocalBranch());
+  Q_ASSERT(branch.isValid() && branch.isBranch());
   RenameBranchDialog *dialog = new RenameBranchDialog(mRepo, branch, this);
   // The dialog contains the code which performs the rename
   dialog->open();
@@ -2500,10 +2500,9 @@ void RepoView::populateReferenceContextMenu(QMenu *menu,
   menu->addSeparator();
 
   if (ref.isLocalBranch()) {
-    QAction *rename = menu->addAction(tr("Rename"), this, [this, ref] {
+    menu->addAction(tr("Rename %1").arg(ref.name()), this, [this, ref] {
       promptToRenameBranch(git::Branch(ref));
     });
-    rename->setEnabled(!ref.isHead());
   }
 
   if (ref.isTag() || ref.isLocalBranch()) {
@@ -2525,6 +2524,11 @@ void RepoView::populateReferenceContextMenu(QMenu *menu,
   }
 
   if (ref.isRemoteBranch()) {
+    menu->addAction(tr("Rename %1").arg(ref.name()), this, [this, ref] {
+      promptToRenameBranch(git::Branch(ref));
+    });
+    menu->addAction(tr("Delete %1").arg(ref.name()), this,
+                    [this, ref] { promptToDeleteBranch(ref); });
     menu->addAction(tr("New Local Branch"), this, [this, ref] {
       QString local = ref.name().section('/', 1);
       createBranch(local, ref.target(), git::Branch(ref), true);

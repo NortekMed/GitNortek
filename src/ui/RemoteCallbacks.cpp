@@ -188,6 +188,7 @@ void RemoteCallbacks::update(const QString &name, const git::Id &a,
 }
 
 void RemoteCallbacks::rejected(const QString &name, const QString &status) {
+  mRejected = true;
   emit queueRejected(name, status);
 }
 

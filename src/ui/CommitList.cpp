@@ -2383,6 +2383,7 @@ void CommitList::contextMenuEvent(QContextMenuEvent *event) {
       QList<git::Reference> rename_branches;
       QList<git::Reference> tags;
       QList<git::Reference> delete_branches;
+      QList<git::Reference> delete_remote_branches;
       QList<git::Reference> all_branches; // used later
       for (const git::Reference &ref : commit.refs()) {
         if (ref.isRemoteHead())
@@ -2391,24 +2392,30 @@ void CommitList::contextMenuEvent(QContextMenuEvent *event) {
           tags.append(ref);
         } else if (ref.isBranch()) {
           all_branches.append(ref);
+          rename_branches.append(ref);
           if (ref.isLocalBranch()) {
-            rename_branches.append(ref);
             if (view->repo().head().name() != ref.name()) {
               delete_branches.append(ref);
             }
+          } else {
+            delete_remote_branches.append(ref);
           }
         }
       }
 
       if (rename_branches.count() > 0 || delete_branches.count() > 0 ||
-          tags.count() > 0) {
+          delete_remote_branches.count() > 0 || tags.count() > 0) {
         menu.addSeparator();
       }
-      addMenuEntries(menu, tr("Rename Branch"), rename_branches,
+      addMenuEntries(menu, tr("Rename"), rename_branches,
                      std::bind(&RepoView::promptToRenameBranch, view,
                                std::placeholders::_1));
 
       addMenuEntries(menu, tr("Delete Branch"), delete_branches,
+                     std::bind(&RepoView::promptToDeleteBranch, view,
+                               std::placeholders::_1));
+
+      addMenuEntries(menu, tr("Delete"), delete_remote_branches,
                      std::bind(&RepoView::promptToDeleteBranch, view,
                                std::placeholders::_1));
 

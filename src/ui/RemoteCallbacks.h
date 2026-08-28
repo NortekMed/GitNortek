@@ -31,6 +31,7 @@ public:
 
   bool isCanceled() const { return mCanceled; }
   void setCanceled(bool canceled);
+  bool wasRejected() const { return mRejected; }
 
   void storeDeferredCredentials();
 
@@ -102,6 +103,7 @@ private:
   QString mSideband;
   size_t mBytesReceived = 0;
   bool mCanceled = false;
+  bool mRejected = false;
 
   LogEntry *mSidebandItem = nullptr;
   LogEntry *mTransferItem = nullptr;

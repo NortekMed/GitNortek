@@ -10,6 +10,7 @@
 #include "Test.h"
 #include "conf/RecentRepositories.h"
 #include "conf/RecentRepository.h"
+#include "dialogs/RenameBranchDialog.h"
 #include "editor/TextEditor.h"
 #include "git/Config.h"
 #include "ui/CommitList.h"
@@ -19,6 +20,7 @@
 #include "ui/MenuBar.h"
 #include "ui/RepoView.h"
 #include "ui/TabWidget.h"
+#include <QLineEdit>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPointer>
@@ -46,6 +48,8 @@ private slots:
   void createAndTrackRemoteBranch();
   void trackExistingRemoteBranch();
   void pushTrackedBranchWithoutPrompt();
+  void renameRemoteBranch();
+  void deleteRemoteBranch();
   void forcePushResetBranch();
   void closeTab();
   void recentRepositoryLimit();
@@ -290,6 +294,126 @@ void TestMainWindow::pushTrackedBranchWithoutPrompt() {
   view->push();
   QTest::qWait(100);
   QVERIFY(!view->findChild<QMessageBox *>());
+}
+
+void TestMainWindow::renameRemoteBranch() {
+  RepoView *view = mWindow->currentView();
+  git::Branch branch = mRepo->createBranch("rename-on-origin");
+  QVERIFY(branch.isValid());
+  view->push(mRepo->lookupRemote("origin"), branch);
+
+  QTRY_VERIFY_WITH_TIMEOUT(
+      mRepo->lookupBranch("origin/rename-on-origin", GIT_BRANCH_REMOTE)
+          .isValid(),
+      10000);
+  git::Branch remote =
+      mRepo->lookupBranch("origin/rename-on-origin", GIT_BRANCH_REMOTE);
+  branch.setUpstream(remote);
+  QCOMPARE(branch.upstream().name(), QString("origin/rename-on-origin"));
+
+  git::Repository published = git::Repository::open(mRemoteDir.path());
+  QVERIFY(published.isValid());
+  const QString oldQualifiedName = "refs/heads/rename-on-origin";
+  const QString newQualifiedName = "refs/heads/renamed-on-origin";
+  QVERIFY(published.lookupRef(oldQualifiedName).isValid());
+
+  view->promptToRenameBranch(remote);
+  QTRY_VERIFY(view->findChild<RenameBranchDialog *>());
+  RenameBranchDialog *dialog = view->findChild<RenameBranchDialog *>();
+  QVERIFY(dialog);
+  QLineEdit *name = dialog->findChild<QLineEdit *>();
+  QVERIFY(name);
+  QCOMPARE(name->text(), QString("rename-on-origin"));
+  name->setText("canceled-rename");
+  dialog->reject();
+  QTRY_VERIFY(!view->findChild<RenameBranchDialog *>());
+  QVERIFY(published.lookupRef(oldQualifiedName).isValid());
+  QVERIFY(!published.lookupRef("refs/heads/canceled-rename").isValid());
+
+  view->promptToRenameBranch(remote);
+  QTRY_VERIFY(view->findChild<RenameBranchDialog *>());
+  dialog = view->findChild<RenameBranchDialog *>();
+  name = dialog->findChild<QLineEdit *>();
+  QPushButton *rename = nullptr;
+  for (QPushButton *button : dialog->findChildren<QPushButton *>()) {
+    if (button->text() == "Rename Branch") {
+      rename = button;
+      break;
+    }
+  }
+  QVERIFY(rename);
+  name->setText("existing-on-origin");
+  QVERIFY(!rename->isEnabled());
+  name->setText("renamed-on-origin");
+  QVERIFY(rename->isEnabled());
+  rename->click();
+
+  QTRY_VERIFY_WITH_TIMEOUT(published.lookupRef(newQualifiedName).isValid(),
+                           10000);
+  QTRY_VERIFY_WITH_TIMEOUT(!published.lookupRef(oldQualifiedName).isValid(),
+                           10000);
+  QTRY_VERIFY_WITH_TIMEOUT(
+      mRepo->lookupBranch("origin/renamed-on-origin", GIT_BRANCH_REMOTE)
+          .isValid(),
+      10000);
+  QTRY_VERIFY_WITH_TIMEOUT(
+      !mRepo->lookupBranch("origin/rename-on-origin", GIT_BRANCH_REMOTE)
+           .isValid(),
+      10000);
+  QVERIFY(mRepo->lookupBranch("rename-on-origin", GIT_BRANCH_LOCAL).isValid());
+  QCOMPARE(mRepo->gitConfig().value<QString>("branch.rename-on-origin.merge"),
+           QString("refs/heads/rename-on-origin"));
+  QVERIFY(!branch.upstream().isValid());
+}
+
+void TestMainWindow::deleteRemoteBranch() {
+  RepoView *view = mWindow->currentView();
+  git::Branch branch = mRepo->createBranch("delete-on-origin");
+  QVERIFY(branch.isValid());
+  view->push(mRepo->lookupRemote("origin"), branch);
+
+  QTRY_VERIFY_WITH_TIMEOUT(
+      mRepo->lookupBranch("origin/delete-on-origin", GIT_BRANCH_REMOTE)
+          .isValid(),
+      10000);
+  git::Repository published = git::Repository::open(mRemoteDir.path());
+  QVERIFY(published.isValid());
+  const QString qualifiedName = "refs/heads/delete-on-origin";
+  QVERIFY(published.lookupRef(qualifiedName).isValid());
+
+  git::Branch remote =
+      mRepo->lookupBranch("origin/delete-on-origin", GIT_BRANCH_REMOTE);
+  view->promptToDeleteBranch(remote);
+  QTRY_VERIFY(view->findChild<QMessageBox *>());
+  QMessageBox *dialog = view->findChild<QMessageBox *>();
+  QVERIFY(dialog);
+  QCOMPARE(dialog->windowTitle(), QString("Delete Remote Branch?"));
+  QCOMPARE(dialog->text(),
+           QString("Are you sure you want to delete remote branch "
+                   "'origin/delete-on-origin'?"));
+  dialog->button(QMessageBox::Cancel)->click();
+  QTRY_VERIFY(!view->findChild<QMessageBox *>());
+  QVERIFY(published.lookupRef(qualifiedName).isValid());
+
+  view->promptToDeleteBranch(remote);
+  QTRY_VERIFY(view->findChild<QMessageBox *>());
+  dialog = view->findChild<QMessageBox *>();
+  QPushButton *remove = nullptr;
+  for (QPushButton *button : dialog->findChildren<QPushButton *>()) {
+    if (button->text() == "Delete") {
+      remove = button;
+      break;
+    }
+  }
+  QVERIFY(remove);
+  remove->click();
+
+  QTRY_VERIFY_WITH_TIMEOUT(!published.lookupRef(qualifiedName).isValid(), 10000);
+  QTRY_VERIFY_WITH_TIMEOUT(
+      !mRepo->lookupBranch("origin/delete-on-origin", GIT_BRANCH_REMOTE)
+           .isValid(),
+      10000);
+  QVERIFY(mRepo->lookupBranch("delete-on-origin", GIT_BRANCH_LOCAL).isValid());
 }
 
 void TestMainWindow::forcePushResetBranch() {

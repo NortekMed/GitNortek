@@ -94,6 +94,30 @@ QStringList contextMenuItems(CommitList *view, const QModelIndex &index) {
   return items;
 }
 
+QStringList contextSubmenuItems(CommitList *view, const QModelIndex &index,
+                                const QString &submenuText) {
+  QStringList items;
+  view->scrollTo(index);
+  QPoint viewportPoint = view->visualRect(index).center();
+  QPoint globalPoint = view->viewport()->mapToGlobal(viewportPoint);
+  QTimer::singleShot(0, [&items, submenuText] {
+    QMenu *menu = qobject_cast<QMenu *>(QApplication::activePopupWidget());
+    if (!menu)
+      return;
+    for (QAction *action : menu->actions()) {
+      if (action->text() != submenuText || !action->menu())
+        continue;
+      for (QAction *submenuAction : action->menu()->actions())
+        items.append(submenuAction->text());
+      break;
+    }
+    menu->close();
+  });
+  QContextMenuEvent event(QContextMenuEvent::Mouse, viewportPoint, globalPoint);
+  QApplication::sendEvent(view->viewport(), &event);
+  return items;
+}
+
 } // namespace
 
 class TestRepositorySideBar : public QObject {
@@ -190,6 +214,7 @@ void TestRepositorySideBar::navigatorModel() {
   git.start(GIT_EXECUTABLE, {"commit", "-m", "initial"});
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
+  QVERIFY(mRepo->addRemote("origin", mRepo->workdir().path()).isValid());
   git.start(GIT_EXECUTABLE,
             {"update-ref", "refs/remotes/origin/main", "HEAD"});
   QVERIFY(git.waitForFinished());
@@ -372,21 +397,24 @@ void TestRepositorySideBar::activeRepositoryBinding() {
 
   QList<QPair<QString, bool>> currentItems =
       contextMenuItems(navigator->view(), current);
+  QString currentName = current.data().toString();
   QCOMPARE(menuTexts(currentItems),
-           QStringList({"Pull", "Push", "Force Push...", "Checkout", "Rename",
-                        "Delete", "Merge...", "Rebase...", "Squash..."}));
+           QStringList({"Pull", "Push", "Force Push...", "Checkout",
+                        "Rename " + currentName, "Delete", "Merge...",
+                        "Rebase...", "Squash..."}));
   QVERIFY(currentItems.at(0).second);
   QVERIFY(currentItems.at(1).second);
   QVERIFY(currentItems.at(2).second);
   QCOMPARE(currentItems.at(3).second, false);
-  QCOMPARE(currentItems.at(4).second, false);
+  QVERIFY(currentItems.at(4).second);
   QCOMPARE(currentItems.at(5).second, false);
 
   QList<QPair<QString, bool>> otherItems =
       contextMenuItems(navigator->view(), other);
+  QString otherName = other.data().toString();
   QCOMPARE(menuTexts(otherItems),
-           QStringList({"Checkout", "Rename", "Delete", "Merge...", "Rebase...",
-                        "Squash..."}));
+           QStringList({"Checkout", "Rename " + otherName, "Delete", "Merge...",
+                        "Rebase...", "Squash..."}));
   QVERIFY(otherItems.at(0).second);
   QVERIFY(otherItems.at(1).second);
   QVERIFY(otherItems.at(2).second);
@@ -395,13 +423,36 @@ void TestRepositorySideBar::activeRepositoryBinding() {
       model->sectionIndex(RepositoryNavigatorModel::Section::Remote);
   navigator->view()->setExpanded(remotes, true);
   QModelIndex remote = model->index(0, 0, remotes);
+  QString remoteName = remote.data().toString();
   QList<QPair<QString, bool>> remoteItems =
       contextMenuItems(navigator->view(), remote);
   QCOMPARE(menuTexts(remoteItems),
-           QStringList({"Checkout", "New Local Branch", "Merge...", "Rebase...",
-                        "Squash..."}));
+           QStringList({"Checkout", "Rename " + remoteName,
+                        "Delete " + remoteName, "New Local Branch", "Merge...",
+                        "Rebase...", "Squash..."}));
   for (const auto &item : remoteItems)
     QVERIFY(item.second);
+
+  CommitList *commits = window.currentView()->findChild<CommitList *>();
+  QVERIFY(commits);
+  QModelIndex commitIndex;
+  for (int row = 0; row < commits->model()->rowCount(); ++row) {
+    QModelIndex candidate = commits->model()->index(row, 0);
+    if (candidate.data(CommitList::CommitRole).value<git::Commit>() ==
+        mRepo->head().target()) {
+      commitIndex = candidate;
+      break;
+    }
+  }
+  QVERIFY(commitIndex.isValid());
+  QStringList renameItems = contextSubmenuItems(commits, commitIndex, "Rename");
+  QVERIFY(renameItems.contains(currentName));
+  QVERIFY(renameItems.contains(otherName));
+  QVERIFY(renameItems.contains("origin/main"));
+  QVERIFY(renameItems.contains("origin/NOTHEAD"));
+  QStringList deleteItems = contextSubmenuItems(commits, commitIndex, "Delete");
+  QVERIFY(deleteItems.contains("origin/main"));
+  QVERIFY(deleteItems.contains("origin/NOTHEAD"));
 
   Test::ScratchRepository second;
   RepoView *secondView = window.addTab(second);
