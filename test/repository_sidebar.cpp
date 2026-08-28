@@ -24,6 +24,7 @@
 #include "ui/TabWidget.h"
 #include <QAbstractItemModelTester>
 #include <QContextMenuEvent>
+#include <QComboBox>
 #include <QFile>
 #include <QFontMetrics>
 #include <QHeaderView>
@@ -128,6 +129,8 @@ private slots:
   void sidebarVisibility();
   void navigatorModel();
   void navigatorView();
+  void githubIssuesModel();
+  void githubIssuesRemoteFilter();
   void activeRepositoryBinding();
   void stashInteraction();
   void submoduleInteraction();
@@ -365,6 +368,153 @@ void TestRepositorySideBar::navigatorView() {
   QVERIFY(!view->isExpanded(local));
 }
 
+void TestRepositorySideBar::githubIssuesModel() {
+  RepositoryNavigatorModel model;
+  QModelIndex section = model.sectionIndex(
+      RepositoryNavigatorModel::Section::GitHubIssues);
+  QVERIFY(!section.data(RepositoryNavigatorModel::AvailableRole).toBool());
+  QCOMPARE(section.data(RepositoryNavigatorModel::LoadStateRole)
+               .value<RepositoryNavigatorModel::LoadState>(),
+           RepositoryNavigatorModel::LoadState::Unavailable);
+
+  model.setGitHubIssuesAvailable(true);
+  model.beginGitHubIssuesLoad(false);
+  section = model.sectionIndex(RepositoryNavigatorModel::Section::GitHubIssues);
+  QCOMPARE(section.data(RepositoryNavigatorModel::CountRole).toInt(), 0);
+  QCOMPARE(model.rowCount(section), 2);
+  QCOMPARE(static_cast<RepositoryNavigatorModel::ItemKind>(
+               model.index(1, 0, section)
+                   .data(RepositoryNavigatorModel::ItemKindRole)
+                   .toInt()),
+           RepositoryNavigatorModel::ItemKind::Status);
+  QCOMPARE(section.data(RepositoryNavigatorModel::LoadStateRole)
+               .value<RepositoryNavigatorModel::LoadState>(),
+           RepositoryNavigatorModel::LoadState::Loading);
+
+  GitHub::Issues issues{{17, "First issue", "alice",
+                         QUrl("https://github.com/acme/widget/issues/17")},
+                        {42, "Second issue", "bob",
+                         QUrl("https://github.com/acme/widget/issues/42")}};
+  model.setGitHubIssues(issues);
+  section = model.sectionIndex(RepositoryNavigatorModel::Section::GitHubIssues);
+  QCOMPARE(section.data(RepositoryNavigatorModel::CountRole).toInt(), 2);
+  QCOMPARE(model.rowCount(section), 3);
+  QModelIndex first = model.index(1, 0, section);
+  QCOMPARE(first.data().toString(), QString("#17 First issue"));
+  QCOMPARE(first.data(RepositoryNavigatorModel::IssueNumberRole).toInt(), 17);
+  QCOMPARE(first.data(RepositoryNavigatorModel::IssueAuthorRole).toString(),
+           QString("alice"));
+  QCOMPARE(first.data(RepositoryNavigatorModel::UrlRole).toString(),
+           QString("https://github.com/acme/widget/issues/17"));
+  QVERIFY(first.data(Qt::ToolTipRole).toString().contains("alice"));
+
+  model.beginGitHubIssuesLoad(true);
+  section = model.sectionIndex(RepositoryNavigatorModel::Section::GitHubIssues);
+  QCOMPARE(section.data(RepositoryNavigatorModel::CountRole).toInt(), 2);
+  QCOMPARE(model.rowCount(section), 4);
+  QCOMPARE(static_cast<RepositoryNavigatorModel::ItemKind>(
+               model.index(3, 0, section)
+                   .data(RepositoryNavigatorModel::ItemKindRole)
+                   .toInt()),
+           RepositoryNavigatorModel::ItemKind::Status);
+  model.failGitHubIssues("offline", true);
+  section = model.sectionIndex(RepositoryNavigatorModel::Section::GitHubIssues);
+  QCOMPARE(section.data(RepositoryNavigatorModel::LoadStateRole)
+               .value<RepositoryNavigatorModel::LoadState>(),
+           RepositoryNavigatorModel::LoadState::Stale);
+  QCOMPARE(section.data(RepositoryNavigatorModel::CountRole).toInt(), 2);
+  QCOMPARE(model.rowCount(section), 4);
+
+  model.refresh();
+  section = model.sectionIndex(RepositoryNavigatorModel::Section::GitHubIssues);
+  QCOMPARE(section.data(RepositoryNavigatorModel::CountRole).toInt(), 2);
+  QCOMPARE(model.index(1, 0, section).data().toString(),
+           QString("#17 First issue"));
+}
+
+void TestRepositorySideBar::githubIssuesRemoteFilter() {
+  struct Request {
+    QString owner;
+    QString repository;
+    GitHub::IssuesCallback callback;
+  };
+  QList<Request> requests;
+  RepositoryNavigator navigator(
+      nullptr, [&requests](GitHub *, const QString &owner,
+                           const QString &repository,
+                           const GitHub::IssuesCallback &callback) {
+        requests.append({owner, repository, callback});
+      });
+  QComboBox *filter = navigator.issuesRemoteFilter();
+  QVERIFY(filter);
+  QCOMPARE(filter->objectName(), QString("GitHubIssuesRemoteFilter"));
+  QVERIFY(!filter->accessibleName().isEmpty());
+
+  Test::ScratchRepository repo;
+  QVERIFY(repo->addRemote("origin", "git@github.com:acme/widget.git")
+              .isValid());
+  navigator.setRepository(repo);
+  QCOMPARE(filter->count(), 1);
+  QCOMPARE(filter->itemText(0), QString("origin - acme/widget"));
+  QVERIFY(filter->isHidden());
+  QModelIndex issuesSection = navigator.model()->sectionIndex(
+      RepositoryNavigatorModel::Section::GitHubIssues);
+  QModelIndex filterRow = navigator.model()->index(0, 0, issuesSection);
+  QCOMPARE(static_cast<RepositoryNavigatorModel::ItemKind>(
+               filterRow.data(RepositoryNavigatorModel::ItemKindRole).toInt()),
+           RepositoryNavigatorModel::ItemKind::GitHubIssuesFilter);
+  QCOMPARE(filterRow.data().toString(),
+           QString("Issues repository: origin - acme/widget"));
+  QCOMPARE(requests.size(), 1);
+  QCOMPARE(requests.constFirst().owner, QString("acme"));
+  QCOMPARE(requests.constFirst().repository, QString("widget"));
+
+  QVERIFY(repo->addRemote("upstream", "https://github.com/core/widget.git")
+              .isValid());
+  QCOMPARE(filter->count(), 2);
+  QCOMPARE(filter->itemText(0), QString("origin - acme/widget"));
+  QCOMPARE(filter->itemText(1), QString("upstream - core/widget"));
+  QVERIFY(filter->isHidden());
+  QCOMPARE(requests.size(), 1);
+
+  GitHub::IssuesCallback stale = requests.constFirst().callback;
+  filter->setCurrentIndex(1);
+  QCOMPARE(requests.constLast().owner, QString("core"));
+  QCOMPARE(requests.constLast().repository, QString("widget"));
+  issuesSection = navigator.model()->sectionIndex(
+      RepositoryNavigatorModel::Section::GitHubIssues);
+  QCOMPARE(navigator.model()->index(0, 0, issuesSection).data().toString(),
+           QString("Issues repository: upstream - core/widget"));
+  GitHub::IssuesCallback selected = requests.constLast().callback;
+
+  stale(true,
+        {{1, "Stale issue", "old",
+          QUrl("https://github.com/acme/widget/issues/1")}},
+        1, QString());
+  QModelIndex section = navigator.model()->sectionIndex(
+      RepositoryNavigatorModel::Section::GitHubIssues);
+  QCOMPARE(section.data(RepositoryNavigatorModel::CountRole).toInt(), 0);
+
+  selected(true,
+           {{9, "Selected issue", "new",
+             QUrl("https://github.com/core/widget/issues/9")}},
+           1, QString());
+  section = navigator.model()->sectionIndex(
+      RepositoryNavigatorModel::Section::GitHubIssues);
+  QCOMPARE(section.data(RepositoryNavigatorModel::CountRole).toInt(), 1);
+  QCOMPARE(navigator.model()->index(1, 0, section).data().toString(),
+           QString("#9 Selected issue"));
+
+  int remoteUpdateCount = 0;
+  connect(repo->notifier(), &git::RepositoryNotifier::remoteUpdated,
+          [&remoteUpdateCount](const git::Remote &) { ++remoteUpdateCount; });
+  git::Remote upstream = repo->lookupRemote("upstream");
+  upstream.setUrl("https://github.com/core-next/widget.git");
+  QCOMPARE(remoteUpdateCount, 1);
+  QCOMPARE(filter->itemText(filter->currentIndex()),
+           QString("upstream - core-next/widget"));
+}
+
 void TestRepositorySideBar::activeRepositoryBinding() {
   MainWindow window(mRepo);
   window.show();
@@ -453,6 +603,23 @@ void TestRepositorySideBar::activeRepositoryBinding() {
   QStringList deleteItems = contextSubmenuItems(commits, commitIndex, "Delete");
   QVERIFY(deleteItems.contains("origin/main"));
   QVERIFY(deleteItems.contains("origin/NOTHEAD"));
+
+  git::Reference selectedReference =
+      current.data(RepositoryNavigatorModel::ReferenceRole)
+          .value<git::Reference>();
+  navigator->view()->setCurrentIndex(current);
+  model->setGitHubIssuesAvailable(true);
+  model->beginGitHubIssuesLoad(false);
+  model->setGitHubIssues(
+      {{1, "Selection test", "tester",
+        QUrl("https://github.com/acme/widget/issues/1")}});
+  QCOMPARE(navigator->view()
+               ->currentIndex()
+               .data(RepositoryNavigatorModel::ReferenceRole)
+               .value<git::Reference>()
+               .qualifiedName(),
+           selectedReference.qualifiedName());
+  model->setGitHubIssuesAvailable(false);
 
   Test::ScratchRepository second;
   RepoView *secondView = window.addTab(second);

@@ -2551,6 +2551,21 @@ Mode %1</source>
         <source>Successfully authenticated with GitHub!</source>
         <translation type="vanished">Anmeldung an GitHub erfolgreich!</translation>
     </message>
+    <message>
+        <location filename="../src/host/GitHub.cpp" line="317"/>
+        <source>Invalid repository owner or name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/host/GitHub.cpp" line="333"/>
+        <source>Invalid GitHub API URL.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/host/GitHub.cpp" line="356"/>
+        <source>GitHub authentication requires HTTPS.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>GitLab</name>
@@ -4081,18 +4096,44 @@ Beispiele
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="39"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="48"/>
         <source>%1↑</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="43"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="52"/>
         <source>%1↓</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/app/GitNortek.cpp" line="25"/>
         <source>Your global Git configuration is invalid. GitNortek won&apos;t run properly until this is fixed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/host/GitHub.cpp" line="390"/>
+        <source>GitHub returned HTTP status %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/host/GitHub.cpp" line="401"/>
+        <source>Invalid GitHub JSON response: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/host/GitHub.cpp" line="410"/>
+        <source>Invalid GitHub issues response.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/host/GitHub.cpp" line="418"/>
+        <source>Invalid GitHub issue count.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/host/GitHub.cpp" line="427"/>
+        <location filename="../src/host/GitHub.cpp" line="449"/>
+        <source>Invalid GitHub issue entry.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5978,79 +6019,99 @@ The submodule will be removed from this project. Its working files and cached lo
 <context>
     <name>RepositoryNavigator</name>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="226"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="235"/>
         <source>%1↑</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="230"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="239"/>
         <source>%1↓</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="273"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="284"/>
         <source>Repository navigation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="277"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="288"/>
         <source>Repository references</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="397"/>
-        <source>Open</source>
-        <translation type="unfinished">Öffnen</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="403"/>
-        <source>Commit Changes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="410"/>
-        <source>Check for Updates</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="430"/>
-        <source>Checkout origin/%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="437"/>
-        <source>Update</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="442"/>
-        <source>Initialize and Update</source>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="300"/>
+        <source>Issues repository</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/RepositoryNavigator.cpp" line="449"/>
+        <source>Open in Browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="454"/>
+        <source>Refresh Issues</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="476"/>
+        <source>Open</source>
+        <translation type="unfinished">Öffnen</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="482"/>
+        <source>Commit Changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="489"/>
+        <source>Check for Updates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="509"/>
+        <source>Checkout origin/%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="516"/>
+        <source>Update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="521"/>
+        <source>Initialize and Update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="528"/>
         <source>Modify...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="453"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="532"/>
         <source>Delete Submodule...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="463"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="542"/>
         <source>Apply Stash</source>
         <translation type="unfinished">Wende Stash an</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="468"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="547"/>
         <source>Pop Stash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="473"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="552"/>
         <source>Drop Stash</source>
         <translation type="unfinished">Droppe Stash</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="724"/>
+        <source>%1 - %2/%3</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6091,178 +6152,233 @@ The submodule will be removed from this project. Its working files and cached lo
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="298"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="375"/>
         <source>Local</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="299"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="376"/>
         <source>Remote</source>
         <translation type="unfinished">Remote</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="300"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="377"/>
         <source>Stashes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="301"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="378"/>
         <source>Cloud Patches</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="302"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="379"/>
         <source>Cloud Patches are not available.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="303"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="380"/>
         <source>Pull Requests</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="304"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="381"/>
         <source>Pull Request listing is not available.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="305"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="382"/>
         <source>GitHub Issues</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="306"/>
-        <source>GitHub Issue listing is not available.</source>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="383"/>
+        <source>No eligible GitHub repository was found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="307"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="384"/>
         <source>Teams</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="307"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="384"/>
         <source>Team integration is not available.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="309"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="386"/>
         <source>Tags</source>
         <translation type="unfinished">Tags</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="310"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="387"/>
         <source>Submodules</source>
         <translation type="unfinished">Submodule</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="351"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="430"/>
         <source>stash@{%1}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="376"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="455"/>
         <source>Path: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="391"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="470"/>
         <source>Local checkout: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="396"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="475"/>
         <source>the commit recorded by the parent repository</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="398"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="477"/>
         <source>Pin %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="404"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="483"/>
         <source>Pin: The parent repository does not record a submodule commit.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="414"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="493"/>
         <source>the latest fetched commit on origin/%1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="416"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="495"/>
         <source>Origin %1 (%2): %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="424"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="503"/>
         <source>Local checkout: unavailable because the submodule repository could not be read.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="428"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="507"/>
         <source>Local checkout: unavailable because the submodule is not initialized.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="434"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="513"/>
         <source>Origin: Not shown because no remote branch is configured. Configure a branch in the submodule settings to enable this comparison.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="439"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="518"/>
         <source>Origin %1: Waiting for a submodule update check.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="446"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="525"/>
         <source>Origin %1: The comparison failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="447"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="526"/>
         <source>Origin %1: The comparison failed - %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="453"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="532"/>
         <source>↑ means local-only commits; ↓ means commits missing locally.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="458"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="537"/>
         <source>Indicators:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="460"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="539"/>
         <source>%1 Left icon: Pin summary.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="463"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="542"/>
         <source>%1 matches; %2 differs; %3 unavailable; %4 uninitialized.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="469"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="548"/>
         <source>%1 = Pin delta; %2 = Origin delta.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="473"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="552"/>
         <source>An empty delta means no difference when comparison is available.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="475"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="554"/>
         <source>%1 synchronized; %2 difference; %3 unavailable, pending, or not configured; %4 failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="480"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="559"/>
         <source>%1 local-only; %2 missing locally.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="582"/>
+        <source>Issues repository</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="583"/>
+        <source>Issues repository: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="592"/>
+        <source>#%1 %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="595"/>
+        <source>Author: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="605"/>
+        <source>Loading issues...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="608"/>
+        <source>Refreshing issues...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="612"/>
+        <source>No open issues.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="616"/>
+        <source>Unable to load issues.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="617"/>
+        <source>Unable to load issues: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="621"/>
+        <source>Refresh failed. Showing previously loaded issues.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="622"/>
+        <source>Refresh failed: %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

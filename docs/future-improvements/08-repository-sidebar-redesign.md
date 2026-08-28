@@ -651,7 +651,7 @@ Update this table throughout implementation. Newest entries go first.
 Create separate blueprints before implementing network-backed sections:
 
 - Pull request listing and navigation across supported hosting providers.
-- GitHub issue listing and navigation.
+- GitHub issue listing and navigation: see `09-github-issues.md`.
 - GitHub organization/team integration after product semantics are defined.
 - Cloud Patches only if GitNortek chooses to implement an equivalent feature.
 

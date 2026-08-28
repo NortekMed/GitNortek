@@ -343,6 +343,7 @@ signals:
   void remoteAdded(const Remote &remote);
   void remoteAboutToBeRemoved(const Remote &remote);
   void remoteRemoved(const QString &name);
+  void remoteUpdated(const Remote &remote);
 
   void stateChanged();
   void workdirChanged();

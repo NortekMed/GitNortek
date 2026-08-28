@@ -12,6 +12,7 @@ Bug Fix and Feature release
 * Add Tamil translation
 * Add repository navigator context actions for branches and submodules, including permanent submodule removal
 * Rename local and remote branches and delete remote branches from branch context menus
+* List open GitHub issues in the repository navigator with public/private access, a visible repository filter, and explicit browser opening
 * Show colored Pin summaries on the left and aligned P and O delta columns for submodules in the repository navigator
 * Mark the checked-out local branch with a green checkbox and color ahead and behind indicators
 * Align Compact Mode into configurable columns with content-aware widths, bottom-connected stash ancestry, and side-connected merge and divergence curves

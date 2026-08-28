@@ -121,6 +121,7 @@ add_dependencies(test_Setting gitnortek)
 test(NAME Id)
 test(NAME commitMessageTemplate)
 test(NAME commitEditor)
+test(NAME GitHub)
 
 if(DEFINED GITTYUP_CI_TESTS AND NOT DEFINED GITNORTEK_CI_TESTS)
   message(DEPRECATION

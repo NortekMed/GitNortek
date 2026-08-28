@@ -9,18 +9,27 @@
 #include "FontUtils.h"
 #include "RepositoryNavigatorModel.h"
 #include "RepoView.h"
+#include "git/Config.h"
+#include "git/Remote.h"
+#include "host/Accounts.h"
+#include "host/Repository.h"
+#include <QComboBox>
+#include <QDesktopServices>
 #include <QMenu>
 #include <QMetaEnum>
 #include <QPainter>
 #include <QPainterPath>
 #include <QSettings>
+#include <QSignalBlocker>
 #include <QStyledItemDelegate>
 #include <QTreeView>
 #include <QVBoxLayout>
+#include <algorithm>
 
 namespace {
 
 const QString kExpandedGroup = "sidebar/repositoryNavigator/expanded";
+const QString kIssuesRemoteKey = "sidebar.githubIssues.remote";
 
 QString sectionKey(const QModelIndex &index) {
   int section = index.data(RepositoryNavigatorModel::SectionRole).toInt();
@@ -268,7 +277,9 @@ private:
 
 } // namespace
 
-RepositoryNavigator::RepositoryNavigator(QWidget *parent) : QWidget(parent) {
+RepositoryNavigator::RepositoryNavigator(QWidget *parent,
+                                         const IssuesRequest &request)
+    : QWidget(parent), mIssuesRequest(request) {
   setObjectName("RepositoryNavigator");
   setAccessibleName(tr("Repository navigation"));
 
@@ -284,11 +295,26 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent) : QWidget(parent) {
   mView->setUniformRowHeights(true);
   mView->setItemDelegate(new NavigatorDelegate(mView->font(), mView));
 
+  mIssuesRemoteFilter = new QComboBox(this);
+  mIssuesRemoteFilter->setObjectName("GitHubIssuesRemoteFilter");
+  mIssuesRemoteFilter->setAccessibleName(tr("Issues repository"));
+  mIssuesRemoteFilter->hide();
+
   mModel = new RepositoryNavigatorModel(mView);
   mView->setModel(mModel);
 
-  connect(mModel, &RepositoryNavigatorModel::modelReset, this,
-          &RepositoryNavigator::restoreExpansion);
+  connect(mModel, &RepositoryNavigatorModel::modelAboutToBeReset, this, [this] {
+    mReferenceBeforeReset =
+        mView->currentIndex()
+            .data(RepositoryNavigatorModel::ReferenceRole)
+            .value<git::Reference>();
+  });
+  connect(mModel, &RepositoryNavigatorModel::modelReset, this, [this] {
+    restoreExpansion();
+    if (mReferenceBeforeReset.isValid())
+      selectReference(mReferenceBeforeReset);
+    mReferenceBeforeReset = git::Reference();
+  });
   connect(mView, &QTreeView::expanded, this,
           [this](const QModelIndex &index) { storeExpansion(index, true); });
   connect(mView, &QTreeView::collapsed, this,
@@ -297,6 +323,8 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent) : QWidget(parent) {
           [this](const QModelIndex &index) { activate(index, false); });
   connect(mView, &QTreeView::doubleClicked, this,
           [this](const QModelIndex &index) { activate(index, true); });
+  connect(mIssuesRemoteFilter, &QComboBox::currentIndexChanged, this,
+          &RepositoryNavigator::selectGitHubIssuesRepository);
 
   mView->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(mView, &QTreeView::customContextMenuRequested, this,
@@ -307,11 +335,36 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent) : QWidget(parent) {
   layout->setSpacing(0);
   layout->addWidget(mView);
 
+  Accounts *accounts = Accounts::instance();
+  connect(accounts, &Accounts::accountAdded, this,
+          &RepositoryNavigator::discoverGitHubIssuesRepositories);
+  connect(accounts, &Accounts::accountRemoved, this,
+          &RepositoryNavigator::discoverGitHubIssuesRepositories);
+  connect(accounts, &Accounts::repositoryAdded, this,
+          [this](int) { discoverGitHubIssuesRepositories(); });
+  connect(accounts, &Accounts::finished, this,
+          [this](int) { discoverGitHubIssuesRepositories(); });
+
   restoreExpansion();
 }
 
 void RepositoryNavigator::setRepository(const git::Repository &repo) {
+  ++mIssuesGeneration;
+  for (const QMetaObject::Connection &connection : mRemoteConnections)
+    disconnect(connection);
+  mRemoteConnections.clear();
   mModel->setRepository(repo);
+  if (repo.isValid()) {
+    git::RepositoryNotifier *notifier = repo.notifier();
+    auto rediscover = [this] { discoverGitHubIssuesRepositories(); };
+    mRemoteConnections.append(connect(
+        notifier, &git::RepositoryNotifier::remoteAdded, this, rediscover));
+    mRemoteConnections.append(connect(
+        notifier, &git::RepositoryNotifier::remoteRemoved, this, rediscover));
+    mRemoteConnections.append(connect(
+        notifier, &git::RepositoryNotifier::remoteUpdated, this, rediscover));
+  }
+  discoverGitHubIssuesRepositories();
 }
 
 void RepositoryNavigator::setRepoView(RepoView *view) {
@@ -341,6 +394,10 @@ void RepositoryNavigator::setRepoView(RepoView *view) {
 RepositoryNavigatorModel *RepositoryNavigator::model() const { return mModel; }
 
 QTreeView *RepositoryNavigator::view() const { return mView; }
+
+QComboBox *RepositoryNavigator::issuesRemoteFilter() const {
+  return mIssuesRemoteFilter;
+}
 
 void RepositoryNavigator::setBodyFont(const QFont &font) {
   mView->setStyleSheet(
@@ -374,14 +431,36 @@ void RepositoryNavigator::storeExpansion(const QModelIndex &index,
 }
 
 void RepositoryNavigator::showContextMenu(const QPoint &point) {
-  if (!mRepoView)
-    return;
-
   QModelIndex index = mView->indexAt(point);
-  if (!index.isValid() || !index.parent().isValid())
+  if (!index.isValid())
     return;
 
   QMenu menu;
+  auto section = static_cast<RepositoryNavigatorModel::Section>(
+      index.data(RepositoryNavigatorModel::SectionRole).toInt());
+  auto kind = static_cast<RepositoryNavigatorModel::ItemKind>(
+      index.data(RepositoryNavigatorModel::ItemKindRole).toInt());
+  if (section == RepositoryNavigatorModel::Section::GitHubIssues) {
+    if (kind == RepositoryNavigatorModel::ItemKind::GitHubIssuesFilter) {
+      showIssuesRepositoryMenu(index);
+      return;
+    }
+    if (kind == RepositoryNavigatorModel::ItemKind::GitHubIssue)
+      menu.addAction(tr("Open in Browser"), this,
+                     [this, index] { openIssue(index); });
+    if (kind == RepositoryNavigatorModel::ItemKind::GitHubIssue ||
+        (kind == RepositoryNavigatorModel::ItemKind::Section &&
+         index.data(RepositoryNavigatorModel::AvailableRole).toBool()))
+      menu.addAction(tr("Refresh Issues"), this,
+                     [this] { requestGitHubIssues(true); });
+    if (!menu.isEmpty())
+      menu.exec(mView->viewport()->mapToGlobal(point));
+    return;
+  }
+
+  if (!mRepoView || !index.parent().isValid())
+    return;
+
   git::Reference ref = index.data(RepositoryNavigatorModel::ReferenceRole)
                            .value<git::Reference>();
   if (ref.isValid()) {
@@ -508,7 +587,19 @@ void RepositoryNavigator::selectReference(const git::Reference &ref) {
 }
 
 void RepositoryNavigator::activate(const QModelIndex &index, bool checkout) {
-  if (!mRepoView || !index.isValid() || !index.parent().isValid())
+  if (!index.isValid() || !index.parent().isValid())
+    return;
+
+  auto kind = static_cast<RepositoryNavigatorModel::ItemKind>(
+      index.data(RepositoryNavigatorModel::ItemKindRole).toInt());
+  if (kind == RepositoryNavigatorModel::ItemKind::GitHubIssuesFilter) {
+    showIssuesRepositoryMenu(index);
+    return;
+  }
+  if (kind == RepositoryNavigatorModel::ItemKind::GitHubIssue)
+    return;
+
+  if (!mRepoView)
     return;
 
   git::Reference ref =
@@ -531,4 +622,184 @@ void RepositoryNavigator::activate(const QModelIndex &index, bool checkout) {
       index.data(RepositoryNavigatorModel::SubmoduleRole).value<git::Submodule>();
   if (submodule.isValid() && checkout)
     mRepoView->openSubmodule(submodule);
+}
+
+void RepositoryNavigator::discoverGitHubIssuesRepositories() {
+  ++mIssuesGeneration;
+  QString previousKey;
+  int previous = mIssuesRemoteFilter->currentIndex();
+  if (previous >= 0 && previous < mIssuesCandidates.size())
+    previousKey = mIssuesCandidates.at(previous).key;
+
+  mIssuesCandidates.clear();
+  git::Repository repo = mModel->repository();
+  if (repo.isValid()) {
+    Accounts *accounts = Accounts::instance();
+    for (const git::Remote &remote : repo.remotes()) {
+      GitHub::RemoteRepository parsed = GitHub::parseRemoteUrl(remote.url());
+      if (!parsed.isValid())
+        continue;
+
+      GitHub *github = nullptr;
+      if (::Repository *hostRepo = accounts->lookup(remote.url())) {
+        if (hostRepo->account()->kind() == Account::GitHub)
+          github = qobject_cast<GitHub *>(hostRepo->account());
+      }
+      bool publicGitHub =
+          parsed.host.compare("github.com", Qt::CaseInsensitive) == 0;
+      if (!publicGitHub && !github)
+        continue;
+      if (publicGitHub && github && github->hasCustomUrl())
+        github = nullptr;
+      if (publicGitHub && !github) {
+        if (!mAnonymousGitHub) {
+          mAnonymousGitHub = new GitHub(QString());
+          mAnonymousGitHub->setParent(this);
+        }
+        github = mAnonymousGitHub;
+      }
+
+      IssuesCandidate candidate;
+      candidate.remote = remote.name();
+      candidate.host = parsed.host;
+      candidate.owner = parsed.owner;
+      candidate.repository = parsed.name;
+      candidate.account = github;
+      QString accountKey = github == mAnonymousGitHub
+                               ? QStringLiteral("anonymous")
+                               : QString::number(
+                                     reinterpret_cast<quintptr>(github), 16);
+      candidate.key = candidate.remote + '\n' + candidate.host + '\n' +
+                      candidate.owner + '/' + candidate.repository + '\n' +
+                      accountKey;
+      mIssuesCandidates.append(candidate);
+    }
+
+    QString saved = repo.appConfig().value<QString>(kIssuesRemoteKey);
+    QString defaultRemote = repo.defaultRemote().isValid()
+                                ? repo.defaultRemote().name()
+                                : QString();
+    std::sort(mIssuesCandidates.begin(), mIssuesCandidates.end(),
+              [saved, defaultRemote](const IssuesCandidate &lhs,
+                                     const IssuesCandidate &rhs) {
+                auto rank = [saved, defaultRemote](const IssuesCandidate &c) {
+                  if (!saved.isEmpty() && c.remote == saved)
+                    return 0;
+                  if (!defaultRemote.isEmpty() && c.remote == defaultRemote)
+                    return 1;
+                  if (c.remote == "origin")
+                    return 2;
+                  if (c.remote == "upstream")
+                    return 3;
+                  return 4;
+                };
+                int lhsRank = rank(lhs);
+                int rhsRank = rank(rhs);
+                return lhsRank == rhsRank
+                           ? QString::localeAwareCompare(lhs.remote,
+                                                        rhs.remote) < 0
+                           : lhsRank < rhsRank;
+              });
+  }
+
+  int selected = -1;
+  QString saved = repo.isValid()
+                      ? repo.appConfig().value<QString>(kIssuesRemoteKey)
+                      : QString();
+  for (int i = 0; i < mIssuesCandidates.size(); ++i) {
+    if ((!previousKey.isEmpty() && mIssuesCandidates.at(i).key == previousKey) ||
+        (previousKey.isEmpty() && !saved.isEmpty() &&
+         mIssuesCandidates.at(i).remote == saved)) {
+      selected = i;
+      break;
+    }
+  }
+  if (selected < 0 && !mIssuesCandidates.isEmpty())
+    selected = 0;
+
+  QSignalBlocker blocker(mIssuesRemoteFilter);
+  mIssuesRemoteFilter->clear();
+  for (const IssuesCandidate &candidate : mIssuesCandidates) {
+    mIssuesRemoteFilter->addItem(
+        tr("%1 - %2/%3")
+            .arg(candidate.remote, candidate.owner, candidate.repository));
+  }
+  mIssuesRemoteFilter->setCurrentIndex(selected);
+  mModel->setGitHubIssuesAvailable(selected >= 0);
+  mModel->setGitHubIssuesFilter(selected >= 0
+                                    ? mIssuesRemoteFilter->itemText(selected)
+                                    : QString());
+  if (selected < 0)
+    return;
+
+  bool sameSource = !previousKey.isEmpty() &&
+                    mIssuesCandidates.at(selected).key == previousKey;
+  if (!sameSource)
+    requestGitHubIssues(false);
+}
+
+void RepositoryNavigator::selectGitHubIssuesRepository(int index) {
+  if (index < 0 || index >= mIssuesCandidates.size())
+    return;
+  mModel->setGitHubIssuesFilter(mIssuesRemoteFilter->itemText(index));
+  git::Repository repo = mModel->repository();
+  if (repo.isValid())
+    repo.appConfig().setValue(kIssuesRemoteKey,
+                              mIssuesCandidates.at(index).remote);
+  ++mIssuesGeneration;
+  requestGitHubIssues(false);
+}
+
+void RepositoryNavigator::requestGitHubIssues(bool refresh) {
+  int index = mIssuesRemoteFilter->currentIndex();
+  if (index < 0 || index >= mIssuesCandidates.size())
+    return;
+  const IssuesCandidate candidate = mIssuesCandidates.at(index);
+  if (!candidate.account)
+    return;
+
+  int generation = ++mIssuesGeneration;
+  mModel->beginGitHubIssuesLoad(refresh);
+  QPointer<RepositoryNavigator> guard(this);
+  GitHub::IssuesCallback callback =
+      [guard, generation, refresh](bool success, const GitHub::Issues &issues,
+                                   int, const QString &error) {
+        if (!guard || guard->mIssuesGeneration != generation)
+          return;
+        if (success)
+          guard->mModel->setGitHubIssues(issues);
+        else
+          guard->mModel->failGitHubIssues(error, refresh);
+      };
+  if (mIssuesRequest) {
+    mIssuesRequest(candidate.account, candidate.owner, candidate.repository,
+                   callback);
+  } else {
+    candidate.account->requestOpenIssues(candidate.owner, candidate.repository,
+                                         callback);
+  }
+}
+
+void RepositoryNavigator::openIssue(const QModelIndex &index) {
+  QUrl url(index.data(RepositoryNavigatorModel::UrlRole).toString());
+  QString scheme = url.scheme().toLower();
+  if (url.isValid() && !url.host().isEmpty() &&
+      (scheme == "http" || scheme == "https"))
+    QDesktopServices::openUrl(url);
+}
+
+void RepositoryNavigator::showIssuesRepositoryMenu(const QModelIndex &index) {
+  QMenu menu(this);
+  for (int i = 0; i < mIssuesRemoteFilter->count(); ++i) {
+    QAction *action = menu.addAction(mIssuesRemoteFilter->itemText(i));
+    action->setCheckable(true);
+    action->setChecked(i == mIssuesRemoteFilter->currentIndex());
+    connect(action, &QAction::triggered, this,
+            [this, i] { mIssuesRemoteFilter->setCurrentIndex(i); });
+  }
+  if (menu.isEmpty())
+    return;
+
+  QRect row = mView->visualRect(index);
+  menu.exec(mView->viewport()->mapToGlobal(row.bottomLeft()));
 }

@@ -12,6 +12,7 @@
 #include "git/Reference.h"
 #include "git/Repository.h"
 #include "git/Submodule.h"
+#include "host/GitHub.h"
 #include <QAbstractItemModel>
 #include <QHash>
 #include <QTimer>
@@ -34,8 +35,19 @@ public:
   };
   Q_ENUM(Section)
 
-  enum class ItemKind { Section, Reference, Stash, Submodule };
+  enum class ItemKind {
+    Section,
+    Reference,
+    Stash,
+    Submodule,
+    GitHubIssuesFilter,
+    GitHubIssue,
+    Status
+  };
   Q_ENUM(ItemKind)
+
+  enum class LoadState { Unavailable, Loading, Ready, Refreshing, Failed, Stale };
+  Q_ENUM(LoadState)
 
   enum class OriginState { Hidden, Pending, Failed, Ready };
   Q_ENUM(OriginState)
@@ -61,7 +73,10 @@ public:
     OriginAheadRole,
     OriginBehindRole,
     OriginStateRole,
-    OriginTargetRole
+    OriginTargetRole,
+    LoadStateRole,
+    IssueNumberRole,
+    IssueAuthorRole
   };
 
   explicit RepositoryNavigatorModel(QObject *parent = nullptr);
@@ -71,6 +86,11 @@ public:
   git::Repository repository() const;
   void setSubmoduleUpdateStatuses(
       const QList<git::Submodule::UpdateStatus> &statuses);
+  void setGitHubIssuesAvailable(bool available);
+  void setGitHubIssuesFilter(const QString &filter);
+  void beginGitHubIssuesLoad(bool refresh);
+  void setGitHubIssues(const GitHub::Issues &issues);
+  void failGitHubIssues(const QString &message, bool preserveIssues);
 
   QModelIndex sectionIndex(Section section) const;
 
@@ -108,6 +128,8 @@ private:
     int originBehind = -1;
     OriginState originState = OriginState::Hidden;
     git::Id originTarget;
+    int issueNumber = 0;
+    QString author;
   };
 
   struct SectionData {
@@ -126,12 +148,18 @@ private:
   void disconnectRepository();
   void connectRepository();
   void rebuild();
+  void rebuildGitHubIssuesSection();
 
   git::Repository mRepo;
   QHash<QString, git::Submodule::UpdateStatus> mSubmoduleUpdateStatuses;
   QList<SectionData> mSections;
   QList<QMetaObject::Connection> mConnections;
   QTimer mRefreshTimer;
+  bool mGitHubIssuesAvailable = false;
+  LoadState mGitHubIssuesState = LoadState::Unavailable;
+  GitHub::Issues mGitHubIssues;
+  QString mGitHubIssuesError;
+  QString mGitHubIssuesFilter;
 };
 
 #endif

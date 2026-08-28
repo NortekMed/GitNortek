@@ -79,9 +79,67 @@ void RepositoryNavigatorModel::setRepository(const git::Repository &repo) {
   beginResetModel();
   mRepo = repo;
   mSubmoduleUpdateStatuses.clear();
+  mGitHubIssuesAvailable = false;
+  mGitHubIssuesState = LoadState::Unavailable;
+  mGitHubIssues.clear();
+  mGitHubIssuesError.clear();
   rebuild();
   endResetModel();
   connectRepository();
+}
+
+void RepositoryNavigatorModel::setGitHubIssuesAvailable(bool available) {
+  if (mGitHubIssuesAvailable == available)
+    return;
+  beginResetModel();
+  mGitHubIssuesAvailable = available;
+  if (!available) {
+    mGitHubIssues.clear();
+    mGitHubIssuesError.clear();
+    mGitHubIssuesFilter.clear();
+    mGitHubIssuesState = LoadState::Unavailable;
+  }
+  rebuildGitHubIssuesSection();
+  endResetModel();
+}
+
+void RepositoryNavigatorModel::setGitHubIssuesFilter(const QString &filter) {
+  if (mGitHubIssuesFilter == filter)
+    return;
+  beginResetModel();
+  mGitHubIssuesFilter = filter;
+  rebuildGitHubIssuesSection();
+  endResetModel();
+}
+
+void RepositoryNavigatorModel::beginGitHubIssuesLoad(bool refresh) {
+  beginResetModel();
+  if (!refresh)
+    mGitHubIssues.clear();
+  mGitHubIssuesState = refresh ? LoadState::Refreshing : LoadState::Loading;
+  mGitHubIssuesError.clear();
+  rebuildGitHubIssuesSection();
+  endResetModel();
+}
+
+void RepositoryNavigatorModel::setGitHubIssues(const GitHub::Issues &issues) {
+  beginResetModel();
+  mGitHubIssues = issues;
+  mGitHubIssuesError.clear();
+  mGitHubIssuesState = LoadState::Ready;
+  rebuildGitHubIssuesSection();
+  endResetModel();
+}
+
+void RepositoryNavigatorModel::failGitHubIssues(const QString &message,
+                                                bool preserveIssues) {
+  beginResetModel();
+  if (!preserveIssues)
+    mGitHubIssues.clear();
+  mGitHubIssuesError = message;
+  mGitHubIssuesState = preserveIssues ? LoadState::Stale : LoadState::Failed;
+  rebuildGitHubIssuesSection();
+  endResetModel();
 }
 
 void RepositoryNavigatorModel::clear() { setRepository(git::Repository()); }
@@ -161,9 +219,15 @@ QVariant RepositoryNavigatorModel::data(const QModelIndex &index,
       case ItemKindRole:
         return static_cast<int>(ItemKind::Section);
       case CountRole:
+        if (section->section == Section::GitHubIssues)
+          return mGitHubIssues.size();
         return section->rows.size();
       case AvailableRole:
         return section->available;
+      case LoadStateRole:
+        return section->section == Section::GitHubIssues
+                   ? QVariant::fromValue(mGitHubIssuesState)
+                   : QVariant();
       default:
         return QVariant();
     }
@@ -179,7 +243,7 @@ QVariant RepositoryNavigatorModel::data(const QModelIndex &index,
     case ItemKindRole:
       return static_cast<int>(row->kind);
     case AvailableRole:
-      return true;
+      return row->kind != ItemKind::Status;
     case CurrentRole:
       return row->current;
     case AheadRole:
@@ -221,7 +285,17 @@ QVariant RepositoryNavigatorModel::data(const QModelIndex &index,
     case OriginTargetRole:
       return row->originTarget.isValid()
                  ? QVariant::fromValue(row->originTarget)
+                  : QVariant();
+    case LoadStateRole:
+      return section->section == Section::GitHubIssues
+                 ? QVariant::fromValue(mGitHubIssuesState)
                  : QVariant();
+    case IssueNumberRole:
+      return row->kind == ItemKind::GitHubIssue ? QVariant(row->issueNumber)
+                                                : QVariant();
+    case IssueAuthorRole:
+      return row->kind == ItemKind::GitHubIssue ? QVariant(row->author)
+                                                : QVariant();
     default:
       return QVariant();
   }
@@ -233,6 +307,9 @@ Qt::ItemFlags RepositoryNavigatorModel::flags(const QModelIndex &index) const {
     return Qt::NoItemFlags;
   if (isSection(index))
     return section->available ? Qt::ItemIsEnabled : Qt::NoItemFlags;
+  const Row *row = rowData(index);
+  if (row && row->kind == ItemKind::Status)
+    return Qt::ItemIsEnabled;
   return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
@@ -303,11 +380,13 @@ void RepositoryNavigatorModel::rebuild() {
       {Section::PullRequests, tr("Pull Requests"),
        tr("Pull Request listing is not available."), false, {}},
       {Section::GitHubIssues, tr("GitHub Issues"),
-       tr("GitHub Issue listing is not available."), false, {}},
+       tr("No eligible GitHub repository was found."), false, {}},
       {Section::Teams, tr("Teams"), tr("Team integration is not available."),
        false, {}},
       {Section::Tags, tr("Tags"), QString(), true, {}},
       {Section::Submodules, tr("Submodules"), QString(), true, {}}};
+
+  rebuildGitHubIssuesSection();
 
   if (!mRepo.isValid())
     return;
@@ -485,4 +564,71 @@ void RepositoryNavigatorModel::rebuild() {
     submodules.rows.append(row);
   }
   std::sort(submodules.rows.begin(), submodules.rows.end(), lessThan);
+}
+
+void RepositoryNavigatorModel::rebuildGitHubIssuesSection() {
+  if (mSections.size() <= static_cast<int>(Section::GitHubIssues))
+    return;
+
+  SectionData &section = mSections[static_cast<int>(Section::GitHubIssues)];
+  section.available = mGitHubIssuesAvailable;
+  section.rows.clear();
+  if (!mGitHubIssuesAvailable)
+    return;
+
+  Row filter;
+  filter.kind = ItemKind::GitHubIssuesFilter;
+  filter.display = mGitHubIssuesFilter.isEmpty()
+                       ? tr("Issues repository")
+                       : tr("Issues repository: %1").arg(mGitHubIssuesFilter);
+  section.rows.append(filter);
+
+  for (const GitHub::Issue &issue : mGitHubIssues) {
+    Row row;
+    row.kind = ItemKind::GitHubIssue;
+    row.issueNumber = issue.number;
+    row.author = issue.author;
+    row.url = issue.url.toString();
+    row.display = tr("#%1 %2").arg(issue.number).arg(issue.title);
+    QStringList details;
+    if (!issue.author.isEmpty())
+      details.append(tr("Author: %1").arg(issue.author));
+    if (!row.url.isEmpty())
+      details.append(row.url);
+    row.tooltip = details.join('\n');
+    section.rows.append(row);
+  }
+
+  QString status;
+  switch (mGitHubIssuesState) {
+    case LoadState::Loading:
+      status = tr("Loading issues...");
+      break;
+    case LoadState::Refreshing:
+      status = tr("Refreshing issues...");
+      break;
+    case LoadState::Ready:
+      if (mGitHubIssues.isEmpty())
+        status = tr("No open issues.");
+      break;
+    case LoadState::Failed:
+      status = mGitHubIssuesError.isEmpty()
+                   ? tr("Unable to load issues.")
+                   : tr("Unable to load issues: %1").arg(mGitHubIssuesError);
+      break;
+    case LoadState::Stale:
+      status = mGitHubIssuesError.isEmpty()
+                   ? tr("Refresh failed. Showing previously loaded issues.")
+                   : tr("Refresh failed: %1").arg(mGitHubIssuesError);
+      break;
+    case LoadState::Unavailable:
+      break;
+  }
+  if (!status.isEmpty()) {
+    Row row;
+    row.kind = ItemKind::Status;
+    row.display = status;
+    row.tooltip = status;
+    section.rows.append(row);
+  }
 }
