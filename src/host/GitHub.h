@@ -12,6 +12,7 @@
 
 #include "Account.h"
 #include <QJsonDocument>
+#include <QList>
 #include <QMap>
 #include <QUrl>
 #include <functional>
@@ -20,6 +21,24 @@ class GitHub : public Account {
   Q_OBJECT
 
 public:
+  struct RemoteRepository {
+    QString host;
+    QString owner;
+    QString name;
+
+    bool isValid() const;
+  };
+
+  struct Issue {
+    int number = 0;
+    QString title;
+    QString author;
+    QUrl url;
+  };
+
+  using Issues = QList<Issue>;
+  using IssuesCallback = std::function<void(
+      bool success, const Issues &issues, int totalCount, const QString &error)>;
   using AvatarCallback =
       std::function<void(bool success, const QMap<QString, QUrl> &avatars)>;
 
@@ -40,11 +59,15 @@ public:
   void requestCommitAvatars(const QString &owner, const QString &name,
                             const QStringList &oids, int size,
                             const AvatarCallback &callback);
+  virtual void requestOpenIssues(const QString &owner,
+                                 const QString &repository,
+                                 const IssuesCallback &callback);
 
   void authorize() override;
   bool isAuthorizeSupported() override;
 
   static QString defaultUrl();
+  static RemoteRepository parseRemoteUrl(const QString &url);
 
 private:
   using Callback = std::function<void(const QJsonObject &)>;

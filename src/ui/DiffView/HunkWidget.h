@@ -15,7 +15,6 @@
 class DiffView;
 class Header;
 class QToolButton;
-class QPushButton;
 class QButtonGroup;
 class DisclosureButton;
 class Line;
@@ -60,7 +59,6 @@ signals:
 
 private:
   QCheckBox *mCheck;
-  QPushButton *mStageButton;
   DisclosureButton *mButton;
   QToolButton *mClear = nullptr;
   QToolButton *mCurrent = nullptr;

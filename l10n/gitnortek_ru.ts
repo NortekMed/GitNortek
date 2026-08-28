@@ -1508,12 +1508,12 @@ These settings will not be saved permanently</source>
 <context>
     <name>DiffView</name>
     <message>
-        <location filename="../src/ui/DiffView/DiffView.cpp" line="147"/>
+        <location filename="../src/ui/DiffView/DiffView.cpp" line="146"/>
         <source>Add new file</source>
         <translation>Добавить новый файл</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/DiffView.cpp" line="157"/>
+        <location filename="../src/ui/DiffView/DiffView.cpp" line="156"/>
         <source>Or drag files here to copy into the repository</source>
         <translation>Или перетащите файлы сюда, чтобы скопировать их в репозиторий</translation>
     </message>
@@ -1521,156 +1521,121 @@ These settings will not be saved permanently</source>
 <context>
     <name>DoubleTreeWidget</name>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="119"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="95"/>
         <source>Blame</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="121"/>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="1079"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="97"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="999"/>
         <source>Show Blame Editor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="122"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="98"/>
         <source>Diff</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="124"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="100"/>
         <source>Show Diff View</source>
         <translation type="unfinished">Показать просмотрщик диффов</translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="133"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="109"/>
         <source>Close Blame and Diff</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="134"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="110"/>
         <source>Close</source>
         <translation type="unfinished">Закрыть</translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="142"/>
-        <source>Inline complete-file view</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="146"/>
-        <source>Hunk view</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="150"/>
-        <source>Split view</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="162"/>
-        <source>WS</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="164"/>
-        <source>Ignore leading/trailing whitespace in Inline and Split views</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="174"/>
-        <source>Wrap</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="175"/>
-        <source>Word wrap</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="305"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="225"/>
         <source>Mark All Resolved</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="327"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="247"/>
         <source>Mark all files resolved?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="328"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="248"/>
         <source>The Current version will be kept for every conflicted file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="335"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="255"/>
         <source>Some conflicts were not resolved</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="336"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="256"/>
         <source>These files changed or could not be saved:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="341"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="261"/>
         <source>Unresolved only</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="347"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="267"/>
         <source>Previous unresolved file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="353"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="273"/>
         <source>Next unresolved file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="357"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="277"/>
         <source>Show all files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="360"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="280"/>
         <source>Stage All Changes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="748"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="668"/>
         <source>Resolved Files (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="752"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="672"/>
         <source>Conflicted Files (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="766"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="686"/>
         <source>%1 of %2 resolved | %3 blocks remaining</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="771"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="691"/>
         <source>%1 unresolved files | %2 blocks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="967"/>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="1038"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="887"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="958"/>
         <source>Discard unsaved Output?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="968"/>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="1039"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="888"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="959"/>
         <source>The edited conflict Output has not been saved or staged.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="1077"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="997"/>
         <source>Blame is unavailable until this conflict is resolved.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2214,55 +2179,50 @@ Mode %1</source>
 <context>
     <name>FileWidget</name>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="123"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="118"/>
         <source>LFS</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="129"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="142"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="124"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="137"/>
         <source>Unlock</source>
         <translation>Разблокировать</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="130"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="143"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="125"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="138"/>
         <source>Lock</source>
         <translation>Заблокировать</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="147"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="563"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="142"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="537"/>
         <source>Show Object</source>
         <translation>Показать объект</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="156"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="151"/>
         <source>Edit File</source>
         <translation>Редактировать файл</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="162"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="157"/>
         <source>Discard File</source>
         <translation>Удалить файл</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="533"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="513"/>
         <source>Diff not shown because it contains %1 changed lines.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="773"/>
-        <source>Complete-file view is unavailable for files larger than 32 MiB; showing hunks instead.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1060"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="948"/>
         <source>Unselected changes</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1061"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="949"/>
         <source>%n conflict chunk(s) still use the Base output. Saving Output may omit Current and Incoming changes.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
@@ -2271,84 +2231,84 @@ Mode %1</source>
         </translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1068"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="956"/>
         <source>Save Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1070"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="958"/>
         <source>Create and Stage Conflict Chunks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1126"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1014"/>
         <source>Directory</source>
         <translation>Директория</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1127"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1015"/>
         <source>File</source>
         <translation>Файл</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1128"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1016"/>
         <source>Remove %1?</source>
         <translation>Удалить %1?</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1129"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1017"/>
         <source>Discard Changes?</source>
         <translation>Отменить изменения?</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1131"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1019"/>
         <source>Are you sure you want to remove &apos;%1&apos;?</source>
         <translation>Вы уверены, что хотите удалить &apos;%1&apos;?</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1132"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1020"/>
         <source>Are you sure you want to discard all changes in &apos;%1&apos;?</source>
         <translation>Вы уверены, что хотите отменить все изменения в &apos;%1&apos;?</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1137"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1025"/>
         <source>This action cannot be undone.</source>
         <translation>Это дествие не может быть отменено.</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1139"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1027"/>
         <source>Remove %1</source>
         <translation>Удалить %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1140"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1028"/>
         <source>Discard Changes</source>
         <translation>Отменить изменения</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/DiffView.cpp" line="504"/>
+        <location filename="../src/ui/DiffView/DiffView.cpp" line="489"/>
         <source>Discard</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/DiffView.cpp" line="505"/>
+        <location filename="../src/ui/DiffView/DiffView.cpp" line="490"/>
         <source>discard</source>
         <translation>убрать</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="169"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="173"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="164"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="168"/>
         <source>Collapse File</source>
         <translation>Свернуть файл</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="170"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="174"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="165"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="169"/>
         <source>Expand File</source>
         <translation>Развернуть файл</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="562"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="536"/>
         <source>Show Pointer</source>
         <translation>Показаить указатель</translation>
     </message>
@@ -2550,6 +2510,21 @@ Mode %1</source>
         <source>Successfully authenticated with GitHub!</source>
         <translation type="vanished">Успешно аутентифицирован на GitHubе!</translation>
     </message>
+    <message>
+        <location filename="../src/host/GitHub.cpp" line="317"/>
+        <source>Invalid repository owner or name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/host/GitHub.cpp" line="333"/>
+        <source>Invalid GitHub API URL.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/host/GitHub.cpp" line="356"/>
+        <source>GitHub authentication requires HTTPS.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>GitLab</name>
@@ -2595,7 +2570,7 @@ Mode %1</source>
 <context>
     <name>HunkWidget</name>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="194"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="189"/>
         <source>Save</source>
         <translation>Сохранить</translation>
     </message>
@@ -2612,27 +2587,27 @@ Mode %1</source>
         <translation type="vanished">Использовать &quot;Их&quot;</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="100"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="97"/>
         <source>Edit Hunk</source>
         <translation>Редактировать hunk</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="106"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="103"/>
         <source>Discard Hunk</source>
         <translation>Отклонить hunk</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="477"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="465"/>
         <source>Discard selected lines?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="481"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="469"/>
         <source>Are you sure you want to discard the changes in hunk from line %1 to %2 in &apos;%3&apos;?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="493"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="481"/>
         <source>Discard selected lines</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2641,7 +2616,7 @@ Mode %1</source>
         <translation type="vanished">Отклонить hunk?</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="480"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="468"/>
         <source>Are you sure you want to remove &apos;%1&apos;?</source>
         <translation>Вы уверены, что хотите удалить &apos;%1&apos;?</translation>
     </message>
@@ -2650,72 +2625,62 @@ Mode %1</source>
         <translation type="vanished">Вы уверены, что хотите отклонить hunk в строке %1 в &apos;%2&apos;?</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="490"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="478"/>
         <source>This action cannot be undone.</source>
         <translation>Это дествие не может быть отменено.</translation>
     </message>
     <message>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="110"/>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="113"/>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="116"/>
         <source>Collapse Hunk</source>
         <translation>Свернуть hunk</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="181"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="176"/>
         <source>Open in External Merge Tool</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="71"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="206"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="68"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="201"/>
         <source>Clear</source>
         <translation type="unfinished">Очистить</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="78"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="291"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="75"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="280"/>
         <source>Current</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="85"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="292"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="82"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="281"/>
         <source>Incoming</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="90"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="87"/>
         <source>Both</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="111"/>
         <location filename="../src/ui/DiffView/HunkWidget.cpp" line="114"/>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="117"/>
         <source>Expand Hunk</source>
         <translation>Развернуть hunk</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="171"/>
-        <source>Unstage Hunk</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="172"/>
-        <source>Stage Hunk</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="308"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="296"/>
         <source>Esc</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="335"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="323"/>
         <source>Fix</source>
         <translation>Поправить</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="388"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="376"/>
         <source>Edit</source>
         <translation>Редактировать</translation>
     </message>
@@ -3847,32 +3812,32 @@ Examples
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="44"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="42"/>
         <source>Expand all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="45"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="43"/>
         <source>Collapse all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="46"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="44"/>
         <source>Staged Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="47"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="45"/>
         <source>Unstaged Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="48"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="46"/>
         <source>Committed Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="49"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="47"/>
         <source>Workdir Files</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4075,18 +4040,44 @@ Examples
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="39"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="48"/>
         <source>%1↑</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="43"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="52"/>
         <source>%1↓</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/app/GitNortek.cpp" line="25"/>
         <source>Your global Git configuration is invalid. GitNortek won&apos;t run properly until this is fixed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/host/GitHub.cpp" line="390"/>
+        <source>GitHub returned HTTP status %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/host/GitHub.cpp" line="401"/>
+        <source>Invalid GitHub JSON response: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/host/GitHub.cpp" line="410"/>
+        <source>Invalid GitHub issues response.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/host/GitHub.cpp" line="418"/>
+        <source>Invalid GitHub issue count.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/host/GitHub.cpp" line="427"/>
+        <location filename="../src/host/GitHub.cpp" line="449"/>
+        <source>Invalid GitHub issue entry.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5950,79 +5941,99 @@ The submodule will be removed from this project. Its working files and cached lo
 <context>
     <name>RepositoryNavigator</name>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="226"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="235"/>
         <source>%1↑</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="230"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="239"/>
         <source>%1↓</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="273"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="284"/>
         <source>Repository navigation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="277"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="288"/>
         <source>Repository references</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="397"/>
-        <source>Open</source>
-        <translation type="unfinished">Открыть</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="403"/>
-        <source>Commit Changes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="410"/>
-        <source>Check for Updates</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="430"/>
-        <source>Checkout origin/%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="437"/>
-        <source>Update</source>
-        <translation type="unfinished">Обновить</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="442"/>
-        <source>Initialize and Update</source>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="300"/>
+        <source>Issues repository</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/RepositoryNavigator.cpp" line="449"/>
+        <source>Open in Browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="454"/>
+        <source>Refresh Issues</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="476"/>
+        <source>Open</source>
+        <translation type="unfinished">Открыть</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="482"/>
+        <source>Commit Changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="489"/>
+        <source>Check for Updates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="509"/>
+        <source>Checkout origin/%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="516"/>
+        <source>Update</source>
+        <translation type="unfinished">Обновить</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="521"/>
+        <source>Initialize and Update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="528"/>
         <source>Modify...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="453"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="532"/>
         <source>Delete Submodule...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="463"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="542"/>
         <source>Apply Stash</source>
         <translation type="unfinished">Применить схрон</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="468"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="547"/>
         <source>Pop Stash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigator.cpp" line="473"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="552"/>
         <source>Drop Stash</source>
         <translation type="unfinished">Выбросить содержимое схрона</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="724"/>
+        <source>%1 - %2/%3</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6063,178 +6074,233 @@ The submodule will be removed from this project. Its working files and cached lo
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="298"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="375"/>
         <source>Local</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="299"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="376"/>
         <source>Remote</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="300"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="377"/>
         <source>Stashes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="301"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="378"/>
         <source>Cloud Patches</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="302"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="379"/>
         <source>Cloud Patches are not available.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="303"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="380"/>
         <source>Pull Requests</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="304"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="381"/>
         <source>Pull Request listing is not available.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="305"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="382"/>
         <source>GitHub Issues</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="306"/>
-        <source>GitHub Issue listing is not available.</source>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="383"/>
+        <source>No eligible GitHub repository was found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="307"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="384"/>
         <source>Teams</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="307"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="384"/>
         <source>Team integration is not available.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="309"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="386"/>
         <source>Tags</source>
         <translation type="unfinished">Метки</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="310"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="387"/>
         <source>Submodules</source>
         <translation type="unfinished">Подмодули</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="351"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="430"/>
         <source>stash@{%1}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="376"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="455"/>
         <source>Path: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="391"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="470"/>
         <source>Local checkout: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="396"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="475"/>
         <source>the commit recorded by the parent repository</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="398"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="477"/>
         <source>Pin %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="404"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="483"/>
         <source>Pin: The parent repository does not record a submodule commit.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="414"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="493"/>
         <source>the latest fetched commit on origin/%1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="416"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="495"/>
         <source>Origin %1 (%2): %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="424"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="503"/>
         <source>Local checkout: unavailable because the submodule repository could not be read.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="428"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="507"/>
         <source>Local checkout: unavailable because the submodule is not initialized.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="434"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="513"/>
         <source>Origin: Not shown because no remote branch is configured. Configure a branch in the submodule settings to enable this comparison.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="439"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="518"/>
         <source>Origin %1: Waiting for a submodule update check.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="446"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="525"/>
         <source>Origin %1: The comparison failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="447"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="526"/>
         <source>Origin %1: The comparison failed - %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="453"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="532"/>
         <source>↑ means local-only commits; ↓ means commits missing locally.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="458"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="537"/>
         <source>Indicators:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="460"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="539"/>
         <source>%1 Left icon: Pin summary.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="463"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="542"/>
         <source>%1 matches; %2 differs; %3 unavailable; %4 uninitialized.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="469"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="548"/>
         <source>%1 = Pin delta; %2 = Origin delta.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="473"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="552"/>
         <source>An empty delta means no difference when comparison is available.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="475"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="554"/>
         <source>%1 synchronized; %2 difference; %3 unavailable, pending, or not configured; %4 failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="480"/>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="559"/>
         <source>%1 local-only; %2 missing locally.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="582"/>
+        <source>Issues repository</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="583"/>
+        <source>Issues repository: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="592"/>
+        <source>#%1 %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="595"/>
+        <source>Author: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="605"/>
+        <source>Loading issues...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="608"/>
+        <source>Refreshing issues...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="612"/>
+        <source>No open issues.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="616"/>
+        <source>Unable to load issues.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="617"/>
+        <source>Unable to load issues: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="621"/>
+        <source>Refresh failed. Showing previously loaded issues.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigatorModel.cpp" line="622"/>
+        <source>Refresh failed: %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -6282,32 +6348,32 @@ The submodule will be removed from this project. Its working files and cached lo
 <context>
     <name>Settings</name>
     <message>
-        <location filename="../src/conf/Settings.cpp" line="173"/>
+        <location filename="../src/conf/Settings.cpp" line="171"/>
         <source>Prompt to edit stash message before stashing</source>
         <translation>Запрашивать редактировани сообщения коммита перед действиями со схроном</translation>
     </message>
     <message>
-        <location filename="../src/conf/Settings.cpp" line="176"/>
+        <location filename="../src/conf/Settings.cpp" line="174"/>
         <source>Prompt to edit commit message before merging</source>
         <translation>Запрашивать редактировани сообщения коммита перед слиянием</translation>
     </message>
     <message>
-        <location filename="../src/conf/Settings.cpp" line="179"/>
+        <location filename="../src/conf/Settings.cpp" line="177"/>
         <source>Prompt to edit commit message before reverting</source>
         <translation>Запрашивать редактировани сообщения коммита перед откатом</translation>
     </message>
     <message>
-        <location filename="../src/conf/Settings.cpp" line="182"/>
+        <location filename="../src/conf/Settings.cpp" line="180"/>
         <source>Prompt to edit commit message before cherry-picking</source>
         <translation>Запрашивать редактировани сообщения коммита перед cherry-picking</translation>
     </message>
     <message>
-        <location filename="../src/conf/Settings.cpp" line="185"/>
+        <location filename="../src/conf/Settings.cpp" line="183"/>
         <source>Prompt to stage directories</source>
         <translation>Подтверждать добавление директорий</translation>
     </message>
     <message>
-        <location filename="../src/conf/Settings.cpp" line="188"/>
+        <location filename="../src/conf/Settings.cpp" line="186"/>
         <source>Prompt to stage large files</source>
         <translation>Подтверждать добавление больших файлов</translation>
     </message>
@@ -7335,40 +7401,30 @@ x (number) determines the number of maximum files shown</source>
 <context>
     <name>_FileWidget::Header</name>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="299"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="325"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="288"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="314"/>
         <source>Incoming: Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="296"/>
         <location filename="../src/ui/DiffView/FileWidget.cpp" line="307"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="318"/>
         <source>Current: Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="333"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="322"/>
         <source>both: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="337"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="326"/>
         <source>ours: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="341"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="330"/>
         <source>theirs: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="427"/>
-        <source>Unstage File</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="428"/>
-        <source>Stage File</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -484,13 +484,11 @@ void TextEditor::ContextMenu(Scintilla::Point pt) {
               .toStdString()
               .data(),
           unstageSelected, staged > 0);
-      if (mDiscardSelectedEnabled) {
-        AddToPopUp(
-            (QString("Discard selected\t") + discard.currentKeys().toString())
-                .toStdString()
-                .data(),
-            discardSelected, diffLines > 0);
-      }
+      AddToPopUp(
+          (QString("Discard selected\t") + discard.currentKeys().toString())
+              .toStdString()
+              .data(),
+          discardSelected, diffLines > 0);
     }
     AddToPopUp("");
     AddToPopUp("Select All", idcmdSelectAll);
@@ -654,8 +652,7 @@ void TextEditor::keyPressEvent(QKeyEvent *ke) {
     } else if (ke->key() == Qt::Key_U && staged > 0) {
       Command(unstageSelected);
       return;
-    } else if (ke->key() == Qt::Key_R && mDiscardSelectedEnabled &&
-               diffLines > 0) {
+    } else if (ke->key() == Qt::Key_R && diffLines > 0) {
       Command(discardSelected);
       return;
     }

@@ -6,7 +6,6 @@
 #include "LineStats.h"
 #include "FileLabel.h"
 #include "ConflictResolverWidget.h"
-#include "CompleteFileDiffWidget.h"
 #include "FileConflictResolverWidget.h"
 #include "HunkWidget.h"
 #include "Images.h"
@@ -34,12 +33,10 @@
 #include <QPointer>
 #include <QPushButton>
 #include <QSaveFile>
-#include <QStackedWidget>
 
 namespace {
 bool disclosure = false;
 constexpr int kMaxDisplayedChangedLines = 5000;
-constexpr qint64 kMaxCompleteFileBytes = 32 * 1024 * 1024;
 
 bool resolveTextOutput(const git::Patch &patch,
                        const git::Index::Conflict &conflict,
@@ -88,11 +85,8 @@ _FileWidget::Header::Header(const git::Diff &diff, const git::Patch &patch,
 
   QString name = patch.name();
   mCheck = new QCheckBox(this);
-  mCheck->setVisible(false);
+  mCheck->setVisible(diff.isStatusDiff() && !patch.isConflicted());
   mCheck->setTristate(true);
-  mStageButton = new QPushButton(this);
-  mStageButton->setObjectName("StageFileButton");
-  mStageButton->setVisible(diff.isStatusDiff() && !patch.isConflicted());
 
   mStatusBadge = new Badge({}, this);
 
@@ -110,11 +104,12 @@ _FileWidget::Header::Header(const git::Diff &diff, const git::Patch &patch,
 
   QHBoxLayout *layout = new QHBoxLayout(this);
   layout->setContentsMargins(4, 4, 4, 4);
+  layout->addWidget(mCheck);
+  layout->addSpacing(4);
   layout->addWidget(mStatusBadge);
   layout->addWidget(mStats);
   layout->addWidget(mFileLabel, 1);
   layout->addStretch();
-  buttons->addWidget(mStageButton);
   layout->addLayout(buttons);
 
   // Add LFS buttons.
@@ -247,12 +242,6 @@ _FileWidget::Header::Header(const git::Diff &diff, const git::Patch &patch,
   if (!diff.isStatusDiff())
     return;
 
-  connect(mStageButton, &QPushButton::clicked, this, [this] {
-    emit stageStateChanged(mCheck->checkState() == Qt::Checked
-                               ? Qt::Unchecked
-                               : Qt::Checked);
-  });
-
   // Respond to check changes.
   connect(mCheck, &QCheckBox::clicked, [this](bool staged) {
     if (staged)
@@ -378,7 +367,6 @@ void _FileWidget::Header::setStageState(git::Index::StagedState state) {
     mCheck->setCheckState(Qt::Unchecked);
   else
     mCheck->setCheckState(Qt::PartiallyChecked);
-  updateStageButton();
 }
 
 void _FileWidget::Header::mouseDoubleClickEvent(QMouseEvent *event) {
@@ -418,14 +406,6 @@ void _FileWidget::Header::updateCheckState() {
 
   mCheck->setCheckState(state);
   mCheck->setEnabled(!disabled);
-  mStageButton->setEnabled(!disabled);
-  updateStageButton();
-}
-
-void _FileWidget::Header::updateStageButton() {
-  mStageButton->setText(mCheck->checkState() == Qt::Checked
-                            ? tr("Unstage File")
-                            : tr("Stage File"));
 }
 
 // ###############################################################################
@@ -539,13 +519,8 @@ FileWidget::FileWidget(DiffView *view, const git::Diff &diff,
     return;
   }
 
-  mPresentation = new QStackedWidget(this);
-  mHunkPage = new QWidget(mPresentation);
-  mHunkLayout = new QVBoxLayout(mHunkPage);
-  mHunkLayout->setContentsMargins(0, 0, 0, 0);
-  mHunkLayout->setSpacing(0);
-  mPresentation->addWidget(mHunkPage);
-  layout->addWidget(mPresentation);
+  mHunkLayout = new QVBoxLayout();
+  layout->addLayout(mHunkLayout);
   layout->addSpacerItem(new QSpacerItem(
       0, 0, QSizePolicy::Expanding,
       QSizePolicy::Expanding)); // so the hunkwidget is always starting from top
@@ -553,7 +528,6 @@ FileWidget::FileWidget(DiffView *view, const git::Diff &diff,
                                 // filewidget
 
   updatePatch(patch, staged, name, path, submodule);
-  rebuildPresentation();
 
   // LFS
   if (QToolButton *lfsButton = mHeader->lfsButton()) {
@@ -598,8 +572,6 @@ void FileWidget::updateHunks(git::Patch stagedPatch) {
   mStaged = stagedPatch;
   for (auto hunk : mHunks)
     hunk->load(stagedPatch, true);
-  if (mCompleteDiff)
-    mCompleteDiff->reload();
 }
 
 bool FileWidget::isEmpty() {
@@ -667,7 +639,6 @@ void FileWidget::updatePatch(const git::Patch &patch, const git::Patch &staged,
   bool lfs = patch.isLfsPointer();
 
   // Remove all hunks.
-  mCompleteDiffMessage = nullptr;
   QLayoutItem *child;
   while ((child = mHunkLayout->takeAt(0)) != 0) {
     if (QWidget *widget = child->widget())
@@ -730,88 +701,6 @@ bool FileWidget::hasUnsavedConflictOutput() const {
 }
 
 QList<HunkWidget *> FileWidget::hunks() const { return mHunks; }
-
-QList<TextEditor *> FileWidget::editors() const {
-  if (mCompleteDiff && mPresentation->currentWidget() == mCompleteDiff)
-    return mCompleteDiff->editors();
-
-  QList<TextEditor *> result;
-  for (HunkWidget *hunk : mHunks)
-    result.append(hunk->editor());
-  return result;
-}
-
-bool FileWidget::containsEditor(TextEditor *editor) const {
-  return mCompleteDiff && mCompleteDiff->containsEditor(editor);
-}
-
-void FileWidget::rebuildPresentation() {
-  if (!mPresentation || mPatch.isConflicted() || mPatch.isBinary() ||
-      mPatch.isLfsPointer() || mHunks.isEmpty())
-    return;
-
-  const Settings::DiffMode mode = Settings::instance()->diffMode();
-  if (mCompleteDiffMessage)
-    mCompleteDiffMessage->hide();
-  if (mode == Settings::DiffMode::Hunk) {
-    mPresentation->setCurrentWidget(mHunkPage);
-    return;
-  }
-
-  qint64 completeFileBytes = 0;
-  if (git::Blob blob = mPatch.blob(git::Diff::OldFile); blob.isValid())
-    completeFileBytes += blob.size();
-  if (git::Blob blob = mPatch.blob(git::Diff::NewFile); blob.isValid())
-    completeFileBytes += blob.size();
-  else if (mDiff.isStatusDiff())
-    completeFileBytes += QFileInfo(
-                             mPatch.repo().workdir().filePath(mPatch.name()))
-                             .size();
-  if (completeFileBytes > kMaxCompleteFileBytes) {
-    if (!mCompleteDiffMessage) {
-      mCompleteDiffMessage = new QLabel(
-          tr("Complete-file view is unavailable for files larger than 32 MiB; "
-             "showing hunks instead."),
-          mHunkPage);
-      mCompleteDiffMessage->setContentsMargins(8, 8, 8, 8);
-      mCompleteDiffMessage->setWordWrap(true);
-      mHunkLayout->insertWidget(0, mCompleteDiffMessage);
-    }
-    mCompleteDiffMessage->show();
-    mPresentation->setCurrentWidget(mHunkPage);
-    return;
-  }
-
-  if (!mDiff.isStatusDiff())
-    fetchAll(-1);
-
-  if (mCompleteDiff) {
-    mPresentation->removeWidget(mCompleteDiff);
-    mCompleteDiff->deleteLater();
-  }
-  mCompleteDiff =
-      new CompleteFileDiffWidget(mDiff, mPatch, mHunks, mode, mPresentation);
-  connect(mCompleteDiff, &CompleteFileDiffWidget::stageLinesRequested, this,
-          &FileWidget::stagePresentationLines);
-  mPresentation->addWidget(mCompleteDiff);
-  mPresentation->setCurrentWidget(mCompleteDiff);
-}
-
-void FileWidget::stagePresentationLines(
-    const QList<QPair<int, int>> &targets, bool staged) {
-  for (const QPair<int, int> &target : targets) {
-    if (target.first < 0 || target.first >= mHunks.size())
-      continue;
-    HunkWidget *hunk = mHunks.at(target.first);
-    hunk->editor();
-    if (staged)
-      hunk->stageSelected(target.second, target.second + 1, false);
-    else
-      hunk->unstageSelected(target.second, target.second + 1, false);
-  }
-  if (!targets.isEmpty())
-    stageHunks(nullptr, git::Index::PartiallyStaged);
-}
 
 QWidget *FileWidget::addImage(DisclosureButton *button, const git::Patch patch,
                               bool lfs) {
@@ -962,8 +851,7 @@ void FileWidget::discardHunk() {
 }
 
 bool FileWidget::canFetchMore() const {
-  return !mDiffSuppressed && !mPatch.isConflicted() &&
-         mHunks.count() < mPatch.count();
+  return !mDiffSuppressed && mHunks.count() < mPatch.count();
 }
 
 /*!

@@ -4,8 +4,6 @@
 
 #include "ui/DiffView/HunkWidget.h"
 #include "ui/DiffView/FileWidget.h"
-#include "ui/DiffView/CompleteFileDiffWidget.h"
-#include "conf/Settings.h"
 
 #include "ui/MainWindow.h"
 #include "ui/DiffView/DiffView.h"
@@ -16,8 +14,6 @@
 #include "git/Diff.h"
 #include "git/Commit.h"
 #include "git/Tree.h"
-#include <QFile>
-#include <QPushButton>
 
 #define INIT_REPO(repoPath, /* bool */ useTempDir)                             \
   QString path = Test::extractRepository(repoPath, useTempDir);                \
@@ -132,7 +128,6 @@ private slots:
 
   void windowsCRLFMultiHunk();
   void sameContentRemoveLine();
-  void completeFilePresentationModes();
   void sameContentAddLine();
 
 #endif // EXECUTE_ONLY_LAST_TEST == 0
@@ -955,87 +950,6 @@ void TestEditorLineInfo::sameContentRemoveLine() {
   checkEditorMarkers(hw.editor(), QVector<int>({3, 4, 5, 12, 13, 21, 22}),
                      QVector<int>(), QVector<int>({11, 19, 20}),
                      QVector<int>({10}));
-}
-
-void TestEditorLineInfo::completeFilePresentationModes() {
-  INIT_REPO("16_LinestagingLineContent.zip", true)
-  QVERIFY(diff.count() > 0);
-  git::Patch patch = diff.patch(0);
-  git::Patch stagedPatch = stagedDiff.patch(0);
-  const QString name = patch.name();
-  const QString path_ = mRepo.workdir().filePath(name);
-
-  Settings::instance()->setDiffMode(Settings::DiffMode::Inline);
-  FileWidget inlineFile(&diffView, diff, patch, stagedPatch, QModelIndex(), name,
-                        path_, false, repoView);
-  auto *inlineView =
-      inlineFile.findChild<CompleteFileDiffWidget *>("InlineFileDiff");
-  QVERIFY(inlineView);
-  QCOMPARE(inlineFile.editors().size(), 1);
-  QVERIFY(inlineFile.findChild<QPushButton *>("StageFileButton"));
-  QVERIFY(inlineFile.findChild<QPushButton *>("StageHunkButton"));
-  TextEditor *inlineEditor = inlineFile.editors().first();
-  QFile completeFile(path_);
-  QVERIFY(completeFile.open(QFile::ReadOnly));
-  QString completeText = mRepo.decode(completeFile.readAll());
-  completeText.replace("\r\n", "\n");
-  if (completeText.endsWith('\n'))
-    completeText.chop(1);
-  const int completeLineCount =
-      completeText.isEmpty() ? 1 : completeText.count('\n') + 1;
-  QVERIFY(inlineEditor->lineCount() >= completeLineCount);
-
-  auto hasWordHighlight = [](TextEditor *editor) {
-    for (int position = 0; position < editor->length(); ++position) {
-      if (editor->indicatorValueAt(TextEditor::WordDeletion, position) ||
-          editor->indicatorValueAt(TextEditor::WordAddition, position))
-        return true;
-    }
-    return false;
-  };
-  bool sourceHasWordHighlight = false;
-  for (HunkWidget *hunk : inlineFile.hunks())
-    sourceHasWordHighlight =
-        sourceHasWordHighlight || hasWordHighlight(hunk->editor());
-  if (sourceHasWordHighlight)
-    QVERIFY(hasWordHighlight(inlineEditor));
-
-  disconnect(inlineView, nullptr, &inlineFile, nullptr);
-  QList<CompleteFileDiffWidget::Target> selectedTargets;
-  connect(inlineView, &CompleteFileDiffWidget::stageLinesRequested, inlineView,
-          [&selectedTargets](const QList<CompleteFileDiffWidget::Target> &targets,
-                             bool) { selectedTargets = targets; });
-  int changedLine = -1;
-  for (int i = 0; i < inlineEditor->lineCount(); ++i) {
-    const int markers = inlineEditor->markers(i);
-    if (BITSET(markers, TextEditor::Deletion) ||
-        BITSET(markers, TextEditor::Addition)) {
-      changedLine = i;
-      break;
-    }
-  }
-  QVERIFY(changedLine >= 0);
-  inlineEditor->stageSelectedSignal(changedLine, changedLine + 1);
-  QCOMPARE(selectedTargets.size(), 1);
-  QVERIFY(selectedTargets.first().first >= 0);
-  QVERIFY(selectedTargets.first().second >= 0);
-
-  Settings::instance()->setDiffMode(Settings::DiffMode::Split);
-  FileWidget splitFile(&diffView, diff, patch, stagedPatch, QModelIndex(), name,
-                       path_, false, repoView);
-  auto *splitView =
-      splitFile.findChild<CompleteFileDiffWidget *>("SplitFileDiff");
-  QVERIFY(splitView);
-  QCOMPARE(splitFile.editors().size(), 2);
-  QCOMPARE(splitFile.editors().at(0)->lineCount(),
-           splitFile.editors().at(1)->lineCount());
-
-  Settings::instance()->setTextEditorWrapLines(true);
-  QCOMPARE(splitFile.editors().first()->wrapMode(), SC_WRAP_WORD);
-  Settings::instance()->setTextEditorWrapLines(false);
-  QCOMPARE(splitFile.editors().first()->wrapMode(), SC_WRAP_NONE);
-
-  Settings::instance()->setDiffMode(Settings::DiffMode::Inline);
 }
 
 void TestEditorLineInfo::sameContentAddLine() {

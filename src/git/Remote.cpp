@@ -520,6 +520,8 @@ QString Remote::name() const {
 }
 
 void Remote::setName(const QString &name) {
+  if (!isValid() || name == this->name())
+    return;
   git_strarray problems;
   const char *current = git_remote_name(d.data());
   git_repository *repo = git_remote_owner(d.data());
@@ -528,13 +530,21 @@ void Remote::setName(const QString &name) {
 
   // FIXME: Report problems?
   git_strarray_dispose(&problems);
+  Repository repository(repo);
+  emit repository.notifier()->remoteUpdated(repository.lookupRemote(name));
 }
 
 QString Remote::url() const { return git_remote_url(d.data()); }
 
 void Remote::setUrl(const QString &url) {
+  if (!isValid() || url == this->url())
+    return;
   git_repository *repo = git_remote_owner(d.data());
-  git_remote_set_url(repo, git_remote_name(d.data()), url.toUtf8());
+  QString name = git_remote_name(d.data());
+  if (!git_remote_set_url(repo, name.toUtf8(), url.toUtf8())) {
+    Repository repository(repo);
+    emit repository.notifier()->remoteUpdated(repository.lookupRemote(name));
+  }
 }
 
 Result Remote::fetch(Callbacks *callbacks, bool tags, bool prune) {

@@ -99,9 +99,6 @@ public:
    * \param statusDiff See \variable mStatusDiff for more information
    */
   void setStatusDiff(bool statusDiff);
-  void setDiscardSelectedEnabled(bool enabled) {
-    mDiscardSelectedEnabled = enabled;
-  }
 
   void clearHighlights();
   int highlightAll(const QString &text);
@@ -178,7 +175,6 @@ private:
    * diff.
    */
   bool mStatusDiff{false};
-  bool mDiscardSelectedEnabled{true};
 
   QColor mOursColor;
   QColor mTheirsColor;

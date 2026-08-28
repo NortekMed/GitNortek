@@ -21,7 +21,6 @@ public:
   Blob(const Object &rhs);
 
   bool isBinary() const;
-  qint64 size() const;
   QByteArray content() const;
 
 private:

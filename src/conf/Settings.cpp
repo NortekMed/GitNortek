@@ -27,9 +27,7 @@
 namespace {
 
 const QString kWrapLines("diff/lines/wrap");
-const QString kDiffModeKey("diff/mode");
 const QString kIgnoreWsKey("diff/whitespace/ignore");
-const QString kIgnoreEdgeWsKey("diff/whitespace/ignoreEdge");
 const QString kLastPathKey("lastpath");
 const QString kTranslation("translation");
 const QString kTranslationLanguage("language");
@@ -205,31 +203,10 @@ void Settings::setTextEditorWrapLines(bool wrap) {
   setValue(kWrapLines, wrap, true);
 }
 
-Settings::DiffMode Settings::diffMode() {
-  const int mode =
-      value(kDiffModeKey, static_cast<int>(DiffMode::Inline)).toInt();
-  if (mode < static_cast<int>(DiffMode::Inline) ||
-      mode > static_cast<int>(DiffMode::Split))
-    return DiffMode::Inline;
-  return static_cast<DiffMode>(mode);
-}
-
-void Settings::setDiffMode(DiffMode mode) {
-  setValue(kDiffModeKey, static_cast<int>(mode), true);
-}
-
 bool Settings::isWhitespaceIgnored() { return value(kIgnoreWsKey).toBool(); }
 
 void Settings::setWhitespaceIgnored(bool ignored) {
   setValue(kIgnoreWsKey, ignored, true);
-}
-
-bool Settings::isEdgeWhitespaceIgnored() {
-  return value(kIgnoreEdgeWsKey, false).toBool();
-}
-
-void Settings::setEdgeWhitespaceIgnored(bool ignored) {
-  setValue(kIgnoreEdgeWsKey, ignored, true);
 }
 
 QString Settings::lastPath() { return value(kLastPathKey).toString(); }

@@ -12,8 +12,6 @@
 #include "git/Patch.h"
 
 class QCheckBox;
-class QLabel;
-class QPushButton;
 class QToolButton;
 class QVBoxLayout;
 
@@ -26,8 +24,6 @@ class FileLabel;
 class DiffView;
 class ConflictResolverWidget;
 class FileConflictResolverWidget;
-class CompleteFileDiffWidget;
-class QStackedWidget;
 
 namespace _FileWidget {
 class Header : public QFrame {
@@ -59,14 +55,12 @@ protected:
 
 private:
   void updateCheckState();
-  void updateStageButton();
 
   git::Diff mDiff;
   git::Patch mPatch;
   bool mSubmodule;
 
   QCheckBox *mCheck{nullptr};
-  QPushButton *mStageButton{nullptr};
   QToolButton *mLfsButton = nullptr;
   EditButton *mEdit{nullptr};
   DiscardButton *mDiscardButton{nullptr};
@@ -112,8 +106,6 @@ public:
   static QStringList resolveAllConflicts(const git::Diff &diff);
 
   QList<HunkWidget *> hunks() const;
-  QList<TextEditor *> editors() const;
-  bool containsEditor(TextEditor *editor) const;
 
   QWidget *addImage(DisclosureButton *button, const git::Patch patch,
                     bool lfs = false);
@@ -153,9 +145,6 @@ private:
   void discard();
   void markResolved();
   void updateMarkResolvedState();
-  void rebuildPresentation();
-  void stagePresentationLines(const QList<QPair<int, int>> &targets,
-                              bool staged);
 
   DiffView *mView{nullptr};
 
@@ -170,10 +159,6 @@ private:
   ConflictResolverWidget *mResolver{nullptr};
   FileConflictResolverWidget *mFileResolver{nullptr};
   QVBoxLayout *mHunkLayout{nullptr};
-  QWidget *mHunkPage{nullptr};
-  QStackedWidget *mPresentation{nullptr};
-  CompleteFileDiffWidget *mCompleteDiff{nullptr};
-  QLabel *mCompleteDiffMessage{nullptr};
   bool mDiffSuppressed{false};
   bool mSuppressUpdate{false};
   bool mSupressStaging{false};
