@@ -47,7 +47,7 @@ Bug Fix and Feature release
 * Display consistent eight-character commit IDs in the interface and versions without Git's `g` prefix
 * Preserve configured Compact Mode column widths when the commit graph expands
 * Connect dotted stash ancestry from the side of its base commit node
-* Keep the operation log open until manually collapsed and leave its toggle bar visible
+* Start the operation log collapsed with its toggle bar visible and open it automatically for new output
 * Avoid repeating destination commit IDs in generated submodule update messages
 * Report only genuinely unavailable submodules in pre-push warnings with actionable error details
 * Show the parent repository in tabs opened for submodules

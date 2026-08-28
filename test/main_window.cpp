@@ -137,14 +137,7 @@ void TestMainWindow::toggleLogPanel() {
   QVERIFY(panel);
   QVERIFY(header);
   QVERIFY(toggle);
-  QVERIFY(view->isLogVisible());
-  QCOMPARE(toggle->arrowType(), Qt::DownArrow);
-
-  const int expandedHeight = panel->height();
-  QVERIFY(expandedHeight > header->height());
-  toggle->click();
-
-  QTRY_VERIFY(!view->isLogVisible());
+  QVERIFY(!view->isLogVisible());
   QTRY_COMPARE(panel->height(), header->height());
   QVERIFY(header->isVisible());
   QCOMPARE(toggle->arrowType(), Qt::UpArrow);
@@ -152,7 +145,18 @@ void TestMainWindow::toggleLogPanel() {
   toggle->click();
 
   QTRY_VERIFY(view->isLogVisible());
-  QTRY_COMPARE(panel->height(), expandedHeight);
+  QTRY_VERIFY(panel->height() > header->height());
+  QCOMPARE(toggle->arrowType(), Qt::DownArrow);
+
+  toggle->click();
+
+  QTRY_VERIFY(!view->isLogVisible());
+  QTRY_COMPARE(panel->height(), header->height());
+
+  view->addLogEntry("output", "operation");
+
+  QTRY_VERIFY(view->isLogVisible());
+  QTRY_VERIFY(panel->height() > header->height());
   QCOMPARE(toggle->arrowType(), Qt::DownArrow);
 }
 

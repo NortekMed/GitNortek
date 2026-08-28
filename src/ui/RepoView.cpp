@@ -550,10 +550,10 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
   setCollapsible(0, false);
   setCollapsible(1, false);
   setStretchFactor(0, 1);
-  mIsLogVisible = true;
+  mIsLogVisible = false;
   mLogContentHeight = mLogView->sizeHint().height();
   updateLogToggle();
-  setSizes({1, mLogHeader->height() + mLogContentHeight});
+  setSizes({1, mLogHeader->height()});
 
   connect(this, &QSplitter::splitterMoved, this, [this] {
     int contentHeight = sizes().last() - mLogHeader->height();
