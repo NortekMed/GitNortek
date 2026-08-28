@@ -704,67 +704,72 @@
     </message>
     <message>
         <location filename="../src/ui/CommitEditor.cpp" line="491"/>
-        <location filename="../src/ui/CommitEditor.cpp" line="818"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="867"/>
         <source>Commit</source>
         <translation>提交</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="495"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="496"/>
         <source>Abort rebasing</source>
         <translation>中止变基操作（rebasing）</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="500"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="501"/>
         <source>Continue rebasing</source>
         <translation>继续变基操作（rebasing）</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="505"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="506"/>
         <source>Abort Merge</source>
         <translation>中止合并（Merge）</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="583"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="609"/>
         <source>%1</source>
         <translation>%1</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="585"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="611"/>
         <source>%1 and %2</source>
         <translation>%1 和 %2</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="587"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="613"/>
         <source>%1, %2, and %3</source>
         <translation>%1, %2, 和 %3</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="694"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="720"/>
         <source>Merge</source>
         <translation>合并</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="704"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="730"/>
         <source>Revert</source>
         <translation>还原</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="710"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="736"/>
         <source>Cherry-pick</source>
         <translation>拣选操作</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="716"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="742"/>
         <source>Rebase</source>
         <translation>变基（Rebase）</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="724"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="750"/>
         <source>Abort %1</source>
         <translation>中止%1</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="813"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="756"/>
+        <source>Commit and Merge</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/CommitEditor.cpp" line="862"/>
         <source>Commit Rebase</source>
         <translation>提交变基（Rebase）</translation>
     </message>
@@ -785,49 +790,48 @@
         <translation type="vanished">更新%1，%2和%3多个文件...</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="777"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="828"/>
         <source>Nothing staged</source>
         <translation>没有暂存</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="779"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="830"/>
         <source>%1 of %2 file staged</source>
         <translation>已暂存%2个文件中的%1个</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="780"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="831"/>
         <source>%1 of %2 files staged</source>
         <translation>已暂存%2个文件中的%1个</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="784"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="835"/>
         <source>%1 file partially staged</source>
         <translation>%1文件已部分暂存</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="785"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="836"/>
         <source>%1 files partially staged</source>
         <translation>部分暂存了%1个文件</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="790"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="841"/>
         <source>%1 unresolved conflict</source>
         <translation>%1个未解决的冲突</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="791"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="842"/>
         <source>%1 unresolved conflicts</source>
         <translation>%1个未解决的冲突</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="794"/>
+        <location filename="../src/ui/CommitEditor.cpp" line="845"/>
         <source>all conflicts resolved</source>
         <translation>所有冲突已解决</translation>
     </message>
     <message>
-        <location filename="../src/ui/CommitEditor.cpp" line="807"/>
         <source>Commit Merge</source>
-        <translation>提交合并</translation>
+        <translation type="vanished">提交合并</translation>
     </message>
 </context>
 <context>
@@ -1129,6 +1133,45 @@
         <location filename="../src/dialogs/ConfigDialog.cpp" line="870"/>
         <source>Edit Config File...</source>
         <translation>编辑配置文件...</translation>
+    </message>
+</context>
+<context>
+    <name>ConflictResolverWidget</name>
+    <message>
+        <location filename="../src/ui/DiffView/ConflictResolverWidget.cpp" line="189"/>
+        <location filename="../src/ui/DiffView/ConflictResolverWidget.cpp" line="660"/>
+        <source>unknown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/ConflictResolverWidget.cpp" line="198"/>
+        <source>Commit %1 (%2 conflicts)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/ConflictResolverWidget.cpp" line="200"/>
+        <source>Current - %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/ConflictResolverWidget.cpp" line="203"/>
+        <source>Incoming - %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/ConflictResolverWidget.cpp" line="215"/>
+        <source>Result - editable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/ConflictResolverWidget.cpp" line="269"/>
+        <source>Select current block</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/ConflictResolverWidget.cpp" line="273"/>
+        <source>Select incoming block</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1450,43 +1493,122 @@ These settings will not be saved permanently</source>
 <context>
     <name>DoubleTreeWidget</name>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="91"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="95"/>
         <source>Blame</source>
         <translation>追溯</translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="92"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="97"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="978"/>
         <source>Show Blame Editor</source>
         <translation>显示追溯编辑器</translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="93"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="98"/>
         <source>Diff</source>
         <translation>比较</translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="94"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="100"/>
         <source>Show Diff View</source>
         <translation>显示差异视图</translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="103"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="109"/>
         <source>Close Blame and Diff</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="104"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="110"/>
         <source>Close</source>
         <translation type="unfinished">关闭</translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="214"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="226"/>
+        <source>Mark All Resolved</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="248"/>
+        <source>Mark all files resolved?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="249"/>
+        <source>Current changes will be followed by Incoming changes for all text conflicts. Current will be kept for binary and file-type conflicts.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="258"/>
+        <source>Some conflicts were not resolved</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="259"/>
+        <source>These files changed or could not be saved:
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="264"/>
+        <source>Unresolved only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="270"/>
+        <source>Previous unresolved file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="276"/>
+        <source>Next unresolved file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="280"/>
         <source>Show all files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="217"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="283"/>
         <source>Stage All Changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="654"/>
+        <source>Resolved Files (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="658"/>
+        <source>Conflicted Files (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="670"/>
+        <source>%1 of %2 resolved | %3 blocks remaining</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="675"/>
+        <source>%1 unresolved files | %2 blocks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="867"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="937"/>
+        <source>Discard unsaved Output?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="868"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="938"/>
+        <source>The edited conflict Output has not been saved or staged.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="976"/>
+        <source>Blame is unavailable until this conflict is resolved.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1645,6 +1767,70 @@ These settings will not be saved permanently</source>
         <location filename="../src/dialogs/ExternalToolsModel.cpp" line="60"/>
         <source>Arguments</source>
         <translation>参数</translation>
+    </message>
+</context>
+<context>
+    <name>FileConflictResolverWidget</name>
+    <message>
+        <location filename="../src/ui/DiffView/FileConflictResolverWidget.cpp" line="26"/>
+        <source>Current</source>
+        <translation type="unfinished">当前</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/FileConflictResolverWidget.cpp" line="29"/>
+        <source>Incoming</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/FileConflictResolverWidget.cpp" line="37"/>
+        <source>Output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/FileConflictResolverWidget.cpp" line="115"/>
+        <source>Deleted</source>
+        <translation type="unfinished">删除的</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/FileConflictResolverWidget.cpp" line="123"/>
+        <source>Content unavailable
+Mode %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/FileConflictResolverWidget.cpp" line="137"/>
+        <source>Binary file
+%1
+Mode %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/FileConflictResolverWidget.cpp" line="148"/>
+        <source>Choose deletion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/FileConflictResolverWidget.cpp" line="149"/>
+        <source>Choose %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/FileConflictResolverWidget.cpp" line="204"/>
+        <source>Deleted file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/FileConflictResolverWidget.cpp" line="209"/>
+        <source>Binary output
+%1
+Mode %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/FileConflictResolverWidget.cpp" line="212"/>
+        <source>Output object unavailable
+Mode %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1965,85 +2151,107 @@ These settings will not be saved permanently</source>
 <context>
     <name>FileWidget</name>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="74"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="127"/>
         <source>LFS</source>
         <translation>LFS</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="80"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="93"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="133"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="146"/>
         <source>Unlock</source>
         <translation>解除锁定</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="81"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="94"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="134"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="147"/>
         <source>Lock</source>
         <translation>锁定</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="98"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="447"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="151"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="545"/>
         <source>Show Object</source>
         <translation>显示对象</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="107"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="160"/>
         <source>Edit File</source>
         <translation>编辑文件</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="113"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="166"/>
         <source>Discard File</source>
         <translation>丢弃文件</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="423"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="521"/>
         <source>Diff not shown because it contains %1 changed lines.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="798"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="985"/>
+        <source>Unselected changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="986"/>
+        <source>%n conflict chunk(s) still use the Base output. Saving Output may omit Current and Incoming changes.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="993"/>
+        <source>Save Output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="995"/>
+        <source>Create and Stage Conflict Chunks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1051"/>
         <source>Directory</source>
         <translation>目录</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="799"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1052"/>
         <source>File</source>
         <translation>文件</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="800"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1053"/>
         <source>Remove %1?</source>
         <translation>删除%1？</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="801"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1054"/>
         <source>Discard Changes?</source>
         <translation>您确定要放弃更改吗？</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="803"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1056"/>
         <source>Are you sure you want to remove &apos;%1&apos;?</source>
         <translation>您确定要删除&apos;%1&apos;吗？</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="804"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1057"/>
         <source>Are you sure you want to discard all changes in &apos;%1&apos;?</source>
         <translation>您确定要放弃&apos;%1&apos;中的所有更改吗？</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="809"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1062"/>
         <source>This action cannot be undone.</source>
         <translation>此操作无法撤消。</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="811"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1064"/>
         <source>Remove %1</source>
         <translation>删除%1</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="812"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="1065"/>
         <source>Discard Changes</source>
         <translation>放弃更改</translation>
     </message>
@@ -2058,19 +2266,19 @@ These settings will not be saved permanently</source>
         <translation>丢弃</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="120"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="124"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="173"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="177"/>
         <source>Collapse File</source>
         <translation>收合文件</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="121"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="125"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="174"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="178"/>
         <source>Expand File</source>
         <translation>展开文件</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="446"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="544"/>
         <source>Show Pointer</source>
         <translation>显示指针</translation>
     </message>
@@ -2129,14 +2337,14 @@ These settings will not be saved permanently</source>
 <context>
     <name>GeneralPanel</name>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="95"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="78"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="95"/>
         <source>Fetch every</source>
         <translation>获取每个</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="102"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="85"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="102"/>
         <source>minutes</source>
         <translation>分</translation>
     </message>
@@ -2149,8 +2357,8 @@ These settings will not be saved permanently</source>
         <translation type="vanished">拉取后更新子模块</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="109"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="90"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="109"/>
         <source>Prune when fetching</source>
         <translation>获取时清除</translation>
     </message>
@@ -2169,8 +2377,8 @@ These settings will not be saved permanently</source>
         <translation type="vanished">允许收集使用情况数据</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="106"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="89"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="106"/>
         <source>Update submodules after pull and clone</source>
         <translation>在拉取和克隆后更新子模块</translation>
     </message>
@@ -2185,20 +2393,20 @@ These settings will not be saved permanently</source>
         <translation>&lt;a href=&apos;view&apos;&gt;查看隐私政策&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="131"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="93"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="131"/>
         <source>User name:</source>
         <translation>用户名：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="132"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="94"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="132"/>
         <source>User email:</source>
         <translation>用户电子邮件：</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/SettingsDialog.cpp" line="133"/>
         <location filename="../src/dialogs/ConfigDialog.cpp" line="95"/>
+        <location filename="../src/dialogs/SettingsDialog.cpp" line="133"/>
         <source>Automatic actions:</source>
         <translation>自动动作：</translation>
     </message>
@@ -2317,51 +2525,44 @@ These settings will not be saved permanently</source>
 <context>
     <name>HunkWidget</name>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="67"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="132"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="198"/>
         <source>Save</source>
         <translation>保存</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="71"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="136"/>
         <source>Undo</source>
-        <translation>撤消</translation>
+        <translation type="vanished">撤消</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="83"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="214"/>
         <source>Use Ours</source>
-        <translation>使用我们的</translation>
+        <translation type="vanished">使用我们的</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="95"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="215"/>
         <source>Use Theirs</source>
-        <translation>用他们的</translation>
+        <translation type="vanished">用他们的</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="105"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="97"/>
         <source>Edit Hunk</source>
         <translation>编辑补丁片段</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="111"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="103"/>
         <source>Discard Hunk</source>
         <translation>放弃补丁片段</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="513"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="465"/>
         <source>Discard selected lines?</source>
         <translation>放弃所选行？</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="517"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="469"/>
         <source>Are you sure you want to discard the changes in hunk from line %1 to %2 in &apos;%3&apos;?</source>
         <translation>你是否确认要放弃&apos;%3&apos;中从%1到%2行的片段更改?</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="529"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="481"/>
         <source>Discard selected lines</source>
         <translation>放弃所选行</translation>
     </message>
@@ -2370,7 +2571,7 @@ These settings will not be saved permanently</source>
         <translation type="vanished">您确定要放弃补丁片段吗？</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="516"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="468"/>
         <source>Are you sure you want to remove &apos;%1&apos;?</source>
         <translation>您确定要删除&apos;%1&apos;吗？</translation>
     </message>
@@ -2379,39 +2580,67 @@ These settings will not be saved permanently</source>
         <translation type="vanished">您确定要舍弃&apos;%2&apos;中从行%1开始的块吗？</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="526"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="478"/>
         <source>This action cannot be undone.</source>
         <translation>此操作无法撤消。</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="118"/>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="121"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="110"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="113"/>
         <source>Collapse Hunk</source>
         <translation>收合补丁片段</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="119"/>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="122"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="185"/>
+        <source>Open in External Merge Tool</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="210"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="68"/>
+        <source>Clear</source>
+        <translation type="unfinished">清除</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="289"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="75"/>
+        <source>Current</source>
+        <translation type="unfinished">当前</translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="290"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="82"/>
+        <source>Incoming</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="87"/>
+        <source>Both</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="111"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="114"/>
         <source>Expand Hunk</source>
         <translation>展开补丁片段</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="344"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="296"/>
         <source>Esc</source>
         <translation>退出</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="371"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="323"/>
         <source>Fix</source>
         <translation>固定</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="424"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="376"/>
         <source>Edit</source>
         <translation>编辑</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="36"/>
+        <location filename="../src/ui/DiffView/HunkWidget.cpp" line="37"/>
         <source>No newline at end of file</source>
         <translation>文件末尾没有换行符</translation>
     </message>
@@ -3638,32 +3867,32 @@ Examples
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="38"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="42"/>
         <source>Expand all</source>
         <translation>全部展开</translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="39"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="43"/>
         <source>Collapse all</source>
         <translation>全部折叠</translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="40"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="44"/>
         <source>Staged Files</source>
         <translation>暂存的文件</translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="41"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="45"/>
         <source>Unstaged Files</source>
         <translation>未暂存的文件</translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="42"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="46"/>
         <source>Committed Files</source>
         <translation>提交的文件</translation>
     </message>
     <message>
-        <location filename="../src/ui/DoubleTreeWidget.cpp" line="43"/>
+        <location filename="../src/ui/DoubleTreeWidget.cpp" line="47"/>
         <source>Workdir Files</source>
         <translation>工作区文件</translation>
     </message>
@@ -3728,8 +3957,8 @@ Examples
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/git/SubmoduleAvailability.cpp" line="179"/>
         <location filename="../src/git/Submodule.cpp" line="320"/>
+        <location filename="../src/git/SubmoduleAvailability.cpp" line="179"/>
         <source>Unable to create remote.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7116,29 +7345,37 @@ x (number) determines the number of maximum files shown</source>
 <context>
     <name>_FileWidget::Header</name>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="222"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="248"/>
         <source>Use Theirs: Delete</source>
-        <translation>以他们的删除操作为准</translation>
+        <translation type="vanished">以他们的删除操作为准</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="230"/>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="241"/>
         <source>Use Ours: Delete</source>
-        <translation>以我们的删除操作为准</translation>
+        <translation type="vanished">以我们的删除操作为准</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="256"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="297"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="323"/>
+        <source>Incoming: Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="305"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="316"/>
+        <source>Current: Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="331"/>
         <source>both: %1</source>
         <translation>两者：%1</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="260"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="335"/>
         <source>ours: %1</source>
         <translation>我们的：%1</translation>
     </message>
     <message>
-        <location filename="../src/ui/DiffView/FileWidget.cpp" line="264"/>
+        <location filename="../src/ui/DiffView/FileWidget.cpp" line="339"/>
         <source>theirs: %1</source>
         <translation>他们的：%1</translation>
     </message>

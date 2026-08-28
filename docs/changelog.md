@@ -22,6 +22,7 @@ Bug Fix and Feature release
 * Add a green Stage All Changes button above the working-directory file tree
 * Checkout the latest fetched configured branch from behind-origin submodule context menus
 * Choose whether to initialize submodules for each clone from the clone window
+* Resolve merges in an ancestor-backed Current/Incoming/Output workspace with exact-output saving, staged conflict chunks, content-aware handling for text files marked binary, dedicated true-binary and delete/modify choosers, retained Current-only resolutions, external merge-tool launch, unsaved-output warnings, color-coded merge actions and proposals, conflict/resolved file groups, bulk resolution, conflict navigation, guarded merge commits, and automatic return to the branch view after commit or abort
 
 #### Changed
 

@@ -10,12 +10,15 @@
 #include "Patch.h"
 #include "Blob.h"
 #include "Id.h"
+#include "Index.h"
 #include "Repository.h"
 #include "git2/config.h"
 #include "git2/filter.h"
 #include "git2/index.h"
+#include "git2/merge.h"
 #include <QDataStream>
 #include <QFile>
+#include <QFileInfo>
 #include <QMap>
 
 namespace git {
@@ -23,6 +26,86 @@ namespace git {
 namespace {
 
 const QString kConflictResolutionFile = "conflicts";
+
+QList<QByteArray> splitLines(const QByteArray &content) {
+  QList<QByteArray> lines;
+  int start = 0;
+  while (start < content.size()) {
+    const int newline = content.indexOf('\n', start);
+    if (newline < 0) {
+      lines.append(content.mid(start));
+      break;
+    }
+    lines.append(content.mid(start, newline - start + 1));
+    start = newline + 1;
+  }
+  return lines;
+}
+
+QList<QByteArray> conflictResolverLines(const Repository &repo,
+                                        const QString &path) {
+  const Index::Conflict conflict = repo.index().conflict(path);
+  if (!conflict.isValid() || conflict.ours.isNull() || conflict.theirs.isNull())
+    return {};
+
+  const auto regularFile = [](git_filemode_t mode) {
+    return mode == GIT_FILEMODE_BLOB || mode == GIT_FILEMODE_BLOB_EXECUTABLE;
+  };
+  if (!regularFile(conflict.oursMode) ||
+      conflict.oursMode != conflict.theirsMode ||
+      (!conflict.ancestor.isNull() &&
+       conflict.ancestorMode != conflict.oursMode))
+    return {};
+
+  const Blob current = repo.lookupBlob(conflict.ours);
+  const Blob incoming = repo.lookupBlob(conflict.theirs);
+  if (!current.isValid() || !incoming.isValid() || current.isBinary() ||
+      incoming.isBinary())
+    return {};
+
+  const Blob ancestor = repo.lookupBlob(conflict.ancestor);
+  if (!conflict.ancestor.isNull() &&
+      (!ancestor.isValid() || ancestor.isBinary()))
+    return {};
+
+  const QByteArray encodedPath = path.toUtf8();
+  const QByteArray ancestorContent =
+      conflict.ancestor.isNull() ? QByteArray() : ancestor.content();
+  const QByteArray currentContent = current.content();
+  const QByteArray incomingContent = incoming.content();
+  git_merge_file_input ancestorInput = GIT_MERGE_FILE_INPUT_INIT;
+  ancestorInput.ptr = ancestorContent.constData();
+  ancestorInput.size = ancestorContent.size();
+  ancestorInput.path = encodedPath.constData();
+  ancestorInput.mode =
+      conflict.ancestor.isNull() ? conflict.oursMode : conflict.ancestorMode;
+  git_merge_file_input currentInput = GIT_MERGE_FILE_INPUT_INIT;
+  currentInput.ptr = currentContent.constData();
+  currentInput.size = currentContent.size();
+  currentInput.path = encodedPath.constData();
+  currentInput.mode = conflict.oursMode;
+  git_merge_file_input incomingInput = GIT_MERGE_FILE_INPUT_INIT;
+  incomingInput.ptr = incomingContent.constData();
+  incomingInput.size = incomingContent.size();
+  incomingInput.path = encodedPath.constData();
+  incomingInput.mode = conflict.theirsMode;
+
+  git_merge_file_options options = GIT_MERGE_FILE_OPTIONS_INIT;
+  options.flags = GIT_MERGE_FILE_STYLE_DIFF3;
+  options.ancestor_label = "Base";
+  options.our_label = "Current";
+  options.their_label = "Incoming";
+  git_merge_file_result result = {};
+  if (git_merge_file(&result, &ancestorInput, &currentInput, &incomingInput,
+                     &options))
+    return {};
+
+  const QByteArray content(result.ptr, result.len);
+  git_merge_file_result_free(&result);
+  if (!content.contains("<<<<<<<"))
+    return {};
+  return splitLines(content);
+}
 
 QMap<QString, QMap<int, int>> readConflictResolutions(const Repository &repo) {
   QFile file(repo.appDir().filePath(kConflictResolutionFile));
@@ -58,18 +141,34 @@ Patch::Patch(git_patch *patch) : d(patch, git_patch_free) {
   if (!repo.isValid())
     return;
 
-  QFile file(repo.workdir().filePath(name(Diff::OldFile)));
+  const QString path = repo.workdir().filePath(name(Diff::OldFile));
+  QFileInfo info(path);
+  mConflictFilePresent = info.exists() || info.isSymLink();
+  mConflictFileSymlink = info.isSymLink();
+  if (!mConflictFilePresent)
+    return;
+
+  if (mConflictFileSymlink) {
+    mConflictSymlinkTarget = info.symLinkTarget();
+    return;
+  }
+
+  QFile file(path);
   if (!file.open(QFile::ReadOnly))
     return;
 
-  QList<QByteArray> lines;
   QByteArray line = file.readLine();
   while (!line.isEmpty()) {
-    lines.append(line);
+    mConflictFileLines.append(line);
+    mConflictFileContent.append(line);
     line = file.readLine();
   }
 
-  int lineCount = lines.size();
+  const QList<QByteArray> resolverLines = conflictResolverLines(repo, name());
+  if (!resolverLines.isEmpty())
+    mConflictFileLines = resolverLines;
+
+  int lineCount = mConflictFileLines.size();
   git_config *cfg = NULL;
   int32_t context = 3;
 
@@ -78,31 +177,53 @@ Patch::Patch(git_patch *patch) : d(patch, git_patch_free) {
     git_config_free(cfg);
   }
   for (int i = 0; i < lineCount; ++i) {
-    if (!lines.at(i).startsWith("<<<<<<<"))
+    if (!mConflictFileLines.at(i).startsWith("<<<<<<<"))
       continue;
 
+    int base = -1;
     int mid = -1;
     for (int j = i + 1; j < lineCount; ++j) {
-      if (!lines.at(j).startsWith("======="))
+      if (mConflictFileLines.at(j).startsWith("<<<<<<<"))
+        break;
+
+      if (mConflictFileLines.at(j).startsWith("|||||||")) {
+        base = j;
+        continue;
+      }
+
+      if (!mConflictFileLines.at(j).startsWith("======="))
         continue;
 
       mid = j;
       break;
     }
 
-    if (mid < 0)
+    if (mid < 0) {
+      mMalformedConflicts = true;
       break;
+    }
 
+    bool closed = false;
     for (int j = mid + 1; j < lineCount; ++j) {
-      if (!lines.at(j).startsWith(">>>>>>>"))
+      if (mConflictFileLines.at(j).startsWith("<<<<<<<"))
+        break;
+
+      if (!mConflictFileLines.at(j).startsWith(">>>>>>>"))
         continue;
 
       // Add conflict.
       int line = qMax(0, i - context);
       int count = qMin(lineCount, j + context + 1) - line;
-      mConflicts.append({line, i, mid, j, lines.mid(line, count)});
+      mConflicts.append(
+          {line, i, base, mid, j, mConflictFileLines.mid(line, count)});
 
-      i = j + 1;
+      i = j;
+      closed = true;
+      break;
+    }
+
+    if (!closed) {
+      mMalformedConflicts = true;
       break;
     }
   }
@@ -234,13 +355,20 @@ char Patch::lineOrigin(int hidx, int ln) const {
     if (line == conflict.min)
       return 'L'; // <<<<<<<
 
+    if (line == conflict.base)
+      return 'B'; // |||||||
+
     if (line == conflict.mid)
       return 'E'; // =======
 
     if (line == conflict.max)
       return 'G'; // >>>>>>>
 
-    return (line < conflict.mid) ? 'O' : 'T';
+    if (conflict.base >= 0 && line > conflict.base && line < conflict.mid)
+      return 'B'; // base content
+
+    int currentEnd = (conflict.base >= 0) ? conflict.base : conflict.mid;
+    return (line < currentEnd) ? 'O' : 'T';
   }
 
   const git_diff_line *line = nullptr;
@@ -287,7 +415,7 @@ Patch::ConflictResolution Patch::conflictResolution(int hidx) {
     return Unresolved;
 
   QMap<int, int> conflicts = it.value();
-  auto conflictIt = conflicts.constFind(lineNumber(hidx, 0));
+  auto conflictIt = conflicts.constFind(mConflicts.at(hidx).min);
   if (conflictIt == conflicts.constEnd())
     return Unresolved;
 
@@ -297,8 +425,84 @@ Patch::ConflictResolution Patch::conflictResolution(int hidx) {
 void Patch::setConflictResolution(int hidx, ConflictResolution resolution) {
   Repository repo(git_patch_owner(d.data()));
   QMap<QString, QMap<int, int>> map = readConflictResolutions(repo);
-  map[name()][lineNumber(hidx, 0)] = resolution;
+  map[name()][mConflicts.at(hidx).min] = resolution;
   writeConflictResolutions(repo, map);
+}
+
+QList<Patch::ConflictBlock> Patch::conflictBlocks() const {
+  QList<ConflictBlock> blocks;
+  for (const ConflictHunk &conflict : mConflicts) {
+    const int currentEnd = (conflict.base >= 0) ? conflict.base : conflict.mid;
+    blocks.append({conflict.min, conflict.max,
+                   mConflictFileLines.mid(conflict.min + 1,
+                                          currentEnd - conflict.min - 1),
+                   conflict.base >= 0 ? mConflictFileLines.mid(
+                                            conflict.base + 1,
+                                            conflict.mid - conflict.base - 1)
+                                      : QList<QByteArray>(),
+                   mConflictFileLines.mid(conflict.mid + 1,
+                                          conflict.max - conflict.mid - 1)});
+  }
+  return blocks;
+}
+
+bool Patch::conflictFileMatches() const {
+  if (!isConflicted())
+    return false;
+
+  const QString path = repo().workdir().filePath(name(Diff::OldFile));
+  QFileInfo info(path);
+  const bool present = info.exists() || info.isSymLink();
+  if (present != mConflictFilePresent ||
+      info.isSymLink() != mConflictFileSymlink)
+    return false;
+
+  if (!present)
+    return true;
+
+  if (mConflictFileSymlink)
+    return info.symLinkTarget() == mConflictSymlinkTarget;
+
+  QFile file(path);
+  return file.open(QFile::ReadOnly) && file.readAll() == mConflictFileContent;
+}
+
+bool Patch::resolveConflicts(const QList<ConflictResolution> &resolutions,
+                             QByteArray &result) const {
+  if (!isConflicted() || mMalformedConflicts ||
+      resolutions.size() != mConflicts.size())
+    return false;
+
+  result.clear();
+  int cursor = 0;
+
+  for (int i = 0; i < mConflicts.size(); ++i) {
+    const ConflictResolution resolution = resolutions.at(i);
+    if (resolution == Unresolved)
+      return false;
+
+    const ConflictHunk &conflict = mConflicts.at(i);
+    for (; cursor < conflict.min; ++cursor)
+      result.append(mConflictFileLines.at(cursor));
+
+    const int currentEnd = (conflict.base >= 0) ? conflict.base : conflict.mid;
+    if (resolution == Ours || resolution == Both) {
+      for (int line = conflict.min + 1; line < currentEnd; ++line)
+        result.append(mConflictFileLines.at(line));
+    }
+
+    if (resolution == Theirs || resolution == Both) {
+      for (int line = conflict.mid + 1; line < conflict.max; ++line)
+        result.append(mConflictFileLines.at(line));
+    }
+
+    cursor = conflict.max + 1;
+  }
+
+  for (; cursor < mConflictFileLines.size(); ++cursor)
+    result.append(mConflictFileLines.at(cursor));
+
+  return true;
 }
 
 void Patch::populatePreimage(QList<QList<QByteArray>> &image) const {

@@ -444,7 +444,7 @@ CommitEditor::CommitEditor(const git::Repository &repo, QWidget *parent)
     mPopulate = false;
 
     bool empty = mMessage->toPlainText().isEmpty();
-    if (mEditorEmpty != empty)
+    if (mEditorEmpty != empty || mRepo.state() == GIT_REPOSITORY_STATE_MERGE)
       updateButtons();
     mEditorEmpty = empty;
 
@@ -489,6 +489,7 @@ CommitEditor::CommitEditor(const git::Repository &repo, QWidget *parent)
   connect(mUnstage, &QPushButton::clicked, this, &CommitEditor::unstage);
 
   mCommit = new QPushButton(tr("Commit"), this);
+  mCommit->setObjectName("CommitButton");
   mCommit->setDefault(true);
   connect(mCommit, &QPushButton::clicked, this, &CommitEditor::commit);
 
@@ -503,9 +504,23 @@ CommitEditor::CommitEditor(const git::Repository &repo, QWidget *parent)
           &CommitEditor::continueRebase);
 
   mMergeAbort = new QPushButton(tr("Abort Merge"), this);
+  mMergeAbort->setObjectName("AbortMergeButton");
+  mMergeAbort->setStyleSheet(QStringLiteral(
+      "QPushButton#AbortMergeButton {"
+      "  background-color: #c93c4a; color: #ffffff;"
+      "  border: 1px solid #ab2f3c; border-radius: 3px; padding: 4px 10px;"
+      "  font-weight: 700;"
+      "}"
+      "QPushButton#AbortMergeButton:hover { background-color: #dc4c59; }"
+      "QPushButton#AbortMergeButton:pressed { background-color: #a92f3c; }"
+      "QPushButton#AbortMergeButton:disabled {"
+      "  background-color: #76575b; color: #eadbdd; border-color: #76575b;"
+      "}"));
   connect(mMergeAbort, &QPushButton::clicked, [this] {
     RepoView *view = RepoView::parentView(this);
     view->mergeAbort();
+    if (view->repo().state() == GIT_REPOSITORY_STATE_NONE)
+      view->setFileInspectionVisible(false);
   });
 
   // Update buttons on index change.
@@ -513,6 +528,8 @@ CommitEditor::CommitEditor(const git::Repository &repo, QWidget *parent)
           [this](const QStringList &paths, bool yieldFocus) {
             updateButtons(yieldFocus);
           });
+  connect(repo.notifier(), &git::RepositoryNotifier::stateChanged, this,
+          [this] { updateButtons(false); });
 
   QVBoxLayout *buttonLayout = new QVBoxLayout;
   buttonLayout->setContentsMargins(0, 8, 12, 0);
@@ -531,16 +548,25 @@ CommitEditor::CommitEditor(const git::Repository &repo, QWidget *parent)
 }
 
 void CommitEditor::commit(bool force) {
+  RepoView *view = RepoView::parentView(this);
+  const QString message = mMessage->toPlainText();
+  if (view->repo().state() == GIT_REPOSITORY_STATE_MERGE &&
+      (view->repo().index().hasConflicts() || message.trimmed().isEmpty()))
+    return;
+
   // Check for a merge head.
   git::AnnotatedCommit upstream;
-  RepoView *view = RepoView::parentView(this);
   if (git::Reference mergeHead = view->repo().lookupRef(
           "MERGE_HEAD")) // TODO: is it possible to use instead of the string
                          // GIT_MERGE_HEAD_FILE?
     upstream = mergeHead.annotatedCommit();
 
-  if (view->commit(mMessage->toPlainText(), upstream, nullptr, force))
+  const bool mergeCommit = view->repo().state() == GIT_REPOSITORY_STATE_MERGE;
+  if (view->commit(message, upstream, nullptr, force)) {
     mMessage->clear(); // Clear the message field.
+    if (mergeCommit)
+      view->setFileInspectionVisible(false);
+  }
 }
 
 void CommitEditor::abortRebase() {
@@ -724,10 +750,35 @@ void CommitEditor::updateButtons(bool yieldFocus) {
   mMergeAbort->setText(tr("Abort %1").arg(text));
   mMergeAbort->setVisible(headBranch.isValid() && merging);
 
+  const bool mergeState =
+      view && view->repo().state() == GIT_REPOSITORY_STATE_MERGE;
+  if (mergeState) {
+    mCommit->setText(tr("Commit and Merge"));
+    mCommit->setStyleSheet(QStringLiteral(
+        "QPushButton#CommitButton {"
+        "  background-color: #36c96b; color: #102817;"
+        "  border: 1px solid #2ead5b; border-radius: 3px; padding: 4px 10px;"
+        "  font-weight: 700;"
+        "}"
+        "QPushButton#CommitButton:hover { background-color: #4bd77d; }"
+        "QPushButton#CommitButton:pressed {"
+        "  background-color: #2eaa59; color: #ffffff;"
+        "}"
+        "QPushButton#CommitButton:disabled {"
+        "  background-color: #36c96b; color: #102817; border-color: #2ead5b;"
+        "}"));
+    mCommit->setVisible(true);
+    mCommit->setEnabled(!view->repo().index().hasConflicts() &&
+                        !mMessage->toPlainText().trimmed().isEmpty());
+  }
+  if (!mergeState)
+    mCommit->setStyleSheet(QString());
+
   if (!mDiff.isValid()) {
     mStage->setEnabled(false);
     mUnstage->setEnabled(false);
-    mCommit->setEnabled(false);
+    if (!mergeState)
+      mCommit->setEnabled(false);
     return;
   }
 
@@ -804,8 +855,6 @@ void CommitEditor::updateButtons(bool yieldFocus) {
 
   switch (repo.state()) {
     case GIT_REPOSITORY_STATE_MERGE:
-      mCommit->setText(tr("Commit Merge"));
-      mCommit->setEnabled(total && !mMessage->document()->isEmpty());
       break;
     case GIT_REPOSITORY_STATE_REBASE:
     case GIT_REPOSITORY_STATE_REBASE_MERGE:

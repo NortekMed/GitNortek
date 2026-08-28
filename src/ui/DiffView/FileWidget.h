@@ -22,6 +22,8 @@ class LineStats;
 class Badge;
 class FileLabel;
 class DiffView;
+class ConflictResolverWidget;
+class FileConflictResolverWidget;
 
 namespace _FileWidget {
 class Header : public QFrame {
@@ -38,10 +40,9 @@ public:
   QToolButton *lfsButton() const;
   void setStageState(git::Index::StagedState state);
 
-  QToolButton *saveButton() const;
-  QToolButton *undoButton() const;
-  QToolButton *oursButton() const;
-  QToolButton *theirsButton() const;
+  QToolButton *markResolvedButton() const;
+  void setMarkResolvedEnabled(bool enabled);
+  void hideFileSolverButtons();
   git::Patch::ConflictResolution resolution() const;
 
 signals:
@@ -68,10 +69,11 @@ private:
   Badge *mStatusBadge{nullptr};
   FileLabel *mFileLabel{nullptr};
 
-  QToolButton *mSave = nullptr;
-  QToolButton *mUndo = nullptr;
-  QToolButton *mOurs = nullptr;
-  QToolButton *mTheirs = nullptr;
+  QToolButton *mMarkResolved = nullptr;
+  QToolButton *mExternalMerge = nullptr;
+  QToolButton *mClear = nullptr;
+  QToolButton *mCurrent = nullptr;
+  QToolButton *mIncoming = nullptr;
   git::Patch::ConflictResolution mResolution =
       git::Patch::ConflictResolution::Unresolved;
 };
@@ -100,6 +102,8 @@ public:
   void updateHunks(git::Patch stagedPatch);
   _FileWidget::Header *header() const;
   QString name() const;
+  bool hasUnsavedConflictOutput() const;
+  static QStringList resolveAllConflicts(const git::Diff &diff);
 
   QList<HunkWidget *> hunks() const;
 
@@ -139,6 +143,8 @@ signals:
 
 private:
   void discard();
+  void markResolved();
+  void updateMarkResolvedState();
 
   DiffView *mView{nullptr};
 
@@ -150,6 +156,8 @@ private:
   _FileWidget::Header *mHeader{nullptr};
   QList<QWidget *> mImages;
   QList<HunkWidget *> mHunks;
+  ConflictResolverWidget *mResolver{nullptr};
+  FileConflictResolverWidget *mFileResolver{nullptr};
   QVBoxLayout *mHunkLayout{nullptr};
   bool mDiffSuppressed{false};
   bool mSuppressUpdate{false};

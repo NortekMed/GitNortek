@@ -73,15 +73,21 @@ void DiffTreeModel::addTree(const git::Tree &tree, const QString &prefix) {
   }
 }
 
-void DiffTreeModel::setDiff(const git::Diff &diff) {
+void DiffTreeModel::setDiff(const git::Diff &diff,
+                            const QStringList &resolvedPaths) {
   beginResetModel();
 
   delete mRoot;
   mRoot = nullptr;
-  if (diff) {
+  mResolvedPaths = QSet<QString>(resolvedPaths.cbegin(), resolvedPaths.cend());
+  if (diff || !mResolvedPaths.isEmpty()) {
     mDiff = diff;
     mRoot = new Node(mRepo.workdir().path(), -1);
     createDiffTree();
+    for (const QString &path : std::as_const(mResolvedPaths)) {
+      if (!mDiff.isValid() || mDiff.indexOf(path) < 0)
+        mRoot->addChild(path.split('/'), -1, mListView);
+    }
   } else {
     mDiff = git::Diff();
   }
@@ -94,6 +100,7 @@ void DiffTreeModel::setTree(const git::Tree &tree, const git::Diff &diff) {
 
   delete mRoot;
   mDiff = diff;
+  mResolvedPaths.clear();
   mRoot = tree.isValid() ? new Node(mRepo.workdir().path(), -1) : nullptr;
   if (mRoot)
     addTree(tree);
@@ -139,7 +146,7 @@ void DiffTreeModel::handleDataChanged(const QModelIndex &index, int role) {
 }
 
 int DiffTreeModel::rowCount(const QModelIndex &parent) const {
-  return mDiff ? node(parent)->children().size() : 0;
+  return mRoot ? node(parent)->children().size() : 0;
 }
 
 QVariant DiffTreeModel::headerData(int section, Qt::Orientation orientation,
@@ -284,11 +291,18 @@ QVariant DiffTreeModel::data(const QModelIndex &index, int role) const {
       return node->path();
 
     case Qt::CheckStateRole: {
-      if (!mDiff.isValid() || !mDiff.isStatusDiff() || index.column() > 0)
+      if (index.column() > 0)
         return QVariant();
 
-      git::Index index = mDiff.index();
-      const auto state = node->stageState(index, Node::ParentStageState::Any);
+      const bool resolvedPath =
+          !node->hasChildren() && mResolvedPaths.contains(node->path(true));
+      if ((!mDiff.isValid() || !mDiff.isStatusDiff()) && !resolvedPath)
+        return QVariant();
+
+      const git::Index repoIndex =
+          mDiff.isValid() ? mDiff.index() : mRepo.index();
+      const auto state =
+          node->stageState(repoIndex, Node::ParentStageState::Any);
       switch (state) {
         case git::Index::StagedState::PartiallyStaged:
           return Qt::CheckState::PartiallyChecked;
@@ -445,6 +459,9 @@ bool DiffTreeModel::setData(const QModelIndex &index, const QVariant &value,
 }
 
 Qt::ItemFlags DiffTreeModel::flags(const QModelIndex &index) const {
+  const Node *item = node(index);
+  if (!item->hasChildren() && item->patchIndex() < 0)
+    return QAbstractItemModel::flags(index);
   return QAbstractItemModel::flags(index) | Qt::ItemIsUserCheckable;
 }
 
@@ -468,9 +485,9 @@ QVariant DiffTreeModel::getDisplayRole(const QModelIndex &index) const {
   return node->name();
 }
 
-//#############################################################################
-//######     DiffTreeModel::Node ##############################################
-//#############################################################################
+// #############################################################################
+// ######     DiffTreeModel::Node ##############################################
+// #############################################################################
 
 Node::Node(const QString &name, int patchIndex, Node *parent)
     : mName(name), mPatchIndex(patchIndex), mParent(parent) {}
@@ -516,7 +533,8 @@ void Node::addChild(const QStringList &pathPart, int patchIndex,
     mChildren.append(node);
 }
 
-void Node::addChild(const QStringList &pathPart, int patchIndex, bool listView) {
+void Node::addChild(const QStringList &pathPart, int patchIndex,
+                    bool listView) {
   addChild(pathPart, patchIndex, 0, listView);
 }
 

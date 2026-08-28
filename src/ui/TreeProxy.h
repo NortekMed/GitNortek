@@ -29,7 +29,30 @@ public:
                int role = Qt::EditRole, bool ignoreIndexChanges = false);
   bool staged() { return mStaged; }
 
+  QVariant data(const QModelIndex &index,
+                int role = Qt::DisplayRole) const override;
+
   void enableFilter(bool enable) { mFilter = enable; }
+  void setUnresolvedOnly(bool enabled) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+    mUnresolvedOnly = enabled;
+    endFilterChange();
+#else
+    mUnresolvedOnly = enabled;
+    invalidateFilter();
+#endif
+  }
+  void setConflictMode(bool enabled) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    beginFilterChange();
+    mConflictMode = enabled;
+    endFilterChange();
+#else
+    mConflictMode = enabled;
+    invalidateFilter();
+#endif
+  }
 
   int columnCount(const QModelIndex &parent = QModelIndex()) const override {
     return sourceModel()->columnCount();
@@ -39,9 +62,12 @@ private:
   using QSortFilterProxyModel::setData;
   bool filterAcceptsRow(int source_row,
                         const QModelIndex &source_parent) const override;
+  bool acceptsConflictMode(const QModelIndex &index) const;
   bool mStaged{
       true}; // indicates, if only staged or only unstages files should be shown
   bool mFilter = true;
+  bool mUnresolvedOnly = false;
+  bool mConflictMode = false;
 };
 
 #endif // TREEPROXY_H

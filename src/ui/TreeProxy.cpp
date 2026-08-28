@@ -30,6 +30,13 @@ TreeProxy::TreeProxy(bool staged, QAbstractItemModel *model, QObject *parent)
 
 TreeProxy::~TreeProxy() {}
 
+QVariant TreeProxy::data(const QModelIndex &index, int role) const {
+  if (mConflictMode && role == Qt::CheckStateRole)
+    return QVariant();
+
+  return QSortFilterProxyModel::data(index, role);
+}
+
 bool TreeProxy::setData(const QModelIndex &index, const QVariant &value,
                         int role, bool ignoreIndexChanges) {
   QModelIndex sourceIndex = mapToSource(index);
@@ -44,6 +51,14 @@ bool TreeProxy::filterAcceptsRow(int source_row,
                                  const QModelIndex &source_parent) const {
   QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
   if (!index.isValid())
+    return false;
+
+  if (mConflictMode)
+    return acceptsConflictMode(index);
+
+  QString status =
+      sourceModel()->data(index, DiffTreeModel::StatusRole).toString();
+  if (mUnresolvedOnly && !status.contains('!'))
     return false;
 
   if (!mFilter)
@@ -66,4 +81,23 @@ bool TreeProxy::filterAcceptsRow(int source_row,
     return false;
 
   return true;
+}
+
+bool TreeProxy::acceptsConflictMode(const QModelIndex &index) const {
+  if (sourceModel()->hasChildren(index)) {
+    for (int row = 0; row < sourceModel()->rowCount(index); ++row) {
+      if (acceptsConflictMode(sourceModel()->index(row, 0, index)))
+        return true;
+    }
+    return false;
+  }
+
+  const QString status =
+      sourceModel()->data(index, DiffTreeModel::StatusRole).toString();
+  if (!mStaged)
+    return status.contains('!');
+
+  const Qt::CheckState state = static_cast<Qt::CheckState>(
+      sourceModel()->data(index, Qt::CheckStateRole).toInt());
+  return !status.contains('!') && state == Qt::Checked;
 }
