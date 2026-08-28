@@ -117,7 +117,6 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
       setupAppearanceAction("List View", Setting::Id::ShowChangedFilesAsList);
   QAction *multiColumn = setupAppearanceAction(
       "Multi Column", Setting::Id::ShowChangedFilesMultiColumn, true);
-  RepoView::parentView(this)->refresh(); // apply read settings
 
   QAction *hideUntrackedFiles = setupAppearanceAction(
       "Hide Untracked Files", Setting::Id::HideUntracked, false);
@@ -246,9 +245,7 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
     if (conflicts == 0 ||
         QMessageBox::warning(
             this, tr("Mark all files resolved?"),
-            tr("Current changes will be followed by Incoming changes for all "
-               "text conflicts. Current will be kept for binary and file-type "
-               "conflicts."),
+            tr("The Current version will be kept for every conflicted file."),
             QMessageBox::Ok | QMessageBox::Cancel,
             QMessageBox::Cancel) != QMessageBox::Ok)
       return;
@@ -565,6 +562,8 @@ void DoubleTreeWidget::setDiff(const git::Diff &diff, const QString &file,
   const bool commitDiff = diff.isValid() && !diff.isStatusDiff();
   const bool conflictMode =
       diff.isValid() && diff.isStatusDiff() && diff.isConflicted();
+  if (diff.isValid() && diff.isStatusDiff() && !conflictMode)
+    mConflictAutoOpenEnabled = true;
   const bool showAllFiles = commitDiff && mShowAllFiles->isChecked();
   if (showAllFiles)
     model->setTree(repoView->tree(), diff);
@@ -672,6 +671,8 @@ void DoubleTreeWidget::updateConflictUi() {
     mUnstagedCommitedFiles->setText(
         tr("Conflicted Files (%1)").arg(unresolvedFiles));
 
+  const bool conflictSessionComplete =
+      unresolvedFiles == 0 && mConflictSessionTotal > 0;
   if (unresolvedFiles == 0) {
     mConflictSessionTotal = 0;
     mUnresolvedOnly->setChecked(false);
@@ -699,6 +700,9 @@ void DoubleTreeWidget::updateConflictUi() {
   mUnresolvedOnly->setVisible(false);
   mPreviousConflict->setVisible(visible);
   mNextConflict->setVisible(visible);
+
+  if (conflictSessionComplete)
+    RepoView::parentView(this)->setFileInspectionVisible(false);
 }
 
 void DoubleTreeWidget::selectAdjacentConflict(int direction) {
@@ -832,7 +836,8 @@ void DoubleTreeWidget::loadSelection() {
         index, QItemSelectionModel::Select);
   }
   mIgnoreSelectionChange = ignoreSelectionChange;
-  if (mDiff.isConflicted() && index.isValid() && !mFileInspectionClosed)
+  if (mDiff.isConflicted() && index.isValid() && !mFileInspectionClosed &&
+      mConflictAutoOpenEnabled)
     openFileInspection();
 }
 
@@ -931,6 +936,7 @@ void DoubleTreeWidget::openFileInspection() {
   if (selected.isEmpty())
     return;
 
+  mConflictAutoOpenEnabled = true;
   mFileInspectionClosed = false;
   loadEditorContent(selected);
   RepoView::parentView(this)->setFileInspectionVisible(true);

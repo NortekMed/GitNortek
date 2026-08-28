@@ -9,8 +9,10 @@
 
 #include "qtsupport.h"
 #include "Test.h"
+#include "git/Commit.h"
 #include "ui/MainWindow.h"
 #include "ui/DetailView.h"
+#include "ui/DiffTreeModel.h"
 #include "ui/DiffView/DiffView.h"
 #include "ui/DiffView/FileWidget.h"
 #include "ui/DoubleTreeWidget.h"
@@ -292,8 +294,22 @@ void TestMerge::resolve() {
   QCOMPARE(currentMaster->checkState(), Qt::Checked);
   QVERIFY(result->toPlainText().contains("FIRST CURRENT"));
   QVERIFY(result->toPlainText().contains("SECOND CURRENT"));
+  const QColor currentResultColor(45, 164, 78, 46);
+  const QColor incomingResultColor(9, 105, 218, 46);
+  auto hasResultColor = [result](const QColor &color) {
+    for (const QTextEdit::ExtraSelection &selection :
+         result->extraSelections()) {
+      if (selection.format.background().color() == color)
+        return true;
+    }
+    return false;
+  };
+  QVERIFY(hasResultColor(currentResultColor));
+  QVERIFY(!hasResultColor(incomingResultColor));
   mouseClick(incomingMaster, Qt::LeftButton);
   QCOMPARE(incomingMaster->checkState(), Qt::Checked);
+  QVERIFY(hasResultColor(currentResultColor));
+  QVERIFY(hasResultColor(incomingResultColor));
   QVERIFY(result->toPlainText().indexOf("FIRST CURRENT") <
           result->toPlainText().indexOf("FIRST INCOMING"));
   mouseClick(currentMaster, Qt::LeftButton);
@@ -350,8 +366,20 @@ void TestMerge::resolve() {
              inputDelay);
 
   QTRY_VERIFY(!mRepo->index().hasConflicts());
+  QTRY_VERIFY(!view->isFileInspectionVisible());
   QCOMPARE(mRepo->index().isStaged("test"), git::Index::Staged);
   QCOMPARE(mRepo->index().isStaged("externally-staged"), git::Index::Staged);
+
+  // Resolved paths remain staged when inspecting a historical diff.
+  git::Diff historicalDiff = mRepo->head().target().diff();
+  QVERIFY(historicalDiff.isValid());
+  QVERIFY(!historicalDiff.isStatusDiff());
+  DiffTreeModel historicalModel(mRepo);
+  historicalModel.setDiff(historicalDiff, {"test"});
+  QModelIndex historicalFile = historicalModel.index(0, 0);
+  QVERIFY(historicalFile.isValid());
+  QCOMPARE(historicalFile.data(Qt::CheckStateRole).value<Qt::CheckState>(),
+           Qt::Checked);
 
   auto *commit = view->findChild<QPushButton *>("CommitButton");
   QVERIFY(commit);
@@ -384,8 +412,7 @@ void TestMerge::resolve() {
                               "Resolver end\n";
   QCOMPARE(resolved.readAll(), expected);
 
-  // Commit and refresh.
-  QVERIFY(view->isFileInspectionVisible());
+  // Commit and refresh from the branch view.
   mouseClick(commit, Qt::LeftButton);
   QTRY_VERIFY(!view->isFileInspectionVisible());
   refresh(view, false);
@@ -417,16 +444,30 @@ void TestMerge::fileLevelConflicts() {
       return QByteArray();
     return file.readAll();
   };
+  auto largeContent = [](const QByteArray &conflictLine) {
+    QByteArray content;
+    content.reserve(7500 * 16);
+    for (int line = 0; line < 7500; ++line) {
+      if (line == 3750)
+        content.append(conflictLine).append('\n');
+      else
+        content.append("unchanged line ")
+            .append(QByteArray::number(line))
+            .append('\n');
+    }
+    return content;
+  };
 
   QVERIFY(writeFile("binary-conflict.bin", QByteArray("\0base", 5)));
   QVERIFY(writeFile(".gitattributes", "*.bin binary\nchunks.txt -text\n"));
   QVERIFY(writeFile("attribute-binary.bin", "base text\n"));
   QVERIFY(writeFile("chunks.txt", "base chunk\r\n"));
+  QVERIFY(writeFile("large-conflict.txt", largeContent("base choice")));
   QVERIFY(writeFile("current-deleted.txt", "base\n"));
   QVERIFY(writeFile("incoming-deleted.txt", "base\n"));
   QCOMPARE(runGit({"add", ".gitattributes", "attribute-binary.bin",
                    "binary-conflict.bin", "chunks.txt", "current-deleted.txt",
-                   "incoming-deleted.txt"}),
+                   "incoming-deleted.txt", "large-conflict.txt"}),
            0);
   QCOMPARE(runGit({"commit", "-m", "add file-level conflict fixtures"}), 0);
   QCOMPARE(runGit({"checkout", "-b", "file-conflicts"}), 0);
@@ -436,9 +477,11 @@ void TestMerge::fileLevelConflicts() {
   QVERIFY(writeFile("both-empty.txt", "incoming added\n"));
   QVERIFY(writeFile("chunks.txt", "incoming chunk\r\n"));
   QVERIFY(writeFile("current-deleted.txt", "incoming modified\r\n"));
+  QVERIFY(writeFile("large-conflict.txt", largeContent("incoming choice")));
   QCOMPARE(runGit({"rm", "incoming-deleted.txt"}), 0);
   QCOMPARE(runGit({"add", "attribute-binary.bin", "binary-conflict.bin",
-                   "both-empty.txt", "chunks.txt", "current-deleted.txt"}),
+                   "both-empty.txt", "chunks.txt", "current-deleted.txt",
+                   "large-conflict.txt"}),
            0);
   QCOMPARE(runGit({"commit", "-m", "modify incoming fixtures"}), 0);
   QCOMPARE(runGit({"checkout", mMainBranch}), 0);
@@ -447,9 +490,10 @@ void TestMerge::fileLevelConflicts() {
   QVERIFY(writeFile("attribute-binary.bin", "current text\n"));
   QVERIFY(writeFile("both-empty.txt", "current added\n"));
   QVERIFY(writeFile("chunks.txt", "current chunk\r\n"));
+  QVERIFY(writeFile("large-conflict.txt", largeContent("current choice")));
   QVERIFY(writeFile("incoming-deleted.txt", "current modified\n"));
   QCOMPARE(runGit({"add", "attribute-binary.bin", "binary-conflict.bin",
-                   "both-empty.txt", "chunks.txt"}),
+                   "both-empty.txt", "chunks.txt", "large-conflict.txt"}),
            0);
   QCOMPARE(runGit({"add", "incoming-deleted.txt"}), 0);
   QCOMPARE(runGit({"rm", "current-deleted.txt"}), 0);
@@ -613,6 +657,29 @@ void TestMerge::fileLevelConflicts() {
       findFile(resolvedFiles->model(), "attribute-binary.bin").isValid());
   QCOMPARE(readFile("attribute-binary.bin"), QByteArray("current text\n"));
 
+  QTRY_VERIFY(findFile(files->model(), "large-conflict.txt").isValid());
+  fileWidget = openFile("large-conflict.txt");
+  QVERIFY(fileWidget);
+  auto *largeResolver = fileWidget->findChild<QWidget *>("ConflictResolver");
+  QVERIFY(largeResolver);
+  result = fileWidget->findChild<QPlainTextEdit *>("ConflictResult");
+  currentMaster =
+      fileWidget->findChild<QCheckBox *>("ConflictCurrentPanelMaster");
+  markResolved = fileWidget->findChild<QToolButton *>("ConflictMarkResolved");
+  QVERIFY(result);
+  QVERIFY(currentMaster);
+  QVERIFY(markResolved);
+  QCOMPARE(result->toPlainText(),
+           QString::fromUtf8(largeContent("base choice")));
+  QVERIFY(largeResolver->findChildren<QWidget *>("ConflictSourceOmittedLines")
+              .size() >= 2);
+  QVERIFY(largeResolver->findChildren<QToolButton *>().size() < 50);
+  mouseClick(currentMaster, Qt::LeftButton);
+  QVERIFY(result->toPlainText().contains("current choice"));
+  mouseClick(markResolved, Qt::LeftButton);
+  QTRY_VERIFY(!findFile(files->model(), "large-conflict.txt").isValid());
+  QCOMPARE(readFile("large-conflict.txt"), largeContent("current choice"));
+
   QTRY_VERIFY(findFile(files->model(), "binary-conflict.bin").isValid());
   fileWidget = openFile("binary-conflict.bin");
   QVERIFY(fileWidget);
@@ -666,21 +733,34 @@ void TestMerge::fileLevelConflicts() {
   mouseClick(markResolved, Qt::LeftButton);
 
   QTRY_VERIFY(!mRepo->index().hasConflicts());
+  QTRY_VERIFY(!view->isFileInspectionVisible());
   QVERIFY(
       !QFileInfo::exists(mRepo->workdir().filePath("incoming-deleted.txt")));
 
   QCOMPARE(runGit({"merge", "--abort"}), 0);
   QCOMPARE(runGit({"merge", "file-conflicts"}), 1);
   mRepo->index().read();
+
+  MainWindow conflictedWindow(mRepo, nullptr, Qt::WindowFlags(), false);
+  RepoView *conflictedView = conflictedWindow.currentView();
+  auto *conflictedTree = conflictedView->findChild<DoubleTreeWidget *>();
+  QVERIFY(conflictedTree);
+  QTRY_VERIFY(conflictedTree->setDiffCounter() > 0);
+  QVERIFY(mRepo->index().hasConflicts());
+  QVERIFY(!conflictedView->isFileInspectionVisible());
+  const uint32_t initialDiffCount = conflictedTree->setDiffCounter();
+  conflictedView->refresh(false);
+  QTRY_VERIFY(conflictedTree->setDiffCounter() > initialDiffCount);
+  QVERIFY(!conflictedView->isFileInspectionVisible());
+
   git::Diff bulkDiff = mRepo->diffIndexToWorkdir();
   QVERIFY(FileWidget::resolveAllConflicts(bulkDiff).isEmpty());
   QVERIFY(!mRepo->index().hasConflicts());
-  QCOMPARE(readFile("both-empty.txt"),
-           QByteArray("current added\nincoming added\n"));
-  QCOMPARE(readFile("chunks.txt"),
-           QByteArray("current chunk\r\nincoming chunk\r\n"));
+  QCOMPARE(readFile("both-empty.txt"), QByteArray("current added\n"));
+  QCOMPARE(readFile("chunks.txt"), QByteArray("current chunk\r\n"));
+  QCOMPARE(readFile("large-conflict.txt"), largeContent("current choice"));
   QCOMPARE(readFile("binary-conflict.bin"), QByteArray("\0current", 8));
-  QCOMPARE(readFile("current-deleted.txt"), QByteArray("incoming modified\n"));
+  QVERIFY(!QFileInfo::exists(mRepo->workdir().filePath("current-deleted.txt")));
   QCOMPARE(readFile("incoming-deleted.txt"), QByteArray("current modified\n"));
 
   auto *abort = view->findChild<QPushButton *>("AbortMergeButton");

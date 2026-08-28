@@ -96,6 +96,7 @@ private:
 
   bool mShown = false;
   bool mClosing = false;
+  bool mAddingTab = false;
 
   static bool sSaveWindowSettings;
 };

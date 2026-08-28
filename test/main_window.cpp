@@ -19,6 +19,7 @@
 #include "ui/MainWindow.h"
 #include "ui/MenuBar.h"
 #include "ui/RepoView.h"
+#include "ui/RepositoryNavigatorModel.h"
 #include "ui/TabWidget.h"
 #include <QLineEdit>
 #include <QMenu>
@@ -40,6 +41,8 @@ class TestMainWindow : public QObject {
 private slots:
   void initTestCase();
   void show();
+  void initialRefreshOnce();
+  void navigatorRefreshCoalesced();
   void consistentBodyFontSize();
   void commitReferencesOnSecondLine();
   void toggleLogPanel();
@@ -90,6 +93,26 @@ void TestMainWindow::initTestCase() {
 void TestMainWindow::show() {
   mWindow->show();
   QVERIFY(qWaitForWindowActive(mWindow));
+}
+
+void TestMainWindow::initialRefreshOnce() {
+  ScratchRepository repo;
+  QSignalSpy refreshed(repo->notifier(),
+                       &git::RepositoryNotifier::referenceUpdated);
+  MainWindow window(repo, nullptr, Qt::WindowFlags(), false);
+  QCOMPARE(refreshed.count(), 1);
+}
+
+void TestMainWindow::navigatorRefreshCoalesced() {
+  RepositoryNavigatorModel model;
+  model.setRepository(mRepo);
+  QSignalSpy reset(&model, &QAbstractItemModel::modelReset);
+
+  emit mRepo->notifier()->referenceUpdated(mRepo->head());
+  emit mRepo->notifier()->referenceUpdated(mRepo->head());
+  emit mRepo->notifier()->referenceUpdated(mRepo->head());
+
+  QTRY_COMPARE(reset.count(), 1);
 }
 
 void TestMainWindow::consistentBodyFontSize() {

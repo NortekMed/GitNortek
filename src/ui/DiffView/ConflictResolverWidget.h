@@ -23,7 +23,6 @@ public:
   QByteArray resultWithConflictChunks() const;
   bool canCreateConflictChunks() const { return mResultRangesValid; }
   bool hasUnsavedOutput() const;
-  void acceptAll();
 
 signals:
   void completenessChanged(bool complete);
@@ -36,9 +35,16 @@ private:
     int line;
   };
 
+  struct OriginSpan {
+    Side side;
+    int start;
+    int end;
+  };
+
   struct BlockState {
     git::Patch::ConflictBlock block;
     QList<Selection> selections;
+    QList<OriginSpan> origins;
     QList<SourceLineRow *> currentRows;
     QList<SourceLineRow *> incomingRows;
     QCheckBox *currentCheck = nullptr;
@@ -52,6 +58,7 @@ private:
   void toggleAll(Side side);
   void setAllSelected(Side side, bool selected);
   void replaceResultBlock(int block);
+  void updateResultHighlights();
   void updateBlockUi(int block);
   void updateMasterUi();
   bool contains(const BlockState &state, Side side, int line) const;
@@ -69,6 +76,7 @@ private:
   ConflictSourcePanel *mIncomingPanel = nullptr;
   QPlainTextEdit *mResult = nullptr;
   bool mUpdatingResult = false;
+  bool mBulkUpdating = false;
   bool mResultRangesValid = true;
   bool mCrLf = false;
   QByteArray mInitialOutput;

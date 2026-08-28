@@ -66,10 +66,15 @@ bool RepositoryNavigatorModel::lessThan(
 
 RepositoryNavigatorModel::RepositoryNavigatorModel(QObject *parent)
     : QAbstractItemModel(parent) {
+  mRefreshTimer.setSingleShot(true);
+  mRefreshTimer.setInterval(50);
+  connect(&mRefreshTimer, &QTimer::timeout, this,
+          &RepositoryNavigatorModel::refresh);
   rebuild();
 }
 
 void RepositoryNavigatorModel::setRepository(const git::Repository &repo) {
+  mRefreshTimer.stop();
   disconnectRepository();
   beginResetModel();
   mRepo = repo;
@@ -85,10 +90,15 @@ git::Repository RepositoryNavigatorModel::repository() const { return mRepo; }
 
 void RepositoryNavigatorModel::setSubmoduleUpdateStatuses(
     const QList<git::Submodule::UpdateStatus> &statuses) {
-  beginResetModel();
-  mSubmoduleUpdateStatuses.clear();
+  if (statuses.isEmpty() && mSubmoduleUpdateStatuses.isEmpty())
+    return;
+
+  QHash<QString, git::Submodule::UpdateStatus> updated;
   for (const git::Submodule::UpdateStatus &status : statuses)
-    mSubmoduleUpdateStatuses.insert(status.name, status);
+    updated.insert(status.name, status);
+
+  beginResetModel();
+  mSubmoduleUpdateStatuses = updated;
   rebuild();
   endResetModel();
 }
@@ -271,14 +281,16 @@ void RepositoryNavigatorModel::connectRepository() {
     return;
 
   git::RepositoryNotifier *notifier = mRepo.notifier();
-  mConnections.append(connect(notifier, &git::RepositoryNotifier::referenceAdded,
-                              this, &RepositoryNavigatorModel::refresh));
+  auto scheduleRefresh = [this] { mRefreshTimer.start(); };
+  mConnections.append(connect(notifier,
+                              &git::RepositoryNotifier::referenceAdded, this,
+                              scheduleRefresh));
   mConnections.append(connect(notifier,
                               &git::RepositoryNotifier::referenceRemoved, this,
-                              &RepositoryNavigatorModel::refresh));
+                              scheduleRefresh));
   mConnections.append(connect(notifier,
                               &git::RepositoryNotifier::referenceUpdated, this,
-                              &RepositoryNavigatorModel::refresh));
+                              scheduleRefresh));
 }
 
 void RepositoryNavigatorModel::rebuild() {

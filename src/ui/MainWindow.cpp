@@ -143,8 +143,10 @@ MainWindow::MainWindow(const git::Repository &repo, QWidget *parent,
   // Create tab container.
   TabWidget *tabs = new TabWidget(splitter);
   connect(tabs, &TabWidget::currentChanged, [this](int index) {
-    if (RepoView *repoView = view(index))
-      repoView->refresh(false);
+    if (!mAddingTab) {
+      if (RepoView *repoView = view(index))
+        repoView->refresh(false);
+    }
 
     updateInterface();
     MenuBar::instance(this)->update();
@@ -289,7 +291,9 @@ RepoView *MainWindow::addTab(const git::Repository &repo,
           [this] { updateWindowTitle(); });
 
   emit tabs->tabAboutToBeInserted();
+  mAddingTab = true;
   tabs->setCurrentIndex(tabs->addTab(view, dir.dirName()));
+  mAddingTab = false;
 
   if (!updateSubmodules.has_value()) {
     Settings *settings = Settings::instance();
@@ -298,13 +302,14 @@ RepoView *MainWindow::addTab(const git::Repository &repo,
     updateSubmodules =
         repo.appConfig().value<bool>("autoupdate.enable", enable);
   }
-  if (*updateSubmodules) {
-    // update submodules
-    view->updateSubmodules(repo.submodules(), true, true, false, nullptr);
+  const QList<git::Submodule> submodules =
+      *updateSubmodules ? repo.submodules() : QList<git::Submodule>();
+  if (!submodules.isEmpty()) {
+    // The submodule update refreshes after it completes.
+    view->updateSubmodules(submodules, true, true, false, nullptr);
+  } else {
+    view->refresh(false);
   }
-
-  // Start status diff.
-  view->refresh(false);
   return view;
 }
 

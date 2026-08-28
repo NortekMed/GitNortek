@@ -10,6 +10,7 @@
 #include <QPlainTextEdit>
 #include <QScrollArea>
 #include <QScrollBar>
+#include <QSet>
 #include <QSplitter>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -17,6 +18,8 @@
 #include <functional>
 
 namespace {
+
+constexpr int kContextLines = 3;
 
 class SelectionBubble : public QToolButton {
 public:
@@ -164,6 +167,14 @@ public:
     return row;
   }
 
+  void addOmittedLines(int count) {
+    SourceLineRow *row =
+        addLine(ConflictResolverWidget::tr("%n unchanged line(s) omitted",
+                                           nullptr, count),
+                false);
+    row->setObjectName("ConflictSourceOmittedLines");
+  }
+
   QScrollBar *verticalScrollBar() const { return mScroll->verticalScrollBar(); }
 
   void connectMaster(const std::function<void()> &toggle) {
@@ -251,15 +262,39 @@ ConflictResolverWidget::ConflictResolverWidget(const git::Patch &patch,
 
   QString resultText;
   int fileLine = 0;
-  for (int blockIndex = 0; blockIndex < blocks.size(); ++blockIndex) {
-    const git::Patch::ConflictBlock &block = blocks.at(blockIndex);
-    while (fileLine < block.startMarker) {
-      const QString text = lineText(fileLines.at(fileLine));
+  auto addUnchangedLines = [&](int end) {
+    const int count = end - fileLine;
+    const int contextCount = 2 * kContextLines;
+    auto addLine = [&](int line) {
+      const QString text = lineText(fileLines.at(line));
       mCurrentPanel->addLine(text, false);
       mIncomingPanel->addLine(text, false);
+    };
+
+    if (count <= contextCount + 1) {
+      while (fileLine < end)
+        addLine(fileLine++);
+      return;
+    }
+
+    for (int line = fileLine; line < fileLine + kContextLines; ++line)
+      addLine(line);
+    mCurrentPanel->addOmittedLines(count - contextCount);
+    mIncomingPanel->addOmittedLines(count - contextCount);
+    for (int line = end - kContextLines; line < end; ++line)
+      addLine(line);
+    fileLine = end;
+  };
+
+  for (int blockIndex = 0; blockIndex < blocks.size(); ++blockIndex) {
+    const git::Patch::ConflictBlock &block = blocks.at(blockIndex);
+    const int unchangedStart = fileLine;
+    while (fileLine < block.startMarker) {
       resultText.append(resultLine(fileLines.at(fileLine)));
       ++fileLine;
     }
+    fileLine = unchangedStart;
+    addUnchangedLines(block.startMarker);
 
     BlockState state;
     state.block = block;
@@ -316,13 +351,13 @@ ConflictResolverWidget::ConflictResolverWidget(const git::Patch &patch,
     fileLine = block.endMarker + 1;
   }
 
+  const int unchangedStart = fileLine;
   while (fileLine < fileLines.size()) {
-    const QString text = lineText(fileLines.at(fileLine));
-    mCurrentPanel->addLine(text, false);
-    mIncomingPanel->addLine(text, false);
     resultText.append(resultLine(fileLines.at(fileLine)));
     ++fileLine;
   }
+  fileLine = unchangedStart;
+  addUnchangedLines(fileLines.size());
 
   mResult->setPlainText(resultText);
   connect(mResult->document(), &QTextDocument::contentsChange, this,
@@ -334,6 +369,9 @@ ConflictResolverWidget::ConflictResolverWidget(const git::Patch &patch,
                 mResult->document()->characterCount() - 1 - added + removed;
             if ((pos == 0 && removed >= oldLength) || !mResultRangesValid) {
               mResultRangesValid = false;
+              for (BlockState &state : mBlocks)
+                state.origins.clear();
+              updateResultHighlights();
               return;
             }
 
@@ -349,6 +387,9 @@ ConflictResolverWidget::ConflictResolverWidget(const git::Patch &patch,
             }
             if (touchedBlocks > 1) {
               mResultRangesValid = false;
+              for (BlockState &state : mBlocks)
+                state.origins.clear();
+              updateResultHighlights();
               return;
             }
 
@@ -360,6 +401,7 @@ ConflictResolverWidget::ConflictResolverWidget(const git::Patch &patch,
                 state.resultEnd += delta;
               } else if (pos <= state.resultEnd &&
                          removedEnd >= state.resultStart) {
+                state.origins.clear();
                 if (pos < state.resultStart)
                   state.resultStart = pos + added;
                 state.resultEnd = removedEnd < state.resultEnd
@@ -367,8 +409,10 @@ ConflictResolverWidget::ConflictResolverWidget(const git::Patch &patch,
                                       : qMax(state.resultStart, pos + added);
               }
             }
+            updateResultHighlights();
           });
 
+  mBulkUpdating = true;
   for (int block = 0; block < mBlocks.size(); ++block) {
     const git::Patch::ConflictResolution resolution =
         mPatch.conflictResolution(block);
@@ -390,6 +434,10 @@ ConflictResolverWidget::ConflictResolverWidget(const git::Patch &patch,
       replaceResultBlock(block);
     updateBlockUi(block);
   }
+  mBulkUpdating = false;
+  updateResultHighlights();
+  updateMasterUi();
+  emit completenessChanged(isComplete());
   mInitialOutput = result();
 }
 
@@ -447,13 +495,6 @@ QString ConflictResolverWidget::conflictChunk(const BlockState &state) const {
   return text;
 }
 
-void ConflictResolverWidget::acceptAll() {
-  setAllSelected(Current, false);
-  setAllSelected(Incoming, false);
-  setAllSelected(Current, true);
-  setAllSelected(Incoming, true);
-}
-
 void ConflictResolverWidget::toggleBlock(int block, Side side) {
   BlockState &state = mBlocks[block];
   const bool remove = allSelected(state, side);
@@ -509,6 +550,10 @@ void ConflictResolverWidget::toggleAll(Side side) {
 }
 
 void ConflictResolverWidget::setAllSelected(Side side, bool selected) {
+  QTextCursor editCursor(mResult->document());
+  mUpdatingResult = true;
+  editCursor.beginEditBlock();
+  mBulkUpdating = true;
   for (int block = 0; block < mBlocks.size(); ++block) {
     BlockState &state = mBlocks[block];
     for (int i = state.selections.size() - 1; i >= 0; --i) {
@@ -530,11 +575,18 @@ void ConflictResolverWidget::setAllSelected(Side side, bool selected) {
       replaceResultBlock(block);
     updateBlockUi(block);
   }
+  mBulkUpdating = false;
+  editCursor.endEditBlock();
+  mUpdatingResult = false;
+  updateResultHighlights();
+  updateMasterUi();
+  emit completenessChanged(isComplete());
 }
 
 void ConflictResolverWidget::replaceResultBlock(int block) {
   BlockState &state = mBlocks[block];
   QString text;
+  state.origins.clear();
   if (state.selections.isEmpty()) {
     for (const QByteArray &line : state.block.ancestorLines)
       text.append(resultLine(line));
@@ -545,16 +597,26 @@ void ConflictResolverWidget::replaceResultBlock(int block) {
     const QList<QByteArray> &lines = selection.side == Current
                                          ? state.block.currentLines
                                          : state.block.incomingLines;
+    const int start = text.size();
     text.append(resultLine(lines.at(selection.line)));
+    if (!state.origins.isEmpty() &&
+        state.origins.last().side == selection.side &&
+        state.origins.last().end == start) {
+      state.origins.last().end = text.size();
+    } else {
+      state.origins.append(
+          {selection.side, start, static_cast<int>(text.size())});
+    }
   }
 
   QTextCursor cursor(mResult->document());
   cursor.setPosition(state.resultStart);
   cursor.setPosition(state.resultEnd, QTextCursor::KeepAnchor);
   const int oldLength = state.resultEnd - state.resultStart;
+  const bool updatingResult = mUpdatingResult;
   mUpdatingResult = true;
   cursor.insertText(text);
-  mUpdatingResult = false;
+  mUpdatingResult = updatingResult;
 
   const int delta = text.size() - oldLength;
   state.resultEnd = state.resultStart + text.size();
@@ -562,16 +624,49 @@ void ConflictResolverWidget::replaceResultBlock(int block) {
     mBlocks[i].resultStart += delta;
     mBlocks[i].resultEnd += delta;
   }
+  if (!mBulkUpdating)
+    updateResultHighlights();
+}
+
+void ConflictResolverWidget::updateResultHighlights() {
+  QList<QTextEdit::ExtraSelection> highlights;
+  const QColor currentColor(45, 164, 78, 46);
+  const QColor incomingColor(9, 105, 218, 46);
+  const int documentEnd = mResult->document()->characterCount() - 1;
+  for (const BlockState &state : std::as_const(mBlocks)) {
+    for (const OriginSpan &origin : state.origins) {
+      const int start = state.resultStart + origin.start;
+      const int end = qMin(state.resultStart + origin.end, documentEnd);
+      if (start < 0 || start > end || start > documentEnd)
+        continue;
+
+      QTextEdit::ExtraSelection highlight;
+      highlight.cursor = QTextCursor(mResult->document());
+      highlight.cursor.setPosition(start);
+      highlight.cursor.setPosition(end, QTextCursor::KeepAnchor);
+      highlight.format.setBackground(origin.side == Current ? currentColor
+                                                            : incomingColor);
+      highlight.format.setProperty(QTextFormat::FullWidthSelection, true);
+      highlights.append(highlight);
+    }
+  }
+  mResult->setExtraSelections(highlights);
 }
 
 void ConflictResolverWidget::updateBlockUi(int block) {
   BlockState &state = mBlocks[block];
   state.currentCheck->setChecked(allSelected(state, Current));
   state.incomingCheck->setChecked(allSelected(state, Incoming));
+  QSet<int> currentSelections;
+  QSet<int> incomingSelections;
+  for (const Selection &selection : std::as_const(state.selections)) {
+    (selection.side == Current ? currentSelections : incomingSelections)
+        .insert(selection.line);
+  }
   for (int line = 0; line < state.currentRows.size(); ++line)
-    state.currentRows.at(line)->setSelected(contains(state, Current, line));
+    state.currentRows.at(line)->setSelected(currentSelections.contains(line));
   for (int line = 0; line < state.incomingRows.size(); ++line)
-    state.incomingRows.at(line)->setSelected(contains(state, Incoming, line));
+    state.incomingRows.at(line)->setSelected(incomingSelections.contains(line));
 
   git::Patch::ConflictResolution resolution = git::Patch::Unresolved;
   const bool current = allSelected(state, Current);
@@ -583,8 +678,10 @@ void ConflictResolverWidget::updateBlockUi(int block) {
   else if (incoming)
     resolution = git::Patch::Theirs;
   mPatch.setConflictResolution(block, resolution);
-  updateMasterUi();
-  emit completenessChanged(isComplete());
+  if (!mBulkUpdating) {
+    updateMasterUi();
+    emit completenessChanged(isComplete());
+  }
 }
 
 void ConflictResolverWidget::updateMasterUi() {
@@ -614,13 +711,15 @@ bool ConflictResolverWidget::allSelected(const BlockState &state,
                                          Side side) const {
   const QList<QByteArray> &lines =
       side == Current ? state.block.currentLines : state.block.incomingLines;
-  if (lines.isEmpty())
-    return contains(state, side, -1);
-  for (int line = 0; line < lines.size(); ++line) {
-    if (!contains(state, side, line))
-      return false;
+  int selected = 0;
+  for (const Selection &selection : state.selections) {
+    if (selection.side != side)
+      continue;
+    if (lines.isEmpty())
+      return selection.line == -1;
+    ++selected;
   }
-  return true;
+  return !lines.isEmpty() && selected == lines.size();
 }
 
 bool ConflictResolverWidget::anySelected(const BlockState &state,

@@ -23,11 +23,13 @@ Bug Fix and Feature release
 * Add a green Stage All Changes button above the working-directory file tree
 * Checkout the latest fetched configured branch from behind-origin submodule context menus
 * Choose whether to initialize submodules for each clone from the clone window
-* Resolve merges in an ancestor-backed Current/Incoming/Output workspace with exact-output saving, staged conflict chunks, content-aware handling for text files marked binary, dedicated true-binary and delete/modify choosers, retained Current-only resolutions, external merge-tool launch, unsaved-output warnings, color-coded merge actions and proposals, conflict/resolved file groups, bulk resolution, conflict navigation, guarded merge commits, and automatic return to the branch view after commit or abort
+* Resolve merges in an ancestor-backed Current/Incoming/Output workspace with exact-output saving, staged conflict chunks, content-aware handling for text files marked binary, dedicated true-binary and delete/modify choosers, retained Current-only resolutions, external merge-tool launch, unsaved-output warnings, color-coded merge actions, proposals, and Output origins, conflict/resolved file groups, efficient large-file rendering, bulk Current-version resolution, conflict navigation, safe history inspection during active merges, guarded merge commits, and automatic return to the branch view after the final conflict is resolved, committed, or aborted
 
 #### Changed
 
 * Show the repository sidebar at startup and keep it open when opening repositories
+* Open repositories in the branch view even when unresolved conflicts already exist
+* Avoid redundant startup status scans and coalesce repository sidebar refreshes
 * Show Blame and Diff in the branch and commit pane when files are selected, with more default space for the commit history
 * Use the full repository sidebar for navigation and keep only the 20 most recent repositories
 * Brand Linux application and packages as GitNortek

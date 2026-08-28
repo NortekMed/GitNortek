@@ -128,6 +128,7 @@ private:
   QStackedWidget *mFileView{nullptr};
   bool mIgnoreSelectionChange{false};
   bool mFileInspectionClosed{false};
+  bool mConflictAutoOpenEnabled{false};
 
   git::Diff mDiff;
 

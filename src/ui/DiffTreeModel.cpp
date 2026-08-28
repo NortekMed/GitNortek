@@ -294,13 +294,13 @@ QVariant DiffTreeModel::data(const QModelIndex &index, int role) const {
       if (index.column() > 0)
         return QVariant();
 
+      const bool statusDiff = mDiff.isValid() && mDiff.isStatusDiff();
       const bool resolvedPath =
           !node->hasChildren() && mResolvedPaths.contains(node->path(true));
-      if ((!mDiff.isValid() || !mDiff.isStatusDiff()) && !resolvedPath)
+      if (!statusDiff && !resolvedPath)
         return QVariant();
 
-      const git::Index repoIndex =
-          mDiff.isValid() ? mDiff.index() : mRepo.index();
+      const git::Index repoIndex = statusDiff ? mDiff.index() : mRepo.index();
       const auto state =
           node->stageState(repoIndex, Node::ParentStageState::Any);
       switch (state) {

@@ -75,15 +75,6 @@ bool resolveTextOutput(const git::Patch &patch,
   return false;
 }
 
-bool regularTextSide(const git::Repository &repo, const git::Id &id,
-                     git_filemode_t mode) {
-  if (id.isNull())
-    return true;
-  if (mode != GIT_FILEMODE_BLOB && mode != GIT_FILEMODE_BLOB_EXECUTABLE)
-    return false;
-  const git::Blob blob = repo.lookupBlob(id);
-  return blob.isValid() && !blob.isBinary();
-}
 } // namespace
 
 _FileWidget::Header::Header(const git::Diff &diff, const git::Patch &patch,
@@ -609,39 +600,10 @@ QStringList FileWidget::resolveAllConflicts(const git::Diff &diff) {
 
     git::Repository repo = patch.repo();
     const git::Index::Conflict conflict = repo.index().conflict(patch.name());
-    bool resolved = false;
-    if (patch.conflictFileMatches() && patch.count() > 0 &&
-        !patch.hasMalformedConflicts()) {
-      ConflictResolverWidget resolver(patch);
-      resolver.acceptAll();
-      resolved = resolveTextOutput(patch, conflict, resolver.result());
-    } else if (patch.conflictFileMatches() && !patch.hasMalformedConflicts()) {
-      const bool oursText =
-          regularTextSide(repo, conflict.ours, conflict.oursMode);
-      const bool theirsText =
-          regularTextSide(repo, conflict.theirs, conflict.theirsMode);
-      if (oursText && theirsText && conflict.oursMode == conflict.theirsMode &&
-          !conflict.ours.isNull() && !conflict.theirs.isNull() &&
-          conflict.ours != conflict.theirs) {
-        const QByteArray result = repo.lookupBlob(conflict.ours).content() +
-                                  repo.lookupBlob(conflict.theirs).content();
-        resolved = resolveTextOutput(patch, conflict, result);
-      } else {
-        git::Id id = conflict.ours;
-        git_filemode_t mode = conflict.oursMode;
-        if (oursText && theirsText && conflict.ours.isNull() &&
-            !conflict.theirs.isNull()) {
-          id = conflict.theirs;
-          mode = conflict.theirsMode;
-        } else if (oursText && theirsText && conflict.theirs.isNull() &&
-                   !conflict.ours.isNull()) {
-          id = conflict.ours;
-          mode = conflict.oursMode;
-        }
-        resolved =
-            repo.index().resolveConflict(patch.name(), conflict, id, mode);
-      }
-    }
+    const bool resolved =
+        patch.conflictFileMatches() &&
+        repo.index().resolveConflict(patch.name(), conflict, conflict.ours,
+                                     conflict.oursMode);
 
     if (!resolved)
       failed.append(patch.name());

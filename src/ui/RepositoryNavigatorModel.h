@@ -14,6 +14,7 @@
 #include "git/Submodule.h"
 #include <QAbstractItemModel>
 #include <QHash>
+#include <QTimer>
 
 class RepositoryNavigatorModel : public QAbstractItemModel {
   Q_OBJECT
@@ -130,6 +131,7 @@ private:
   QHash<QString, git::Submodule::UpdateStatus> mSubmoduleUpdateStatuses;
   QList<SectionData> mSections;
   QList<QMetaObject::Connection> mConnections;
+  QTimer mRefreshTimer;
 };
 
 #endif
