@@ -298,6 +298,8 @@ public:
       bool recursive = true, bool init = false, bool checkout_force = false,
       LogEntry *parent = nullptr, bool restoreSelection = true);
   void checkSubmoduleUpdates(bool automatic = false);
+  void checkSubmoduleUpdates(const QList<git::Submodule> &submodules,
+                             bool automatic = false);
   void submoduleConfigurationChanged();
   bool checkoutSubmoduleOrigin(const QString &name, const QString &branch,
                                const git::Id &target);
@@ -398,6 +400,7 @@ signals:
   void submodulesChanged();
   void submoduleUpdateStatusesChanged(
       const QList<git::Submodule::UpdateStatus> &statuses);
+  void pushSucceeded(const QString &repositoryPath);
 
 protected:
   void showEvent(QShowEvent *event) override;
@@ -408,6 +411,7 @@ private:
                   const git::Reference &ref, const QString &dst,
                   bool setUpstream, bool force, bool tags, LogEntry *entry,
                   const QString &remoteBranchName);
+  void submodulePushSucceeded(const QString &repositoryPath);
 
   struct SubmoduleInfo {
     git::Submodule submodule;

@@ -21,6 +21,7 @@ Bug Fix and Feature release
 * Warn before pushing a parent commit whose initialized submodule pins cannot be proven available from their clone URLs
 * Add a green Stage All Changes button above the working-directory file tree
 * Checkout the latest fetched configured branch from behind-origin submodule context menus
+* Choose whether to initialize submodules for each clone from the clone window
 
 #### Changed
 
@@ -49,6 +50,8 @@ Bug Fix and Feature release
 * Connect dotted stash ancestry from the side of its base commit node
 * Start the operation log collapsed with its toggle bar visible and open it automatically for new output
 * Avoid repeating destination commit IDs in generated submodule update messages
+* Handle update checks for uninitialized submodules without reporting missing `.git` paths
+* Refresh submodule origin indicators after pushes and add contextual update checks
 * Report only genuinely unavailable submodules in pre-push warnings with actionable error details
 * Show the parent repository in tabs opened for submodules
 * Display commit branch and tag badges on a separate line in the details panel while omitting remote HEAD aliases

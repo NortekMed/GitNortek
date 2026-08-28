@@ -8,6 +8,7 @@
 //
 
 #include "CloneDialog.h"
+#include "conf/Settings.h"
 #include "git/Remote.h"
 #include "git/Repository.h"
 #include "git/Result.h"
@@ -165,6 +166,7 @@ public:
 
     ExpandButton *expand = new ExpandButton(this);
     QWidget *advanced = new QWidget(this);
+    advanced->setObjectName("CloneAdvancedOptions");
     advanced->setVisible(false);
 
     QFormLayout *form = new QFormLayout;
@@ -174,17 +176,30 @@ public:
     form->addRow(tr("Advanced:"), expand);
 
     QCheckBox *bare = new QCheckBox(tr("Create a bare repository"));
+    QCheckBox *updateSubmodules =
+        new QCheckBox(tr("Initialize submodules after cloning"));
+    updateSubmodules->setChecked(
+        Settings::instance()
+            ->value(Setting::Id::UpdateSubmodulesAfterPullAndClone)
+            .toBool());
+    updateSubmodules->setVisible(!init);
+    connect(bare, &QCheckBox::toggled, updateSubmodules,
+            [updateSubmodules](bool checked) {
+              updateSubmodules->setEnabled(!checked);
+            });
 
     QFormLayout *advancedForm = new QFormLayout(advanced);
     advancedForm->setContentsMargins(-1, 0, 0, 0);
     advancedForm->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     advancedForm->addRow(bare);
+    advancedForm->addRow(updateSubmodules);
 
     connect(expand, &ExpandButton::toggled, [this, advanced](bool checked) {
       advanced->setVisible(checked);
       QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
       resize(sizeHint());
     });
+    expand->setChecked(true);
 
     mLabel = new QLabel(this);
 
@@ -197,6 +212,7 @@ public:
     registerField("name", mName);
     registerField("path", mPath);
     registerField("bare", bare);
+    registerField("updateSubmodules", updateSubmodules);
   }
 
   bool isComplete() const override {
@@ -363,6 +379,13 @@ QString CloneDialog::message() const {
 QString CloneDialog::messageTitle() const {
   QString url = field("url").toString();
   return url.isEmpty() ? tr("Initialize") : tr("Clone");
+}
+
+std::optional<bool> CloneDialog::updateSubmodules() const {
+  if (field("url").toString().isEmpty())
+    return std::nullopt;
+
+  return !field("bare").toBool() && field("updateSubmodules").toBool();
 }
 
 #include "CloneDialog.moc"

@@ -12,6 +12,7 @@
 
 #include "git/Repository.h"
 #include <QMainWindow>
+#include <optional>
 
 class RepoView;
 class TabWidget;
@@ -29,7 +30,8 @@ public:
   enum class OpenSource { Other, RecentRepository };
 
   MainWindow(const git::Repository &repo, QWidget *parent = nullptr,
-             Qt::WindowFlags flags = Qt::WindowFlags());
+             Qt::WindowFlags flags = Qt::WindowFlags(),
+             std::optional<bool> updateSubmodules = std::nullopt);
 
   ToolBar *toolBar() const { return mToolBar; }
 
@@ -39,9 +41,11 @@ public:
   TabWidget *tabWidget() const;
   RepoView *addTab(const QString &path,
                    OpenSource source = OpenSource::Other,
-                   const QString &tabContext = QString());
+                   const QString &tabContext = QString(),
+                   std::optional<bool> updateSubmodules = std::nullopt);
   RepoView *addTab(const git::Repository &repo,
-                   const QString &tabContext = QString());
+                   const QString &tabContext = QString(),
+                   std::optional<bool> updateSubmodules = std::nullopt);
 
   int count() const;
   RepoView *currentView() const;
@@ -57,8 +61,11 @@ public:
 
   // Open a new window.
   static MainWindow *open(const QString &path, bool warnOnInvalid = true,
-                          OpenSource source = OpenSource::Other);
-  static MainWindow *open(const git::Repository &repo = git::Repository());
+                          OpenSource source = OpenSource::Other,
+                          std::optional<bool> updateSubmodules = std::nullopt);
+  static MainWindow *open(
+      const git::Repository &repo = git::Repository(),
+      std::optional<bool> updateSubmodules = std::nullopt);
 
   // Save window settings on close.
   static void setSaveWindowSettings(bool enabled);

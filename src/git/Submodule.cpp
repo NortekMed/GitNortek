@@ -304,6 +304,22 @@ Submodule::checkForUpdates(Remote::Callbacks *callbacks) const {
     return status;
   }
 
+  if (status.branch.isEmpty()) {
+    status.state = UpdateStatus::NotTracked;
+    status.message = QObject::tr("No submodule branch is configured.");
+    return status;
+  }
+
+  if (status.branch == ".") {
+    status.message = QObject::tr(
+        "The special '.' submodule branch is not supported by this check.");
+    return status;
+  }
+
+  if (!isInitialized())
+    return statusError(
+        *this, QObject::tr("The submodule repository is not initialized."));
+
   git_repository *repo = nullptr;
   int error = git_submodule_open(&repo, d.data());
   if (error)
@@ -327,23 +343,6 @@ Submodule::checkForUpdates(Remote::Callbacks *callbacks) const {
 
   QByteArray proxy = Remote::proxyUrl(status.url, opts.proxy_opts.type);
   opts.proxy_opts.url = proxy;
-
-  if (status.branch.isEmpty()) {
-    status.state = UpdateStatus::NotTracked;
-    status.message = QObject::tr("No submodule branch is configured.");
-    return status;
-  }
-
-  if (status.branch == ".") {
-    status.message = QObject::tr(
-        "The special '.' submodule branch is not supported by this check.");
-    return status;
-  }
-
-  if (status.branch.isEmpty()) {
-    status.message = QObject::tr("No submodule branch could be resolved.");
-    return status;
-  }
 
   QString source = refNameBranch(status.branch);
   QString target = localTargetRef(status.branch);

@@ -42,7 +42,10 @@ public:
     connect(clone, &QPushButton::clicked, [this] {
       CloneDialog *dialog = new CloneDialog(CloneDialog::Clone, this);
       connect(dialog, &CloneDialog::accepted, [dialog] {
-        if (MainWindow *window = MainWindow::open(dialog->path()))
+        if (MainWindow *window =
+                MainWindow::open(dialog->path(), true,
+                                 MainWindow::OpenSource::Other,
+                                 dialog->updateSubmodules()))
           window->currentView()->addLogEntry(dialog->message(),
                                              dialog->messageTitle());
       });
@@ -68,7 +71,10 @@ public:
     connect(init, &QPushButton::clicked, [this] {
       CloneDialog *dialog = new CloneDialog(CloneDialog::Init, this);
       connect(dialog, &CloneDialog::accepted, [dialog] {
-        if (MainWindow *window = MainWindow::open(dialog->path()))
+        if (MainWindow *window =
+                MainWindow::open(dialog->path(), true,
+                                 MainWindow::OpenSource::Other,
+                                 dialog->updateSubmodules()))
           window->currentView()->addLogEntry(dialog->message(),
                                              dialog->messageTitle());
       });

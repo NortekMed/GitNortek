@@ -436,7 +436,8 @@ StartDialog::StartDialog(QWidget *parent) : QDialog(parent) {
   connect(mClone, &QAction::triggered, this, [this] {
     CloneDialog *dialog = new CloneDialog(CloneDialog::Clone, this);
     connect(dialog, &CloneDialog::accepted, this, [this, dialog] {
-      if (MainWindow *window = openWindow(dialog->path()))
+      if (MainWindow *window =
+              openWindow(dialog->path(), dialog->updateSubmodules()))
         window->currentView()->addLogEntry(dialog->message(),
                                            dialog->messageTitle());
     });
@@ -451,7 +452,8 @@ StartDialog::StartDialog(QWidget *parent) : QDialog(parent) {
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->setFileMode(QFileDialog::Directory);
     dialog->setOption(QFileDialog::ShowDirsOnly);
-    connect(dialog, &QFileDialog::fileSelected, this, &StartDialog::openWindow);
+    connect(dialog, &QFileDialog::fileSelected, this,
+            [this](const QString &path) { openWindow(path); });
     dialog->open();
   });
 
@@ -459,7 +461,8 @@ StartDialog::StartDialog(QWidget *parent) : QDialog(parent) {
   connect(mInit, &QAction::triggered, this, [this] {
     CloneDialog *dialog = new CloneDialog(CloneDialog::Init, this);
     connect(dialog, &CloneDialog::accepted, this, [this, dialog] {
-      if (MainWindow *window = openWindow(dialog->path()))
+      if (MainWindow *window =
+              openWindow(dialog->path(), dialog->updateSubmodules()))
         window->currentView()->addLogEntry(dialog->message(),
                                            dialog->messageTitle());
     });
@@ -641,10 +644,18 @@ void StartDialog::accept() {
 
   // Open a new window for the first valid repo.
   auto request = paths.takeFirst();
-  MainWindow *window = MainWindow::open(request.first, true, request.second);
+  auto updateSubmodules = [this](const QString &path) -> std::optional<bool> {
+    auto override = mSubmoduleUpdateOverrides.constFind(path);
+    return override == mSubmoduleUpdateOverrides.cend()
+               ? std::nullopt
+               : std::optional<bool>(*override);
+  };
+  MainWindow *window = MainWindow::open(
+      request.first, true, request.second, updateSubmodules(request.first));
   while (!window && !paths.isEmpty()) {
     request = paths.takeFirst();
-    window = MainWindow::open(request.first, true, request.second);
+    window = MainWindow::open(request.first, true, request.second,
+                              updateSubmodules(request.first));
   }
 
   if (!window)
@@ -652,7 +663,8 @@ void StartDialog::accept() {
 
   // Add the remainder as tabs.
   foreach (const auto &request, paths)
-    window->addTab(request.first, request.second);
+    window->addTab(request.first, request.second, QString(),
+                   updateSubmodules(request.first));
 }
 
 StartDialog *StartDialog::openSharedInstance() {
@@ -759,6 +771,8 @@ void StartDialog::edit(const QModelIndex &index) {
     // Set local path.
     Account *account = Accounts::instance()->account(index.parent().row());
     account->setRepositoryPath(index.row(), dialog->path());
+    if (std::optional<bool> updateSubmodules = dialog->updateSubmodules())
+      mSubmoduleUpdateOverrides.insert(dialog->path(), *updateSubmodules);
 
     // Open the repo.
     QCoreApplication::processEvents();
@@ -816,11 +830,13 @@ void StartDialog::remove() {
   updateButtons();
 }
 
-MainWindow *StartDialog::openWindow(const QString &repo) {
+MainWindow *StartDialog::openWindow(
+    const QString &repo, std::optional<bool> updateSubmodules) {
   // This dialog has to be hidden before opening another window so that it
   // doesn't automatically move to a position that still shows the dialog.
   hide();
-  if (MainWindow *window = MainWindow::open(repo)) {
+  if (MainWindow *window = MainWindow::open(
+          repo, true, MainWindow::OpenSource::Other, updateSubmodules)) {
     // Dismiss this dialog without trying to open the selection.
     reject();
     return window;

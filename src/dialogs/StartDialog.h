@@ -11,7 +11,9 @@
 #define STARTDIALOG_H
 
 #include <QDialog>
+#include <QHash>
 #include <QModelIndex>
+#include <optional>
 
 class Footer;
 class MainWindow;
@@ -40,7 +42,11 @@ private:
   void edit(const QModelIndex &index = QModelIndex());
   void remove();
 
-  MainWindow *openWindow(const QString &repo);
+  MainWindow *openWindow(
+      const QString &repo,
+      std::optional<bool> updateSubmodules = std::nullopt);
+
+  QHash<QString, bool> mSubmoduleUpdateOverrides;
 
   QListView *mRepoList;
   Footer *mRepoFooter;

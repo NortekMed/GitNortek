@@ -2205,6 +2205,7 @@ void RepoView::pushRemote(const git::Remote &remote, const git::Reference &src,
               head.setUpstream(upstream);
             }
           }
+          emit pushSucceeded(mRepo.workdir().canonicalPath());
         }
 
         mWatcher->deleteLater();
@@ -3028,6 +3029,11 @@ void RepoView::updateSubmodulesAsync(const QList<SubmoduleInfo> &submodules,
 }
 
 void RepoView::checkSubmoduleUpdates(bool automatic) {
+  checkSubmoduleUpdates(QList<git::Submodule>(), automatic);
+}
+
+void RepoView::checkSubmoduleUpdates(
+    const QList<git::Submodule> &requestedSubmodules, bool automatic) {
   if (mSubmoduleUpdateWatcher) {
     if (automatic)
       mSubmoduleUpdateCheckPending = true;
@@ -3058,7 +3064,9 @@ void RepoView::checkSubmoduleUpdates(bool automatic) {
   mSubmoduleUpdateCheckPending = false;
   const quint64 generation = mSubmoduleConfigurationGeneration;
 
-  QList<git::Submodule> submodules = mRepo.submodules();
+  const bool fullCheck = requestedSubmodules.isEmpty();
+  QList<git::Submodule> submodules =
+      fullCheck ? mRepo.submodules() : requestedSubmodules;
   if (submodules.isEmpty()) {
     clearSubmoduleUpdateStatuses();
     if (!automatic)
@@ -3083,7 +3091,8 @@ void RepoView::checkSubmoduleUpdates(bool automatic) {
 
   connect(
       watcher, &QFutureWatcher<QList<git::Submodule::UpdateStatus>>::finished,
-      watcher, [this, watcher, callbacks, entry, automatic, generation] {
+      watcher,
+      [this, watcher, callbacks, entry, automatic, generation, fullCheck] {
         entry->setBusy(false);
 
         QList<git::Submodule::UpdateStatus> results = watcher->result();
@@ -3104,7 +3113,22 @@ void RepoView::checkSubmoduleUpdates(bool automatic) {
           return;
         }
 
-        mSubmoduleUpdateStatuses = results;
+        if (fullCheck) {
+          mSubmoduleUpdateStatuses = results;
+        } else {
+          for (const git::Submodule::UpdateStatus &result : results) {
+            auto existing = std::find_if(
+                mSubmoduleUpdateStatuses.begin(),
+                mSubmoduleUpdateStatuses.end(),
+                [&result](const git::Submodule::UpdateStatus &status) {
+                  return status.name == result.name && status.path == result.path;
+                });
+            if (existing == mSubmoduleUpdateStatuses.end())
+              mSubmoduleUpdateStatuses.append(result);
+            else
+              *existing = result;
+          }
+        }
         emit submoduleUpdateStatusesChanged(mSubmoduleUpdateStatuses);
 
         int updates = 0;
@@ -3470,11 +3494,31 @@ bool RepoView::openSubmodule(const git::Submodule &submodule) {
     return false;
   }
 
-  if (Settings::instance()->value(Setting::Id::OpenSubmodulesInTabs).toBool())
-    return static_cast<MainWindow *>(window())->addTab(
+  RepoView *view = nullptr;
+  if (Settings::instance()->value(Setting::Id::OpenSubmodulesInTabs).toBool()) {
+    view = static_cast<MainWindow *>(window())->addTab(
         repo, mRepo.dir(false).dirName());
+  } else if (MainWindow *submoduleWindow = MainWindow::open(repo)) {
+    view = submoduleWindow->currentView();
+  }
 
-  return MainWindow::open(repo);
+  if (!view)
+    return false;
+
+  connect(view, &RepoView::pushSucceeded, this,
+          &RepoView::submodulePushSucceeded, Qt::UniqueConnection);
+  return true;
+}
+
+void RepoView::submodulePushSucceeded(const QString &repositoryPath) {
+  const QString pushedPath = QDir(repositoryPath).canonicalPath();
+  for (const git::Submodule &submodule : mRepo.submodules()) {
+    git::Repository repo = submodule.open();
+    if (repo.isValid() && repo.workdir().canonicalPath() == pushedPath) {
+      checkSubmoduleUpdates(QList<git::Submodule>{submodule}, true);
+      return;
+    }
+  }
 }
 
 ConfigDialog *RepoView::configureSettings(ConfigDialog::Index index) {

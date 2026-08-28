@@ -54,7 +54,10 @@ namespace {
 void openCloneDialog(CloneDialog::Kind kind) {
   CloneDialog *dialog = new CloneDialog(kind);
   QObject::connect(dialog, &CloneDialog::accepted, [dialog] {
-    if (MainWindow *window = MainWindow::open(dialog->path())) {
+    if (MainWindow *window =
+            MainWindow::open(dialog->path(), true,
+                             MainWindow::OpenSource::Other,
+                             dialog->updateSubmodules())) {
       RepoView *view = window->currentView();
       view->addLogEntry(dialog->message(), dialog->messageTitle());
     }
