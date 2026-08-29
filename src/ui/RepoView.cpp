@@ -539,12 +539,6 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
             delete context; // Disconnect after the first error.
           });
 
-  // Show operation output until the user explicitly hides it.
-  connect(mLogView->model(), &QAbstractItemModel::rowsInserted, this,
-          [this] { setLogVisible(true); });
-  connect(mLogView->model(), &QAbstractItemModel::dataChanged, this,
-          [this] { setLogVisible(true); });
-
   addWidget(mDetailSplitter);
   addWidget(mLogPanel);
   setCollapsible(0, false);

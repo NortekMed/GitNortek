@@ -322,9 +322,9 @@ void TestMainWindow::toggleLogPanel() {
 
   view->addLogEntry("output", "operation");
 
-  QTRY_VERIFY(view->isLogVisible());
-  QTRY_VERIFY(panel->height() > header->height());
-  QCOMPARE(toggle->arrowType(), Qt::DownArrow);
+  QVERIFY(!view->isLogVisible());
+  QTRY_COMPARE(panel->height(), header->height());
+  QCOMPARE(toggle->arrowType(), Qt::UpArrow);
 }
 
 void TestMainWindow::preserveSelectionAfterRemoteUpdate() {
