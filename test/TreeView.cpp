@@ -1,6 +1,7 @@
 #include "Test.h"
 #include "ui/DiffView/DiffView.h"
 #include "ui/DiffView/FileWidget.h"
+#include "ui/BlameEditor.h"
 #include "ui/CommitList.h"
 #include "ui/MainWindow.h"
 #include "ui/DoubleTreeWidget.h"
@@ -14,9 +15,11 @@
 #include <QHBoxLayout>
 #include <QCheckBox>
 #include <QLabel>
+#include <QPointer>
 #include <QPushButton>
 #include <QStackedWidget>
 #include <QTextEdit>
+#include <QTimer>
 #include <QToolButton>
 
 using namespace Test;
@@ -280,14 +283,14 @@ void TestTreeView::fileMergeCrash() {
   auto diffView = repoView->findChild<DiffView *>();
   QVERIFY(diffView);
 
-  QCheckBox *incoming =
-      diffView->findChild<QCheckBox *>("ConflictIncomingBlock_0");
-  QVERIFY(incoming);
+  QCheckBox *incoming = nullptr;
+  QTRY_VERIFY(
+      (incoming = diffView->findChild<QCheckBox *>("ConflictIncomingBlock_0")));
   mouseClick(incoming, Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(), 0);
 
-  QToolButton *markResolved =
-      diffView->widget()->findChild<QToolButton *>("ConflictMarkResolved");
-  QVERIFY(markResolved);
+  QToolButton *markResolved = nullptr;
+  QTRY_VERIFY((markResolved = diffView->widget()->findChild<QToolButton *>(
+                   "ConflictMarkResolved")));
   mouseClick(markResolved, Qt::LeftButton, Qt::KeyboardModifiers(), QPoint(),
              0);
 
@@ -310,6 +313,8 @@ void TestTreeView::committedFileInspection() {
   QVERIFY(commits);
   QVERIFY(doubleTree);
   QVERIFY(committedFiles);
+  auto *diffView = repoView->findChild<DiffView *>();
+  QVERIFY(diffView);
 
   QModelIndex commitIndex;
   for (int row = 0; row < commits->model()->rowCount(); ++row) {
@@ -325,18 +330,36 @@ void TestTreeView::committedFileInspection() {
 
   QTRY_VERIFY(committedFiles->model()->rowCount() > 0);
   QVERIFY(primaryView->currentWidget() != fileInspection);
+  const QModelIndexList committedFileIndexes = committedFiles->model()->match(
+      committedFiles->model()->index(0, 0), Qt::EditRole, QString("file.txt"),
+      1, Qt::MatchExactly | Qt::MatchRecursive);
+  QVERIFY(!committedFileIndexes.isEmpty());
   committedFiles->selectionModel()->clearSelection();
-  committedFiles->selectionModel()->select(committedFiles->model()->index(0, 0),
+  committedFiles->selectionModel()->select(committedFileIndexes.first(),
                                            QItemSelectionModel::Select);
   QVERIFY(primaryView->currentWidget() != fileInspection);
+  bool eventLoopAdvanced = false;
+  QTimer::singleShot(0, [&eventLoopAdvanced] { eventLoopAdvanced = true; });
   QVERIFY(QMetaObject::invokeMethod(committedFiles, "fileSelectionRequested"));
   QCOMPARE(primaryView->currentWidget(), fileInspection);
+  QVERIFY(!diffView->widget()->findChild<FileWidget *>());
+  QTRY_VERIFY(eventLoopAdvanced);
+  QPointer<FileWidget> initialFile;
+  QTRY_VERIFY((initialFile = diffView->widget()->findChild<FileWidget *>()));
 
-  auto *diffButton = repoView->findChild<QPushButton *>("DiffViewButton");
+  eventLoopAdvanced = false;
+  QTimer::singleShot(0, [&eventLoopAdvanced] {
+    QTimer::singleShot(0, [&eventLoopAdvanced] { eventLoopAdvanced = true; });
+  });
+  QVERIFY(QMetaObject::invokeMethod(committedFiles, "fileSelectionRequested"));
+  QTRY_VERIFY(eventLoopAdvanced);
+  QVERIFY(initialFile);
+  QVERIFY(!initialFile->isHidden());
+
+  auto *diffButton = doubleTree->mDiffButton;
   auto *inlineMode = repoView->findChild<QToolButton *>("InlineDiffMode");
   auto *hunkMode = repoView->findChild<QToolButton *>("HunkDiffMode");
   auto *splitMode = repoView->findChild<QToolButton *>("SplitDiffMode");
-  auto *diffView = repoView->findChild<DiffView *>();
   QVERIFY(diffButton);
   QVERIFY(inlineMode);
   QVERIFY(hunkMode);
@@ -344,6 +367,18 @@ void TestTreeView::committedFileInspection() {
   QVERIFY(diffView);
   QVERIFY(diffButton->isChecked());
   QVERIFY(inlineMode->isChecked());
+  auto *blameButton = doubleTree->mBlameButton;
+  auto *blameEditor = doubleTree->mEditor;
+  QVERIFY(blameButton);
+  QVERIFY(blameEditor);
+  const QString selectedFile =
+      committedFileIndexes.first().data(Qt::EditRole).toString();
+  QVERIFY(blameButton->isEnabled());
+  QVERIFY(blameEditor->name() != selectedFile);
+  mouseClick(blameButton, Qt::LeftButton);
+  QTRY_COMPARE(doubleTree->mFileView->currentWidget(), blameEditor);
+  QTRY_COMPARE(blameEditor->name(), selectedFile);
+  mouseClick(diffButton, Qt::LeftButton);
   auto fileForEditor = [](QWidget *widget) {
     while (widget && !qobject_cast<FileWidget *>(widget))
       widget = widget->parentWidget();
@@ -354,9 +389,6 @@ void TestTreeView::committedFileInspection() {
   auto *fileWidget = fileForEditor(initialEditors.first());
   QVERIFY(fileWidget);
 
-  const QString selectedFile =
-      committedFiles->selectionModel()->selectedIndexes().first().data(
-          Qt::EditRole).toString();
   auto verifySelection = [&] {
     const QModelIndexList selected =
         committedFiles->selectionModel()->selectedIndexes();
@@ -493,7 +525,7 @@ void TestTreeView::conflictedAndStagedFile() {
   auto *diff = doubleTree->mDiffButton;
   QVERIFY(blame);
   QVERIFY(diff);
-  QVERIFY(!blame->isEnabled());
+  QTRY_VERIFY(!blame->isEnabled());
   QVERIFY(blame->toolTip().contains("unavailable"));
   QVERIFY(diff->isChecked());
   QCOMPARE(stagedTree->selectionMode(), QAbstractItemView::ExtendedSelection);
@@ -610,12 +642,23 @@ void TestTreeView::externalRefreshPreservesSelection() {
   unstagedFiles->selectionModel()->setCurrentIndex(
       files.first(),
       QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+  bool eventLoopAdvanced = false;
+  QTimer::singleShot(0, [&eventLoopAdvanced] { eventLoopAdvanced = true; });
   QVERIFY(QMetaObject::invokeMethod(unstagedFiles, "fileSelectionRequested"));
-  FileWidget *visibleFile = diffView->widget()->findChild<FileWidget *>();
+  QVERIFY(repoView->isFileInspectionVisible());
+  QVERIFY(!diffView->widget()->findChild<FileWidget *>());
+  QTRY_VERIFY(eventLoopAdvanced);
+  FileWidget *visibleFile = nullptr;
+  QTRY_VERIFY((visibleFile = diffView->widget()->findChild<FileWidget *>()));
   QVERIFY(visibleFile);
   QCOMPARE(visibleFile->name(), QString("file.txt"));
   QVERIFY(!visibleFile->editors().isEmpty());
   QVERIFY(visibleFile->editors().first()->length() > 0);
+  QPointer<FileWidget> outgoingFile = visibleFile;
+  diffView->updateFiles();
+  QVERIFY(outgoingFile);
+  QVERIFY(outgoingFile->isHidden());
+  QTRY_VERIFY(outgoingFile.isNull());
 
   detailRefreshes = 0;
   invalidDetails = 0;

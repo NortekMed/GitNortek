@@ -295,6 +295,7 @@ void DiffView::diffTreeModelDataChanged(const QModelIndex &topLeft,
 void DiffView::updateFiles() {
   while (mFiles.count()) {
     auto file = mFiles.takeFirst();
+    file->hide();
     mFileWidgetLayout->removeWidget(file);
     file->deleteLater();
   }

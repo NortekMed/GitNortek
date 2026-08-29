@@ -74,6 +74,7 @@ private:
   bool loadSelection();
   void filesSelected(const QModelIndexList &indexes);
   void openFileInspection();
+  void scheduleEditorContentLoad();
   void loadEditorContent(const QModelIndexList &indexes);
   void updateStageAllChangesButton();
   void updateConflictUi();
@@ -129,6 +130,7 @@ private:
   bool mIgnoreSelectionChange{false};
   bool mFileInspectionClosed{false};
   bool mConflictAutoOpenEnabled{false};
+  int mEditorLoadGeneration{0};
 
   git::Diff mDiff;
 

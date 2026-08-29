@@ -34,6 +34,7 @@
 #include <QStackedWidget>
 #include <QStyle>
 #include <QToolButton>
+#include <QTimer>
 #include <QButtonGroup>
 #include <qnamespace.h>
 #include <qtreeview.h>
@@ -420,20 +421,25 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
           stagedFiles->setSelectionMode(QAbstractItemView::ExtendedSelection);
           unstagedFiles->setSelectionMode(QAbstractItemView::ExtendedSelection);
         }
+        if (RepoView::parentView(this)->isFileInspectionVisible())
+          scheduleEditorContentLoad();
       });
 #else
   connect(
       viewGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),
       [this, viewGroup](QAbstractButton *button) {
-        mFileView->setCurrentIndex(viewGroup->id(button));
+        const int id = viewGroup->id(button);
+        mFileView->setCurrentIndex(id);
         // Change selection mode.
-        if (viewGroup->id(button) == Blame) {
+        if (id == Blame) {
           stagedFiles->setSelectionMode(QAbstractItemView::SingleSelection);
           unstagedFiles->setSelectionMode(QAbstractItemView::SingleSelection);
         } else {
           stagedFiles->setSelectionMode(QAbstractItemView::ExtendedSelection);
           unstagedFiles->setSelectionMode(QAbstractItemView::ExtendedSelection);
         }
+        if (RepoView::parentView(this)->isFileInspectionVisible())
+          scheduleEditorContentLoad();
       });
 #endif
 
@@ -703,11 +709,10 @@ void DoubleTreeWidget::setDiff(const git::Diff &diff, const QString &file,
 
   // Restore selection.
   if (diff.isValid() && !mFileInspectionClosed && loadSelection()) {
-    QModelIndexList selected = stagedFiles->selectionModel()->selectedIndexes();
-    selected.append(unstagedFiles->selectionModel()->selectedIndexes());
-    loadEditorContent(selected);
     if (mDiff.isConflicted() && mConflictAutoOpenEnabled)
       repoView->setFileInspectionVisible(true);
+    if (repoView->isFileInspectionVisible())
+      scheduleEditorContentLoad();
   }
 
   mIgnoreSelectionChange = ignoreSelectionChange;
@@ -1007,6 +1012,7 @@ void DoubleTreeWidget::filesSelected(const QModelIndexList &indexes) {
   QModelIndexList selected = stagedFiles->selectionModel()->selectedIndexes();
   selected.append(unstagedFiles->selectionModel()->selectedIndexes());
   if (selected.isEmpty()) {
+    ++mEditorLoadGeneration;
     mDiffView->enable(false);
     mEditor->clear();
     mFileInspectionClosed = true;
@@ -1017,7 +1023,7 @@ void DoubleTreeWidget::filesSelected(const QModelIndexList &indexes) {
   if (!RepoView::parentView(this)->isFileInspectionVisible())
     return;
 
-  loadEditorContent(selected);
+  scheduleEditorContentLoad();
 }
 
 void DoubleTreeWidget::openFileInspection() {
@@ -1026,12 +1032,15 @@ void DoubleTreeWidget::openFileInspection() {
   if (selected.isEmpty())
     return;
 
+  RepoView *view = RepoView::parentView(this);
+  const bool alreadyVisible = view->isFileInspectionVisible();
   mConflictAutoOpenEnabled = true;
   mFileInspectionClosed = false;
   mBlameButton->setChecked(mFileView->currentIndex() == Blame);
   mDiffButton->setChecked(mFileView->currentIndex() == Diff);
-  loadEditorContent(selected);
-  RepoView::parentView(this)->setFileInspectionVisible(true);
+  view->setFileInspectionVisible(true);
+  if (!alreadyVisible)
+    scheduleEditorContentLoad();
 }
 
 void DoubleTreeWidget::closeFileInspection() {
@@ -1056,6 +1065,7 @@ void DoubleTreeWidget::closeFileInspection() {
   }
 
   bool ignoreSelectionChange = mIgnoreSelectionChange;
+  ++mEditorLoadGeneration;
   mIgnoreSelectionChange = true;
   stagedFiles->deselectAll();
   unstagedFiles->deselectAll();
@@ -1067,38 +1077,57 @@ void DoubleTreeWidget::closeFileInspection() {
   RepoView::parentView(this)->setFileInspectionVisible(false);
 }
 
+void DoubleTreeWidget::scheduleEditorContentLoad() {
+  const int generation = ++mEditorLoadGeneration;
+  QTimer::singleShot(0, this, [this, generation] {
+    RepoView *view = RepoView::parentView(this);
+    if (generation != mEditorLoadGeneration || !view->isFileInspectionVisible())
+      return;
+
+    QModelIndexList selected = stagedFiles->selectionModel()->selectedIndexes();
+    selected.append(unstagedFiles->selectionModel()->selectedIndexes());
+    if (!selected.isEmpty())
+      loadEditorContent(selected);
+  });
+}
+
 void DoubleTreeWidget::loadEditorContent(const QModelIndexList &indexes) {
   QString name;
-  git::Blob blob;
-  git::Commit commit;
   bool unresolvedConflict = false;
 
   if (indexes.count() == 1) {
-    RepoView *view = RepoView::parentView(this);
     name = indexes.first().data(Qt::EditRole).toString();
-    QList<git::Commit> commits = view->commits();
-    commit = !commits.isEmpty() ? commits.first() : git::Commit();
     int idx = mDiff.isValid() ? mDiff.indexOf(name) : -1;
     unresolvedConflict = idx >= 0 && mDiff.patch(idx).isConflicted();
-    blob = idx < 0 ? commit.blob(name)
-                   : view->repo().lookupBlob(mDiff.id(idx, git::Diff::NewFile));
   }
 
-  mBlameButton->setEnabled(!unresolvedConflict);
+  const bool blameAvailable = indexes.count() == 1 && !unresolvedConflict;
+  mBlameButton->setEnabled(blameAvailable);
   mBlameButton->setToolTip(unresolvedConflict
                                ? tr("Blame is unavailable until this conflict "
                                     "is resolved.")
                                : tr("Show Blame Editor"));
-  if (unresolvedConflict) {
+  if (!blameAvailable && mFileView->currentIndex() == Blame) {
     mEditor->clear();
     mFileView->setCurrentWidget(mDiffView);
     mDiffButton->setChecked(true);
     stagedFiles->setSelectionMode(QAbstractItemView::ExtendedSelection);
     unstagedFiles->setSelectionMode(QAbstractItemView::ExtendedSelection);
-  } else {
-    mEditor->load(name, blob, std::move(commit));
   }
 
+  if (mFileView->currentIndex() == Blame) {
+    RepoView *view = RepoView::parentView(this);
+    const QList<git::Commit> commits = view->commits();
+    git::Commit commit = !commits.isEmpty() ? commits.first() : git::Commit();
+    const int idx = mDiff.isValid() ? mDiff.indexOf(name) : -1;
+    git::Blob blob =
+        idx < 0 ? commit.blob(name)
+                : view->repo().lookupBlob(mDiff.id(idx, git::Diff::NewFile));
+    mEditor->load(name, blob, std::move(commit));
+    return;
+  }
+
+  mEditor->clear();
   mDiffView->enable(true);
   mDiffView->updateFiles();
 }
