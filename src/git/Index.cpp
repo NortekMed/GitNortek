@@ -187,6 +187,9 @@ void Index::setMode(const QString &path, git_filemode_t mode) {
 bool Index::isTracked(const QString &path) const { return entry(path); }
 
 Index::StagedState Index::isStaged(const QString &path) const {
+  if (!isValid())
+    return Disabled;
+
   QMap<QString, StagedState>::const_iterator it = d->stagedCache.find(path);
   if (it != d->stagedCache.end())
     return it.value();

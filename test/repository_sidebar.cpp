@@ -439,15 +439,23 @@ void TestRepositorySideBar::githubIssuesRemoteFilter() {
     GitHub::IssuesCallback callback;
   };
   QList<Request> requests;
+  qint64 now = 1000;
   RepositoryNavigator navigator(
       nullptr, [&requests](GitHub *, const QString &owner,
                            const QString &repository,
                            const GitHub::IssuesCallback &callback) {
         requests.append({owner, repository, callback});
-      });
+      },
+      [&now] { return now; });
   QComboBox *filter = navigator.issuesRemoteFilter();
+  QTreeView *issuesView = navigator.issuesView();
+  QToolButton *refresh =
+      navigator.findChild<QToolButton *>("GitHubIssuesRefresh");
   QVERIFY(filter);
+  QVERIFY(issuesView);
+  QVERIFY(refresh);
   QCOMPARE(filter->objectName(), QString("GitHubIssuesRemoteFilter"));
+  QCOMPARE(issuesView->objectName(), QString("GitHubIssuesView"));
   QVERIFY(!filter->accessibleName().isEmpty());
 
   Test::ScratchRepository repo;
@@ -456,9 +464,12 @@ void TestRepositorySideBar::githubIssuesRemoteFilter() {
   navigator.setRepository(repo);
   QCOMPARE(filter->count(), 1);
   QCOMPARE(filter->itemText(0), QString("origin - acme/widget"));
-  QVERIFY(filter->isHidden());
+  QVERIFY(!filter->isHidden());
   QModelIndex issuesSection = navigator.model()->sectionIndex(
       RepositoryNavigatorModel::Section::GitHubIssues);
+  QVERIFY(navigator.view()->isRowHidden(issuesSection.row(), QModelIndex()));
+  QCOMPARE(issuesView->rootIndex(), issuesSection);
+  QVERIFY(issuesView->isRowHidden(0, issuesSection));
   QModelIndex filterRow = navigator.model()->index(0, 0, issuesSection);
   QCOMPARE(static_cast<RepositoryNavigatorModel::ItemKind>(
                filterRow.data(RepositoryNavigatorModel::ItemKindRole).toInt()),
@@ -474,7 +485,7 @@ void TestRepositorySideBar::githubIssuesRemoteFilter() {
   QCOMPARE(filter->count(), 2);
   QCOMPARE(filter->itemText(0), QString("origin - acme/widget"));
   QCOMPARE(filter->itemText(1), QString("upstream - core/widget"));
-  QVERIFY(filter->isHidden());
+  QVERIFY(!filter->isHidden());
   QCOMPARE(requests.size(), 1);
 
   GitHub::IssuesCallback stale = requests.constFirst().callback;
@@ -504,6 +515,72 @@ void TestRepositorySideBar::githubIssuesRemoteFilter() {
   QCOMPARE(section.data(RepositoryNavigatorModel::CountRole).toInt(), 1);
   QCOMPARE(navigator.model()->index(1, 0, section).data().toString(),
            QString("#9 Selected issue"));
+
+  const int freshRequestCount = requests.size();
+  navigator.setRepository(git::Repository());
+  navigator.setRepository(repo);
+  QCOMPARE(requests.size(), freshRequestCount);
+  section = navigator.model()->sectionIndex(
+      RepositoryNavigatorModel::Section::GitHubIssues);
+  QCOMPARE(section.data(RepositoryNavigatorModel::CountRole).toInt(), 1);
+  QCOMPARE(navigator.model()->index(1, 0, section).data().toString(),
+           QString("#9 Selected issue"));
+
+  now += 5 * 60 * 1000 + 1;
+  navigator.setRepository(git::Repository());
+  navigator.setRepository(repo);
+  QCOMPARE(requests.size(), freshRequestCount + 1);
+  section = navigator.model()->sectionIndex(
+      RepositoryNavigatorModel::Section::GitHubIssues);
+  QCOMPARE(section.data(RepositoryNavigatorModel::LoadStateRole)
+               .value<RepositoryNavigatorModel::LoadState>(),
+           RepositoryNavigatorModel::LoadState::Refreshing);
+  navigator.setRepository(repo);
+  QCOMPARE(requests.size(), freshRequestCount + 1);
+  requests.constLast().callback(
+      true,
+      {{10, "Refreshed issue", "new",
+        QUrl("https://github.com/core/widget/issues/10")}},
+      1, QString());
+
+  now += 10 * 1000 + 1;
+  navigator.model()->refresh();
+  QTRY_VERIFY(refresh->isEnabled());
+  refresh->click();
+  QCOMPARE(requests.size(), freshRequestCount + 2);
+  refresh->click();
+  QCOMPARE(requests.size(), freshRequestCount + 2);
+  requests.constLast().callback(false, {}, 0, "offline");
+  section = navigator.model()->sectionIndex(
+      RepositoryNavigatorModel::Section::GitHubIssues);
+  QCOMPARE(section.data(RepositoryNavigatorModel::LoadStateRole)
+               .value<RepositoryNavigatorModel::LoadState>(),
+           RepositoryNavigatorModel::LoadState::Stale);
+  QCOMPARE(section.data(RepositoryNavigatorModel::CountRole).toInt(), 1);
+
+  GitHub::Issues manyIssues;
+  for (int i = 1; i <= 50; ++i) {
+    manyIssues.append({i, QString("Issue %1").arg(i), "author",
+                       QUrl(QString("https://github.com/core/widget/issues/%1")
+                                .arg(i))});
+  }
+  navigator.model()->setGitHubIssues(manyIssues);
+  navigator.resize(320, 420);
+  navigator.show();
+  QVERIFY(qWaitForWindowExposed(&navigator));
+  QTRY_VERIFY(issuesView->verticalScrollBar()->maximum() > 0);
+  section = navigator.model()->sectionIndex(
+      RepositoryNavigatorModel::Section::GitHubIssues);
+  QModelIndex lastIssue = navigator.model()->index(50, 0, section);
+  issuesView->scrollTo(lastIssue, QAbstractItemView::PositionAtBottom);
+  QCoreApplication::processEvents();
+  QVERIFY(issuesView->visualRect(lastIssue).intersects(
+      issuesView->viewport()->rect()));
+  issuesView->verticalScrollBar()->setValue(
+      issuesView->verticalScrollBar()->maximum() / 2);
+  const int scrollPosition = issuesView->verticalScrollBar()->value();
+  navigator.model()->beginGitHubIssuesLoad(true);
+  QTRY_COMPARE(issuesView->verticalScrollBar()->value(), scrollPosition);
 
   int remoteUpdateCount = 0;
   connect(repo->notifier(), &git::RepositoryNotifier::remoteUpdated,
