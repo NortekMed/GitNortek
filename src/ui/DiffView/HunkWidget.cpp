@@ -30,6 +30,8 @@
 #include <QButtonGroup>
 
 namespace {
+constexpr int kMaxWordDiffLineBytes = 64 * 1024;
+constexpr int kMaxWordDiffTokens = 10000;
 
 bool disclosure = false;
 
@@ -993,9 +995,20 @@ void HunkWidget::setEditorLineInfos(QList<Line> &lines,
     const Line &line = lines.at(lidx);
     int matchingLine = line.matchingLine();
     if (line.origin() == GIT_DIFF_LINE_DELETION && matchingLine >= 0) {
+      const int oldLength =
+          mEditor->lineEndPosition(lidx) - mEditor->positionFromLine(lidx);
+      const int newLength = mEditor->lineEndPosition(matchingLine) -
+                            mEditor->positionFromLine(matchingLine);
+      if (oldLength > kMaxWordDiffLineBytes ||
+          newLength > kMaxWordDiffLineBytes)
+        continue;
+
       // Split lines into tokens and diff corresponding tokens.
       QList<Token> oldTokens = tokens(lidx);
       QList<Token> newTokens = tokens(matchingLine);
+      if (oldTokens.size() > kMaxWordDiffTokens ||
+          newTokens.size() > kMaxWordDiffTokens)
+        continue;
       QByteArray oldBuffer = tokenBuffer(oldTokens);
       QByteArray newBuffer = tokenBuffer(newTokens);
       git::Patch patch = git::Patch::fromBuffers(oldBuffer, newBuffer);

@@ -29,6 +29,7 @@
 #include <QTextStream>
 #include <QVBoxLayout>
 #include <QtConcurrent>
+#include <atomic>
 
 namespace {
 
@@ -36,20 +37,18 @@ const QString kSplitterKey = QString("blamesplitter");
 
 class BlameCallbacks : public git::Blame::Callbacks {
 public:
-  BlameCallbacks() : mCanceled(false) {}
+  void setCanceled(bool canceled) { mCanceled.store(canceled); }
 
-  void setCanceled(bool canceled) { mCanceled = canceled; }
-
-  bool progress() override { return !mCanceled; }
+  bool progress() override { return !mCanceled.load(); }
 
 private:
-  bool mCanceled;
+  std::atomic_bool mCanceled = false;
 };
 
 } // namespace
 
 BlameEditor::BlameEditor(const git::Repository &repo, QWidget *parent)
-    : QWidget(parent), mRepo(repo), mCallbacks(new BlameCallbacks) {
+    : QWidget(parent), mRepo(repo) {
   // Create editor.
   mEditor = new TextEditor(this);
   connect(mEditor, &TextEditor::linesAdded, this,
@@ -173,20 +172,23 @@ bool BlameEditor::load(const QString &name, const git::Blob &blob,
 }
 void BlameEditor::startBlame() {
   if (mPendingBlameCommit.has_value()) {
-    mBlame.setFuture(QtConcurrent::run(&git::Repository::blame, mRepo, mName,
-                                       mPendingBlameCommit.value(),
-                                       mCallbacks.data()));
+    mCallbacks = QSharedPointer<BlameCallbacks>::create();
+    const QSharedPointer<git::Blame::Callbacks> callbacks = mCallbacks;
+    const git::Repository repo = mRepo;
+    const QString name = mName;
+    const git::Commit commit = mPendingBlameCommit.value();
+    mBlame.setFuture(QtConcurrent::run([repo, name, commit, callbacks] {
+      return repo.blame(name, commit, callbacks.data());
+    }));
     mPendingBlameCommit = std::nullopt;
   }
 }
 
 void BlameEditor::cancelBlame() {
-  BlameCallbacks *callbacks = static_cast<BlameCallbacks *>(mCallbacks.data());
-  callbacks->setCanceled(true);
-  if (mBlame.isRunning())
-    mBlame.waitForFinished();
+  if (mCallbacks)
+    static_cast<BlameCallbacks *>(mCallbacks.data())->setCanceled(true);
   mBlame.setFuture(QFuture<git::Blame>());
-  callbacks->setCanceled(false);
+  mCallbacks.reset();
   mPendingBlameCommit = std::nullopt;
 }
 

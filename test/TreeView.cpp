@@ -410,7 +410,7 @@ void TestTreeView::dirtySubmoduleAndStagedSubmodule() {
 
   {
     QAbstractItemModel *stagedModel = stagedTree->model();
-    QCOMPARE(stagedModel->rowCount(), 1);
+    QTRY_COMPARE(stagedModel->rowCount(), 1);
     QModelIndex index = stagedModel->index(0, 0); // submodules folder
     QVERIFY(index.isValid());
     QCOMPARE(index.data(), "submodules");
@@ -423,7 +423,7 @@ void TestTreeView::dirtySubmoduleAndStagedSubmodule() {
 
   {
     QAbstractItemModel *unstagedModel = unstagedTree->model();
-    QCOMPARE(unstagedModel->rowCount(), 1);
+    QTRY_COMPARE(unstagedModel->rowCount(), 1);
     QModelIndex index = unstagedModel->index(0, 0); // submodules folder
     QVERIFY(index.isValid());
     QCOMPARE(index.data(), "submodules");

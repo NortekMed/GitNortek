@@ -2,6 +2,7 @@
 #define FILEWIDGET_H
 
 #include "../../editor/TextEditor.h"
+#include "conf/Settings.h"
 #include "HunkWidget.h"
 
 #include <QWidget>
@@ -154,6 +155,7 @@ private:
   void discard();
   void markResolved();
   void updateMarkResolvedState();
+  void rebuildPresentation(int generation);
   void stagePresentationLines(const QList<QPair<int, int>> &targets,
                               bool staged);
 
@@ -174,6 +176,9 @@ private:
   QStackedWidget *mPresentation{nullptr};
   CompleteFileDiffWidget *mCompleteDiff{nullptr};
   QLabel *mCompleteDiffMessage{nullptr};
+  Settings::DiffMode mCompleteDiffMode{Settings::DiffMode::Hunk};
+  bool mCompleteDiffIgnoresWhitespace{false};
+  int mPresentationGeneration{0};
   bool mDiffSuppressed{false};
   bool mSuppressUpdate{false};
   bool mSupressStaging{false};

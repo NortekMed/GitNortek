@@ -1039,14 +1039,13 @@ void RepoView::cancelIndexing() {
   if (mIndexer.state() == QProcess::NotRunning)
     return;
 
+  const qint64 processId = mIndexer.processId();
   mIndexer.terminate();
-  mIndexer.waitForFinished(5000);
-
-  if (mIndexer.state() == QProcess::NotRunning)
-    return;
-
-  mIndexer.kill();
-  mIndexer.waitForFinished(5000);
+  QTimer::singleShot(1000, &mIndexer, [this, processId] {
+    if (mIndexer.state() != QProcess::NotRunning &&
+        mIndexer.processId() == processId)
+      mIndexer.kill();
+  });
 }
 
 bool RepoView::isLogVisible() const { return mIsLogVisible; }

@@ -297,6 +297,8 @@ public:
     connect(mParents, &QLabel::linkActivated, view, &RepoView::visitLink);
 
     connect(&mWatcher, &QFutureWatcher<QString>::finished, this, [this] {
+      if (!mWatcher.future().resultCount())
+        return;
       QString result = mWatcher.result();
       if (result.contains('+')) {
         mRefs->appendLabel({Badge::Label::Type::Ref, result, false, true});
@@ -330,9 +332,16 @@ public:
     mRefs->setVisible(!refs.isEmpty());
 
     // Compute description asynchronously.
-    if (commits.size() == 1)
-      mWatcher.setFuture(
-          QtConcurrent::run(&git::Commit::description, commits.first()));
+    if (commits.size() == 1) {
+      const git::Commit commit = commits.first();
+      const git::Repository repo = commit.repo();
+      mWatcher.setFuture(QtConcurrent::run([repo, commit] {
+        Q_UNUSED(repo)
+        return commit.description();
+      }));
+    } else {
+      mWatcher.setFuture(QFuture<QString>());
+    }
   }
 
   void setCommits(const QList<git::Commit> &commits) {
@@ -457,8 +466,7 @@ public:
   }
 
   void cancelBackgroundTasks() {
-    // Just wait.
-    mWatcher.waitForFinished();
+    mWatcher.setFuture(QFuture<QString>());
   }
 
 private:

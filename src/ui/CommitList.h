@@ -10,8 +10,10 @@
 #ifndef COMMITLIST_H
 #define COMMITLIST_H
 
+#include "git/Diff.h"
 #include "git/Reference.h"
 #include <QByteArray>
+#include <QFutureWatcher>
 #include <QListView>
 
 class Index;
@@ -153,6 +155,9 @@ private:
   bool mPreserveSelectionDetails = false;
   bool mSuppressSelectionNotification = false;
 
+  QFutureWatcher<git::Diff> mSelectionDiff;
+  QString mSelectionDiffFile;
+  bool mSelectionDiffSpontaneous = false;
   QString mSelectedRange;
 };
 

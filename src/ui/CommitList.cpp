@@ -53,6 +53,7 @@
 #include <QToolTip>
 #include <QtConcurrent>
 #include <atomic>
+#include <memory>
 
 namespace {
 
@@ -170,6 +171,13 @@ public:
         return;
 
       mTimer.stop();
+      mStatusCallbacks.reset();
+      if (mRestartStatus) {
+        mRestartStatus = false;
+        QTimer::singleShot(0, this, [this] { startStatus(); });
+        return;
+      }
+
       resetWalker();
       StatusResult status = mStatus.future().result();
       if (!status.result && status.result.error() != GIT_EUSER)
@@ -196,34 +204,40 @@ public:
   }
 
   void startStatus() {
-    // Cancel existing status diff.
-    cancelStatus();
+    if (mStatus.isRunning()) {
+      mRestartStatus = true;
+      if (mStatusCallbacks)
+        mStatusCallbacks->setCanceled(true);
+      return;
+    }
+
+    mRestartStatus = false;
 
     // Reload the index before starting the status thread. Allowing
     // it to reload on the thread frequently corrupts the index.
-    mRepo.index().read();
+    git::Index index = mRepo.index();
+    index.read();
 
     // Check for uncommitted changes asynchronously.
     mProgress = 0;
     mTimer.start(50);
-    mStatus.setFuture(QtConcurrent::run([this] {
-      // Pass the repo's index to suppress reload.
-      bool ignoreWhitespace = Settings::instance()->isWhitespaceIgnored();
+    const bool ignoreWhitespace = Settings::instance()->isWhitespaceIgnored();
+    const git::Repository repo = mRepo;
+    mStatusCallbacks = std::make_shared<DiffCallbacks>();
+    const std::shared_ptr<DiffCallbacks> callbacks = mStatusCallbacks;
+    mStatus.setFuture(QtConcurrent::run(
+        [repo, index, callbacks, ignoreWhitespace] {
       StatusResult status;
-      status.diff = mRepo.status(mRepo.index(), &mStatusCallbacks,
-                                 ignoreWhitespace, &status.result);
+      status.diff = repo.status(index, callbacks.get(), ignoreWhitespace,
+                                &status.result);
       return status;
     }));
   }
 
   void cancelStatus() {
-    if (!mStatus.isRunning())
-      return;
-
-    mStatusCallbacks.setCanceled(true);
-    mStatus.waitForFinished();
-    mStatus.setFuture(QFuture<StatusResult>());
-    mStatusCallbacks.setCanceled(false);
+    mRestartStatus = false;
+    if (mStatus.isRunning() && mStatusCallbacks)
+      mStatusCallbacks->setCanceled(true);
   }
 
   void setPathspec(const QString &pathspec) {
@@ -841,8 +855,9 @@ private:
   QTimer mTimer;
   int mProgress = 0;
 
-  DiffCallbacks mStatusCallbacks;
+  std::shared_ptr<DiffCallbacks> mStatusCallbacks;
   QFutureWatcher<StatusResult> mStatus;
+  bool mRestartStatus = false;
 
   QString mPathspec;
   git::Reference mRef;
@@ -1649,6 +1664,12 @@ CommitList::CommitList(Index *index, CommitAvatarProvider *avatars,
 
   setModel(mModel);
   setItemDelegate(new CommitDelegate(repo, avatars, mHeader, this));
+  connect(&mSelectionDiff, &QFutureWatcher<git::Diff>::finished, this,
+          [this] {
+            if (mSelectionDiff.future().resultCount())
+              emit diffSelected(mSelectionDiff.result(), mSelectionDiffFile,
+                                mSelectionDiffSpontaneous);
+          });
   if (avatars) {
     connect(avatars, &CommitAvatarProvider::avatarReady, viewport(),
             qOverload<>(&QWidget::update));
@@ -2757,8 +2778,26 @@ void CommitList::notifySelectionChanged() {
   // Redraw all selected indexes. Separators may have changed.
   foreach (const QModelIndex &index, indexes)
     update(index);
-  git::Diff diff = selectedDiff();
-  emit diffSelected(diff, mFile, mSpontaneous);
+  const QList<git::Commit> commits = selectedCommits();
+  if (commits.isEmpty()) {
+    mSelectionDiff.setFuture(QFuture<git::Diff>());
+    emit diffSelected(status(), mFile, mSpontaneous);
+    return;
+  }
+
+  const git::Commit first = commits.first();
+  const git::Commit last = commits.size() > 1 ? commits.last() : git::Commit();
+  const git::Repository repo = first.repo();
+  const bool ignoreWhitespace = Settings::instance()->isWhitespaceIgnored();
+  mSelectionDiffFile = mFile;
+  mSelectionDiffSpontaneous = mSpontaneous;
+  mSelectionDiff.setFuture(QtConcurrent::run(
+      [repo, first, last, ignoreWhitespace] {
+        Q_UNUSED(repo)
+        git::Diff diff = first.diff(last, -1, ignoreWhitespace);
+        diff.findSimilar();
+        return diff;
+      }));
 }
 
 bool CommitList::isDecoration(const QModelIndex &index, const QPoint &pos) {

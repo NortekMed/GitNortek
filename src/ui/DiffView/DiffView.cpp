@@ -301,7 +301,7 @@ void DiffView::updateFiles() {
   mFiles.clear();
 
   if (canFetchMore())
-    fetchMore(-1);
+    fetchMore();
 }
 
 void DiffView::rebuildPresentations() {

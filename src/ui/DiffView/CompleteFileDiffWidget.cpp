@@ -224,6 +224,7 @@ QList<CompleteFileDiffWidget::Row> CompleteFileDiffWidget::rows() const {
 
 void CompleteFileDiffWidget::loadEditor(Editor *editor, bool oldSide,
                                         const QList<Row> &rows) {
+  editor->setUpdatesEnabled(false);
   QStringList content;
   QList<QList<Target>> editorTargets;
   content.reserve(rows.size());
@@ -332,6 +333,7 @@ void CompleteFileDiffWidget::loadEditor(Editor *editor, bool oldSide,
                               8);
   editor->setMarginWidthN(TextEditor::Margin::Staged, 0);
   editor->updateGeometry();
+  editor->setUpdatesEnabled(true);
 }
 
 QList<CompleteFileDiffWidget::Target>

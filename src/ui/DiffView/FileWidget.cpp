@@ -35,6 +35,7 @@
 #include <QPushButton>
 #include <QSaveFile>
 #include <QStackedWidget>
+#include <QTimer>
 
 namespace {
 bool disclosure = false;
@@ -702,20 +703,8 @@ void FileWidget::updatePatch(const git::Patch &patch, const git::Patch &staged,
       stagedHunks.insert(staged.lineNumber(i, 0, git::Diff::OldFile));
   }
 
-  if (mDiff.isStatusDiff()) {
-    // Partially fetching not supported yet, because then a rework
-    // on the linestaging must be done
-    // Add diff hunks.
-    int hunkCount = patch.count();
-    for (int hidx = 0; hidx < hunkCount; ++hidx) {
-      HunkWidget *hunk = addHunk(mDiff, patch, staged, hidx, lfs, submodule);
-      patch.lineNumber(hidx, 0, git::Diff::OldFile);
-      mHunkLayout->addWidget(hunk);
-    }
-  } else {
-    if (canFetchMore())
-      fetchMore();
-  }
+  if (canFetchMore())
+    fetchMore(mDiff.isStatusDiff() ? -1 : 1);
 
   updateMarkResolvedState();
 }
@@ -746,6 +735,13 @@ bool FileWidget::containsEditor(TextEditor *editor) const {
 }
 
 void FileWidget::rebuildPresentation() {
+  rebuildPresentation(++mPresentationGeneration);
+}
+
+void FileWidget::rebuildPresentation(int generation) {
+  if (generation != mPresentationGeneration)
+    return;
+
   if (!mPresentation || mPatch.isConflicted() || mPatch.isBinary() ||
       mPatch.isLfsPointer() || mHunks.isEmpty())
     return;
@@ -782,8 +778,20 @@ void FileWidget::rebuildPresentation() {
     return;
   }
 
-  if (!mDiff.isStatusDiff())
-    fetchAll(-1);
+  if (canFetchMore()) {
+    fetchMore(1);
+    QTimer::singleShot(0, this,
+                       [this, generation] { rebuildPresentation(generation); });
+    return;
+  }
+
+  const bool ignoreWhitespace =
+      Settings::instance()->isEdgeWhitespaceIgnored();
+  if (mCompleteDiff && mCompleteDiffMode == mode &&
+      mCompleteDiffIgnoresWhitespace == ignoreWhitespace) {
+    mPresentation->setCurrentWidget(mCompleteDiff);
+    return;
+  }
 
   if (mCompleteDiff) {
     mPresentation->removeWidget(mCompleteDiff);
@@ -791,6 +799,8 @@ void FileWidget::rebuildPresentation() {
   }
   mCompleteDiff =
       new CompleteFileDiffWidget(mDiff, mPatch, mHunks, mode, mPresentation);
+  mCompleteDiffMode = mode;
+  mCompleteDiffIgnoresWhitespace = ignoreWhitespace;
   connect(mCompleteDiff, &CompleteFileDiffWidget::stageLinesRequested, this,
           &FileWidget::stagePresentationLines);
   mPresentation->addWidget(mCompleteDiff);
@@ -976,8 +986,7 @@ int FileWidget::fetchMore(int count) {
     return 0;
 
   int counter = 0;
-  RepoView *view = RepoView::parentView(this);
-  git::Repository repo = view->repo();
+  git::Repository repo = mPatch.repo();
 
   // Add widgets.
   int patchCount = mPatch.count();
@@ -1001,8 +1010,7 @@ int FileWidget::fetchMore(int count) {
 
 void FileWidget::fetchAll(int index) {
   // Load all patches up to and including index.
-  int hunksCount = mHunks.count();
-  while ((index < 0 || hunksCount <= index) && canFetchMore())
+  while ((index < 0 || mHunks.count() <= index) && canFetchMore())
     fetchMore();
 }
 
