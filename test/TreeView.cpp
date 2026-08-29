@@ -356,6 +356,21 @@ void TestTreeView::committedFileInspection() {
   QVERIFY(initialFile);
   QVERIFY(!initialFile->isHidden());
 
+  doubleTree->closeFileInspection();
+  QVERIFY(!repoView->isFileInspectionVisible());
+  QVERIFY(initialFile);
+  committedFiles->selectionModel()->setCurrentIndex(
+      committedFileIndexes.first(),
+      QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+  QVERIFY(QMetaObject::invokeMethod(committedFiles, "fileSelectionRequested"));
+  QVERIFY(repoView->isFileInspectionVisible());
+  eventLoopAdvanced = false;
+  QTimer::singleShot(0, [&eventLoopAdvanced] {
+    QTimer::singleShot(0, [&eventLoopAdvanced] { eventLoopAdvanced = true; });
+  });
+  QTRY_VERIFY(eventLoopAdvanced);
+  QCOMPARE(diffView->widget()->findChild<FileWidget *>(), initialFile.data());
+
   auto *diffButton = doubleTree->mDiffButton;
   auto *inlineMode = repoView->findChild<QToolButton *>("InlineDiffMode");
   auto *hunkMode = repoView->findChild<QToolButton *>("HunkDiffMode");

@@ -42,7 +42,7 @@ Bug Fix and Feature release
 * Replace the inherited application icon with the GitNortek logo on Linux, Windows, macOS, and in the application UI
 * Complete the canonical GitNortek naming migration, fix translation catalog loading, and replace inherited documentation, theme preview, and macOS installer artwork
 * Refresh repositories automatically when Git metadata changes
-* Improve initial file inspection, prevent repeated file rendering during selection changes, and improve diff, blame, commit description, and large binary refresh performance
+* Improve initial file inspection, avoid repository scans on focus changes, reuse unchanged file views, prevent repeated file rendering during selection changes, and improve diff, blame, commit description, and large binary refresh performance
 * Restore only the previously active repository at startup to avoid loading every project from the previous session
 * Fix path filtering, detached HEAD selection, merge tool visibility, and macOS Finder integration
 * Improve Windows and macOS build/package compatibility

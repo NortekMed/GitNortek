@@ -25,6 +25,7 @@ public:
   void setBodyFont(const QFont &font);
 
   void update();
+  void updateFocus();
   void updateFile();
   void updateSave();
   void updateUndoRedo();

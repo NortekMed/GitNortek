@@ -927,8 +927,9 @@ MenuBar::MenuBar(QWidget *parent) : QMenuBar(parent) {
     });
   }
 
-  // Respond to window activation.
-  connect(qApp, &QApplication::focusChanged, this, &MenuBar::update);
+  // Focus changes only affect editor actions. Repository state is refreshed by
+  // repository notifications and explicit full updates when views change.
+  connect(qApp, &QApplication::focusChanged, this, &MenuBar::updateFocus);
 }
 
 void MenuBar::setBodyFont(const QFont &font) {
@@ -940,12 +941,7 @@ void MenuBar::setBodyFont(const QFont &font) {
 }
 
 void MenuBar::update() {
-  updateFile();
-  updateSave();
-  updateUndoRedo();
-  updateCutCopyPaste();
-  updateSelectAll();
-  updateFind();
+  updateFocus();
   updateView();
   updateRepository();
   updateRemote();
@@ -954,6 +950,15 @@ void MenuBar::update() {
   updateStash();
   updateHistory();
   updateWindow();
+}
+
+void MenuBar::updateFocus() {
+  updateFile();
+  updateSave();
+  updateUndoRedo();
+  updateCutCopyPaste();
+  updateSelectAll();
+  updateFind();
 }
 
 void MenuBar::updateFile() { mClose->setEnabled(QApplication::activeWindow()); }

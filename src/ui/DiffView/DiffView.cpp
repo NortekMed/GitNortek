@@ -293,6 +293,18 @@ void DiffView::diffTreeModelDataChanged(const QModelIndex &topLeft,
 }
 
 void DiffView::updateFiles() {
+  const QList<QModelIndex> indices = selectedFileIndices();
+  bool unchanged = mFiles.size() <= indices.size();
+  for (int i = 0; unchanged && i < mFiles.size(); ++i) {
+    if (mFiles.at(i)->modelIndex() != indices.at(i))
+      unchanged = false;
+  }
+  if (unchanged) {
+    if (canFetchMore())
+      fetchMore();
+    return;
+  }
+
   while (mFiles.count()) {
     auto file = mFiles.takeFirst();
     file->hide();
@@ -383,23 +395,24 @@ bool DiffView::canFetchMore() {
       return true;
   }
 
-  auto dtw = dynamic_cast<DoubleTreeWidget *>(
-      mParent); // for an unknown reason parent() and p are not the same
-  assert(dtw);
   if (!mDiff.isValid())
     return false;
 
-  QList<QModelIndex> indexList = dtw->selectedIndices();
-  int fileCount = 0;
-  for (auto index : indexList) {
+  return mFiles.size() < selectedFileIndices().size();
+}
+
+QList<QModelIndex> DiffView::selectedFileIndices() const {
+  const auto *dtw = static_cast<DoubleTreeWidget *>(mParent);
+  QList<QModelIndex> result;
+  for (const QModelIndex &index : dtw->selectedIndices()) {
     const QList<QModelIndex> modelIndices = mDiffTreeModel->modelIndices(index);
-    for (auto modelIndex : modelIndices) {
-      if (modelIndex.data(DiffTreeModel::PatchIndexRole).toInt() >= 0)
-        ++fileCount;
+    for (const QModelIndex &modelIndex : modelIndices) {
+      if (modelIndex.data(DiffTreeModel::PatchIndexRole).toInt() >= 0 &&
+          !result.contains(modelIndex))
+        result.append(modelIndex);
     }
   }
-
-  return mFiles.size() < fileCount;
+  return result;
 }
 
 /*!
@@ -443,19 +456,7 @@ void DiffView::fetchMore(int fetchWidgets) {
   }
 
   if (fetchFiles) {
-    auto dtw = dynamic_cast<DoubleTreeWidget *>(mParent);
-    // QList<int> patchIndices =
-    // mDiffTreeModel->patchIndices(dtw->selectedIndex());
-    QList<QModelIndex> indexList = dtw->selectedIndices();
-    QList<QModelIndex> indices;
-    for (auto index : indexList) {
-      QList<QModelIndex> addList = mDiffTreeModel->modelIndices(index);
-      for (auto add : addList) {
-        if (add.data(DiffTreeModel::PatchIndexRole).toInt() >= 0 &&
-            !indices.contains(add))
-          indices.append(add);
-      }
-    }
+    const QList<QModelIndex> indices = selectedFileIndices();
     int count = indices.count();
 
     for (int i = mFiles.count(); i < count && addedWidgets < fetchWidgets;

@@ -125,6 +125,7 @@ private:
   bool canFetchMore();
   void fetchMore(int fetchWidgets = 4);
   void fetchAll(int index = -1);
+  QList<QModelIndex> selectedFileIndices() const;
   void indexChanged(const QStringList &paths);
   void loadStagedPatches();
 

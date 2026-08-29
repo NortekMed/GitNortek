@@ -45,6 +45,7 @@ class TestMainWindow : public QObject {
 private slots:
   void initTestCase();
   void show();
+  void focusUpdatesOnlyEditorActions();
   void fastIssueAccess();
   void initialRefreshOnce();
   void navigatorRefreshCoalesced();
@@ -100,6 +101,49 @@ void TestMainWindow::initTestCase() {
 void TestMainWindow::show() {
   mWindow->show();
   QVERIFY(qWaitForWindowActive(mWindow));
+}
+
+void TestMainWindow::focusUpdatesOnlyEditorActions() {
+  if (!mWindow->isVisible()) {
+    mWindow->show();
+    QVERIFY(qWaitForWindowActive(mWindow));
+  }
+
+  MenuBar *menuBar = MenuBar::instance(mWindow);
+  QVERIFY(menuBar);
+
+  auto actionForShortcut = [menuBar](const QKeySequence &shortcut) {
+    for (QAction *action : menuBar->findChildren<QAction *>()) {
+      if (action->shortcut() == shortcut)
+        return action;
+    }
+    return static_cast<QAction *>(nullptr);
+  };
+  QAction *copy = actionForShortcut(QKeySequence::Copy);
+  QAction *checkout = actionForShortcut(QKeySequence("Ctrl+Shift+H"));
+  QVERIFY(copy);
+  QVERIFY(checkout);
+
+  menuBar->updateBranch();
+  QVERIFY(checkout->isEnabled());
+  checkout->setEnabled(false);
+
+  QLineEdit lineEdit(mWindow);
+  lineEdit.setText("selected");
+  lineEdit.selectAll();
+  lineEdit.show();
+  lineEdit.setFocus();
+  QTRY_COMPARE(QApplication::focusWidget(), &lineEdit);
+  QTRY_VERIFY(copy->isEnabled());
+  QVERIFY(!checkout->isEnabled());
+
+  QPushButton button(mWindow);
+  button.show();
+  button.setFocus();
+  QTRY_COMPARE(QApplication::focusWidget(), &button);
+  QTRY_VERIFY(!copy->isEnabled());
+  QVERIFY(!checkout->isEnabled());
+  menuBar->updateBranch();
 }
 
 void TestMainWindow::fastIssueAccess() {
