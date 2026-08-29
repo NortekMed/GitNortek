@@ -3769,6 +3769,11 @@ EditorWindow *RepoView::openEditor(const QString &path, int line,
 
 void RepoView::refresh() { refresh(true); }
 
+void RepoView::refreshAll() {
+  emit manualRefreshRequested();
+  refresh();
+}
+
 void RepoView::refresh(bool restoreSelection) {
   mRepo.invalidateSubmoduleCache();
 

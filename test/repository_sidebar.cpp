@@ -332,10 +332,25 @@ void TestRepositorySideBar::navigatorModel() {
 }
 
 void TestRepositorySideBar::navigatorView() {
+  const QString localExpansionKey =
+      "sidebar/repositoryNavigator/expanded/Local";
+  QSettings settings;
+  const bool hadLocalExpansion = settings.contains(localExpansionKey);
+  const QVariant localExpansion = settings.value(localExpansionKey);
+  auto restoreLocalExpansion = qScopeGuard(
+      [hadLocalExpansion, localExpansion, localExpansionKey] {
+        QSettings settings;
+        if (hadLocalExpansion)
+          settings.setValue(localExpansionKey, localExpansion);
+        else
+          settings.remove(localExpansionKey);
+      });
+
   RepositoryNavigator navigator;
-  QTreeView *view = navigator.view();
+  QTreeView *view = navigator.sectionView(
+      RepositoryNavigatorModel::Section::Local);
   QVERIFY(view);
-  QCOMPARE(view->objectName(), QString("RepositoryNavigationTree"));
+  QCOMPARE(view->objectName(), QString("RepositoryNavigationLocalView"));
   QVERIFY(view->focusPolicy() != Qt::NoFocus);
   QVERIFY(view->itemDelegate());
   QFont bodyFont = view->font();
@@ -343,29 +358,44 @@ void TestRepositorySideBar::navigatorView() {
   navigator.setBodyFont(bodyFont);
   QCOMPARE(FontUtils::pointSize(view->font()),
            FontUtils::pointSize(bodyFont));
-  QCOMPARE(navigator.model()->index(0, 0).data().toString(), QString("Local"));
-  QCOMPARE(view->itemDelegate()->sizeHint(QStyleOptionViewItem(),
-                                          navigator.model()->index(0, 0))
-               .height(),
-           28);
-
   RepositoryNavigatorModel *model = navigator.model();
   QModelIndex local =
       model->sectionIndex(RepositoryNavigatorModel::Section::Local);
-  QModelIndex cloud =
-      model->sectionIndex(RepositoryNavigatorModel::Section::CloudPatches);
-  QVERIFY(view->isExpanded(local));
-  QVERIFY(!view->isExpanded(cloud));
+  QCOMPARE(view->rootIndex(), local);
+  QCOMPARE(view->verticalScrollMode(), QAbstractItemView::ScrollPerPixel);
+  for (RepositoryNavigatorModel::Section section :
+       {RepositoryNavigatorModel::Section::Local,
+        RepositoryNavigatorModel::Section::Remote,
+        RepositoryNavigatorModel::Section::Stashes,
+        RepositoryNavigatorModel::Section::GitHubIssues,
+        RepositoryNavigatorModel::Section::Tags,
+        RepositoryNavigatorModel::Section::Submodules}) {
+    QTreeView *sectionView = navigator.sectionView(section);
+    QVERIFY(sectionView);
+    QCOMPARE(sectionView->rootIndex(), model->sectionIndex(section));
+    QVERIFY(sectionView->verticalScrollBar() != view->verticalScrollBar() ||
+            section == RepositoryNavigatorModel::Section::Local);
+  }
+  QVERIFY(!navigator.sectionView(
+      RepositoryNavigatorModel::Section::CloudPatches));
+  QSplitter *splitter =
+      navigator.findChild<QSplitter *>("RepositorySectionSplitter");
+  QVERIFY(splitter);
+  QCOMPARE(splitter->orientation(), Qt::Vertical);
+  QCOMPARE(splitter->count(),
+           static_cast<int>(RepositoryNavigatorModel::Section::Count));
 
-  view->collapse(local);
+  QToolButton *localToggle =
+      navigator.findChild<QToolButton *>("RepositoryNavigationLocalToggle");
+  QVERIFY(localToggle);
+  localToggle->setChecked(false);
   QCoreApplication::processEvents();
   QCOMPARE(
       QSettings().value("sidebar/repositoryNavigator/expanded/Local").toBool(),
       false);
 
   navigator.setRepository(mRepo);
-  local = model->sectionIndex(RepositoryNavigatorModel::Section::Local);
-  QVERIFY(!view->isExpanded(local));
+  QVERIFY(!localToggle->isChecked());
 }
 
 void TestRepositorySideBar::githubIssuesModel() {
@@ -448,12 +478,11 @@ void TestRepositorySideBar::githubIssuesRemoteFilter() {
       },
       [&now] { return now; });
   QComboBox *filter = navigator.issuesRemoteFilter();
-  QTreeView *issuesView = navigator.issuesView();
-  QToolButton *refresh =
-      navigator.findChild<QToolButton *>("GitHubIssuesRefresh");
+  QTreeView *issuesView = navigator.sectionView(
+      RepositoryNavigatorModel::Section::GitHubIssues);
   QVERIFY(filter);
   QVERIFY(issuesView);
-  QVERIFY(refresh);
+  QVERIFY(!navigator.findChild<QToolButton *>("GitHubIssuesRefresh"));
   QCOMPARE(filter->objectName(), QString("GitHubIssuesRemoteFilter"));
   QCOMPARE(issuesView->objectName(), QString("GitHubIssuesView"));
   QVERIFY(!filter->accessibleName().isEmpty());
@@ -467,7 +496,6 @@ void TestRepositorySideBar::githubIssuesRemoteFilter() {
   QVERIFY(!filter->isHidden());
   QModelIndex issuesSection = navigator.model()->sectionIndex(
       RepositoryNavigatorModel::Section::GitHubIssues);
-  QVERIFY(navigator.view()->isRowHidden(issuesSection.row(), QModelIndex()));
   QCOMPARE(issuesView->rootIndex(), issuesSection);
   QVERIFY(issuesView->isRowHidden(0, issuesSection));
   QModelIndex filterRow = navigator.model()->index(0, 0, issuesSection);
@@ -545,10 +573,9 @@ void TestRepositorySideBar::githubIssuesRemoteFilter() {
 
   now += 10 * 1000 + 1;
   navigator.model()->refresh();
-  QTRY_VERIFY(refresh->isEnabled());
-  refresh->click();
+  navigator.refresh();
   QCOMPARE(requests.size(), freshRequestCount + 2);
-  refresh->click();
+  navigator.refresh();
   QCOMPARE(requests.size(), freshRequestCount + 2);
   requests.constLast().callback(false, {}, 0, "offline");
   section = navigator.model()->sectionIndex(
@@ -572,6 +599,8 @@ void TestRepositorySideBar::githubIssuesRemoteFilter() {
   section = navigator.model()->sectionIndex(
       RepositoryNavigatorModel::Section::GitHubIssues);
   QModelIndex lastIssue = navigator.model()->index(50, 0, section);
+  QCOMPARE(menuTexts(contextMenuItems(issuesView, lastIssue)),
+           QStringList({"Open in Browser"}));
   issuesView->scrollTo(lastIssue, QAbstractItemView::PositionAtBottom);
   QCoreApplication::processEvents();
   QVERIFY(issuesView->visualRect(lastIssue).intersects(
@@ -606,10 +635,28 @@ void TestRepositorySideBar::activeRepositoryBinding() {
   QCOMPARE(navigator->model()->repository().dir(false).path(),
            mRepo->dir(false).path());
 
+  QSignalSpy generalRefresh(window.currentView(),
+                            &RepoView::manualRefreshRequested);
+  QAction *refreshAction = nullptr;
+  for (QAction *action : window.findChildren<QAction *>()) {
+    if (action->text() == "Refresh") {
+      refreshAction = action;
+      break;
+    }
+  }
+  QVERIFY(refreshAction);
+  refreshAction->trigger();
+  QCOMPARE(generalRefresh.count(), 1);
+
   RepositoryNavigatorModel *model = navigator->model();
+  QTreeView *localView = navigator->sectionView(
+      RepositoryNavigatorModel::Section::Local);
+  QTreeView *remoteView = navigator->sectionView(
+      RepositoryNavigatorModel::Section::Remote);
+  QVERIFY(localView);
+  QVERIFY(remoteView);
   QModelIndex local =
       model->sectionIndex(RepositoryNavigatorModel::Section::Local);
-  navigator->view()->setExpanded(local, true);
   QModelIndex current;
   QModelIndex other;
   for (int row = 0; row < model->rowCount(local); ++row) {
@@ -623,7 +670,7 @@ void TestRepositorySideBar::activeRepositoryBinding() {
   QVERIFY(other.isValid());
 
   QList<QPair<QString, bool>> currentItems =
-      contextMenuItems(navigator->view(), current);
+      contextMenuItems(localView, current);
   QString currentName = current.data().toString();
   QCOMPARE(menuTexts(currentItems),
            QStringList({"Pull", "Push", "Force Push...", "Checkout",
@@ -637,7 +684,7 @@ void TestRepositorySideBar::activeRepositoryBinding() {
   QCOMPARE(currentItems.at(5).second, false);
 
   QList<QPair<QString, bool>> otherItems =
-      contextMenuItems(navigator->view(), other);
+      contextMenuItems(localView, other);
   QString otherName = other.data().toString();
   QCOMPARE(menuTexts(otherItems),
            QStringList({"Checkout", "Rename " + otherName, "Delete", "Merge...",
@@ -648,11 +695,10 @@ void TestRepositorySideBar::activeRepositoryBinding() {
 
   QModelIndex remotes =
       model->sectionIndex(RepositoryNavigatorModel::Section::Remote);
-  navigator->view()->setExpanded(remotes, true);
   QModelIndex remote = model->index(0, 0, remotes);
   QString remoteName = remote.data().toString();
   QList<QPair<QString, bool>> remoteItems =
-      contextMenuItems(navigator->view(), remote);
+      contextMenuItems(remoteView, remote);
   QCOMPARE(menuTexts(remoteItems),
            QStringList({"Checkout", "Rename " + remoteName,
                         "Delete " + remoteName, "New Local Branch", "Merge...",
@@ -684,13 +730,15 @@ void TestRepositorySideBar::activeRepositoryBinding() {
   git::Reference selectedReference =
       current.data(RepositoryNavigatorModel::ReferenceRole)
           .value<git::Reference>();
-  navigator->view()->setCurrentIndex(current);
+  remoteView->setCurrentIndex(remote);
+  localView->setCurrentIndex(current);
+  QVERIFY(!remoteView->currentIndex().isValid());
   model->setGitHubIssuesAvailable(true);
   model->beginGitHubIssuesLoad(false);
   model->setGitHubIssues(
       {{1, "Selection test", "tester",
         QUrl("https://github.com/acme/widget/issues/1")}});
-  QCOMPARE(navigator->view()
+  QCOMPARE(localView
                ->currentIndex()
                .data(RepositoryNavigatorModel::ReferenceRole)
                .value<git::Reference>()
@@ -723,13 +771,13 @@ void TestRepositorySideBar::activeRepositoryBinding() {
   QVERIFY(feature.isValid());
 
   QSignalSpy referenceSelected(view, &RepoView::referenceSelected);
-  QVERIFY(QMetaObject::invokeMethod(navigator->view(), "clicked",
+  QVERIFY(QMetaObject::invokeMethod(localView, "clicked",
                                     Q_ARG(QModelIndex, feature)));
   QTRY_COMPARE(referenceSelected.count(), 1);
   QCOMPARE(referenceSelected.first().first().value<git::Reference>().name(),
            QString("feature"));
 
-  QVERIFY(QMetaObject::invokeMethod(navigator->view(), "doubleClicked",
+  QVERIFY(QMetaObject::invokeMethod(localView, "doubleClicked",
                                     Q_ARG(QModelIndex, feature)));
   QTRY_COMPARE(mRepo->head().name(), QString("feature"));
 
@@ -1296,7 +1344,10 @@ void TestRepositorySideBar::stashInteraction() {
       stash.data(RepositoryNavigatorModel::CommitRole).value<git::Commit>();
   QVERIFY(expected.isValid());
 
-  QVERIFY(QMetaObject::invokeMethod(navigator->view(), "clicked",
+  QTreeView *stashesView = navigator->sectionView(
+      RepositoryNavigatorModel::Section::Stashes);
+  QVERIFY(stashesView);
+  QVERIFY(QMetaObject::invokeMethod(stashesView, "clicked",
                                     Q_ARG(QModelIndex, stash)));
   QTRY_VERIFY(!window.currentView()->commits().isEmpty());
   QCOMPARE(window.currentView()->commits().first().id(), expected.id());
@@ -1358,7 +1409,9 @@ void TestRepositorySideBar::submoduleInteraction() {
 
   QModelIndex submodules = navigator->model()->sectionIndex(
       RepositoryNavigatorModel::Section::Submodules);
-  navigator->view()->setExpanded(submodules, true);
+  QTreeView *submodulesView = navigator->sectionView(
+      RepositoryNavigatorModel::Section::Submodules);
+  QVERIFY(submodulesView);
   QCOMPARE(navigator->model()->rowCount(submodules), 1);
   QModelIndex submodule = navigator->model()->index(0, 0, submodules);
   QCOMPARE(submodule.data(RepositoryNavigatorModel::PathRole).toString(),
@@ -1388,7 +1441,7 @@ void TestRepositorySideBar::submoduleInteraction() {
   QVERIFY(tooltip.contains("Pin delta"));
   QVERIFY(tooltip.contains("Origin delta"));
   QList<QPair<QString, bool>> cleanMenu =
-      contextMenuItems(navigator->view(), submodule);
+      contextMenuItems(submodulesView, submodule);
   QCOMPARE(menuTexts(cleanMenu),
            QStringList({"Open", "Commit Changes", "Check for Updates",
                         "Update", "Modify...", "Delete Submodule..."}));
@@ -1534,7 +1587,7 @@ void TestRepositorySideBar::submoduleInteraction() {
            1);
 
   QList<QPair<QString, bool>> behindMenu =
-      contextMenuItems(navigator->view(), submodule);
+      contextMenuItems(submodulesView, submodule);
   QVERIFY(menuTexts(behindMenu)
               .contains(QString("Checkout origin/%1").arg(childBranch)));
   git::Id originTarget =
@@ -1597,7 +1650,7 @@ void TestRepositorySideBar::submoduleInteraction() {
   QVERIFY(parentView->canCommitSubmoduleChanges(selected));
 
   QList<QPair<QString, bool>> menu =
-      contextMenuItems(navigator->view(), submodule);
+      contextMenuItems(submodulesView, submodule);
   QCOMPARE(menuTexts(menu),
            QStringList({"Open", "Commit Changes", "Check for Updates",
                         "Update", "Modify...", "Delete Submodule..."}));
@@ -1649,7 +1702,7 @@ void TestRepositorySideBar::submoduleInteraction() {
   QVERIFY(confirmation->informativeText().contains("uncommitted changes"));
   confirmation->button(QMessageBox::Cancel)->click();
 
-  QVERIFY(QMetaObject::invokeMethod(navigator->view(), "doubleClicked",
+  QVERIFY(QMetaObject::invokeMethod(submodulesView, "doubleClicked",
                                     Q_ARG(QModelIndex, submodule)));
   QTRY_COMPARE(window.count(), 2);
   QCOMPARE(window.currentView()->repo().workdir().path(),

@@ -18,6 +18,7 @@
 #include <QDateTime>
 #include <QDesktopServices>
 #include <QHBoxLayout>
+#include <QItemSelectionModel>
 #include <QLabel>
 #include <QMenu>
 #include <QMetaEnum>
@@ -26,7 +27,7 @@
 #include <QScrollBar>
 #include <QSettings>
 #include <QSignalBlocker>
-#include <QStyle>
+#include <QSplitter>
 #include <QStyledItemDelegate>
 #include <QToolButton>
 #include <QTreeView>
@@ -36,15 +37,23 @@
 namespace {
 
 const QString kExpandedGroup = "sidebar/repositoryNavigator/expanded";
+const QString kSectionSizeGroup = "sidebar/repositoryNavigator/sectionSize";
+const QString kSplitterStateKey = "sidebar/repositoryNavigator/sectionSplitter";
 const QString kIssuesRemoteKey = "sidebar.githubIssues.remote";
 constexpr qint64 kIssuesCacheLifetimeMs = 5 * 60 * 1000;
 constexpr qint64 kIssuesManualRefreshIntervalMs = 10 * 1000;
 constexpr qint64 kIssuesRetryDelayMs = 60 * 1000;
 
-QString sectionKey(const QModelIndex &index) {
-  int section = index.data(RepositoryNavigatorModel::SectionRole).toInt();
+QString sectionKey(RepositoryNavigatorModel::Section section) {
   QMetaEnum meta = QMetaEnum::fromType<RepositoryNavigatorModel::Section>();
-  return QString::fromLatin1(meta.valueToKey(section));
+  return QString::fromLatin1(meta.valueToKey(static_cast<int>(section)));
+}
+
+bool hasScrollingBody(RepositoryNavigatorModel::Section section) {
+  using Section = RepositoryNavigatorModel::Section;
+  return section == Section::Local || section == Section::Remote ||
+         section == Section::Stashes || section == Section::GitHubIssues ||
+         section == Section::Tags || section == Section::Submodules;
 }
 
 QString comparisonDelta(const QVariant &ahead, const QVariant &behind) {
@@ -296,109 +305,175 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
   setObjectName("RepositoryNavigator");
   setAccessibleName(tr("Repository navigation"));
 
-  mView = new QTreeView(this);
-  mView->setObjectName("RepositoryNavigationTree");
-  mView->setAccessibleName(tr("Repository references"));
-  mView->setHeaderHidden(true);
-  mView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  mView->setRootIsDecorated(true);
-  mView->setItemsExpandable(true);
-  mView->setExpandsOnDoubleClick(false);
-  mView->setIndentation(14);
-  mView->setUniformRowHeights(true);
-  mView->setItemDelegate(new NavigatorDelegate(mView->font(), mView));
+  mModel = new RepositoryNavigatorModel(this);
+  mSectionSplitter = new QSplitter(Qt::Vertical, this);
+  mSectionSplitter->setObjectName("RepositorySectionSplitter");
+  mSectionSplitter->setChildrenCollapsible(false);
 
-  mIssuesPanel = new QWidget(this);
-  mIssuesPanel->setObjectName("GitHubIssuesPanel");
-  mIssuesTitle = new QLabel(tr("GitHub Issues"), mIssuesPanel);
-  QFont issuesTitleFont = mIssuesTitle->font();
-  issuesTitleFont.setBold(true);
-  issuesTitleFont.setCapitalization(QFont::SmallCaps);
-  mIssuesTitle->setFont(issuesTitleFont);
-  mIssuesRefresh = new QToolButton(mIssuesPanel);
-  mIssuesRefresh->setObjectName("GitHubIssuesRefresh");
-  mIssuesRefresh->setAccessibleName(tr("Refresh Issues"));
-  mIssuesRefresh->setToolTip(tr("Refresh Issues"));
-  mIssuesRefresh->setIcon(style()->standardIcon(QStyle::SP_BrowserReload));
-  mIssuesRefresh->setAutoRaise(true);
+  for (int value = 0;
+       value < static_cast<int>(RepositoryNavigatorModel::Section::Count);
+       ++value) {
+    auto section = static_cast<RepositoryNavigatorModel::Section>(value);
+    const QString key = sectionKey(section);
+    QWidget *container = new QWidget(mSectionSplitter);
+    container->setObjectName("RepositoryNavigation" + key + "Panel");
+    QWidget *header = new QWidget(container);
+    header->setObjectName("RepositoryNavigation" + key + "Header");
+    QToolButton *toggle = new QToolButton(header);
+    toggle->setObjectName("RepositoryNavigation" + key + "Toggle");
+    toggle->setCheckable(true);
+    toggle->setAutoRaise(true);
+    toggle->setArrowType(Qt::DownArrow);
+    QLabel *title = new QLabel(header);
+    title->setObjectName("RepositoryNavigation" + key + "Title");
+    QFont titleFont = title->font();
+    titleFont.setBold(true);
+    titleFont.setCapitalization(QFont::SmallCaps);
+    title->setFont(titleFont);
 
-  QHBoxLayout *issuesHeader = new QHBoxLayout();
-  issuesHeader->setContentsMargins(8, 2, 4, 2);
-  issuesHeader->addWidget(mIssuesTitle);
-  issuesHeader->addStretch();
-  issuesHeader->addWidget(mIssuesRefresh);
+    QHBoxLayout *headerLayout = new QHBoxLayout(header);
+    headerLayout->setContentsMargins(4, 2, 8, 2);
+    headerLayout->setSpacing(2);
+    headerLayout->addWidget(toggle);
+    headerLayout->addWidget(title, 1);
 
-  mIssuesRemoteFilter = new QComboBox(mIssuesPanel);
+    QWidget *body = new QWidget(container);
+    QVBoxLayout *bodyLayout = new QVBoxLayout(body);
+    bodyLayout->setContentsMargins(0, 0, 0, 0);
+    bodyLayout->setSpacing(0);
+
+    QTreeView *view = nullptr;
+    if (hasScrollingBody(section)) {
+      view = new QTreeView(body);
+      view->setObjectName(section ==
+                                  RepositoryNavigatorModel::Section::GitHubIssues
+                              ? QStringLiteral("GitHubIssuesView")
+                              : "RepositoryNavigation" + key + "View");
+      view->setAccessibleName(tr("%1 items").arg(key));
+      view->setHeaderHidden(true);
+      view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+      view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+      view->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+      view->setRootIsDecorated(false);
+      view->setIndentation(0);
+      view->setUniformRowHeights(true);
+      view->setItemDelegate(new NavigatorDelegate(view->font(), view));
+      view->setMinimumHeight(0);
+      view->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
+      view->setModel(mModel);
+    }
+
+    QVBoxLayout *panelLayout = new QVBoxLayout(container);
+    panelLayout->setContentsMargins(0, 0, 0, 0);
+    panelLayout->setSpacing(0);
+    panelLayout->addWidget(header);
+    panelLayout->addWidget(body, 1);
+    if (view)
+      bodyLayout->addWidget(view);
+
+    body->setMinimumHeight(0);
+    body->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
+    const int expandedSize =
+        QSettings().value(kSectionSizeGroup + "/" + key, 96).toInt();
+    mPanels.append(
+        {section, container, header, toggle, title, body, view, 0,
+         qMax(expandedSize, header->sizeHint().height() + 24)});
+    mSectionSplitter->addWidget(container);
+    mSectionSplitter->setCollapsible(value, false);
+
+    connect(toggle, &QToolButton::toggled, this, [this, section](bool expanded) {
+      setPanelExpanded(section, expanded);
+      storeExpansion(section, expanded);
+    });
+    if (view) {
+      connect(view->selectionModel(), &QItemSelectionModel::currentChanged,
+              this, [this, view](const QModelIndex &current) {
+                if (current.isValid())
+                  clearOtherSelections(view);
+              });
+      view->setContextMenuPolicy(Qt::CustomContextMenu);
+      connect(view, &QTreeView::customContextMenuRequested, this,
+              &RepositoryNavigator::showContextMenu);
+      connect(view, &QTreeView::clicked, this,
+              [this, view](const QModelIndex &index) {
+                clearOtherSelections(view);
+                activate(index, false);
+              });
+      connect(view, &QTreeView::doubleClicked, this,
+              [this, view](const QModelIndex &index) {
+                clearOtherSelections(view);
+                auto kind = static_cast<RepositoryNavigatorModel::ItemKind>(
+                    index.data(RepositoryNavigatorModel::ItemKindRole).toInt());
+                if (kind == RepositoryNavigatorModel::ItemKind::GitHubIssue)
+                  openIssue(index);
+                else
+                  activate(index, true);
+              });
+    }
+  }
+
+  SectionPanel *issuesPanel =
+      panel(RepositoryNavigatorModel::Section::GitHubIssues);
+  mIssuesRemoteFilter = new QComboBox(issuesPanel->body);
   mIssuesRemoteFilter->setObjectName("GitHubIssuesRemoteFilter");
   mIssuesRemoteFilter->setAccessibleName(tr("Issues repository"));
   mIssuesRemoteFilter->setPlaceholderText(tr("Issues repository"));
-
-  mIssuesView = new QTreeView(mIssuesPanel);
-  mIssuesView->setObjectName("GitHubIssuesView");
-  mIssuesView->setAccessibleName(tr("GitHub Issues"));
-  mIssuesView->setHeaderHidden(true);
-  mIssuesView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  mIssuesView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-  mIssuesView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-  mIssuesView->setRootIsDecorated(false);
-  mIssuesView->setIndentation(0);
-  mIssuesView->setUniformRowHeights(true);
-  mIssuesView->setItemDelegate(
-      new NavigatorDelegate(mIssuesView->font(), mIssuesView));
-  mIssuesView->setMinimumHeight(96);
-
-  QVBoxLayout *issuesLayout = new QVBoxLayout(mIssuesPanel);
-  issuesLayout->setContentsMargins(0, 0, 0, 0);
-  issuesLayout->setSpacing(0);
-  issuesLayout->addLayout(issuesHeader);
-  issuesLayout->addWidget(mIssuesRemoteFilter);
-  issuesLayout->addWidget(mIssuesView);
-
-  mModel = new RepositoryNavigatorModel(mView);
-  mView->setModel(mModel);
-  mIssuesView->setModel(mModel);
+  qobject_cast<QVBoxLayout *>(issuesPanel->body->layout())
+      ->insertWidget(0, mIssuesRemoteFilter);
 
   connect(mModel, &RepositoryNavigatorModel::modelAboutToBeReset, this, [this] {
-    mReferenceBeforeReset =
-        mView->currentIndex()
-            .data(RepositoryNavigatorModel::ReferenceRole)
-            .value<git::Reference>();
-    mIssuesScrollBeforeReset = mIssuesView->verticalScrollBar()->value();
+    mReferenceBeforeReset = git::Reference();
+    for (SectionPanel &panel : mPanels) {
+      if (!panel.view)
+        continue;
+      QModelIndex current = panel.view->currentIndex();
+      git::Reference ref;
+      if (panel.view->selectionModel()->isSelected(current))
+        ref = current.data(RepositoryNavigatorModel::ReferenceRole)
+                  .value<git::Reference>();
+      if (ref.isValid())
+        mReferenceBeforeReset = ref;
+      panel.scrollBeforeReset = panel.view->verticalScrollBar()->value();
+    }
   });
   connect(mModel, &RepositoryNavigatorModel::modelReset, this, [this] {
     restoreExpansion();
+    updatePanels();
     if (mReferenceBeforeReset.isValid())
       selectReference(mReferenceBeforeReset);
     mReferenceBeforeReset = git::Reference();
-    updateGitHubIssuesPanel();
+    QTimer::singleShot(0, this, [this] {
+      for (SectionPanel &panel : mPanels) {
+        if (panel.view)
+          panel.view->verticalScrollBar()->setValue(qMin(
+              panel.scrollBeforeReset,
+              panel.view->verticalScrollBar()->maximum()));
+      }
+    });
   });
-  connect(mView, &QTreeView::expanded, this,
-          [this](const QModelIndex &index) { storeExpansion(index, true); });
-  connect(mView, &QTreeView::collapsed, this,
-          [this](const QModelIndex &index) { storeExpansion(index, false); });
-  connect(mView, &QTreeView::clicked, this,
-          [this](const QModelIndex &index) { activate(index, false); });
-  connect(mView, &QTreeView::doubleClicked, this,
-          [this](const QModelIndex &index) { activate(index, true); });
   connect(mIssuesRemoteFilter, &QComboBox::currentIndexChanged, this,
           &RepositoryNavigator::selectGitHubIssuesRepository);
-  connect(mIssuesRefresh, &QToolButton::clicked, this,
-          [this] { requestGitHubIssues(true); });
-
-  mView->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(mView, &QTreeView::customContextMenuRequested, this,
-          &RepositoryNavigator::showContextMenu);
-  mIssuesView->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(mIssuesView, &QTreeView::customContextMenuRequested, this,
-          &RepositoryNavigator::showContextMenu);
-  connect(mIssuesView, &QTreeView::doubleClicked, this,
-          [this](const QModelIndex &index) { openIssue(index); });
+  connect(mSectionSplitter, &QSplitter::splitterMoved, this,
+          [this](int, int) {
+            const QList<int> sizes = mSectionSplitter->sizes();
+            for (int index = 0; index < mPanels.size(); ++index) {
+              SectionPanel &panel = mPanels[index];
+              if (panel.body->isVisible() && index < sizes.size()) {
+                panel.expandedSize = qMax(
+                    sizes.at(index), panel.header->sizeHint().height() + 24);
+                QSettings().setValue(kSectionSizeGroup + "/" +
+                                         sectionKey(panel.section),
+                                     panel.expandedSize);
+              }
+            }
+            QSettings().setValue(kSplitterStateKey,
+                                 mSectionSplitter->saveState());
+          });
 
   QVBoxLayout *layout = new QVBoxLayout(this);
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
-  layout->addWidget(mView, 2);
-  layout->addWidget(mIssuesPanel, 1);
+  layout->addWidget(mSectionSplitter);
 
   Accounts *accounts = Accounts::instance();
   connect(accounts, &Accounts::accountAdded, this,
@@ -416,7 +491,9 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
           });
 
   restoreExpansion();
-  updateGitHubIssuesPanel();
+  updatePanels();
+  mSectionSplitter->restoreState(
+      QSettings().value(kSplitterStateKey).toByteArray());
 }
 
 void RepositoryNavigator::setRepository(const git::Repository &repo) {
@@ -442,6 +519,7 @@ void RepositoryNavigator::setRepoView(RepoView *view) {
   disconnect(mSubmoduleStatusesConnection);
   disconnect(mReferenceConnection);
   disconnect(mReferenceSelectedConnection);
+  disconnect(mRefreshConnection);
   mRepoView = view;
   setRepository(view ? view->repo() : git::Repository());
   if (view) {
@@ -457,31 +535,35 @@ void RepositoryNavigator::setRepoView(RepoView *view) {
     mReferenceSelectedConnection =
         connect(view, &RepoView::referenceSelected, this,
                 &RepositoryNavigator::selectReference);
+    mRefreshConnection = connect(view, &RepoView::manualRefreshRequested, this,
+                                 &RepositoryNavigator::refresh);
     selectReference(view->reference());
   }
 }
 
 RepositoryNavigatorModel *RepositoryNavigator::model() const { return mModel; }
 
-QTreeView *RepositoryNavigator::view() const { return mView; }
-
-QTreeView *RepositoryNavigator::issuesView() const { return mIssuesView; }
+QTreeView *RepositoryNavigator::sectionView(
+    RepositoryNavigatorModel::Section section) const {
+  const SectionPanel *sectionPanel = panel(section);
+  return sectionPanel ? sectionPanel->view : nullptr;
+}
 
 QComboBox *RepositoryNavigator::issuesRemoteFilter() const {
   return mIssuesRemoteFilter;
 }
 
 void RepositoryNavigator::setBodyFont(const QFont &font) {
-  mView->setStyleSheet(
-      mView->styleSheet() +
-      QString("\nfont-size: %1pt;").arg(FontUtils::pointSize(font)));
-  mView->setFont(FontUtils::copySize(mView->font(), font));
-  mView->viewport()->update();
-  mIssuesPanel->setFont(FontUtils::copySize(mIssuesPanel->font(), font));
-  mIssuesView->setFont(FontUtils::copySize(mIssuesView->font(), font));
+  for (SectionPanel &panel : mPanels) {
+    panel.container->setFont(
+        FontUtils::copySize(panel.container->font(), font));
+    if (panel.view) {
+      panel.view->setFont(FontUtils::copySize(panel.view->font(), font));
+      panel.view->viewport()->update();
+    }
+  }
   mIssuesRemoteFilter->setFont(
       FontUtils::copySize(mIssuesRemoteFilter->font(), font));
-  mIssuesView->viewport()->update();
 }
 
 void RepositoryNavigator::restoreExpansion() {
@@ -489,28 +571,131 @@ void RepositoryNavigator::restoreExpansion() {
   settings.beginGroup(kExpandedGroup);
   for (int row = 0; row < mModel->rowCount(); ++row) {
     QModelIndex index = mModel->index(row, 0);
+    auto section = static_cast<RepositoryNavigatorModel::Section>(
+        index.data(RepositoryNavigatorModel::SectionRole).toInt());
     bool defaultExpanded =
         index.data(RepositoryNavigatorModel::AvailableRole).toBool();
-    mView->setExpanded(
-        index, settings.value(sectionKey(index), defaultExpanded).toBool());
+    setPanelExpanded(
+        section, settings.value(sectionKey(section), defaultExpanded).toBool());
   }
   settings.endGroup();
 }
 
-void RepositoryNavigator::storeExpansion(const QModelIndex &index,
-                                         bool expanded) {
-  if (!index.isValid() || index.parent().isValid())
-    return;
+void RepositoryNavigator::storeExpansion(
+    RepositoryNavigatorModel::Section section, bool expanded) {
   QSettings settings;
   settings.beginGroup(kExpandedGroup);
-  settings.setValue(sectionKey(index), expanded);
+  settings.setValue(sectionKey(section), expanded);
   settings.endGroup();
+}
+
+void RepositoryNavigator::setPanelExpanded(
+    RepositoryNavigatorModel::Section section, bool expanded) {
+  SectionPanel *sectionPanel = panel(section);
+  if (!sectionPanel)
+    return;
+
+  QModelIndex index = mModel->sectionIndex(section);
+  const bool available =
+      index.data(RepositoryNavigatorModel::AvailableRole).toBool();
+  const bool showBody = expanded && available && sectionPanel->view;
+  const bool wasVisible = sectionPanel->body->isVisible();
+  const int panelIndex = static_cast<int>(section);
+  if (wasVisible && !showBody) {
+    const QList<int> sizes = mSectionSplitter->sizes();
+    if (panelIndex < sizes.size()) {
+      sectionPanel->expandedSize = qMax(
+          sizes.at(panelIndex), sectionPanel->header->sizeHint().height() + 24);
+      QSettings().setValue(kSectionSizeGroup + "/" + sectionKey(section),
+                           sectionPanel->expandedSize);
+    }
+  }
+  QSignalBlocker blocker(sectionPanel->toggle);
+  sectionPanel->toggle->setChecked(expanded);
+  sectionPanel->toggle->setArrowType(expanded ? Qt::DownArrow : Qt::RightArrow);
+  sectionPanel->body->setVisible(showBody);
+  sectionPanel->container->setMaximumHeight(
+      showBody ? QWIDGETSIZE_MAX : sectionPanel->header->sizeHint().height());
+  if (showBody && !wasVisible) {
+    QTimer::singleShot(0, this, [this, panelIndex, section] {
+      SectionPanel *sectionPanel = panel(section);
+      QList<int> sizes = mSectionSplitter->sizes();
+      if (!sectionPanel || panelIndex >= sizes.size())
+        return;
+      sizes[panelIndex] = sectionPanel->expandedSize;
+      mSectionSplitter->setSizes(sizes);
+    });
+  }
+}
+
+void RepositoryNavigator::updatePanels() {
+  for (SectionPanel &panel : mPanels) {
+    QModelIndex index = mModel->sectionIndex(panel.section);
+    if (!index.isValid())
+      continue;
+
+    const bool available =
+        index.data(RepositoryNavigatorModel::AvailableRole).toBool();
+    const int count = index.data(RepositoryNavigatorModel::CountRole).toInt();
+    panel.title->setText(
+        QString("%1 (%2)").arg(index.data().toString()).arg(count));
+    panel.header->setToolTip(index.data(Qt::ToolTipRole).toString());
+    panel.toggle->setEnabled(available && panel.view);
+    panel.title->setEnabled(available);
+    if (panel.view) {
+      panel.view->setRootIndex(index);
+      panel.view->setEnabled(available);
+      panel.view->setAccessibleName(
+          tr("%1 items").arg(index.data().toString()));
+    }
+    setPanelExpanded(panel.section, panel.toggle->isChecked());
+  }
+
+  SectionPanel *issues =
+      panel(RepositoryNavigatorModel::Section::GitHubIssues);
+  if (issues && issues->view && mModel->rowCount(issues->view->rootIndex()) > 0) {
+    QModelIndex section = issues->view->rootIndex();
+    QModelIndex first = mModel->index(0, 0, section);
+    const auto kind = static_cast<RepositoryNavigatorModel::ItemKind>(
+        first.data(RepositoryNavigatorModel::ItemKindRole).toInt());
+    issues->view->setRowHidden(
+        0, section,
+        kind == RepositoryNavigatorModel::ItemKind::GitHubIssuesFilter);
+  }
+  mIssuesRemoteFilter->setVisible(!currentGitHubIssuesKey().isEmpty());
+}
+
+void RepositoryNavigator::clearOtherSelections(QTreeView *selected) {
+  for (SectionPanel &panel : mPanels) {
+    if (panel.view && panel.view != selected) {
+      panel.view->clearSelection();
+      panel.view->setCurrentIndex(QModelIndex());
+    }
+  }
+}
+
+RepositoryNavigator::SectionPanel *RepositoryNavigator::panel(
+    RepositoryNavigatorModel::Section section) {
+  for (SectionPanel &panel : mPanels) {
+    if (panel.section == section)
+      return &panel;
+  }
+  return nullptr;
+}
+
+const RepositoryNavigator::SectionPanel *RepositoryNavigator::panel(
+    RepositoryNavigatorModel::Section section) const {
+  for (const SectionPanel &panel : mPanels) {
+    if (panel.section == section)
+      return &panel;
+  }
+  return nullptr;
 }
 
 void RepositoryNavigator::showContextMenu(const QPoint &point) {
   QTreeView *source = qobject_cast<QTreeView *>(sender());
   if (!source)
-    source = mView;
+    return;
   QModelIndex index = source->indexAt(point);
   if (!index.isValid())
     return;
@@ -521,18 +706,9 @@ void RepositoryNavigator::showContextMenu(const QPoint &point) {
   auto kind = static_cast<RepositoryNavigatorModel::ItemKind>(
       index.data(RepositoryNavigatorModel::ItemKindRole).toInt());
   if (section == RepositoryNavigatorModel::Section::GitHubIssues) {
-    if (kind == RepositoryNavigatorModel::ItemKind::GitHubIssuesFilter) {
-      showIssuesRepositoryMenu(index);
-      return;
-    }
     if (kind == RepositoryNavigatorModel::ItemKind::GitHubIssue)
       menu.addAction(tr("Open in Browser"), this,
                      [this, index] { openIssue(index); });
-    if (kind == RepositoryNavigatorModel::ItemKind::GitHubIssue ||
-        (kind == RepositoryNavigatorModel::ItemKind::Section &&
-         index.data(RepositoryNavigatorModel::AvailableRole).toBool()))
-      menu.addAction(tr("Refresh Issues"), this,
-                     [this] { requestGitHubIssues(true); });
     if (!menu.isEmpty())
       menu.exec(source->viewport()->mapToGlobal(point));
     return;
@@ -643,14 +819,22 @@ void RepositoryNavigator::showContextMenu(const QPoint &point) {
 }
 
 void RepositoryNavigator::selectReference(const git::Reference &ref) {
+  for (SectionPanel &panel : mPanels) {
+    if (panel.view) {
+      panel.view->clearSelection();
+      panel.view->setCurrentIndex(QModelIndex());
+    }
+  }
   if (!ref.isValid()) {
-    mView->clearSelection();
     return;
   }
   for (RepositoryNavigatorModel::Section section :
        {RepositoryNavigatorModel::Section::Local,
         RepositoryNavigatorModel::Section::Remote,
         RepositoryNavigatorModel::Section::Tags}) {
+    QTreeView *view = sectionView(section);
+    if (!view)
+      continue;
     QModelIndex parent = mModel->sectionIndex(section);
     for (int row = 0; row < mModel->rowCount(parent); ++row) {
       QModelIndex index = mModel->index(row, 0, parent);
@@ -659,7 +843,7 @@ void RepositoryNavigator::selectReference(const git::Reference &ref) {
               .value<git::Reference>();
       if (candidate.isValid() &&
           candidate.qualifiedName() == ref.qualifiedName()) {
-        mView->setCurrentIndex(index);
+        view->setCurrentIndex(index);
         return;
       }
     }
@@ -672,10 +856,8 @@ void RepositoryNavigator::activate(const QModelIndex &index, bool checkout) {
 
   auto kind = static_cast<RepositoryNavigatorModel::ItemKind>(
       index.data(RepositoryNavigatorModel::ItemKindRole).toInt());
-  if (kind == RepositoryNavigatorModel::ItemKind::GitHubIssuesFilter) {
-    showIssuesRepositoryMenu(index);
+  if (kind == RepositoryNavigatorModel::ItemKind::GitHubIssuesFilter)
     return;
-  }
   if (kind == RepositoryNavigatorModel::ItemKind::GitHubIssue)
     return;
 
@@ -809,7 +991,7 @@ void RepositoryNavigator::discoverGitHubIssuesRepositories() {
                                     ? mIssuesRemoteFilter->itemText(selected)
                                     : QString());
   if (selected < 0) {
-    updateGitHubIssuesPanel();
+    updatePanels();
     return;
   }
 
@@ -826,7 +1008,9 @@ void RepositoryNavigator::selectGitHubIssuesRepository(int index) {
   if (repo.isValid())
     repo.appConfig().setValue(kIssuesRemoteKey,
                               mIssuesCandidates.at(index).remote);
-  mIssuesView->verticalScrollBar()->setValue(0);
+  if (QTreeView *view =
+          sectionView(RepositoryNavigatorModel::Section::GitHubIssues))
+    view->verticalScrollBar()->setValue(0);
   applyGitHubIssuesCache(mIssuesCandidates.at(index).key);
   requestGitHubIssues(false);
 }
@@ -842,7 +1026,7 @@ void RepositoryNavigator::requestGitHubIssues(bool force) {
   const qint64 now = mClock();
   IssuesCacheEntry &entry = mIssuesCache[candidate.key];
   if (entry.inFlight) {
-    updateGitHubIssuesPanel();
+    updatePanels();
     return;
   }
   if (force && entry.lastAttempt > 0 &&
@@ -857,9 +1041,7 @@ void RepositoryNavigator::requestGitHubIssues(bool force) {
   entry.lastAttempt = now;
   const int generation = ++entry.generation;
   mModel->beginGitHubIssuesLoad(entry.hasValue);
-  updateGitHubIssuesPanel();
-  QTimer::singleShot(kIssuesManualRefreshIntervalMs, this,
-                     &RepositoryNavigator::updateGitHubIssuesPanel);
+  updatePanels();
   QPointer<RepositoryNavigator> guard(this);
   GitHub::IssuesCallback callback =
       [guard, key = candidate.key, generation](
@@ -890,7 +1072,7 @@ void RepositoryNavigator::requestGitHubIssues(bool force) {
           else
             guard->mModel->failGitHubIssues(entry.error, entry.hasValue);
         }
-        guard->updateGitHubIssuesPanel();
+        guard->updatePanels();
       };
   if (mIssuesRequest) {
     mIssuesRequest(candidate.account, candidate.owner, candidate.repository,
@@ -922,50 +1104,7 @@ QString RepositoryNavigator::currentGitHubIssuesKey() const {
              : QString();
 }
 
-void RepositoryNavigator::updateGitHubIssuesPanel() {
-  const QModelIndex section = mModel->sectionIndex(
-      RepositoryNavigatorModel::Section::GitHubIssues);
-  if (!section.isValid())
-    return;
-
-  mView->setRowHidden(section.row(), QModelIndex(), true);
-  mIssuesView->setRootIndex(section);
-  if (mModel->rowCount(section) > 0) {
-    const QModelIndex first = mModel->index(0, 0, section);
-    const auto kind = static_cast<RepositoryNavigatorModel::ItemKind>(
-        first.data(RepositoryNavigatorModel::ItemKindRole).toInt());
-    mIssuesView->setRowHidden(
-        0, section,
-        kind == RepositoryNavigatorModel::ItemKind::GitHubIssuesFilter);
-  }
-
-  const int count = section.data(RepositoryNavigatorModel::CountRole).toInt();
-  mIssuesTitle->setText(tr("GitHub Issues (%1)").arg(count));
-  const bool available = !currentGitHubIssuesKey().isEmpty();
-  bool inFlight = false;
-  bool manualRefreshReady = true;
-  auto it = mIssuesCache.constFind(currentGitHubIssuesKey());
-  if (it != mIssuesCache.cend()) {
-    inFlight = it->inFlight;
-    manualRefreshReady = it->lastAttempt == 0 ||
-                         mClock() - it->lastAttempt >=
-                             kIssuesManualRefreshIntervalMs;
-  }
-  mIssuesPanel->setVisible(available);
-  mIssuesRemoteFilter->setVisible(available);
-  mIssuesView->setVisible(available);
-  mIssuesRemoteFilter->setEnabled(available);
-  mIssuesRefresh->setEnabled(available && !inFlight && manualRefreshReady);
-  mIssuesPanel->setSizePolicy(
-      QSizePolicy::Preferred,
-      available ? QSizePolicy::Preferred : QSizePolicy::Fixed);
-
-  const int scroll = mIssuesScrollBeforeReset;
-  QTimer::singleShot(0, this, [this, scroll] {
-    mIssuesView->verticalScrollBar()->setValue(
-        qMin(scroll, mIssuesView->verticalScrollBar()->maximum()));
-  });
-}
+void RepositoryNavigator::refresh() { requestGitHubIssues(true); }
 
 void RepositoryNavigator::openIssue(const QModelIndex &index) {
   QUrl url(index.data(RepositoryNavigatorModel::UrlRole).toString());
@@ -973,20 +1112,4 @@ void RepositoryNavigator::openIssue(const QModelIndex &index) {
   if (url.isValid() && !url.host().isEmpty() &&
       (scheme == "http" || scheme == "https"))
     QDesktopServices::openUrl(url);
-}
-
-void RepositoryNavigator::showIssuesRepositoryMenu(const QModelIndex &index) {
-  QMenu menu(this);
-  for (int i = 0; i < mIssuesRemoteFilter->count(); ++i) {
-    QAction *action = menu.addAction(mIssuesRemoteFilter->itemText(i));
-    action->setCheckable(true);
-    action->setChecked(i == mIssuesRemoteFilter->currentIndex());
-    connect(action, &QAction::triggered, this,
-            [this, i] { mIssuesRemoteFilter->setCurrentIndex(i); });
-  }
-  if (menu.isEmpty())
-    return;
-
-  QRect row = mView->visualRect(index);
-  menu.exec(mView->viewport()->mapToGlobal(row.bottomLeft()));
 }

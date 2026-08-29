@@ -8,6 +8,7 @@
 #ifndef REPOSITORYNAVIGATOR_H
 #define REPOSITORYNAVIGATOR_H
 
+#include "RepositoryNavigatorModel.h"
 #include "git/Reference.h"
 #include "git/Repository.h"
 #include "host/GitHub.h"
@@ -18,9 +19,9 @@
 
 class QComboBox;
 class QLabel;
-class QToolButton;
+class QSplitter;
 class QTreeView;
-class RepositoryNavigatorModel;
+class QToolButton;
 class RepoView;
 
 class RepositoryNavigator : public QWidget {
@@ -39,14 +40,23 @@ public:
   void setRepository(const git::Repository &repo);
   void setRepoView(RepoView *view);
   RepositoryNavigatorModel *model() const;
-  QTreeView *view() const;
-  QTreeView *issuesView() const;
+  QTreeView *sectionView(RepositoryNavigatorModel::Section section) const;
   QComboBox *issuesRemoteFilter() const;
   void setBodyFont(const QFont &font);
+  void refresh();
 
 private:
+  struct SectionPanel;
+
   void restoreExpansion();
-  void storeExpansion(const QModelIndex &index, bool expanded);
+  void storeExpansion(RepositoryNavigatorModel::Section section,
+                      bool expanded);
+  void setPanelExpanded(RepositoryNavigatorModel::Section section,
+                        bool expanded);
+  void updatePanels();
+  void clearOtherSelections(QTreeView *selected);
+  SectionPanel *panel(RepositoryNavigatorModel::Section section);
+  const SectionPanel *panel(RepositoryNavigatorModel::Section section) const;
   void selectReference(const git::Reference &ref);
   void activate(const QModelIndex &index, bool checkout);
   void showContextMenu(const QPoint &point);
@@ -54,10 +64,8 @@ private:
   void selectGitHubIssuesRepository(int index);
   void requestGitHubIssues(bool force);
   void applyGitHubIssuesCache(const QString &key);
-  void updateGitHubIssuesPanel();
   QString currentGitHubIssuesKey() const;
   void openIssue(const QModelIndex &index);
-  void showIssuesRepositoryMenu(const QModelIndex &index);
 
   struct IssuesCandidate {
     QString remote;
@@ -79,11 +87,20 @@ private:
     bool inFlight = false;
   };
 
-  QTreeView *mView;
-  QWidget *mIssuesPanel;
-  QLabel *mIssuesTitle;
-  QToolButton *mIssuesRefresh;
-  QTreeView *mIssuesView;
+  struct SectionPanel {
+    RepositoryNavigatorModel::Section section;
+    QWidget *container;
+    QWidget *header;
+    QToolButton *toggle;
+    QLabel *title;
+    QWidget *body;
+    QTreeView *view;
+    int scrollBeforeReset = 0;
+    int expandedSize = 96;
+  };
+
+  QSplitter *mSectionSplitter;
+  QList<SectionPanel> mPanels;
   QComboBox *mIssuesRemoteFilter;
   RepositoryNavigatorModel *mModel;
   QPointer<RepoView> mRepoView;
@@ -91,11 +108,11 @@ private:
   QMetaObject::Connection mSubmoduleStatusesConnection;
   QMetaObject::Connection mReferenceConnection;
   QMetaObject::Connection mReferenceSelectedConnection;
+  QMetaObject::Connection mRefreshConnection;
   git::Reference mReferenceBeforeReset;
   QList<QMetaObject::Connection> mRemoteConnections;
   QList<IssuesCandidate> mIssuesCandidates;
   QHash<QString, IssuesCacheEntry> mIssuesCache;
-  int mIssuesScrollBeforeReset = 0;
   IssuesRequest mIssuesRequest;
   Clock mClock;
   QPointer<GitHub> mAnonymousGitHub;

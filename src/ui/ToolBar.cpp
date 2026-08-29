@@ -879,7 +879,7 @@ ToolBar::ToolBar(MainWindow *parent) : QToolBar(parent) {
   mRefreshButton = new RefreshButton(this);
   addWidget(mRefreshButton);
   connect(mRefreshButton, &Button::clicked,
-          [this] { currentView()->refresh(); });
+          [this] { currentView()->refreshAll(); });
 
   mFastIssueSpacer = new Spacer(4, this);
   mFastIssueSpacerAction = addWidget(mFastIssueSpacer);

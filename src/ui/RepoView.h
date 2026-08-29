@@ -339,6 +339,7 @@ public:
   // refresh
   void refresh();
   void refresh(bool restoreSelection);
+  void refreshAll();
 
   // pathspec search filter
   void setPathspec(const QString &path);
@@ -400,6 +401,7 @@ signals:
   void submodulesChanged();
   void submoduleUpdateStatusesChanged(
       const QList<git::Submodule::UpdateStatus> &statuses);
+  void manualRefreshRequested();
   void pushSucceeded(const QString &repositoryPath);
 
 protected:

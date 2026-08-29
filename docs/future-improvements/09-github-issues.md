@@ -10,8 +10,8 @@ issues, ordered by most recent update. Pull requests are excluded.
 - Discover GitHub repositories from configured Git remotes.
 - Prefer a persisted selection, then the default remote, `origin`, `upstream`,
   and remaining remotes by name.
-- Show the active `Issues repository` selector as the first row inside the
-  expanded GitHub Issues section whenever an eligible remote exists.
+- Show the active `Issues repository` selector above the independently
+  scrolling issue rows whenever an eligible remote exists.
 - Persist the selected remote in repository app configuration under
   `sidebar.githubIssues.remote`.
 - Treat `github.com` remotes as eligible for anonymous public access.
@@ -25,6 +25,8 @@ issues, ordered by most recent update. Pull requests are excluded.
   descending update order.
 - Send bearer credentials only over HTTPS.
 - Keep loaded rows visible when a manual refresh fails.
+- Cache successful results for five minutes, coalesce in-flight requests, and
+  delay automatic retries after failures.
 - Cancel logically stale results when the active repository, remote, or account
   changes.
 - Do not poll periodically.
@@ -36,7 +38,7 @@ issues, ordered by most recent update. Pull requests are excluded.
   status rows as issues.
 - Keep row clicks inside the navigator and provide an explicit, validated
   HTTP(S) `Open in Browser` context action.
-- Provide a `Refresh Issues` context action.
+- Refresh Issues through the general Refresh menu, toolbar, and keyboard action.
 
 ## Validation
 

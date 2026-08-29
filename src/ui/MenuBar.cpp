@@ -493,7 +493,7 @@ MenuBar::MenuBar(QWidget *parent) : QMenuBar(parent) {
 
   mRefresh = viewMenu->addAction(tr("Refresh"));
   refreshHotkey.use(mRefresh);
-  connect(mRefresh, &QAction::triggered, [this] { view()->refresh(); });
+  connect(mRefresh, &QAction::triggered, [this] { view()->refreshAll(); });
 
   mRepositoryDiagnostics =
       viewMenu->addAction(tr("Report Repository Diagnostics"));

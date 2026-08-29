@@ -12,7 +12,7 @@ Bug Fix and Feature release
 * Add Tamil translation
 * Add repository navigator context actions for branches and submodules, including permanent submodule removal
 * Rename local and remote branches and delete remote branches from branch context menus
-* List open GitHub issues in a dedicated scrolling repository navigator panel with public/private access, a visible repository filter, explicit browser opening, cached refreshes, and manual refresh controls
+* List open GitHub issues in a scrolling repository navigator panel with public/private access, a visible repository filter, explicit browser opening, and cached refreshes
 * Add a Fast Issue toolbar action that uses Git credentials to let verified NortekMed members submit GitNortek issues with optional privacy-safe application diagnostics
 * Show colored Pin summaries on the left and aligned P and O delta columns for submodules in the repository navigator
 * Mark the checked-out local branch with a green checkbox and color ahead and behind indicators
@@ -76,6 +76,7 @@ Bug Fix and Feature release
 * Preserve fetched submodule origin comparisons when committing a new parent pin
 * Double the default Branch / Tag width and preserve it during compact-view compression
 * Avoid crashes when asynchronous file details outlive their repository index
+* Display available repository navigator sections as resizable panels with independent scrolling, and refresh GitHub Issues through the general Refresh action
 
 ----
 
