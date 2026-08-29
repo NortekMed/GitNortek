@@ -14,11 +14,14 @@
 #include "RepoView.h"
 #include "SearchField.h"
 #include "app/Application.h"
+#include "cred/CredentialHelper.h"
+#include "dialogs/FastIssueDialog.h"
 #include "dialogs/PullRequestDialog.h"
+#include "dialogs/SettingsDialog.h"
 #include "git/Branch.h"
 #include "git/Commit.h"
+#include "host/GitHub.h"
 #include "ui/HotkeyManager.h"
-#include "dialogs/SettingsDialog.h"
 #include <QAction>
 #include <QButtonGroup>
 #include <QHBoxLayout>
@@ -36,6 +39,9 @@ namespace {
 const int kButtonWidth = 36;
 const int kButtonHeight = 24;
 const int kToolBarHeight = 32;
+const QString kFastIssueOrganization = QStringLiteral("NortekMed");
+const QString kFastIssueCredentialUrl =
+    QStringLiteral("https://github.com/NortekMed/GitNortek.git");
 const QString kStarredQuery = "is:starred";
 const QString kStyleSheet = "QToolButton {"
                             "  border-radius: 4px;"
@@ -436,6 +442,41 @@ public:
     path.lineTo(x - 4, y - 3);
     path.quadTo(x - 2, y + 2, x + 2, y + 2);
     painter.drawPath(path);
+  }
+};
+
+class FastIssueButton : public Button {
+  Q_OBJECT
+
+public:
+  FastIssueButton(QWidget *parent = nullptr) : Button(parent) {
+    setObjectName("FastIssueButton");
+    setToolTip(tr("Create Fast Issue"));
+  }
+
+  void paintEvent(QPaintEvent *event) override {
+    Button::paintEvent(event);
+
+    QStyleOptionToolButton opt;
+    initStyleOption(&opt);
+
+    QPainter painter(this);
+    painter.setPen(QPen(opt.palette.buttonText(), 1.25));
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    qreal x = width() / 2.0;
+    qreal y = height() / 2.0;
+    painter.drawEllipse(QPointF(x, y), 8, 8);
+
+    QPainterPath bolt;
+    bolt.moveTo(x + 1, y - 6);
+    bolt.lineTo(x - 3, y + 1);
+    bolt.lineTo(x, y + 1);
+    bolt.lineTo(x - 1, y + 6);
+    bolt.lineTo(x + 4, y - 1);
+    bolt.lineTo(x + 1, y - 1);
+    bolt.closeSubpath();
+    painter.fillPath(bolt, opt.palette.buttonText());
   }
 };
 
@@ -840,6 +881,18 @@ ToolBar::ToolBar(MainWindow *parent) : QToolBar(parent) {
   connect(mRefreshButton, &Button::clicked,
           [this] { currentView()->refresh(); });
 
+  mFastIssueSpacer = new Spacer(4, this);
+  mFastIssueSpacerAction = addWidget(mFastIssueSpacer);
+  mFastIssueSpacerAction->setVisible(false);
+
+  mFastIssueButton = new FastIssueButton(this);
+  mFastIssueButtonAction = addWidget(mFastIssueButton);
+  mFastIssueButtonAction->setVisible(false);
+  connect(mFastIssueButton, &QToolButton::clicked, this,
+          &ToolBar::openFastIssueDialog);
+
+  updateFastIssueAccess();
+
   if (!qgetenv("GITNORTEK_OAUTH").isEmpty() ||
       !qgetenv("GITTYUP_OAUTH").isEmpty()) {
     addWidget(new Spacer(4, this));
@@ -985,6 +1038,58 @@ void ToolBar::updateButtons(int ahead, int behind) {
   if (mPullRequestButton)
     mPullRequestButton->setEnabled(view);
   mCheckoutButton->setEnabled(view && !view->repo().isBare());
+}
+
+void ToolBar::updateFastIssueAccess() {
+  int generation = ++mFastIssueGeneration;
+  GitHub *requestClient = mFastIssueAccount.data();
+  setFastIssueAccount(nullptr);
+  if (requestClient && requestClient->parent() == this)
+    requestClient->deleteLater();
+
+  QString username;
+  QString accessToken;
+  if (!CredentialHelper::instance()->get(kFastIssueCredentialUrl, username,
+                                         accessToken))
+    return;
+
+  GitHub *github =
+      GitHub::createRequestClient(username, accessToken, this);
+  QPointer<ToolBar> toolbar(this);
+  QPointer<GitHub> account(github);
+  github->requestOrganizationMembership(
+      kFastIssueOrganization,
+      [toolbar, account, generation](bool success, bool active,
+                                     const QString &) {
+        if (!account)
+          return;
+        if (!toolbar || generation != toolbar->mFastIssueGeneration ||
+            !success || !active) {
+          account->deleteLater();
+          return;
+        }
+
+        toolbar->setFastIssueAccount(account);
+      });
+}
+
+void ToolBar::setFastIssueAccount(GitHub *account) {
+  mFastIssueAccount = account;
+  mFastIssueSpacerAction->setVisible(account);
+  mFastIssueButtonAction->setVisible(account);
+}
+
+void ToolBar::openFastIssueDialog() {
+  GitHub *account = mFastIssueAccount.data();
+  if (!account) {
+    updateFastIssueAccess();
+    return;
+  }
+
+  FastIssueDialog *dialog = new FastIssueDialog(account, window());
+  dialog->open();
+  dialog->raise();
+  dialog->activateWindow();
 }
 
 void ToolBar::updateRemote(int ahead, int behind) {

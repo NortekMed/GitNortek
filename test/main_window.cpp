@@ -11,9 +11,11 @@
 #include "conf/RecentRepositories.h"
 #include "conf/RecentRepository.h"
 #include "conf/Settings.h"
+#include "dialogs/FastIssueDialog.h"
 #include "dialogs/RenameBranchDialog.h"
 #include "editor/TextEditor.h"
 #include "git/Config.h"
+#include "host/GitHub.h"
 #include "ui/CommitList.h"
 #include "ui/DetailView.h"
 #include "ui/FontUtils.h"
@@ -22,6 +24,7 @@
 #include "ui/RepoView.h"
 #include "ui/RepositoryNavigatorModel.h"
 #include "ui/TabWidget.h"
+#include "ui/ToolBar.h"
 #include <QLineEdit>
 #include <QMenu>
 #include <QMessageBox>
@@ -42,6 +45,7 @@ class TestMainWindow : public QObject {
 private slots:
   void initTestCase();
   void show();
+  void fastIssueAccess();
   void initialRefreshOnce();
   void navigatorRefreshCoalesced();
   void diffPresentationControls();
@@ -95,6 +99,44 @@ void TestMainWindow::initTestCase() {
 void TestMainWindow::show() {
   mWindow->show();
   QVERIFY(qWaitForWindowActive(mWindow));
+}
+
+void TestMainWindow::fastIssueAccess() {
+  ToolBar *toolbar = mWindow->toolBar();
+  QToolButton *button = toolbar->findChild<QToolButton *>("FastIssueButton");
+  QVERIFY(button);
+
+  toolbar->setFastIssueAccount(nullptr);
+  QTRY_VERIFY(!button->isVisible());
+
+  GitHub account("member");
+  toolbar->setFastIssueAccount(&account);
+  QTRY_VERIFY(button->isVisible());
+
+  QTest::mouseClick(button, Qt::LeftButton);
+  QPointer<FastIssueDialog> dialog =
+      mWindow->findChild<FastIssueDialog *>();
+  QVERIFY(dialog);
+  QVERIFY(dialog->isVisible());
+  dialog->close();
+  QTRY_VERIFY(!dialog);
+
+  button->click();
+  dialog = mWindow->findChild<FastIssueDialog *>();
+  QVERIFY(dialog);
+  QVERIFY(dialog->isVisible());
+  dialog->close();
+  QTRY_VERIFY(!dialog);
+
+  toolbar->setFastIssueAccount(nullptr);
+  QTRY_VERIFY(!button->isVisible());
+
+  GitHub *staleAccount = new GitHub("stale-member");
+  toolbar->setFastIssueAccount(staleAccount);
+  delete staleAccount;
+  QTRY_VERIFY(button->isVisible());
+  QTest::mouseClick(button, Qt::LeftButton);
+  QTRY_VERIFY(!button->isVisible());
 }
 
 void TestMainWindow::initialRefreshOnce() {

@@ -11,8 +11,10 @@
 #define TOOLBAR_H
 
 #include <QAction>
+#include <QPointer>
 #include <QToolBar>
 
+class GitHub;
 class History;
 class MainWindow;
 class RepoView;
@@ -35,6 +37,9 @@ private:
   void updateStash();
   void updateView();
   void updateSearch();
+  void updateFastIssueAccess();
+  void setFastIssueAccount(GitHub *account);
+  void openFastIssueDialog();
 
   RepoView *currentView() const;
 
@@ -51,6 +56,12 @@ private:
   QToolButton *mStashPopButton;
 
   QToolButton *mRefreshButton;
+  QWidget *mFastIssueSpacer;
+  QAction *mFastIssueSpacerAction;
+  QToolButton *mFastIssueButton;
+  QAction *mFastIssueButtonAction;
+  QPointer<GitHub> mFastIssueAccount;
+  int mFastIssueGeneration = 0;
 
   QToolButton *mRebaseContinueButton;
   QToolButton *mRebaseAbortButton;
@@ -69,6 +80,7 @@ private:
 
   friend class MainWindow;
   friend class RepoView;
+  friend class TestMainWindow;
 };
 
 #endif

@@ -36,13 +36,21 @@ const QString kAuthUrl =
 const QString kAccessUrl =
     QStringLiteral("https://github.com/login/oauth/access_token");
 const QString kGraphQlUrl = QStringLiteral("https://api.github.com/graphql");
-const QString kIssuesUrl =
-    QStringLiteral("https://api.github.com/search/issues");
-
 QString graphqlString(QString value) {
   value.replace('\\', "\\\\");
   value.replace('"', "\\\"");
   return value;
+}
+
+bool isValidPathComponent(const QString &value) {
+  return !value.isEmpty() && value == value.trimmed() && value != "." &&
+         value != ".." && !value.contains('/') && !value.contains('\\') &&
+         !value.contains('?') && !value.contains('#') &&
+         !value.contains(QRegularExpression("\\s"));
+}
+
+QString encodedPathComponent(const QString &value) {
+  return QString::fromLatin1(QUrl::toPercentEncoding(value));
 }
 
 } // namespace
@@ -305,34 +313,17 @@ void GitHub::requestCommitAvatars(const QString &owner, const QString &name,
   });
 }
 
-void GitHub::requestOpenIssues(const QString &owner,
-                               const QString &repository,
+void GitHub::requestOpenIssues(const QString &owner, const QString &repository,
                                const IssuesCallback &callback) {
   if (!callback)
     return;
 
-  if (owner.isEmpty() || repository.isEmpty() || owner != owner.trimmed() ||
-      repository != repository.trimmed() || owner.contains('/') ||
-      repository.contains('/')) {
+  if (!isValidPathComponent(owner) || !isValidPathComponent(repository)) {
     callback(false, {}, 0, tr("Invalid repository owner or name."));
     return;
   }
 
-  QUrl endpoint;
-  if (hasCustomUrl()) {
-    QString base = url();
-    while (base.endsWith('/'))
-      base.chop(1);
-    endpoint = QUrl(base + "/api/v3/search/issues");
-  } else {
-    endpoint = QUrl(kIssuesUrl);
-  }
-  if (!endpoint.isValid() ||
-      (endpoint.scheme() != "http" && endpoint.scheme() != "https") ||
-      endpoint.host().isEmpty()) {
-    callback(false, {}, 0, tr("Invalid GitHub API URL."));
-    return;
-  }
+  QUrl endpoint = apiEndpoint("/search/issues");
 
   QUrlQuery query;
   query.addQueryItem(
@@ -343,119 +334,246 @@ void GitHub::requestOpenIssues(const QString &owner,
   query.addQueryItem("page", "1");
   endpoint.setQuery(query);
 
+  jsonRequest(
+      endpoint, "GET", {}, false,
+      [callback](bool success, const QJsonObject &object,
+                 const QString &error) {
+        if (!success) {
+          callback(false, {}, 0, error);
+          return;
+        }
+        QJsonValue totalValue = object.value("total_count");
+        QJsonValue itemsValue = object.value("items");
+        if (!totalValue.isDouble() || !itemsValue.isArray()) {
+          QString error = object.value("message").toString();
+          callback(false, {}, 0,
+                   error.isEmpty()
+                       ? QObject::tr("Invalid GitHub issues response.")
+                       : error);
+          return;
+        }
+
+        double totalNumber = totalValue.toDouble();
+        if (totalNumber < 0 || totalNumber > INT_MAX ||
+            totalNumber != static_cast<int>(totalNumber)) {
+          callback(false, {}, 0, QObject::tr("Invalid GitHub issue count."));
+          return;
+        }
+
+        Issues issues;
+        QJsonArray items = itemsValue.toArray();
+        int count = qMin(items.size(), 50);
+        for (int i = 0; i < count; ++i) {
+          if (!items.at(i).isObject()) {
+            callback(false, {}, 0, QObject::tr("Invalid GitHub issue entry."));
+            return;
+          }
+          QJsonObject item = items.at(i).toObject();
+          QJsonValue number = item.value("number");
+          QJsonValue title = item.value("title");
+          QJsonValue htmlUrl = item.value("html_url");
+          QJsonValue user = item.value("user");
+          QString login;
+          if (user.isObject())
+            login = user.toObject().value("login").toString();
+          QUrl issueUrl(htmlUrl.toString());
+          if (!number.isDouble() || !title.isString() || !htmlUrl.isString() ||
+              (!user.isObject() && !user.isNull()) || number.toDouble() < 0 ||
+              number.toDouble() > INT_MAX ||
+              number.toDouble() != static_cast<int>(number.toDouble()) ||
+              !issueUrl.isValid() || issueUrl.host().isEmpty() ||
+              (issueUrl.scheme() != "http" && issueUrl.scheme() != "https")) {
+            callback(false, {}, 0, QObject::tr("Invalid GitHub issue entry."));
+            return;
+          }
+          issues.append({static_cast<int>(number.toDouble()), title.toString(),
+                         login, issueUrl});
+        }
+
+        callback(true, issues, static_cast<int>(totalNumber), {});
+      });
+}
+
+void GitHub::requestOrganizationMembership(
+    const QString &organization,
+    const OrganizationMembershipCallback &callback) {
+  if (!callback)
+    return;
+  if (!isValidPathComponent(organization)) {
+    callback(false, false, tr("Invalid GitHub organization."));
+    return;
+  }
+
+  QUrl endpoint = apiEndpoint(QString("/user/memberships/orgs/%1")
+                                  .arg(encodedPathComponent(organization)));
+  jsonRequest(endpoint, "GET", {}, true,
+              [callback](bool success, const QJsonObject &object,
+                         const QString &error) {
+                if (!success) {
+                  callback(false, false, error);
+                  return;
+                }
+                QJsonValue state = object.value("state");
+                if (!state.isString()) {
+                  callback(false, false,
+                           QObject::tr("Invalid GitHub membership response."));
+                  return;
+                }
+                callback(true, state.toString() == "active", {});
+              });
+}
+
+void GitHub::createIssue(const QString &owner, const QString &repository,
+                         const QString &title, const QString &body,
+                         const CreateIssueCallback &callback) {
+  if (!callback)
+    return;
+  if (!isValidPathComponent(owner) || !isValidPathComponent(repository)) {
+    callback(false, 0, {}, tr("Invalid repository owner or name."));
+    return;
+  }
+  if (title.trimmed().isEmpty()) {
+    callback(false, 0, {}, tr("Issue title cannot be empty."));
+    return;
+  }
+
+  QUrl endpoint = apiEndpoint(
+      QString("/repos/%1/%2/issues")
+          .arg(encodedPathComponent(owner), encodedPathComponent(repository)));
+  QJsonDocument document(QJsonObject{{"title", title}, {"body", body}});
+  jsonRequest(endpoint, "POST", document, true,
+              [callback](bool success, const QJsonObject &object,
+                         const QString &error) {
+                if (!success) {
+                  callback(false, 0, {}, error);
+                  return;
+                }
+                QJsonValue number = object.value("number");
+                QJsonValue htmlUrl = object.value("html_url");
+                QUrl issueUrl(htmlUrl.toString());
+                double value = number.toDouble(-1);
+                if (!number.isDouble() || value <= 0 || value > INT_MAX ||
+                    value != static_cast<int>(value) || !htmlUrl.isString() ||
+                    !issueUrl.isValid() || issueUrl.scheme() != "https" ||
+                    issueUrl.host().isEmpty()) {
+                  callback(false, 0, {},
+                           QObject::tr("Invalid GitHub issue response."));
+                  return;
+                }
+                callback(true, static_cast<int>(value), issueUrl, {});
+              });
+}
+
+GitHub *GitHub::createRequestClient(const QString &username,
+                                    const QString &accessToken,
+                                    QObject *parent) {
+  GitHub *client = new GitHub(username);
+  client->mAccessToken = accessToken;
+  client->setParent(parent);
+  return client;
+}
+
+QUrl GitHub::apiEndpoint(const QString &path) const {
+  QUrl endpoint(hasCustomUrl() ? url() : defaultUrl(), QUrl::StrictMode);
+  if (!endpoint.isValid() || !endpoint.query().isEmpty() ||
+      !endpoint.fragment().isEmpty())
+    return {};
+
+  QString basePath = endpoint.path();
+  while (basePath.endsWith('/'))
+    basePath.chop(1);
+  if (hasCustomUrl())
+    basePath += "/api/v3";
+  endpoint.setPath(basePath + path);
+  return endpoint;
+}
+
+void GitHub::jsonRequest(const QUrl &endpoint, const QByteArray &method,
+                         const QJsonDocument &document, bool authentication,
+                         const JsonRequestCallback &callback) {
+  if (!endpoint.isValid() || endpoint.host().isEmpty() ||
+      (endpoint.scheme() != "http" && endpoint.scheme() != "https")) {
+    callback(false, {}, tr("Invalid GitHub API URL."));
+    return;
+  }
+
+  QString token = mAccessToken;
+  if (token.isEmpty() && (authentication || !username().isEmpty()))
+    token = password();
+  if (authentication && token.isEmpty()) {
+    callback(false, {}, tr("GitHub authentication token is missing."));
+    return;
+  }
+  if (!token.isEmpty() && endpoint.scheme() != "https") {
+    callback(false, {}, tr("GitHub authentication requires HTTPS."));
+    return;
+  }
+
   QNetworkRequest request(endpoint);
+  request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false);
   request.setRawHeader("Accept", "application/vnd.github+json");
   request.setRawHeader("X-GitHub-Api-Version", "2022-11-28");
   request.setRawHeader("User-Agent", "GitNortek");
   request.setTransferTimeout(10000);
-
-  QString token = mAccessToken;
-  if (token.isEmpty() && !username().isEmpty())
-    token = password();
-  if (!token.isEmpty() && endpoint.scheme() != "https") {
-    callback(false, {}, 0, tr("GitHub authentication requires HTTPS."));
-    return;
-  }
   if (!token.isEmpty())
     request.setRawHeader("Authorization", "Bearer " + token.toUtf8());
 
-  QNetworkReply *reply = mMgr->get(request);
-  QObject::connect(reply, &QNetworkReply::finished, this,
-                   [reply, callback] {
-                     QByteArray body = reply->readAll();
-                     int status = reply
-                                      ->attribute(
-                                          QNetworkRequest::HttpStatusCodeAttribute)
-                                      .toInt();
+  QNetworkReply *reply = nullptr;
+  if (method == "GET") {
+    reply = mMgr->get(request);
+  } else if (method == "POST") {
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    reply = mMgr->post(request, document.toJson(QJsonDocument::Compact));
+  } else {
+    callback(false, {}, tr("Invalid GitHub API request method."));
+    return;
+  }
 
-                     QJsonParseError parseError;
-                     QJsonDocument doc =
-                         QJsonDocument::fromJson(body, &parseError);
-                     QJsonObject object = doc.object();
-                     QString apiError = object.value("message").toString();
+  QObject::connect(
+      reply, &QNetworkReply::finished, this, [reply, callback, token] {
+        QByteArray body = reply->readAll();
+        int status =
+            reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        QJsonParseError parseError;
+        QJsonDocument document = QJsonDocument::fromJson(body, &parseError);
+        QJsonObject object = document.object();
 
-                     auto fail = [&](const QString &error) {
-                       callback(false, {}, 0, error);
-                       reply->deleteLater();
-                     };
+        auto sanitized = [&token](QString error) {
+          if (!token.isEmpty())
+            error.replace(token, QStringLiteral("[redacted]"),
+                          Qt::CaseSensitive);
+          return error;
+        };
+        auto fail = [&](const QString &error) {
+          callback(false, {}, sanitized(error));
+          reply->deleteLater();
+        };
 
-                     if (status == 0 &&
-                         reply->error() != QNetworkReply::NoError) {
-                       fail(reply->errorString());
-                       return;
-                     }
-                     if (status < 200 || status >= 300) {
-                       QString error = apiError;
-                       if (error.isEmpty())
-                         error = QObject::tr("GitHub returned HTTP status %1.")
-                                     .arg(status);
-                       fail(error);
-                       return;
-                     }
-                     if (reply->error() != QNetworkReply::NoError) {
-                       fail(reply->errorString());
-                       return;
-                     }
-                     if (parseError.error != QJsonParseError::NoError ||
-                         !doc.isObject()) {
-                       fail(QObject::tr("Invalid GitHub JSON response: %1")
-                                .arg(parseError.errorString()));
-                       return;
-                     }
+        if (status == 0 && reply->error() != QNetworkReply::NoError) {
+          fail(reply->errorString());
+          return;
+        }
+        if (status < 200 || status >= 300) {
+          QString error = object.value("message").toString();
+          if (error.isEmpty())
+            error = QObject::tr("GitHub returned HTTP status %1.").arg(status);
+          fail(error);
+          return;
+        }
+        if (reply->error() != QNetworkReply::NoError) {
+          fail(reply->errorString());
+          return;
+        }
+        if (parseError.error != QJsonParseError::NoError ||
+            !document.isObject()) {
+          fail(QObject::tr("Invalid GitHub JSON response: %1")
+                   .arg(parseError.errorString()));
+          return;
+        }
 
-                     QJsonValue totalValue = object.value("total_count");
-                     QJsonValue itemsValue = object.value("items");
-                     if (!totalValue.isDouble() || !itemsValue.isArray()) {
-                       fail(apiError.isEmpty()
-                                ? QObject::tr("Invalid GitHub issues response.")
-                                : apiError);
-                       return;
-                     }
-
-                     double totalNumber = totalValue.toDouble();
-                     if (totalNumber < 0 || totalNumber > INT_MAX ||
-                         totalNumber != static_cast<int>(totalNumber)) {
-                       fail(QObject::tr("Invalid GitHub issue count."));
-                       return;
-                     }
-
-                     Issues issues;
-                     QJsonArray items = itemsValue.toArray();
-                     int count = qMin(items.size(), 50);
-                     for (int i = 0; i < count; ++i) {
-                       if (!items.at(i).isObject()) {
-                         fail(QObject::tr("Invalid GitHub issue entry."));
-                         return;
-                       }
-                       QJsonObject item = items.at(i).toObject();
-                       QJsonValue number = item.value("number");
-                       QJsonValue title = item.value("title");
-                       QJsonValue htmlUrl = item.value("html_url");
-                        QJsonValue user = item.value("user");
-                        QString login;
-                        if (user.isObject())
-                          login = user.toObject().value("login").toString();
-                        QUrl issueUrl(htmlUrl.toString());
-                        if (!number.isDouble() || !title.isString() ||
-                            !htmlUrl.isString() ||
-                            (!user.isObject() && !user.isNull()) ||
-                            number.toDouble() < 0 ||
-                           number.toDouble() > INT_MAX ||
-                           number.toDouble() !=
-                               static_cast<int>(number.toDouble()) ||
-                           !issueUrl.isValid() || issueUrl.host().isEmpty() ||
-                           (issueUrl.scheme() != "http" &&
-                            issueUrl.scheme() != "https")) {
-                         fail(QObject::tr("Invalid GitHub issue entry."));
-                         return;
-                        }
-                        issues.append({static_cast<int>(number.toDouble()),
-                                       title.toString(), login, issueUrl});
-                     }
-
-                     callback(true, issues, static_cast<int>(totalNumber), {});
-                     reply->deleteLater();
-                   });
+        callback(true, object, {});
+        reply->deleteLater();
+      });
 }
 
 void GitHub::authorize() {

@@ -45,3 +45,13 @@ issues, ordered by most recent update. Pull requests are excluded.
 - Test parsing, result limits, malformed responses, and HTTP errors.
 - Test model states, origin/upstream selection, persistence, stale callbacks,
   remote updates, and preservation of the selected Git reference.
+
+## Fast Issue Credentials
+
+The Fast Issue toolbar action reuses the Git credential helper configured by
+`credential.helper` for `github.com`; it does not require a GitNortek account.
+The stored credential must be a PAT with `Issues: Read and write` for
+`NortekMed/GitNortek` and `Members: Read-only` for the `NortekMed`
+organization. The token must also be authorized for the organization when SAML
+SSO is enabled. SSH keys can authenticate Git transport but cannot authenticate
+GitHub REST API requests.

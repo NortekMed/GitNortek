@@ -16,6 +16,7 @@ add_library(
   DiffPanel.cpp
   ExternalToolsDialog.cpp
   ExternalToolsModel.cpp
+  FastIssueDialog.cpp
   HotkeysPanel.cpp
   IconLabel.cpp
   MergeDialog.cpp
