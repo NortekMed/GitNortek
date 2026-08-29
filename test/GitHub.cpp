@@ -23,6 +23,31 @@ public:
   void setAccessToken(const QString &token) { mAccessToken = token; }
 };
 
+class MockGitHub : public TestGitHub {
+public:
+  using TestGitHub::TestGitHub;
+
+  QUrl endpoint;
+  QByteArray method;
+  QJsonDocument document;
+  bool authentication = false;
+  bool responseSuccess = true;
+  QJsonObject responseObject;
+  QString responseError;
+
+protected:
+  void jsonRequest(const QUrl &requestEndpoint, const QByteArray &requestMethod,
+                   const QJsonDocument &requestDocument,
+                   bool requestAuthentication,
+                   const JsonRequestCallback &callback) override {
+    endpoint = requestEndpoint;
+    method = requestMethod;
+    document = requestDocument;
+    authentication = requestAuthentication;
+    callback(responseSuccess, responseObject, responseError);
+  }
+};
+
 class HttpServer : public QTcpServer {
 public:
   HttpServer(int status, const QByteArray &body)
@@ -86,6 +111,10 @@ private slots:
   void acceptsDeletedAuthor();
   void malformedJson();
   void httpError();
+  void membershipResponse();
+  void createIssueRequestAndResponse();
+  void validatesAuthenticatedRequests();
+  void rejectsUnsafeAuthentication();
 };
 
 void TestGitHubIssues::parseRemoteUrl() {
@@ -247,6 +276,120 @@ void TestGitHubIssues::httpError() {
       });
   QTRY_COMPARE(calls, 1);
   QCOMPARE(error, "Validation Failed");
+}
+
+void TestGitHubIssues::membershipResponse() {
+  MockGitHub github("");
+  github.setUrl("https://github.example.com/");
+  github.setAccessToken("secret-token");
+  github.responseObject = {{"state", "active"}};
+
+  int calls = 0;
+  github.requestOrganizationMembership(
+      "acme", [&](bool success, bool active, const QString &error) {
+        QVERIFY2(success, qPrintable(error));
+        QVERIFY(active);
+        ++calls;
+      });
+  QCOMPARE(calls, 1);
+  QCOMPARE(
+      github.endpoint,
+      QUrl("https://github.example.com/api/v3/user/memberships/orgs/acme"));
+  QCOMPARE(github.method, QByteArray("GET"));
+  QVERIFY(github.document.isEmpty());
+  QVERIFY(github.authentication);
+
+  github.responseObject = {{"state", "pending"}};
+  github.requestOrganizationMembership(
+      "acme", [&](bool success, bool active, const QString &error) {
+        QVERIFY2(success, qPrintable(error));
+        QVERIFY(!active);
+        ++calls;
+      });
+  QCOMPARE(calls, 2);
+
+  github.responseObject = {{"state", 1}};
+  github.requestOrganizationMembership(
+      "acme", [&](bool success, bool, const QString &error) {
+        QVERIFY(!success);
+        QVERIFY(error.contains("membership", Qt::CaseInsensitive));
+        ++calls;
+      });
+  QCOMPARE(calls, 3);
+}
+
+void TestGitHubIssues::createIssueRequestAndResponse() {
+  MockGitHub github("");
+  github.setAccessToken("secret-token");
+  github.responseObject = {
+      {"number", 42}, {"html_url", "https://github.com/acme/repo/issues/42"}};
+
+  int calls = 0;
+  github.createIssue(
+      "acme", "repo", "A title", "Issue body",
+      [&](bool success, int number, const QUrl &url, const QString &error) {
+        QVERIFY2(success, qPrintable(error));
+        QCOMPARE(number, 42);
+        QCOMPARE(url, QUrl("https://github.com/acme/repo/issues/42"));
+        ++calls;
+      });
+  QCOMPARE(calls, 1);
+  QCOMPARE(github.endpoint,
+           QUrl("https://api.github.com/repos/acme/repo/issues"));
+  QCOMPARE(github.method, QByteArray("POST"));
+  QVERIFY(github.authentication);
+  QCOMPARE(github.document.object().value("title").toString(), "A title");
+  QCOMPARE(github.document.object().value("body").toString(), "Issue body");
+
+  github.responseObject = {{"number", 0}, {"html_url", "not a URL"}};
+  github.createIssue(
+      "acme", "repo", "title", {},
+      [&](bool success, int number, const QUrl &, const QString &error) {
+        QVERIFY(!success);
+        QCOMPARE(number, 0);
+        QVERIFY(error.contains("issue", Qt::CaseInsensitive));
+        ++calls;
+      });
+  QCOMPARE(calls, 2);
+}
+
+void TestGitHubIssues::validatesAuthenticatedRequests() {
+  MockGitHub github("");
+  github.setAccessToken("secret-token");
+  int calls = 0;
+
+  github.requestOrganizationMembership(
+      "bad/org", [&](bool success, bool, const QString &) {
+        QVERIFY(!success);
+        ++calls;
+      });
+  github.createIssue(" acme", "repo", "title", {},
+                     [&](bool success, int, const QUrl &, const QString &) {
+                       QVERIFY(!success);
+                       ++calls;
+                     });
+  github.createIssue("acme", "repo", "  ", {},
+                     [&](bool success, int, const QUrl &, const QString &) {
+                       QVERIFY(!success);
+                       ++calls;
+                     });
+  QCOMPARE(calls, 3);
+  QVERIFY(github.endpoint.isEmpty());
+}
+
+void TestGitHubIssues::rejectsUnsafeAuthentication() {
+  TestGitHub github("");
+  github.setUrl("http://127.0.0.1");
+  int calls = 0;
+  QString error;
+  github.createIssue("acme", "repo", "title", {},
+                     [&](bool success, int, const QUrl &, const QString &text) {
+                       QVERIFY(!success);
+                       error = text;
+                       ++calls;
+                      });
+  QCOMPARE(calls, 1);
+  QVERIFY(error.contains("authentication", Qt::CaseInsensitive));
 }
 
 TEST_MAIN(TestGitHubIssues)

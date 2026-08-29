@@ -41,6 +41,10 @@ public:
       bool success, const Issues &issues, int totalCount, const QString &error)>;
   using AvatarCallback =
       std::function<void(bool success, const QMap<QString, QUrl> &avatars)>;
+  using OrganizationMembershipCallback =
+      std::function<void(bool success, bool active, const QString &error)>;
+  using CreateIssueCallback = std::function<void(
+      bool success, int number, const QUrl &url, const QString &error)>;
 
   GitHub(const QString &username);
 
@@ -62,12 +66,28 @@ public:
   virtual void requestOpenIssues(const QString &owner,
                                  const QString &repository,
                                  const IssuesCallback &callback);
+  virtual void requestOrganizationMembership(
+      const QString &organization,
+      const OrganizationMembershipCallback &callback);
+  virtual void createIssue(const QString &owner, const QString &repository,
+                           const QString &title, const QString &body,
+                           const CreateIssueCallback &callback);
+  static GitHub *createRequestClient(const QString &username,
+                                     const QString &accessToken,
+                                     QObject *parent);
 
   void authorize() override;
   bool isAuthorizeSupported() override;
 
   static QString defaultUrl();
   static RemoteRepository parseRemoteUrl(const QString &url);
+
+protected:
+  using JsonRequestCallback =
+      std::function<void(bool, const QJsonObject &, const QString &)>;
+  virtual void jsonRequest(const QUrl &endpoint, const QByteArray &method,
+                           const QJsonDocument &document, bool authentication,
+                           const JsonRequestCallback &callback);
 
 private:
   using Callback = std::function<void(const QJsonObject &)>;
@@ -78,6 +98,7 @@ private:
 
   void rest(const QUrl &url, const QJsonDocument &doc = QJsonDocument(),
             const Callback &callback = Callback());
+  QUrl apiEndpoint(const QString &path) const;
 
   QString mState;
 };

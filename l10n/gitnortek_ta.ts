@@ -1752,6 +1752,62 @@ These settings will not be saved permanently</source>
     </message>
 </context>
 <context>
+    <name>FastIssueButton</name>
+    <message>
+        <location filename="../src/ui/ToolBar.cpp" line="454"/>
+        <source>Create Fast Issue</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FastIssueDialog</name>
+    <message>
+        <location filename="../src/dialogs/FastIssueDialog.cpp" line="36"/>
+        <source>Fast Issue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/FastIssueDialog.cpp" line="41"/>
+        <source>Create an issue in NortekMed/GitNortek</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/FastIssueDialog.cpp" line="45"/>
+        <source>Issue title</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/FastIssueDialog.cpp" line="49"/>
+        <source>What happened or what should improve?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/FastIssueDialog.cpp" line="52"/>
+        <source>Include application diagnostics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/FastIssueDialog.cpp" line="55"/>
+        <source>Include application, Qt, operating system, and architecture versions. Repository paths and account information are never included.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/FastIssueDialog.cpp" line="61"/>
+        <source>Create Issue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/FastIssueDialog.cpp" line="114"/>
+        <source>Fast Issue Failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/FastIssueDialog.cpp" line="115"/>
+        <source>GitHub issue #%1 was created.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>FileConflictResolverWidget</name>
     <message>
         <location filename="../src/ui/DiffView/FileConflictResolverWidget.cpp" line="26"/>
@@ -2373,18 +2429,39 @@ Mode %1</source>
 <context>
     <name>GitHub</name>
     <message>
-        <location filename="../src/host/GitHub.cpp" line="317"/>
+        <location filename="../src/host/GitHub.cpp" line="322"/>
+        <location filename="../src/host/GitHub.cpp" line="432"/>
         <source>Invalid repository owner or name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/host/GitHub.cpp" line="333"/>
+        <location filename="../src/host/GitHub.cpp" line="403"/>
+        <source>Invalid GitHub organization.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/host/GitHub.cpp" line="436"/>
+        <source>Issue title cannot be empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/host/GitHub.cpp" line="496"/>
         <source>Invalid GitHub API URL.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/host/GitHub.cpp" line="356"/>
+        <location filename="../src/host/GitHub.cpp" line="504"/>
+        <source>GitHub authentication token is missing.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/host/GitHub.cpp" line="508"/>
         <source>GitHub authentication requires HTTPS.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/host/GitHub.cpp" line="528"/>
+        <source>Invalid GitHub API request method.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3607,7 +3684,7 @@ Examples
 <context>
     <name>PullRequestButton</name>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="414"/>
+        <location filename="../src/ui/ToolBar.cpp" line="420"/>
         <source>Create Pull Request</source>
         <translation>இழுக்கும் கோரிக்கையை உருவாக்கவும்</translation>
     </message>
@@ -3906,29 +3983,39 @@ Examples
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/host/GitHub.cpp" line="390"/>
+        <location filename="../src/host/GitHub.cpp" line="559"/>
         <source>GitHub returned HTTP status %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/host/GitHub.cpp" line="401"/>
+        <location filename="../src/host/GitHub.cpp" line="569"/>
         <source>Invalid GitHub JSON response: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/host/GitHub.cpp" line="410"/>
+        <location filename="../src/host/GitHub.cpp" line="351"/>
         <source>Invalid GitHub issues response.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/host/GitHub.cpp" line="418"/>
+        <location filename="../src/host/GitHub.cpp" line="359"/>
         <source>Invalid GitHub issue count.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/host/GitHub.cpp" line="427"/>
-        <location filename="../src/host/GitHub.cpp" line="449"/>
+        <location filename="../src/host/GitHub.cpp" line="368"/>
+        <location filename="../src/host/GitHub.cpp" line="386"/>
         <source>Invalid GitHub issue entry.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/host/GitHub.cpp" line="419"/>
+        <source>Invalid GitHub membership response.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/host/GitHub.cpp" line="460"/>
+        <source>Invalid GitHub issue response.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4044,7 +4131,7 @@ Would you like to fix the merge conflict and continue?</source>
 <context>
     <name>RefreshButton</name>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="361"/>
+        <location filename="../src/ui/ToolBar.cpp" line="367"/>
         <source>Refresh</source>
         <translation>புதுப்பிப்பு</translation>
     </message>
@@ -4052,7 +4139,7 @@ Would you like to fix the merge conflict and continue?</source>
 <context>
     <name>RemoteButton</name>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="259"/>
+        <location filename="../src/ui/ToolBar.cpp" line="265"/>
         <source>999+</source>
         <translation>999+</translation>
     </message>
@@ -6754,113 +6841,113 @@ x (எண்) காட்டப்படும் அதிகபட்ச க�
 <context>
     <name>ToolBar</name>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="737"/>
+        <location filename="../src/ui/ToolBar.cpp" line="778"/>
         <source>Show repository sidebar</source>
         <translation>களஞ்சிய பக்கப்பட்டியைக் காட்டு</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="751"/>
+        <location filename="../src/ui/ToolBar.cpp" line="792"/>
         <source>Previous</source>
         <translation>முந்தைய</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="763"/>
+        <location filename="../src/ui/ToolBar.cpp" line="804"/>
         <source>Next</source>
         <translation>அடுத்தது</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="779"/>
+        <location filename="../src/ui/ToolBar.cpp" line="820"/>
         <source>Fetch</source>
         <translation>எடுக்கவும்</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="784"/>
+        <location filename="../src/ui/ToolBar.cpp" line="825"/>
         <source>Pull</source>
         <translation>இழு</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="790"/>
+        <location filename="../src/ui/ToolBar.cpp" line="831"/>
         <source>Merge</source>
         <translation>ஒன்றிணைக்கவும்</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="794"/>
+        <location filename="../src/ui/ToolBar.cpp" line="835"/>
         <source>Rebase</source>
         <translation>ஒரு நரி</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="802"/>
+        <location filename="../src/ui/ToolBar.cpp" line="843"/>
         <source>Push</source>
         <translation>தள்ளு</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="806"/>
+        <location filename="../src/ui/ToolBar.cpp" line="847"/>
         <source>Force Push...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="815"/>
+        <location filename="../src/ui/ToolBar.cpp" line="856"/>
         <source>Checkout</source>
         <translation>வெளியேறு</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="827"/>
+        <location filename="../src/ui/ToolBar.cpp" line="868"/>
         <source>Stash</source>
         <translation>ச்டாச்</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="832"/>
+        <location filename="../src/ui/ToolBar.cpp" line="873"/>
         <source>Pop Stash</source>
         <translation>பாப் ச்டாச்</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="858"/>
+        <location filename="../src/ui/ToolBar.cpp" line="911"/>
         <source>Open Terminal</source>
         <translation>முனையத்தைத் திறக்கவும்</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="870"/>
+        <location filename="../src/ui/ToolBar.cpp" line="923"/>
         <source>Open file manager</source>
         <translation>கோப்பு மேலாளரைத் திறக்கவும்</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="882"/>
+        <location filename="../src/ui/ToolBar.cpp" line="935"/>
         <source>Configure Settings</source>
         <translation>அமைப்புகளை உள்ளமைக்கவும்</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="890"/>
+        <location filename="../src/ui/ToolBar.cpp" line="943"/>
         <source>Repository settings</source>
         <translation>களஞ்சிய அமைப்புகள்</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="894"/>
+        <location filename="../src/ui/ToolBar.cpp" line="947"/>
         <source>Application settings</source>
         <translation>பயன்பாட்டு அமைப்புகள்</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="901"/>
-        <location filename="../src/ui/ToolBar.cpp" line="1030"/>
+        <location filename="../src/ui/ToolBar.cpp" line="954"/>
+        <location filename="../src/ui/ToolBar.cpp" line="1135"/>
         <source>Show Log</source>
         <translation>பதிவைக் காட்டு</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="919"/>
+        <location filename="../src/ui/ToolBar.cpp" line="972"/>
         <source>Double Tree View</source>
         <translation>இரட்டை மரக் காட்சி</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="924"/>
+        <location filename="../src/ui/ToolBar.cpp" line="977"/>
         <source>Tree View</source>
         <translation>மரக் காட்சி</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="937"/>
+        <location filename="../src/ui/ToolBar.cpp" line="990"/>
         <source>Show Starred Commits</source>
         <translation>நட்சத்திரமிட்ட உறுதிமொழிகளைக் காட்டு</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="1030"/>
+        <location filename="../src/ui/ToolBar.cpp" line="1135"/>
         <source>Hide Log</source>
         <translation>பதிவை மறை</translation>
     </message>
