@@ -10,7 +10,7 @@
 #include "TabBar.h"
 
 TabBar::TabBar(QWidget *parent) : QTabBar(parent) {
-  setAutoHide(true);
+  setAutoHide(false);
   setDocumentMode(true);
 }
 

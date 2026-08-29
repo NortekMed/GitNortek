@@ -33,6 +33,7 @@
 #include <QPushButton>
 #include <QSettings>
 #include <QSignalSpy>
+#include <QTabBar>
 #include <QTimer>
 #include <QToolButton>
 
@@ -45,6 +46,7 @@ class TestMainWindow : public QObject {
 private slots:
   void initTestCase();
   void show();
+  void singleRepositoryTabVisible();
   void focusUpdatesOnlyEditorActions();
   void fastIssueAccess();
   void initialRefreshOnce();
@@ -101,6 +103,20 @@ void TestMainWindow::initTestCase() {
 void TestMainWindow::show() {
   mWindow->show();
   QVERIFY(qWaitForWindowActive(mWindow));
+}
+
+void TestMainWindow::singleRepositoryTabVisible() {
+  if (!mWindow->isVisible()) {
+    mWindow->show();
+    QVERIFY(qWaitForWindowActive(mWindow));
+  }
+
+  TabWidget *tabs = mWindow->tabWidget();
+  QTabBar *tabBar = tabs->findChild<QTabBar *>();
+  QVERIFY(tabBar);
+  QCOMPARE(tabs->count(), 1);
+  QVERIFY(!tabBar->autoHide());
+  QVERIFY(tabBar->isVisible());
 }
 
 void TestMainWindow::focusUpdatesOnlyEditorActions() {
