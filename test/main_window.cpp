@@ -63,6 +63,7 @@ private slots:
   void closeTab();
   void recentRepositoryLimit();
   void invalidRecentRepository();
+  void restoreActiveRepositoryOnly();
   void cleanupTestCase();
 
 private:
@@ -684,8 +685,44 @@ void TestMainWindow::invalidRecentRepository() {
   QVERIFY(!contains());
 }
 
-void TestMainWindow::cleanupTestCase() {
+void TestMainWindow::restoreActiveRepositoryOnly() {
   mWindow->close();
+  delete mWindow;
+  mWindow = nullptr;
+  QCOMPARE(MainWindow::windows().size(), 0);
+
+  MainWindow::setSaveWindowSettings(false);
+  QSettings settings;
+  settings.remove("windows");
+  settings.beginGroup("windows/inactive");
+  settings.setValue("path", QStringList{mRepo->workdir().path()});
+  settings.setValue("index", 0);
+  settings.setValue("active", false);
+  settings.endGroup();
+  settings.beginGroup("windows/active");
+  settings.setValue("path", QStringList{mRepo->workdir().path(),
+                                        mSecondRepo->workdir().path()});
+  settings.setValue("tabContext", QStringList{"first", "selected"});
+  settings.setValue("index", 1);
+  settings.setValue("active", true);
+  settings.endGroup();
+
+  QVERIFY(MainWindow::restoreWindows());
+  const QList<MainWindow *> windows = MainWindow::windows();
+  QCOMPARE(windows.size(), 1);
+  mWindow = windows.first();
+  QCOMPARE(mWindow->count(), 1);
+  QCOMPARE(mWindow->currentView()->repo().workdir().path(),
+           mSecondRepo->workdir().path());
+  QCOMPARE(mWindow->currentView()->tabContext(), QString("selected"));
+  QVERIFY(!settings.contains("windows/active/path"));
+  QVERIFY(!settings.contains("windows/inactive/path"));
+}
+
+void TestMainWindow::cleanupTestCase() {
+  if (mWindow)
+    mWindow->close();
+  QSettings().remove("windows");
   QSettings().setValue("recent", mRecentRepositories);
 }
 

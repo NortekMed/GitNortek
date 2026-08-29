@@ -343,73 +343,74 @@ QList<MainWindow *> MainWindow::windows() {
 }
 
 bool MainWindow::restoreWindows() {
-  QList<MainWindow *> windows;
+  struct SavedWindow {
+    int index;
+    bool active;
+    QStringList paths;
+    QStringList tabContexts;
+    QByteArray state;
+    QByteArray geometry;
+  };
 
-  // Open windows.
+  QList<SavedWindow> windows;
+
+  // Read the previous session before opening its active repository.
   QSettings settings;
   settings.beginGroup(kWindowsGroup);
   foreach (const QString &group, settings.childGroups()) {
     settings.beginGroup(group);
-    int index = settings.value(kIndexKey).toInt();
-    bool active = settings.value(kActiveKey).toBool();
-    QStringList paths = settings.value(kPathKey).toStringList();
-    QStringList tabContexts = settings.value(kTabContextKey).toStringList();
-    QByteArray state = settings.value(kStateKey).toByteArray();
-    QByteArray geometry = settings.value(kGeometryKey).toByteArray();
+    SavedWindow window{settings.value(kIndexKey).toInt(),
+                       settings.value(kActiveKey).toBool(),
+                       settings.value(kPathKey).toStringList(),
+                       settings.value(kTabContextKey).toStringList(),
+                       settings.value(kStateKey).toByteArray(),
+                       settings.value(kGeometryKey).toByteArray()};
     settings.endGroup();
 
-    // This shouldn't ever happen.
-    if (paths.isEmpty())
-      continue;
-
-    // Open a window new for the first valid repo.
-    MainWindow *window = nullptr;
-    QString firstContext;
-    while (!window && !paths.isEmpty()) {
-      QString path = paths.takeFirst();
-      firstContext =
-          tabContexts.isEmpty() ? QString() : tabContexts.takeFirst();
-      window = open(path);
-    }
-
-    if (!window)
-      continue;
-
-    if (!firstContext.isEmpty()) {
-      window->currentView()->setTabContext(firstContext);
-      window->updateTabNames();
-    }
-
-    // Add the remainder as tabs.
-    foreach (const QString &path, paths) {
-      QString context =
-          tabContexts.isEmpty() ? QString() : tabContexts.takeFirst();
-      window->addTab(path, OpenSource::Other, context);
-    }
-
-    // Select saved index.
-    window->tabWidget()->setCurrentIndex(index);
-
-    // Restore state and geometry.
-    window->restoreState(state);
-    window->restoreGeometry(geometry);
-
-    // Order active window first.
-    windows.insert(active ? 0 : windows.size(), window);
+    if (!window.paths.isEmpty())
+      windows.append(window);
   }
   settings.endGroup();
 
   // Remove all window settings.
   settings.remove(kWindowsGroup);
 
-  // Activate the top window.
-  if (!windows.isEmpty()) {
-    MainWindow *window = windows.first();
-    window->raise();
-    window->activateWindow();
+  for (int i = 0; i < windows.size(); ++i) {
+    if (windows.at(i).active) {
+      windows.move(i, 0);
+      break;
+    }
   }
 
-  return !windows.isEmpty();
+  for (const SavedWindow &saved : std::as_const(windows)) {
+    QList<int> candidates;
+    if (saved.index >= 0 && saved.index < saved.paths.size())
+      candidates.append(saved.index);
+    for (int i = 0; i < saved.paths.size(); ++i) {
+      if (i != saved.index)
+        candidates.append(i);
+    }
+
+    for (int candidate : std::as_const(candidates)) {
+      MainWindow *window = open(saved.paths.at(candidate));
+      if (!window)
+        continue;
+
+      const QString context = saved.tabContexts.value(candidate);
+      if (!context.isEmpty()) {
+        window->currentView()->setTabContext(context);
+        window->updateTabNames();
+      }
+
+      window->restoreState(saved.state);
+      window->restoreGeometry(saved.geometry);
+      window->raise();
+      window->activateWindow();
+      return true;
+    }
+  }
+
+  return false;
 }
 
 MainWindow *MainWindow::open(const QString &path, bool warnOnInvalid,
