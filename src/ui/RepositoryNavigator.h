@@ -23,6 +23,7 @@ class QSplitter;
 class QTreeView;
 class QToolButton;
 class RepoView;
+class StatePushButton;
 
 class RepositoryNavigator : public QWidget {
   Q_OBJECT
@@ -53,6 +54,9 @@ private:
                       bool expanded);
   void setPanelExpanded(RepositoryNavigatorModel::Section section,
                         bool expanded);
+  bool allAvailablePanelsExpanded() const;
+  void toggleAllPanels();
+  void updateExpandCollapseAllButton();
   void updatePanels();
   void clearOtherSelections(QTreeView *selected);
   SectionPanel *panel(RepositoryNavigatorModel::Section section);
@@ -100,6 +104,8 @@ private:
   };
 
   QSplitter *mSectionSplitter;
+  StatePushButton *mExpandCollapseAllButton;
+  QWidget *mCollapsedSpacer;
   QList<SectionPanel> mPanels;
   QComboBox *mIssuesRemoteFilter;
   RepositoryNavigatorModel *mModel;

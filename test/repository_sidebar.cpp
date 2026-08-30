@@ -23,6 +23,7 @@
 #include "ui/RepositoryNavigatorModel.h"
 #include "ui/RepoView.h"
 #include "ui/SideBar.h"
+#include "ui/StatePushButton.h"
 #include "ui/TabWidget.h"
 #include <QAbstractItemModelTester>
 #include <QContextMenuEvent>
@@ -30,6 +31,7 @@
 #include <QFile>
 #include <QFontMetrics>
 #include <QHeaderView>
+#include <QLayout>
 #include <QMenu>
 #include <QMessageBox>
 #include <QProcess>
@@ -45,6 +47,7 @@
 #include <QTimer>
 #include <QToolButton>
 #include <QTreeView>
+#include <QVBoxLayout>
 
 using namespace QTest;
 
@@ -395,21 +398,41 @@ void TestRepositorySideBar::navigatorModel() {
 }
 
 void TestRepositorySideBar::navigatorView() {
-  const QString localExpansionKey =
-      "sidebar/repositoryNavigator/expanded/Local";
+  const QStringList collapsibleSections = {
+      "Local", "Remote", "Stashes", "GitHubIssues", "Tags", "Submodules"};
+  QStringList settingKeys;
+  for (const QString &section : collapsibleSections) {
+    settingKeys.append("sidebar/repositoryNavigator/expanded/" + section);
+    settingKeys.append("sidebar/repositoryNavigator/sectionSize/" + section);
+  }
   QSettings settings;
-  const bool hadLocalExpansion = settings.contains(localExpansionKey);
-  const QVariant localExpansion = settings.value(localExpansionKey);
-  auto restoreLocalExpansion = qScopeGuard(
-      [hadLocalExpansion, localExpansion, localExpansionKey] {
+  QSet<QString> existingKeys;
+  QHash<QString, QVariant> settingValues;
+  for (const QString &key : settingKeys) {
+    if (settings.contains(key)) {
+      existingKeys.insert(key);
+      settingValues.insert(key, settings.value(key));
+    }
+  }
+  auto restoreExpansion = qScopeGuard(
+      [existingKeys, settingKeys, settingValues] {
         QSettings settings;
-        if (hadLocalExpansion)
-          settings.setValue(localExpansionKey, localExpansion);
-        else
-          settings.remove(localExpansionKey);
+        for (const QString &key : settingKeys) {
+          if (existingKeys.contains(key))
+            settings.setValue(key, settingValues.value(key));
+          else
+            settings.remove(key);
+        }
       });
+  for (const QString &section : collapsibleSections)
+    settings.setValue("sidebar/repositoryNavigator/expanded/" + section, true);
+  settings.setValue("sidebar/repositoryNavigator/expanded/GitHubIssues", false);
 
-  RepositoryNavigator navigator;
+  QWidget host;
+  RepositoryNavigator navigator(&host);
+  QVBoxLayout *hostLayout = new QVBoxLayout(&host);
+  hostLayout->setContentsMargins(0, 0, 0, 0);
+  hostLayout->addWidget(&navigator);
   QTreeView *view = navigator.sectionView(
       RepositoryNavigatorModel::Section::Local);
   QVERIFY(view);
@@ -447,12 +470,66 @@ void TestRepositorySideBar::navigatorView() {
   QCOMPARE(splitter->orientation(), Qt::Vertical);
   QCOMPARE(splitter->count(),
            static_cast<int>(RepositoryNavigatorModel::Section::Count));
+  QWidget *actionBar = navigator.findChild<QWidget *>(
+      "RepositoryNavigationActionBar", Qt::FindDirectChildrenOnly);
+  QVERIFY(actionBar);
+  StatePushButton *expandCollapseAll =
+      actionBar->findChild<StatePushButton *>(
+          "RepositoryNavigationExpandCollapseAll");
+  QVERIFY(expandCollapseAll);
+  QCOMPARE(navigator.layout()->itemAt(0)->widget(), actionBar);
+  QCOMPARE(navigator.layout()->itemAt(1)->widget(), splitter);
+  QCOMPARE(expandCollapseAll->text(), QString("Collapse all"));
+  QCOMPARE(expandCollapseAll->accessibleName(), QString("Collapse all"));
+  host.resize(320, 700);
+  host.show();
+  QVERIFY(qWaitForWindowExposed(&host));
+
+  const QStringList availableSections = {"Local", "Remote", "Stashes",
+                                         "Tags", "Submodules"};
+  QToolButton *issuesToggle = navigator.findChild<QToolButton *>(
+      "RepositoryNavigationGitHubIssuesToggle");
+  QVERIFY(issuesToggle);
+  QVERIFY(!issuesToggle->isEnabled());
+  QVERIFY(!issuesToggle->isChecked());
+
+  expandCollapseAll->click();
+  QCoreApplication::processEvents();
+  QCOMPARE(expandCollapseAll->text(), QString("Expand all"));
+  QTRY_VERIFY(splitter->maximumHeight() <
+              navigator.height() - actionBar->height());
+  QTRY_COMPARE(splitter->y(), actionBar->geometry().bottom() + 1);
+  QTRY_VERIFY(splitter->geometry().bottom() < navigator.rect().bottom());
+  for (const QString &section : availableSections) {
+    QToolButton *toggle = navigator.findChild<QToolButton *>(
+        "RepositoryNavigation" + section + "Toggle");
+    QVERIFY(toggle);
+    QVERIFY(!toggle->isChecked());
+    QCOMPARE(QSettings()
+                 .value("sidebar/repositoryNavigator/expanded/" + section)
+                 .toBool(),
+             false);
+  }
+  QVERIFY(!issuesToggle->isChecked());
+
+  expandCollapseAll->click();
+  QCoreApplication::processEvents();
+  QCOMPARE(expandCollapseAll->text(), QString("Collapse all"));
+  QTRY_COMPARE(splitter->maximumHeight(), QWIDGETSIZE_MAX);
+  QTRY_COMPARE(splitter->geometry().bottom(), navigator.rect().bottom());
+  for (const QString &section : availableSections) {
+    QToolButton *toggle = navigator.findChild<QToolButton *>(
+        "RepositoryNavigation" + section + "Toggle");
+    QVERIFY(toggle->isChecked());
+  }
+  QVERIFY(!issuesToggle->isChecked());
 
   QToolButton *localToggle =
       navigator.findChild<QToolButton *>("RepositoryNavigationLocalToggle");
   QVERIFY(localToggle);
   localToggle->setChecked(false);
   QCoreApplication::processEvents();
+  QCOMPARE(expandCollapseAll->text(), QString("Expand all"));
   QCOMPARE(
       QSettings().value("sidebar/repositoryNavigator/expanded/Local").toBool(),
       false);

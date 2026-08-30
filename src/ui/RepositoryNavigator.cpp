@@ -9,6 +9,7 @@
 #include "FontUtils.h"
 #include "RepositoryNavigatorModel.h"
 #include "RepoView.h"
+#include "StatePushButton.h"
 #include "git/Config.h"
 #include "git/Remote.h"
 #include "host/Accounts.h"
@@ -304,11 +305,27 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
                    : [] { return QDateTime::currentMSecsSinceEpoch(); }) {
   setObjectName("RepositoryNavigator");
   setAccessibleName(tr("Repository navigation"));
+  setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
 
   mModel = new RepositoryNavigatorModel(this);
   mSectionSplitter = new QSplitter(Qt::Vertical, this);
   mSectionSplitter->setObjectName("RepositorySectionSplitter");
   mSectionSplitter->setChildrenCollapsible(false);
+
+  QWidget *actionBar = new QWidget(this);
+  actionBar->setObjectName("RepositoryNavigationActionBar");
+  actionBar->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+  mExpandCollapseAllButton =
+      new StatePushButton(QObject::tr("Collapse all"),
+                          QObject::tr("Expand all"), actionBar);
+  mExpandCollapseAllButton->setObjectName(
+      "RepositoryNavigationExpandCollapseAll");
+  QHBoxLayout *actionLayout = new QHBoxLayout(actionBar);
+  actionLayout->setContentsMargins(4, 4, 8, 4);
+  actionLayout->addStretch();
+  actionLayout->addWidget(mExpandCollapseAllButton);
+  connect(mExpandCollapseAllButton, &QPushButton::clicked, this,
+          &RepositoryNavigator::toggleAllPanels);
 
   for (int value = 0;
        value < static_cast<int>(RepositoryNavigatorModel::Section::Count);
@@ -384,6 +401,7 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
     connect(toggle, &QToolButton::toggled, this, [this, section](bool expanded) {
       setPanelExpanded(section, expanded);
       storeExpansion(section, expanded);
+      updateExpandCollapseAllButton();
     });
     if (view) {
       connect(view->selectionModel(), &QItemSelectionModel::currentChanged,
@@ -473,7 +491,12 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
   QVBoxLayout *layout = new QVBoxLayout(this);
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
+  layout->addWidget(actionBar);
   layout->addWidget(mSectionSplitter);
+  mCollapsedSpacer = new QWidget(this);
+  mCollapsedSpacer->setSizePolicy(QSizePolicy::Preferred,
+                                  QSizePolicy::Expanding);
+  layout->addWidget(mCollapsedSpacer);
 
   Accounts *accounts = Accounts::instance();
   connect(accounts, &Accounts::accountAdded, this,
@@ -628,6 +651,57 @@ void RepositoryNavigator::setPanelExpanded(
   }
 }
 
+bool RepositoryNavigator::allAvailablePanelsExpanded() const {
+  bool found = false;
+  for (const SectionPanel &panel : mPanels) {
+    QModelIndex index = mModel->sectionIndex(panel.section);
+    if (!panel.view ||
+        !index.data(RepositoryNavigatorModel::AvailableRole).toBool())
+      continue;
+    found = true;
+    if (!panel.toggle->isChecked())
+      return false;
+  }
+  return found;
+}
+
+void RepositoryNavigator::toggleAllPanels() {
+  const bool expand = !allAvailablePanelsExpanded();
+  for (SectionPanel &panel : mPanels) {
+    QModelIndex index = mModel->sectionIndex(panel.section);
+    if (panel.view &&
+        index.data(RepositoryNavigatorModel::AvailableRole).toBool())
+      panel.toggle->setChecked(expand);
+  }
+  updateExpandCollapseAllButton();
+}
+
+void RepositoryNavigator::updateExpandCollapseAllButton() {
+  bool available = false;
+  bool bodyVisible = false;
+  int collapsedHeight = 0;
+  for (const SectionPanel &panel : mPanels) {
+    QModelIndex index = mModel->sectionIndex(panel.section);
+    if (panel.view &&
+        index.data(RepositoryNavigatorModel::AvailableRole).toBool()) {
+      available = true;
+    }
+    bodyVisible |= panel.body->isVisible();
+    collapsedHeight += panel.header->sizeHint().height();
+  }
+  collapsedHeight += qMax(0, mPanels.size() - 1) *
+                     mSectionSplitter->handleWidth();
+
+  mExpandCollapseAllButton->setEnabled(available);
+  mExpandCollapseAllButton->setState(allAvailablePanelsExpanded());
+  mExpandCollapseAllButton->setAccessibleName(
+      mExpandCollapseAllButton->text());
+  mExpandCollapseAllButton->setToolTip(mExpandCollapseAllButton->text());
+  mSectionSplitter->setMaximumHeight(bodyVisible ? QWIDGETSIZE_MAX
+                                                 : collapsedHeight);
+  mCollapsedSpacer->setVisible(!bodyVisible);
+}
+
 void RepositoryNavigator::updatePanels() {
   for (SectionPanel &panel : mPanels) {
     QModelIndex index = mModel->sectionIndex(panel.section);
@@ -650,6 +724,7 @@ void RepositoryNavigator::updatePanels() {
     }
     setPanelExpanded(panel.section, panel.toggle->isChecked());
   }
+  updateExpandCollapseAllButton();
 
   SectionPanel *issues =
       panel(RepositoryNavigatorModel::Section::GitHubIssues);
