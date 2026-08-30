@@ -162,8 +162,13 @@ void Badge::paint(QPainter *painter, const Label &label, const QRect &rect,
     }
   }
 
-  const QColor fore = theme->badge(Theme::BadgeRole::Foreground, state);
-  const QColor back = theme->badge(Theme::BadgeRole::Background, state);
+  const QColor back = label.background.isValid()
+                          ? label.background
+                          : theme->badge(Theme::BadgeRole::Background, state);
+  const QColor fore = label.background.isValid()
+                          ? QColor(qGray(back.rgb()) > 140 ? Qt::black
+                                                          : Qt::white)
+                          : theme->badge(Theme::BadgeRole::Foreground, state);
 
   painter->setBrush(back);
   painter->setPen(Qt::NoPen);

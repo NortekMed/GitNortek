@@ -31,6 +31,7 @@ Bug Fix and Feature release
 #### Changed
 
 * Keep the repository log panel hidden by default until the user opens it
+* Match local branch badges to their topology colors, retain the existing checked-out branch color, and distinguish remote branches with grey badges
 * Show the repository sidebar at startup and keep it open when opening repositories
 * Keep the repository tab bar visible when only one repository is open
 * Open repositories in the branch view even when unresolved conflicts already exist

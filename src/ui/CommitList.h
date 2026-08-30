@@ -37,6 +37,7 @@ public:
     CommitRole,
     GraphRole,
     GraphColorRole,
+    GraphBaseColorRole,
     GraphStyleRole,
     GraphNodeRole,
     StashIndexRole

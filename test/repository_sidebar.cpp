@@ -6,6 +6,8 @@
 //
 
 #include "Test.h"
+#include "app/Application.h"
+#include "app/Theme.h"
 #include "conf/Setting.h"
 #include "conf/Settings.h"
 #include "git/Branch.h"
@@ -119,6 +121,66 @@ QStringList contextSubmenuItems(CommitList *view, const QModelIndex &index,
   return items;
 }
 
+QModelIndex commitIndex(QAbstractItemModel *model, const git::Id &id) {
+  for (int row = 0; row < model->rowCount(); ++row) {
+    QModelIndex index = model->index(row, 0);
+    git::Commit commit = index.data(CommitList::CommitRole).value<git::Commit>();
+    if (commit.isValid() && commit.id() == id)
+      return index;
+  }
+  return QModelIndex();
+}
+
+QColor graphNodeColor(const QModelIndex &index, int role) {
+  constexpr int dotSegment = 0;
+  QVariantList columns = index.data(CommitList::GraphRole).toList();
+  QVariantList colorColumns = index.data(role).toList();
+  for (int column = 0; column < columns.size(); ++column) {
+    QVariantList segments = columns.at(column).toList();
+    int dot = segments.indexOf(dotSegment);
+    if (dot >= 0)
+      return colorColumns.at(column).toList().at(dot).value<QColor>();
+  }
+  return QColor();
+}
+
+QColor branchBadgeColor(CommitList *view, QHeaderView *header,
+                        const QModelIndex &index) {
+  view->scrollTo(index, QAbstractItemView::PositionAtCenter);
+  QCoreApplication::processEvents();
+  QPoint sample(view->visualRect(index).x() + 8 +
+                    header->sectionPosition(CommitList::ReferencesColumn) + 6,
+                view->visualRect(index).center().y());
+  return view->viewport()->grab().toImage().pixelColor(sample);
+}
+
+bool referenceBadgesContainColor(CommitList *view, QHeaderView *header,
+                                 const QModelIndex &index,
+                                 const QColor &color) {
+  view->scrollTo(index, QAbstractItemView::PositionAtCenter);
+  QCoreApplication::processEvents();
+  QImage image = view->viewport()->grab().toImage();
+  QRect row = view->visualRect(index);
+  QRect refs(row.x() + 8 +
+                 header->sectionPosition(CommitList::ReferencesColumn),
+             row.y(), header->sectionSize(CommitList::ReferencesColumn),
+             row.height());
+  refs = refs.intersected(image.rect());
+  for (int y = refs.top(); y <= refs.bottom(); ++y) {
+    for (int x = refs.left(); x <= refs.right(); ++x) {
+      if (image.pixelColor(x, y) == color)
+        return true;
+    }
+  }
+  return false;
+}
+
+bool isGreenBranchColor(const QColor &color) {
+  QColor hsv = color.toHsv();
+  int hue = hsv.hsvHue();
+  return hue >= 75 && hue <= 175 && hsv.hsvSaturation() >= 20;
+}
+
 } // namespace
 
 class TestRepositorySideBar : public QObject {
@@ -132,6 +194,7 @@ private slots:
   void githubIssuesModel();
   void githubIssuesRemoteFilter();
   void activeRepositoryBinding();
+  void branchGraphColors();
   void stashInteraction();
   void submoduleInteraction();
   void cleanupTestCase();
@@ -785,6 +848,148 @@ void TestRepositorySideBar::activeRepositoryBinding() {
   QTRY_COMPARE(window.count(), 0);
   QVERIFY(!navigator->model()->repository().isValid());
   QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+}
+
+void TestRepositorySideBar::branchGraphColors() {
+  Test::ScratchRepository repo;
+  QProcess git;
+  git.setWorkingDirectory(repo->workdir().path());
+  git.start(GIT_EXECUTABLE,
+            {"commit", "--allow-empty", "-m", "color base"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  QString mainBranch = repo->head().name();
+  QVERIFY(!mainBranch.isEmpty());
+  git.start(GIT_EXECUTABLE, {"checkout", "-b", "color-side"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE,
+            {"commit", "--allow-empty", "-m", "color side"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE, {"checkout", mainBranch});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE,
+            {"commit", "--allow-empty", "-m", "color main"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE,
+            {"update-ref", "refs/remotes/origin/color-side", "color-side"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+
+  git::Config config = repo->appConfig();
+  config.setValue(ConfigKeys::kRefsKey,
+                  static_cast<int>(CommitList::RefsFilter::AllRefs));
+  config.setValue(ConfigKeys::kStatusKey, false);
+  config.setValue(ConfigKeys::kGraphKey, true);
+
+  bool compact = Settings::instance()
+                     ->value(Setting::Id::ShowCommitsInCompactMode)
+                     .toBool();
+  auto restoreCompactMode = qScopeGuard([compact] {
+    Settings::instance()->setValue(Setting::Id::ShowCommitsInCompactMode,
+                                   compact);
+  });
+  Settings::instance()->setValue(Setting::Id::ShowCommitsInCompactMode, true);
+
+  MainWindow window(repo);
+  window.resize(1200, 700);
+  window.show();
+  QVERIFY(qWaitForWindowExposed(&window));
+  RepoView *view = window.currentView();
+  CommitList *commitList = view->findChild<CommitList *>();
+  QVERIFY(commitList);
+  QHeaderView *header = commitList->findChild<QHeaderView *>();
+  QVERIFY(header);
+  bool referencesHidden = header->isSectionHidden(CommitList::ReferencesColumn);
+  auto restoreReferences = qScopeGuard([header, referencesHidden] {
+    header->setSectionHidden(CommitList::ReferencesColumn, referencesHidden);
+  });
+  header->setSectionHidden(CommitList::ReferencesColumn, false);
+  QAbstractItemModel *model = commitList->model();
+  while (model->canFetchMore(QModelIndex()))
+    model->fetchMore(QModelIndex());
+
+  git::Reference main = repo->lookupRef("refs/heads/" + mainBranch);
+  git::Reference side = repo->lookupRef("refs/heads/color-side");
+  git::Reference remote =
+      repo->lookupRef("refs/remotes/origin/color-side");
+  QVERIFY(main.isValid());
+  QVERIFY(side.isValid());
+  QVERIFY(remote.isValid());
+  QCOMPARE(remote.target().id(), side.target().id());
+  QModelIndex mainIndex = commitIndex(model, main.target().id());
+  QModelIndex sideIndex = commitIndex(model, side.target().id());
+  QVERIFY(mainIndex.isValid());
+  QVERIFY(sideIndex.isValid());
+
+  const QColor headColor = Application::theme()->badge(
+      Theme::BadgeRole::Background, Theme::BadgeState::Head);
+  const QColor remoteBadge("#a5a7aa");
+  QColor mainBase = graphNodeColor(mainIndex, CommitList::GraphBaseColorRole);
+  QColor sideBase = graphNodeColor(sideIndex, CommitList::GraphBaseColorRole);
+  QVERIFY(mainBase.isValid());
+  QVERIFY(sideBase.isValid());
+  QVERIFY(mainBase != headColor);
+  QVERIFY(sideBase != headColor);
+  QVERIFY(!isGreenBranchColor(mainBase));
+  QVERIFY(!isGreenBranchColor(sideBase));
+  QVERIFY(sideBase != remoteBadge);
+  QCOMPARE(graphNodeColor(mainIndex, CommitList::GraphColorRole), headColor);
+  QCOMPARE(graphNodeColor(sideIndex, CommitList::GraphColorRole), sideBase);
+  QCOMPARE(branchBadgeColor(commitList, header, mainIndex), headColor);
+  QVERIFY(referenceBadgesContainColor(commitList, header, sideIndex, sideBase));
+  QVERIFY(
+      referenceBadgesContainColor(commitList, header, sideIndex, remoteBadge));
+
+  for (int row = 0; row < model->rowCount(); ++row) {
+    for (const QVariant &column :
+         model->index(row, 0).data(CommitList::GraphBaseColorRole).toList()) {
+      for (const QVariant &value : column.toList()) {
+        QColor color = value.value<QColor>();
+        if (color.isValid() && color != QColor(Qt::gray))
+          QVERIFY(!isGreenBranchColor(color));
+      }
+    }
+  }
+
+  config.setValue(ConfigKeys::kGraphKey, false);
+  commitList->resetSettings();
+  mainIndex = commitIndex(model, main.target().id());
+  QVERIFY(mainIndex.isValid());
+  QCOMPARE(branchBadgeColor(commitList, header, mainIndex), headColor);
+  config.setValue(ConfigKeys::kGraphKey, true);
+  commitList->resetSettings();
+  while (model->canFetchMore(QModelIndex()))
+    model->fetchMore(QModelIndex());
+
+  QSignalSpy colorChanged(model, &QAbstractItemModel::dataChanged);
+  view->checkout(side);
+  QTRY_COMPARE(repo->head().name(), QString("color-side"));
+  QTRY_VERIFY(colorChanged.count() > 0);
+  bool graphColorChanged = false;
+  for (const QList<QVariant> &arguments : colorChanged) {
+    if (arguments.at(2).value<QList<int>>().contains(
+            CommitList::GraphColorRole)) {
+      graphColorChanged = true;
+      break;
+    }
+  }
+  QVERIFY(graphColorChanged);
+  QTRY_VERIFY(commitIndex(model, side.target().id()).isValid());
+  while (model->canFetchMore(QModelIndex()))
+    model->fetchMore(QModelIndex());
+  mainIndex = commitIndex(model, main.target().id());
+  sideIndex = commitIndex(model, side.target().id());
+  QTRY_COMPARE(graphNodeColor(sideIndex, CommitList::GraphColorRole), headColor);
+  QCOMPARE(graphNodeColor(mainIndex, CommitList::GraphColorRole), mainBase);
+  QVERIFY(
+      referenceBadgesContainColor(commitList, header, sideIndex, headColor));
+  QVERIFY(
+      referenceBadgesContainColor(commitList, header, sideIndex, remoteBadge));
+  QCOMPARE(branchBadgeColor(commitList, header, mainIndex), mainBase);
 }
 
 void TestRepositorySideBar::stashInteraction() {

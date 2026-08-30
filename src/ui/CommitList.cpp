@@ -74,12 +74,24 @@ const char kLegacyCommitHeaderStateKey[] = "commit/columns/headerStateV10";
 
 // FIXME: Factor out into theme?
 const QColor kTaintedColor = Qt::gray;
+const QColor kRemoteBranchBadgeColor("#a5a7aa");
 
 const QString kPathspecFmt = "pathspec:%1";
 
 // Use fixed short id size in compact mode.
 // FIXME: Use 'core.abbrev' config instead?
 const int kShortIdSize = 7;
+
+QColor headBranchColor() {
+  return Application::theme()->badge(Theme::BadgeRole::Background,
+                                     Theme::BadgeState::Head);
+}
+
+bool isGreenBranchColor(const QColor &color) {
+  QColor hsv = color.toHsv();
+  int hue = hsv.hsvHue();
+  return hue >= 75 && hue <= 175 && hsv.hsvSaturation() >= 20;
+}
 
 QFont compactFont(QFont font) {
   if (font.pointSizeF() > 1.0) {
@@ -260,6 +272,8 @@ public:
   }
 
   void resetReference(const git::Reference &ref, bool refreshStatus = true) {
+    updateHeadLane();
+
     // Reset selected ref to updated ref.
     if (ref.isValid() && mRef.isValid() &&
         ref.qualifiedName() == mRef.qualifiedName())
@@ -278,12 +292,15 @@ public:
   }
 
   void resetWalker() {
+    mResettingWalker = true;
     beginResetModel();
 
     // Reset state.
     mParents.clear();
     mNextLane = 1;
+    mHeadLane = 0;
     mRows.clear();
+    mNodeLanes.clear();
     mStashIndexes.clear();
     mStashAuxiliaryCommits.clear();
     DebugRefresh("");
@@ -355,7 +372,10 @@ public:
     if (canFetchMore(QModelIndex()))
       fetchMore(QModelIndex());
 
+    updateHeadLane(false);
+
     endResetModel();
+    mResettingWalker = false;
   }
 
   void resetSettings(bool walk = false) {
@@ -468,6 +488,17 @@ public:
       if (mGraphVisible && mPathspec.isEmpty())
         row = columns(commit, parents, rootIndex);
 
+      for (const Column &column : row) {
+        for (const Segment &segment : column) {
+          if (segment.segment == Dot) {
+            mNodeLanes.insert(commit.id(), segment.lane);
+            break;
+          }
+        }
+        if (mNodeLanes.contains(commit.id()))
+          break;
+      }
+
       rows.append(Row(commit, row));
       DebugRefresh("Append commit: " << commit.shortId());
 
@@ -485,6 +516,7 @@ public:
       beginInsertRows(QModelIndex(), first, last);
       mRows.append(rows);
       endInsertRows();
+      updateHeadLane(!mResettingWalker);
     }
 
     // Invalidate walker.
@@ -560,6 +592,22 @@ public:
         foreach (const Column &column, row.columns) {
           QVariantList segments;
           foreach (const Segment &segment, column)
+            segments.append(segment.lane && segment.lane == mHeadLane &&
+                                    segment.color.isValid() &&
+                                    segment.color != kTaintedColor
+                                ? headBranchColor()
+                                : segment.color);
+          columns.append(QVariant(segments));
+        }
+
+        return columns;
+      }
+
+      case CommitList::Role::GraphBaseColorRole: {
+        QVariantList columns;
+        foreach (const Column &column, row.columns) {
+          QVariantList segments;
+          foreach (const Segment &segment, column)
             segments.append(segment.color);
           columns.append(QVariant(segments));
         }
@@ -622,12 +670,13 @@ private:
   };
 
   struct Segment {
-    Segment(GraphSegment segment, QColor color,
+    Segment(GraphSegment segment, QColor color, quint64 lane = 0,
             Qt::PenStyle style = Qt::SolidLine)
-        : segment(segment), color(color), style(style) {}
+        : segment(segment), color(color), lane(lane), style(style) {}
 
     GraphSegment segment;
     QColor color;
+    quint64 lane;
     Qt::PenStyle style;
   };
 
@@ -724,7 +773,7 @@ private:
       if (i != rootIndex && !resolvesHere(parents.at(i)) &&
           !parents.at(i).isSpacer()) {
         columns[i] << Segment(Top, parents.at(i).taintedColor(),
-                              parents.at(i).style);
+                              parents.at(i).lane, parents.at(i).style);
       }
     }
 
@@ -736,17 +785,21 @@ private:
           continue;
 
         if (i < nodeIndex) {
-          columns[i] << Segment(ForkRightIn, alias.color, alias.style);
+          columns[i]
+              << Segment(ForkRightIn, alias.color, alias.lane, alias.style);
           for (int j = i + 1; j < nodeIndex; ++j)
-            columns[j] << Segment(ForkCross, alias.color, alias.style);
+            columns[j]
+                << Segment(ForkCross, alias.color, alias.lane, alias.style);
           columns[nodeIndex]
-              << Segment(ForkLeftOut, alias.color, alias.style);
+              << Segment(ForkLeftOut, alias.color, alias.lane, alias.style);
         } else if (i > nodeIndex) {
           columns[nodeIndex]
-              << Segment(ForkRightOut, alias.color, alias.style);
+              << Segment(ForkRightOut, alias.color, alias.lane, alias.style);
           for (int j = nodeIndex + 1; j < i; ++j)
-            columns[j] << Segment(ForkCross, alias.color, alias.style);
-          columns[i] << Segment(ForkLeftIn, alias.color, alias.style);
+            columns[j]
+                << Segment(ForkCross, alias.color, alias.lane, alias.style);
+          columns[i]
+              << Segment(ForkLeftIn, alias.color, alias.lane, alias.style);
         }
       }
     }
@@ -783,6 +836,7 @@ private:
         QColor sourceColor = parent.taintedColor(commit);
         QColor targetColor = mParents.at(index).taintedColor();
         QColor edgeColor = merge ? targetColor : sourceColor;
+        quint64 edgeLane = merge ? mParents.at(index).lane : parent.lane;
         Qt::PenStyle style =
             parent.commit == commit && !isStash(commit) ? Qt::SolidLine
                                                          : parent.style;
@@ -790,28 +844,34 @@ private:
         if (index < i) {
           // out to the left
           columns[index]
-              << Segment(merge ? MergeRightIn : RightIn, edgeColor, style);
+              << Segment(merge ? MergeRightIn : RightIn, edgeColor, edgeLane,
+                         style);
           for (int j = index + 1; j < i; ++j)
             columns[j]
-                << Segment(merge ? MergeCross : Cross, edgeColor, style);
+                << Segment(merge ? MergeCross : Cross, edgeColor, edgeLane,
+                           style);
           columns[i]
-              << Segment(merge ? MergeLeftOut : LeftOut, edgeColor, style);
+              << Segment(merge ? MergeLeftOut : LeftOut, edgeColor, edgeLane,
+                         style);
 
         } else if (index > i) {
           // out to the right
           columns[i]
-              << Segment(merge ? MergeRightOut : RightOut, edgeColor, style);
+              << Segment(merge ? MergeRightOut : RightOut, edgeColor, edgeLane,
+                         style);
           for (int j = i + 1; j < index; ++j)
             columns[j]
-                << Segment(merge ? MergeCross : Cross, edgeColor, style);
+                << Segment(merge ? MergeCross : Cross, edgeColor, edgeLane,
+                           style);
           if (index == columns.size())
             columns.append(Column());
           columns[index]
-              << Segment(merge ? MergeLeftIn : LeftIn, edgeColor, style);
+              << Segment(merge ? MergeLeftIn : LeftIn, edgeColor, edgeLane,
+                         style);
 
         } else { // index == i
           // out the bottom
-          columns[index] << Segment(Bottom, edgeColor, style);
+          columns[index] << Segment(Bottom, edgeColor, edgeLane, style);
         }
       }
     }
@@ -823,7 +883,7 @@ private:
         continue;
       bool dot = (!parent.isDeferred() && parent.commit == commit);
       columns[i] << Segment(dot ? Dot : Middle, parent.taintedColor(),
-                            parent.style);
+                            parent.lane, parent.style);
     }
 
     return columns;
@@ -838,7 +898,15 @@ private:
     }
 
     int count = 0;
-    QList<QColor> colors = Application::theme()->branchTopologyEdges();
+    QList<QColor> colors;
+    QColor head = headBranchColor();
+    for (const QColor &color : Application::theme()->branchTopologyEdges()) {
+      if (color != head && !isGreenBranchColor(color))
+        colors.append(color);
+    }
+    if (colors.isEmpty())
+      colors.append(head == QColor("#53afec") ? QColor("#da2ada")
+                                               : QColor("#53afec"));
     forever {
       foreach (const QColor &color, colors) {
         if (counts.value(color.name()) == count)
@@ -850,6 +918,18 @@ private:
 
     Q_UNREACHABLE();
     return QColor();
+  }
+
+  void updateHeadLane(bool notify = true) {
+    git::Commit head = mRepo.head().target();
+    quint64 headLane = head.isValid() ? mNodeLanes.value(head.id()) : 0;
+
+    if (headLane == mHeadLane)
+      return;
+    mHeadLane = headLane;
+    if (notify && !mRows.isEmpty())
+      emit dataChanged(index(0, 0), index(mRows.size() - 1, 0),
+                       {CommitList::GraphColorRole});
   }
 
   QTimer mTimer;
@@ -865,13 +945,16 @@ private:
   git::Repository mRepo;
 
   QList<Row> mRows;
+  QHash<git::Id, quint64> mNodeLanes;
   QList<Parent> mParents;
   quint64 mNextLane = 1;
+  quint64 mHeadLane = 0;
   QMap<git::Id, int> mStashIndexes;
   QSet<git::Id> mStashAuxiliaryCommits;
 
   // walker settings
   bool mSuppressResetWalker{false};
+  bool mResettingWalker = false;
   CommitList::RefsFilter mRefsFilter{CommitList::RefsFilter::AllRefs};
   bool mSortDate = true;
   bool mShowCleanStatus = true;
@@ -1046,8 +1129,11 @@ public:
     QVariantList columns = index.data(CommitList::Role::GraphRole).toList();
     QVariantList colorColumns =
         index.data(CommitList::Role::GraphColorRole).toList();
+    QVariantList baseColorColumns =
+        index.data(CommitList::Role::GraphBaseColorRole).toList();
     QVariantList styleColumns =
         index.data(CommitList::Role::GraphStyleRole).toList();
+    QColor graphNodeBaseColor;
     for (int i = 0; i < columns.size(); ++i) {
       int x = rect.x();
       int y = rect.y();
@@ -1072,9 +1158,16 @@ public:
 
       QVariantList segments = columns.at(i).toList();
       QVariantList colors = colorColumns.at(i).toList();
+      QVariantList baseColors =
+          i < baseColorColumns.size() ? baseColorColumns.at(i).toList()
+                                      : colors;
       QVariantList styles = styleColumns.at(i).toList();
       for (int j = 0; j < segments.size(); ++j) {
         QColor color = colors.at(j).value<QColor>();
+        if (segments.at(j).toInt() == Dot)
+          graphNodeBaseColor = j < baseColors.size()
+                                   ? baseColors.at(j).value<QColor>()
+                                   : color;
         QPen pen(color, 2);
         pen.setStyle(static_cast<Qt::PenStyle>(styles.at(j).toInt()));
         if (pen.style() == Qt::DotLine) {
@@ -1260,7 +1353,7 @@ public:
         star = compactColumns.star;
 
         // Draw references before the graph.
-        QList<Badge::Label> refs = mRefs.value(commit.id());
+        QList<Badge::Label> refs = coloredRefs(commit.id(), graphNodeBaseColor);
         if (!refs.isEmpty())
           Badge::paint(painter, refs, compactColumns.refs, &opt, Qt::AlignLeft);
 
@@ -1338,7 +1431,7 @@ public:
         }
 
         // Draw references.
-        QList<Badge::Label> refs = mRefs.value(commit.id());
+        QList<Badge::Label> refs = coloredRefs(commit.id(), graphNodeBaseColor);
         if (!refs.isEmpty()) {
           QRect refsRect = rect;
           QString leftText = "";
@@ -1599,9 +1692,26 @@ private:
       if (ref.isRemoteHead())
         continue;
       if (git::Commit target = ref.target())
-        mRefs[target.id()].append(
-            {Badge::Label::Type::Ref, ref.name(), ref.isHead(), ref.isTag()});
+        mRefs[target.id()].append({Badge::Label::Type::Ref, ref.name(),
+                                   ref.isHead(), ref.isTag(), ref.isBranch(),
+                                   ref.isRemoteBranch()});
     }
+
+    static_cast<QAbstractItemView *>(parent())->viewport()->update();
+  }
+
+  QList<Badge::Label> coloredRefs(const git::Id &id,
+                                  const QColor &nodeColor) const {
+    QList<Badge::Label> refs = mRefs.value(id);
+    for (Badge::Label &ref : refs) {
+      if (!ref.branch)
+        continue;
+      if (ref.remoteBranch)
+        ref.background = kRemoteBranchBadgeColor;
+      else if (!ref.bold && nodeColor.isValid())
+        ref.background = nodeColor;
+    }
+    return refs;
   }
 
   git::Repository mRepo;

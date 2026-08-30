@@ -10,6 +10,7 @@
 #ifndef BADGE_H
 #define BADGE_H
 
+#include <QColor>
 #include <QWidget>
 
 class QStyleOption;
@@ -30,13 +31,19 @@ public:
       LFS,
     };
     Label(Type t, const QString &text = QString(), bool bold = false,
-          bool tag = false)
-        : type(t), text(text), bold(bold), tag(tag) {}
+          bool tag = false, bool branch = false,
+          bool remoteBranch = false,
+          const QColor &background = QColor())
+        : type(t), text(text), bold(bold), tag(tag), branch(branch),
+          remoteBranch(remoteBranch), background(background) {}
 
     Type type;
     QString text;
     bool bold;
     bool tag;
+    bool branch;
+    bool remoteBranch;
+    QColor background;
   };
 
   Badge(const QList<Label> &labels, QWidget *parent = nullptr);
