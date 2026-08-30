@@ -49,6 +49,7 @@ class TestSubmodule : public QObject {
 private slots:
   void updateSubmoduleClone();
   void noUpdateSubmoduleClone();
+  void openDoesNotInitializeSubmodules();
   void discardFile();
   void canceledStatusIsDiscarded();
   void cleanAfterBranchRename();
@@ -159,6 +160,54 @@ void TestSubmodule::noUpdateSubmoduleClone() {
     QCOMPARE(status.message,
              QString("The submodule repository is not initialized."));
   }
+}
+
+void TestSubmodule::openDoesNotInitializeSubmodules() {
+  QString path = Test::extractRepository("SubmoduleTest.zip", true);
+  QVERIFY(!path.isEmpty());
+  git::Repository repo = git::Repository::open(path);
+  QVERIFY(repo.isValid());
+  Test::initRepo(repo);
+
+  QList<git::Submodule> submodules = repo.submodules();
+  QCOMPARE(submodules.size(), 1);
+  git::Submodule submodule = submodules.first();
+  QVERIFY(submodule.isValid());
+  const QString name = submodule.name();
+  submodule.deinitialize();
+  repo.invalidateSubmoduleCache();
+  submodule = repo.lookupSubmodule(name);
+  QVERIFY(!submodule.isInitialized());
+
+  const QString configKey =
+      QString("submodule.%1.url").arg(submodule.name());
+  QVERIFY(repo.gitConfig().value<QString>(configKey).isEmpty());
+
+  Settings *settings = Settings::instance();
+  bool updateAfterPullAndClone =
+      settings->value(Setting::Id::UpdateSubmodulesAfterPullAndClone).toBool();
+  auto restoreSetting = qScopeGuard([settings, updateAfterPullAndClone] {
+    settings->setValue(Setting::Id::UpdateSubmodulesAfterPullAndClone,
+                       updateAfterPullAndClone);
+  });
+  settings->setValue(Setting::Id::UpdateSubmodulesAfterPullAndClone, true);
+  repo.appConfig().setValue("autoupdate.enable", true);
+
+  MainWindow window(repo);
+  window.show();
+  QVERIFY(qWaitForWindowExposed(&window));
+  qWait(1000);
+
+  repo.invalidateSubmoduleCache();
+  submodule = repo.lookupSubmodule(name);
+  QVERIFY(submodule.isValid());
+  QVERIFY(!submodule.isInitialized());
+  QVERIFY(repo.gitConfig().value<QString>(configKey).isEmpty());
+
+  QDir worktree(repo.workdir().filePath(submodule.path()));
+  QVERIFY(worktree.entryList(QDir::AllEntries | QDir::Hidden |
+                             QDir::NoDotAndDotDot)
+              .isEmpty());
 }
 
 void TestSubmodule::discardFile() {

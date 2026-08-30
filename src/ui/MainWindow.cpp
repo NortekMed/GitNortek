@@ -295,15 +295,9 @@ RepoView *MainWindow::addTab(const git::Repository &repo,
   tabs->setCurrentIndex(tabs->addTab(view, dir.dirName()));
   mAddingTab = false;
 
-  if (!updateSubmodules.has_value()) {
-    Settings *settings = Settings::instance();
-    bool enable =
-        settings->value(Setting::Id::UpdateSubmodulesAfterPullAndClone).toBool();
-    updateSubmodules =
-        repo.appConfig().value<bool>("autoupdate.enable", enable);
-  }
   const QList<git::Submodule> submodules =
-      *updateSubmodules ? repo.submodules() : QList<git::Submodule>();
+      updateSubmodules.value_or(false) ? repo.submodules()
+                                       : QList<git::Submodule>();
   if (!submodules.isEmpty()) {
     // The submodule update refreshes after it completes.
     view->updateSubmodules(submodules, true, true, false, nullptr);

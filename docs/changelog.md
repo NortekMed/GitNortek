@@ -30,6 +30,7 @@ Bug Fix and Feature release
 
 #### Changed
 
+* Leave uninitialized submodules untouched when opening existing repositories
 * Derive GitHub release package versions directly from validated release tags and reject mismatched artifacts
 * Keep the repository log panel hidden by default until the user opens it
 * Match local branch badges to their topology colors, retain the existing checked-out branch color, and distinguish remote branches with grey badges
