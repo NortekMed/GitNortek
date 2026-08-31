@@ -100,6 +100,7 @@ private:
     QWidget *container;
     QWidget *header;
     QToolButton *toggle;
+    QWidget *icon;
     QLabel *title;
     QToolButton *action;
     QWidget *body;

@@ -34,6 +34,7 @@
 #include <QFile>
 #include <QFontMetrics>
 #include <QHeaderView>
+#include <QLabel>
 #include <QLayout>
 #include <QMenu>
 #include <QMessageBox>
@@ -486,6 +487,13 @@ void TestRepositorySideBar::navigatorView() {
   }
   QVERIFY(!navigator.sectionView(
       RepositoryNavigatorModel::Section::CloudPatches));
+  for (const QString &section :
+       QStringList({"Local", "Remote", "Worktrees", "Stashes",
+                    "CloudPatches", "PullRequests", "GitHubIssues", "Teams",
+                    "Tags", "Submodules"})) {
+    QVERIFY(navigator.findChild<QWidget *>("RepositoryNavigation" + section +
+                                           "Icon"));
+  }
   QSplitter *splitter =
       navigator.findChild<QSplitter *>("RepositorySectionSplitter");
   QVERIFY(splitter);
@@ -559,6 +567,19 @@ void TestRepositorySideBar::navigatorView() {
   QCOMPARE(
       QSettings().value("sidebar/repositoryNavigator/expanded/Local").toBool(),
       false);
+
+  QWidget *localHeader = navigator.findChild<QWidget *>(
+      "RepositoryNavigationLocalHeader");
+  QLabel *localTitle =
+      navigator.findChild<QLabel *>("RepositoryNavigationLocalTitle");
+  QVERIFY(localHeader);
+  QVERIFY(localTitle);
+  QPoint titleCenter =
+      localTitle->mapTo(localHeader, localTitle->rect().center());
+  QTest::mouseClick(localHeader, Qt::LeftButton, Qt::NoModifier, titleCenter);
+  QVERIFY(localToggle->isChecked());
+  QTest::mouseClick(localHeader, Qt::LeftButton, Qt::NoModifier, titleCenter);
+  QVERIFY(!localToggle->isChecked());
 
   navigator.setRepository(mRepo);
   QVERIFY(!localToggle->isChecked());

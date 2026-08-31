@@ -24,12 +24,15 @@
 #include <QFileInfo>
 #include <QFutureWatcher>
 #include <QHBoxLayout>
+#include <QIcon>
 #include <QItemSelectionModel>
 #include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
 #include <QMetaEnum>
+#include <QMouseEvent>
 #include <QPainter>
+#include <QPaintEvent>
 #include <QPainterPath>
 #include <QScrollBar>
 #include <QSettings>
@@ -41,6 +44,7 @@
 #include <QVBoxLayout>
 #include <QtConcurrent>
 #include <algorithm>
+#include <functional>
 
 namespace {
 
@@ -68,6 +72,35 @@ bool hasScrollingBody(RepositoryNavigatorModel::Section section) {
          section == Section::Worktrees || section == Section::Stashes ||
          section == Section::GitHubIssues || section == Section::Tags ||
          section == Section::Submodules;
+}
+
+QString sectionIconPath(RepositoryNavigatorModel::Section section) {
+  using Section = RepositoryNavigatorModel::Section;
+  switch (section) {
+    case Section::Local:
+      return ":/branches.png";
+    case Section::Remote:
+      return ":/remotes.png";
+    case Section::Worktrees:
+      return QString();
+    case Section::Stashes:
+      return ":/diff.png";
+    case Section::CloudPatches:
+      return ":/cloud.png";
+    case Section::PullRequests:
+      return ":/pull@2x.png";
+    case Section::GitHubIssues:
+      return ":/github.png";
+    case Section::Teams:
+      return ":/general.png";
+    case Section::Tags:
+      return ":/file.png";
+    case Section::Submodules:
+      return ":/submodules.png";
+    case Section::Count:
+      return QString();
+  }
+  return QString();
 }
 
 QString comparisonDelta(const QVariant &ahead, const QVariant &behind) {
@@ -183,6 +216,51 @@ void drawWorktreeIcon(QPainter *painter, const QRect &rect, const QColor &color,
   }
   painter->restore();
 }
+
+class SectionHeader : public QWidget {
+public:
+  using QWidget::QWidget;
+
+  std::function<void()> clicked;
+
+protected:
+  void mouseReleaseEvent(QMouseEvent *event) override {
+    if (event->button() == Qt::LeftButton &&
+        rect().contains(event->position().toPoint()) && clicked) {
+      clicked();
+      event->accept();
+      return;
+    }
+    QWidget::mouseReleaseEvent(event);
+  }
+};
+
+class SectionIcon : public QWidget {
+public:
+  SectionIcon(RepositoryNavigatorModel::Section section, QWidget *parent)
+      : QWidget(parent), mSection(section), mIcon(sectionIconPath(section)) {
+    setFixedSize(16, 16);
+    setAttribute(Qt::WA_TransparentForMouseEvents);
+  }
+
+protected:
+  void paintEvent(QPaintEvent *) override {
+    QPainter painter(this);
+    if (mSection == RepositoryNavigatorModel::Section::Worktrees) {
+      const QPalette::ColorGroup group = isEnabled() ? QPalette::Active
+                                                      : QPalette::Disabled;
+      drawWorktreeIcon(&painter, rect().adjusted(1, 1, -1, -1),
+                       palette().color(group, QPalette::Text), false);
+      return;
+    }
+    mIcon.paint(&painter, rect(), Qt::AlignCenter,
+                isEnabled() ? QIcon::Normal : QIcon::Disabled);
+  }
+
+private:
+  RepositoryNavigatorModel::Section mSection;
+  QIcon mIcon;
+};
 
 class NavigatorDelegate : public QStyledItemDelegate {
 public:
@@ -393,19 +471,24 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
     const QString key = sectionKey(section);
     QWidget *container = new QWidget(mSectionSplitter);
     container->setObjectName("RepositoryNavigation" + key + "Panel");
-    QWidget *header = new QWidget(container);
+    auto *header = new SectionHeader(container);
     header->setObjectName("RepositoryNavigation" + key + "Header");
     QToolButton *toggle = new QToolButton(header);
     toggle->setObjectName("RepositoryNavigation" + key + "Toggle");
     toggle->setCheckable(true);
     toggle->setAutoRaise(true);
     toggle->setArrowType(Qt::DownArrow);
+    SectionIcon *icon = new SectionIcon(section, header);
+    icon->setObjectName("RepositoryNavigation" + key + "Icon");
     QLabel *title = new QLabel(header);
     title->setObjectName("RepositoryNavigation" + key + "Title");
     QFont titleFont = title->font();
     titleFont.setBold(true);
     titleFont.setCapitalization(QFont::SmallCaps);
     title->setFont(titleFont);
+    title->setAttribute(Qt::WA_TransparentForMouseEvents);
+    header->setCursor(Qt::PointingHandCursor);
+    header->clicked = [toggle] { toggle->click(); };
 
     QToolButton *action = nullptr;
     if (section == RepositoryNavigatorModel::Section::Worktrees) {
@@ -424,6 +507,7 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
     headerLayout->setContentsMargins(4, 2, 8, 2);
     headerLayout->setSpacing(2);
     headerLayout->addWidget(toggle);
+    headerLayout->addWidget(icon);
     headerLayout->addWidget(title, 1);
     if (action)
       headerLayout->addWidget(action);
@@ -467,7 +551,7 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
     const int expandedSize =
         QSettings().value(kSectionSizeGroup + "/" + key, 96).toInt();
     mPanels.append(
-        {section, container, header, toggle, title, action, body, view, 0,
+        {section, container, header, toggle, icon, title, action, body, view, 0,
          qMax(expandedSize, header->sizeHint().height() + 24)});
     mSectionSplitter->addWidget(container);
     mSectionSplitter->setCollapsible(value, false);
@@ -789,6 +873,7 @@ void RepositoryNavigator::updatePanels() {
         QString("%1 (%2)").arg(index.data().toString()).arg(count));
     panel.header->setToolTip(index.data(Qt::ToolTipRole).toString());
     panel.toggle->setEnabled(available && panel.view);
+    panel.icon->setEnabled(available);
     panel.title->setEnabled(available);
     if (panel.action)
       panel.action->setEnabled(mModel->repository().isValid() &&
