@@ -517,6 +517,9 @@ void TestRepositorySideBar::navigatorView() {
 
   const QStringList availableSections = {"Local", "Remote", "Stashes",
                                           "Tags", "Submodules"};
+  QToolButton *localToggle =
+      navigator.findChild<QToolButton *>("RepositoryNavigationLocalToggle");
+  QVERIFY(localToggle);
   QToolButton *worktreeAdd = navigator.findChild<QToolButton *>(
       "RepositoryNavigationWorktreesAdd");
   QVERIFY(worktreeAdd);
@@ -546,6 +549,39 @@ void TestRepositorySideBar::navigatorView() {
   }
   QVERIFY(!issuesToggle->isChecked());
 
+  QWidget *localPanel =
+      navigator.findChild<QWidget *>("RepositoryNavigationLocalPanel");
+  QWidget *localHeader = navigator.findChild<QWidget *>(
+      "RepositoryNavigationLocalHeader");
+  QWidget *lastPanel =
+      navigator.findChild<QWidget *>("RepositoryNavigationSubmodulesPanel");
+  QVERIFY(localPanel);
+  QVERIFY(localHeader);
+  QVERIFY(lastPanel);
+  QTRY_COMPARE(localPanel->y(), 0);
+  QTRY_COMPARE(lastPanel->geometry().bottom(), splitter->rect().bottom());
+
+  localToggle->click();
+  QTRY_COMPARE(splitter->maximumHeight(), QWIDGETSIZE_MAX);
+  QTRY_COMPARE(splitter->geometry().bottom(), navigator.rect().bottom());
+  QTRY_VERIFY(localPanel->height() > localHeader->height());
+  for (const QString &section :
+       QStringList({"Remote", "Worktrees", "Stashes", "CloudPatches",
+                    "PullRequests", "GitHubIssues", "Teams", "Tags",
+                    "Submodules"})) {
+    QWidget *panel = navigator.findChild<QWidget *>(
+        "RepositoryNavigation" + section + "Panel");
+    QWidget *header = navigator.findChild<QWidget *>(
+        "RepositoryNavigation" + section + "Header");
+    QVERIFY(panel);
+    QVERIFY(header);
+    QCOMPARE(panel->height(), header->height());
+  }
+  QTRY_COMPARE(lastPanel->geometry().bottom(), splitter->rect().bottom());
+  localToggle->click();
+  QTRY_VERIFY(splitter->maximumHeight() <
+              navigator.height() - actionBar->height());
+
   expandCollapseAll->click();
   QCoreApplication::processEvents();
   QCOMPARE(expandCollapseAll->text(), QString("Collapse all"));
@@ -558,9 +594,6 @@ void TestRepositorySideBar::navigatorView() {
   }
   QVERIFY(!issuesToggle->isChecked());
 
-  QToolButton *localToggle =
-      navigator.findChild<QToolButton *>("RepositoryNavigationLocalToggle");
-  QVERIFY(localToggle);
   localToggle->setChecked(false);
   QCoreApplication::processEvents();
   QCOMPARE(expandCollapseAll->text(), QString("Expand all"));
@@ -568,8 +601,6 @@ void TestRepositorySideBar::navigatorView() {
       QSettings().value("sidebar/repositoryNavigator/expanded/Local").toBool(),
       false);
 
-  QWidget *localHeader = navigator.findChild<QWidget *>(
-      "RepositoryNavigationLocalHeader");
   QLabel *localTitle =
       navigator.findChild<QLabel *>("RepositoryNavigationLocalTitle");
   QVERIFY(localHeader);

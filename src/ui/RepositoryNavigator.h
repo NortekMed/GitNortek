@@ -60,6 +60,7 @@ private:
   bool allAvailablePanelsExpanded() const;
   void toggleAllPanels();
   void updateExpandCollapseAllButton();
+  void updatePanelSizes();
   void updatePanels();
   void promptToCreateWorktree();
   void clearOtherSelections(QTreeView *selected);

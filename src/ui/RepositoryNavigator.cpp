@@ -675,6 +675,7 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
   updatePanels();
   mSectionSplitter->restoreState(
       QSettings().value(kSplitterStateKey).toByteArray());
+  QTimer::singleShot(0, this, &RepositoryNavigator::updatePanelSizes);
 }
 
 void RepositoryNavigator::setRepository(const git::Repository &repo) {
@@ -797,16 +798,8 @@ void RepositoryNavigator::setPanelExpanded(
   sectionPanel->body->setVisible(showBody);
   sectionPanel->container->setMaximumHeight(
       showBody ? QWIDGETSIZE_MAX : sectionPanel->header->sizeHint().height());
-  if (showBody && !wasVisible) {
-    QTimer::singleShot(0, this, [this, panelIndex, section] {
-      SectionPanel *sectionPanel = panel(section);
-      QList<int> sizes = mSectionSplitter->sizes();
-      if (!sectionPanel || panelIndex >= sizes.size())
-        return;
-      sizes[panelIndex] = sectionPanel->expandedSize;
-      mSectionSplitter->setSizes(sizes);
-    });
-  }
+  if (showBody != wasVisible)
+    QTimer::singleShot(0, this, &RepositoryNavigator::updatePanelSizes);
 }
 
 bool RepositoryNavigator::allAvailablePanelsExpanded() const {
@@ -858,6 +851,18 @@ void RepositoryNavigator::updateExpandCollapseAllButton() {
   mSectionSplitter->setMaximumHeight(bodyVisible ? QWIDGETSIZE_MAX
                                                  : collapsedHeight);
   mCollapsedSpacer->setVisible(!bodyVisible);
+}
+
+void RepositoryNavigator::updatePanelSizes() {
+  QList<int> sizes;
+  sizes.reserve(mPanels.size());
+  for (const SectionPanel &panel : mPanels) {
+    const int headerHeight = panel.header->sizeHint().height();
+    sizes.append(panel.body->isVisible()
+                     ? qMax(panel.expandedSize, headerHeight + 24)
+                     : headerHeight);
+  }
+  mSectionSplitter->setSizes(sizes);
 }
 
 void RepositoryNavigator::updatePanels() {
