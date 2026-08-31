@@ -91,6 +91,7 @@ public:
 signals:
   void statusChanged(bool dirty);
   void statusError(const QString &error);
+  void selectedRangeChanged(const QString &range);
   void diffSelected(const git::Diff diff, const QString &file = QString(),
                     bool spontaneous = false);
 

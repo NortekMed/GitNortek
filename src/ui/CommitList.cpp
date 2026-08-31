@@ -2885,6 +2885,8 @@ void CommitList::notifySelectionChanged() {
   if (indexes.isEmpty())
     return;
 
+  emit selectedRangeChanged(selectedRange());
+
   // Redraw all selected indexes. Separators may have changed.
   foreach (const QModelIndex &index, indexes)
     update(index);

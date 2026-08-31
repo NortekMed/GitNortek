@@ -46,6 +46,7 @@ public:
   RepoView *addTab(const git::Repository &repo,
                    const QString &tabContext = QString(),
                    std::optional<bool> updateSubmodules = std::nullopt);
+  bool selectTab(const QString &path);
 
   int count() const;
   RepoView *currentView() const;

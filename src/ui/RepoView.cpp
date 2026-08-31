@@ -149,7 +149,7 @@ public:
     Q_UNUSED(path)
 
     // Add entries all at once.
-    if (current == total && !mEntries.isEmpty())
+    if (mLog && current == total && !mEntries.isEmpty())
       mLog->addEntries(mEntries);
   }
 
@@ -158,9 +158,11 @@ signals:
 
 private:
   void notifyImpl(char status, const QString &path) {
-    LogEntry *entry = new LogEntry(LogEntry::File, path, QString());
-    entry->setStatus(status);
-    mEntries.append(entry);
+    if (mLog) {
+      LogEntry *entry = new LogEntry(LogEntry::File, path, QString());
+      entry->setStatus(status);
+      mEntries.append(entry);
+    }
 
     if (status == '!')
       mConflicts.append(path);
@@ -324,6 +326,12 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
   connect(mRefs, &ReferenceWidget::referenceSelected, mCommits,
           &CommitList::selectReference);
   connect(mCommits, &CommitList::statusChanged, this, &RepoView::statusChanged);
+  connect(mCommits, &CommitList::selectedRangeChanged, this,
+          [this](const QString &range) {
+            if (!mSelectingPendingCheckoutStatus &&
+                !mPendingCheckoutRef.isEmpty() && range != "status")
+              mPendingCheckoutRef.clear();
+          });
   connect(mCommits, &CommitList::statusError, this,
           [this](const QString &error) {
             LogEntry *entry = addLogEntry(QString(), tr("Status"));
@@ -682,12 +690,16 @@ void RepoView::selectReference(const git::Reference &ref) {
 }
 
 void RepoView::navigateToReference(const git::Reference &ref) {
+  mPendingCheckoutRef.clear();
+  mSelectingPendingCheckoutStatus = false;
   mRefs->select(ref);
   mCommits->selectReference(ref);
   emit referenceSelected(ref);
 }
 
 void RepoView::selectStash(int index) {
+  mPendingCheckoutRef.clear();
+  mSelectingPendingCheckoutStatus = false;
   QList<git::Commit> stashes = mRepo.stashes();
   if (index < 0 || index >= stashes.size())
     return;
@@ -2290,6 +2302,17 @@ bool RepoView::commit(const git::Signature &author,
     error->addEntry(LogEntry::Hint, hint3);
   }
 
+  if (!mPendingCheckoutRef.isEmpty()) {
+    const QString pending = mPendingCheckoutRef;
+    mPendingCheckoutRef.clear();
+    mSelectingPendingCheckoutStatus = false;
+    QTimer::singleShot(0, this, [this, pending] {
+      git::Reference ref = mRepo.lookupRef(pending);
+      if (ref.isValid())
+        checkoutFromNavigator(ref);
+    });
+  }
+
   return true;
 }
 
@@ -2315,6 +2338,77 @@ void RepoView::promptToCheckout() {
   dialog->open();
 }
 
+void RepoView::checkoutFromNavigator(const git::Reference &ref) {
+  Q_ASSERT(ref.isValid());
+  mPendingCheckoutRef.clear();
+  mSelectingPendingCheckoutStatus = false;
+
+  if (!ref.isLocalBranch() || ref.isHead() ||
+      git::Branch(ref).isCheckedOut()) {
+    checkout(ref);
+    return;
+  }
+
+  CheckoutCallbacks callbacks(nullptr, GIT_CHECKOUT_NOTIFY_DIRTY);
+  const int strategy = GIT_CHECKOUT_SAFE | GIT_CHECKOUT_DRY_RUN;
+  if (mRepo.checkout(ref.target(), &callbacks, QStringList(), strategy) ||
+      callbacks.conflicts().isEmpty()) {
+    checkout(ref);
+    return;
+  }
+
+  promptForCheckoutConflicts(ref, callbacks.conflicts());
+}
+
+void RepoView::promptForCheckoutConflicts(const git::Reference &ref,
+                                          const QStringList &conflicts) {
+  QMessageBox *dialog = new QMessageBox(QMessageBox::Warning,
+                                        tr("Checkout Blocked"), QString(),
+                                        QMessageBox::Cancel, this);
+  dialog->setObjectName("CheckoutConflictsDialog");
+  dialog->setAttribute(Qt::WA_DeleteOnClose);
+  dialog->setText(
+      tr("Checking out '%1' would overwrite uncommitted changes.")
+          .arg(ref.name()));
+  dialog->setInformativeText(
+      tr("Stash or commit the conflicting changes before checking out this "
+         "branch."));
+  dialog->setDetailedText(conflicts.join('\n'));
+
+  QPushButton *stashButton =
+      dialog->addButton(tr("Stash and Checkout"), QMessageBox::AcceptRole);
+  connect(stashButton, &QPushButton::clicked, this, [this, ref] {
+    if (stash(QString(), true))
+      checkoutFromNavigator(ref);
+  });
+
+  QPushButton *commitButton =
+      dialog->addButton(tr("Commit Changes"), QMessageBox::ActionRole);
+  connect(commitButton, &QPushButton::clicked, this, [this, ref] {
+    mSelectingPendingCheckoutStatus = true;
+    mPendingCheckoutRef = ref.qualifiedName();
+    toolBar()->searchField()->clear();
+    const bool selected = mCommits->selectRange("status", QString(), true);
+    mSelectingPendingCheckoutStatus = false;
+    if (selected)
+      return;
+
+    connect(
+        mCommits, &CommitList::statusChanged, this,
+        [this](bool) {
+          if (!mPendingCheckoutRef.isEmpty()) {
+            mSelectingPendingCheckoutStatus = true;
+            mCommits->selectRange("status", QString(), true);
+            mSelectingPendingCheckoutStatus = false;
+          }
+        },
+        Qt::SingleShotConnection);
+    refresh(false);
+  });
+
+  dialog->open();
+}
+
 void RepoView::checkout(const git::Commit &commit, const QStringList &paths) {
   QString count = QString::number(paths.size());
   QString name = (paths.size() == 1) ? tr("file") : tr("files");
@@ -2329,6 +2423,8 @@ void RepoView::checkout(const git::Commit &commit, const QStringList &paths) {
 
 void RepoView::checkout(const git::Reference &ref, bool detach) {
   Q_ASSERT(ref.isValid());
+  mPendingCheckoutRef.clear();
+  mSelectingPendingCheckoutStatus = false;
 
   if (!ref.isRemoteBranch()) {
     checkout(ref.target(), ref, detach);
@@ -2580,18 +2676,19 @@ void RepoView::promptToStash() {
   dialog->open();
 }
 
-void RepoView::stash(const QString &message) {
+bool RepoView::stash(const QString &message, bool includeUntracked) {
   QString text = tr("<i>working directory</i>");
   LogEntry *entry = addLogEntry(text, tr("Stash"));
 
-  git::Commit commit = mRepo.stash(message);
+  git::Commit commit = mRepo.stash(message, includeUntracked);
   if (!commit.isValid()) {
     error(entry, tr("stash"), text);
-    return;
+    return false;
   }
 
   entry->setText(msg(commit));
   refresh(false);
+  return true;
 }
 
 void RepoView::applyStash(int index) {

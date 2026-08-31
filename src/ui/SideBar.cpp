@@ -21,9 +21,7 @@
 namespace {
 
 const QString kStyleSheet = "QTreeView {"
-#ifdef Q_OS_MAC
-                            "  background: palette(midlight);"
-#endif
+                            "  background: palette(window);"
                             "  border: none"
                             "}"
                             "Footer {"
@@ -49,6 +47,8 @@ SideBar::SideBar(TabWidget *tabs, MainWindow *window, QWidget *parent)
           });
   connect(navigator, &RepositoryNavigator::openRepositoryRequested, window,
           [window](const QString &path) { window->addTab(path); });
+  connect(navigator, &RepositoryNavigator::selectRepositoryRequested, window,
+          &MainWindow::selectTab);
   bindNavigator(tabs->currentIndex());
 
   Footer *footer = new Footer(this);

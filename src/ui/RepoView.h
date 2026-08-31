@@ -254,6 +254,7 @@ public:
 
   // checkout
   void promptToCheckout();
+  void checkoutFromNavigator(const git::Reference &ref);
   void checkout(const git::Commit &commit, const QStringList &paths);
   void checkout(const git::Reference &ref, bool detach = false);
   void checkout(const git::Commit &commit,
@@ -272,7 +273,7 @@ public:
 
   // stash
   void promptToStash();
-  void stash(const QString &message = QString());
+  bool stash(const QString &message = QString(), bool includeUntracked = false);
   void applyStash(int index = 0);
   void dropStash(int index = 0);
   void popStash(int index = 0);
@@ -427,6 +428,8 @@ private:
   void notifyReferenceUpdated(const QString &name);
 
   void updateLogToggle();
+  void promptForCheckoutConflicts(const git::Reference &ref,
+                                  const QStringList &conflicts);
 
   QList<SubmoduleInfo>
   submoduleUpdateInfoList(const git::Repository &repo,
@@ -451,6 +454,8 @@ private:
 
   git::Repository mRepo;
   QString mTabContext;
+  QString mPendingCheckoutRef;
+  bool mSelectingPendingCheckoutStatus = false;
 
   Index *mIndex;
   CommitAvatarProvider *mAvatarProvider;

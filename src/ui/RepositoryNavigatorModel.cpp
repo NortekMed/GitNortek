@@ -376,11 +376,10 @@ void RepositoryNavigatorModel::connectRepository() {
 
 void RepositoryNavigatorModel::rebuild() {
   mSections = {
-      {Section::Local, tr("Local"), QString(), true, {}},
-      {Section::Remote, tr("Remote"), QString(), true, {}},
-      {Section::Worktrees, tr("Worktrees"), QString(),
-       mRepo.isValid() && !mRepo.isBare(), {}},
-      {Section::Stashes, tr("Stashes"), QString(), true, {}},
+      {Section::Local, tr("Local"), QString(), false, {}},
+      {Section::Remote, tr("Remote"), QString(), false, {}},
+      {Section::Worktrees, tr("Worktrees"), QString(), false, {}},
+      {Section::Stashes, tr("Stashes"), QString(), false, {}},
       {Section::CloudPatches, tr("Cloud Patches"),
        tr("Cloud Patches are not available."), false, {}},
       {Section::PullRequests, tr("Pull Requests"),
@@ -389,8 +388,8 @@ void RepositoryNavigatorModel::rebuild() {
        tr("No eligible GitHub repository was found."), false, {}},
       {Section::Teams, tr("Teams"), tr("Team integration is not available."),
        false, {}},
-      {Section::Tags, tr("Tags"), QString(), true, {}},
-      {Section::Submodules, tr("Submodules"), QString(), true, {}}};
+      {Section::Tags, tr("Tags"), QString(), false, {}},
+      {Section::Submodules, tr("Submodules"), QString(), false, {}}};
 
   rebuildGitHubIssuesSection();
 
@@ -412,6 +411,7 @@ void RepositoryNavigatorModel::rebuild() {
     local.rows.append(row);
   }
   std::sort(local.rows.begin(), local.rows.end(), lessThan);
+  local.available = !local.rows.isEmpty();
 
   SectionData &remote = mSections[static_cast<int>(Section::Remote)];
   for (const git::Branch &branch : mRepo.branches(GIT_BRANCH_REMOTE)) {
@@ -424,9 +424,10 @@ void RepositoryNavigatorModel::rebuild() {
     remote.rows.append(row);
   }
   std::sort(remote.rows.begin(), remote.rows.end(), lessThan);
+  remote.available = !remote.rows.isEmpty();
 
+  SectionData &worktrees = mSections[static_cast<int>(Section::Worktrees)];
   if (!mRepo.isBare()) {
-    SectionData &worktrees = mSections[static_cast<int>(Section::Worktrees)];
     for (const git::Worktree &worktree : mRepo.worktrees()) {
       Row row;
       row.kind = ItemKind::Worktree;
@@ -447,6 +448,7 @@ void RepositoryNavigatorModel::rebuild() {
       worktrees.rows.append(row);
     }
   }
+  worktrees.available = !worktrees.rows.isEmpty();
 
   SectionData &stashes = mSections[static_cast<int>(Section::Stashes)];
   const QList<git::Commit> commits = mRepo.stashes();
@@ -460,6 +462,7 @@ void RepositoryNavigatorModel::rebuild() {
     row.tooltip = row.commit.message(git::Commit::SubstituteEmoji);
     stashes.rows.append(row);
   }
+  stashes.available = !stashes.rows.isEmpty();
 
   SectionData &tags = mSections[static_cast<int>(Section::Tags)];
   for (const git::TagRef &tag : mRepo.tags()) {
@@ -470,6 +473,7 @@ void RepositoryNavigatorModel::rebuild() {
     tags.rows.append(row);
   }
   std::sort(tags.rows.begin(), tags.rows.end(), lessThan);
+  tags.available = !tags.rows.isEmpty();
 
   SectionData &submodules = mSections[static_cast<int>(Section::Submodules)];
   for (const git::Submodule &submodule : mRepo.submodules()) {
@@ -592,6 +596,7 @@ void RepositoryNavigatorModel::rebuild() {
                       .arg(details, legend.join("<br>"));
     submodules.rows.append(row);
   }
+  submodules.available = !submodules.rows.isEmpty();
   std::sort(submodules.rows.begin(), submodules.rows.end(), lessThan);
 }
 

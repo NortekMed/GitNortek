@@ -276,6 +276,20 @@ RepoView *MainWindow::addTab(const QString &path, OpenSource source,
   return addTab(repo, tabContext, updateSubmodules);
 }
 
+bool MainWindow::selectTab(const QString &path) {
+  const QString requestedPath = canonicalPath(path);
+  TabWidget *tabs = tabWidget();
+  for (int i = 0; i < tabs->count(); ++i) {
+    RepoView *view = static_cast<RepoView *>(tabs->widget(i));
+    if (requestedPath == repositoryPath(view->repo())) {
+      tabs->setCurrentIndex(i);
+      return true;
+    }
+  }
+
+  return false;
+}
+
 RepoView *MainWindow::addTab(const git::Repository &repo,
                              const QString &tabContext,
                              std::optional<bool> updateSubmodules) {
@@ -307,7 +321,8 @@ RepoView *MainWindow::addTab(const git::Repository &repo,
 
   emit tabs->tabAboutToBeInserted();
   mAddingTab = true;
-  QIcon icon = repo.isWorktree() ? WorktreeIcon::icon() : QIcon();
+  QIcon icon =
+      repo.isWorktree() ? WorktreeIcon::icon() : QIcon(":/branches.png");
   tabs->setCurrentIndex(tabs->addTab(view, icon, dir.dirName()));
   mAddingTab = false;
 

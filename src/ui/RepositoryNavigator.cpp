@@ -35,10 +35,12 @@
 #include <QPainter>
 #include <QPaintEvent>
 #include <QPainterPath>
+#include <QResizeEvent>
 #include <QScrollBar>
 #include <QSettings>
 #include <QSignalBlocker>
 #include <QSplitter>
+#include <QSplitterHandle>
 #include <QStyledItemDelegate>
 #include <QToolButton>
 #include <QTreeView>
@@ -50,12 +52,12 @@
 namespace {
 
 const QString kExpandedGroup = "sidebar/repositoryNavigator/expanded";
-const QString kSectionSizeGroup = "sidebar/repositoryNavigator/sectionSize";
-const QString kSplitterStateKey = "sidebar/repositoryNavigator/sectionSplitter";
 const QString kIssuesRemoteKey = "sidebar.githubIssues.remote";
 constexpr qint64 kIssuesCacheLifetimeMs = 5 * 60 * 1000;
 constexpr qint64 kIssuesManualRefreshIntervalMs = 10 * 1000;
 constexpr qint64 kIssuesRetryDelayMs = 60 * 1000;
+constexpr int kMaximumVisibleRows = 5;
+constexpr int kSectionBottomSpacing = 24;
 
 struct WorktreeCreationResult {
   QString path;
@@ -205,11 +207,22 @@ void drawHomeIcon(QPainter *painter, const QRect &rect, const QColor &color) {
 
 class SectionHeader : public QWidget {
 public:
-  using QWidget::QWidget;
+  SectionHeader(bool topDivider, QWidget *parent)
+      : QWidget(parent), mTopDivider(topDivider) {}
 
   std::function<void()> clicked;
 
 protected:
+  void paintEvent(QPaintEvent *event) override {
+    QWidget::paintEvent(event);
+    if (!mTopDivider)
+      return;
+
+    QPainter painter(this);
+    painter.setPen(palette().color(QPalette::ButtonText));
+    painter.drawLine(0, 0, width() - 1, 0);
+  }
+
   void mouseReleaseEvent(QMouseEvent *event) override {
     if (event->button() == Qt::LeftButton &&
         rect().contains(event->position().toPoint()) && clicked) {
@@ -219,6 +232,51 @@ protected:
     }
     QWidget::mouseReleaseEvent(event);
   }
+
+private:
+  bool mTopDivider;
+};
+
+class SectionSplitterHandle : public QSplitterHandle {
+public:
+  using QSplitterHandle::QSplitterHandle;
+
+protected:
+  void paintEvent(QPaintEvent *event) override {
+    QSplitterHandle::paintEvent(event);
+    QPainter painter(this);
+    painter.setPen(palette().color(QPalette::ButtonText));
+    if (orientation() == Qt::Vertical)
+      painter.drawLine(0, height() - 1, width() - 1, height() - 1);
+    else
+      painter.drawLine(width() - 1, 0, width() - 1, height() - 1);
+  }
+};
+
+class SectionSplitter : public QSplitter {
+public:
+  using QSplitter::QSplitter;
+
+  void setPreferredHeight(int height) {
+    if (mPreferredHeight == height)
+      return;
+    mPreferredHeight = height;
+    updateGeometry();
+  }
+
+  QSize sizeHint() const override {
+    QSize size = QSplitter::sizeHint();
+    size.setHeight(mPreferredHeight);
+    return size;
+  }
+
+protected:
+  QSplitterHandle *createHandle() override {
+    return new SectionSplitterHandle(orientation(), this);
+  }
+
+private:
+  int mPreferredHeight = 0;
 };
 
 class SectionIcon : public QWidget {
@@ -263,7 +321,7 @@ public:
     bool section = !index.parent().isValid();
     bool selected = option.state & QStyle::State_Selected;
     QColor background = selected ? palette.highlight().color()
-                                 : palette.base().color();
+                                 : palette.window().color();
     painter->fillRect(option.rect, background);
 
     QColor text = selected ? palette.highlightedText().color()
@@ -429,7 +487,7 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
   setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
 
   mModel = new RepositoryNavigatorModel(this);
-  mSectionSplitter = new QSplitter(Qt::Vertical, this);
+  mSectionSplitter = new SectionSplitter(Qt::Vertical, this);
   mSectionSplitter->setObjectName("RepositorySectionSplitter");
   mSectionSplitter->setChildrenCollapsible(false);
 
@@ -455,7 +513,7 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
     const QString key = sectionKey(section);
     QWidget *container = new QWidget(mSectionSplitter);
     container->setObjectName("RepositoryNavigation" + key + "Panel");
-    auto *header = new SectionHeader(container);
+    auto *header = new SectionHeader(value == 0, container);
     header->setObjectName("RepositoryNavigation" + key + "Header");
     QToolButton *toggle = new QToolButton(header);
     toggle->setObjectName("RepositoryNavigation" + key + "Toggle");
@@ -516,6 +574,8 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
       view->setRootIsDecorated(false);
       view->setIndentation(0);
       view->setUniformRowHeights(true);
+      view->setBackgroundRole(QPalette::Window);
+      view->viewport()->setBackgroundRole(QPalette::Window);
       view->setItemDelegate(new NavigatorDelegate(view->font(), view));
       view->setMinimumHeight(0);
       view->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
@@ -529,19 +589,20 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
     panelLayout->addWidget(body, 1);
     if (view)
       bodyLayout->addWidget(view);
+    QWidget *spacer = new QWidget(body);
+    spacer->setObjectName("RepositoryNavigation" + key + "Spacer");
+    spacer->setFixedHeight(kSectionBottomSpacing);
+    bodyLayout->addWidget(spacer);
 
     body->setMinimumHeight(0);
     body->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
-    const int expandedSize =
-        QSettings().value(kSectionSizeGroup + "/" + key, 96).toInt();
     mPanels.append(
-        {section, container, header, toggle, icon, title, action, body, view, 0,
-         qMax(expandedSize, header->sizeHint().height() + 24)});
+        {section, container, header, toggle, icon, title, action, body, view, 0});
     mSectionSplitter->addWidget(container);
     mSectionSplitter->setCollapsible(value, false);
 
     connect(toggle, &QToolButton::toggled, this, [this, section](bool expanded) {
-      setPanelExpanded(section, expanded);
+      setPanelExpanded(section, expanded, expanded);
       storeExpansion(section, expanded);
       updateExpandCollapseAllButton();
     });
@@ -583,6 +644,7 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
 
   connect(mModel, &RepositoryNavigatorModel::modelAboutToBeReset, this, [this] {
     mReferenceBeforeReset = git::Reference();
+    mWorktreePathBeforeReset.clear();
     for (SectionPanel &panel : mPanels) {
       if (!panel.view)
         continue;
@@ -593,6 +655,12 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
                   .value<git::Reference>();
       if (ref.isValid())
         mReferenceBeforeReset = ref;
+      if (panel.view->selectionModel()->isSelected(current) &&
+          static_cast<RepositoryNavigatorModel::ItemKind>(
+              current.data(RepositoryNavigatorModel::ItemKindRole).toInt()) ==
+              RepositoryNavigatorModel::ItemKind::Worktree)
+        mWorktreePathBeforeReset =
+            current.data(RepositoryNavigatorModel::PathRole).toString();
       panel.scrollBeforeReset = panel.view->verticalScrollBar()->value();
     }
   });
@@ -601,7 +669,10 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
     updatePanels();
     if (mReferenceBeforeReset.isValid())
       selectReference(mReferenceBeforeReset);
+    else if (!mWorktreePathBeforeReset.isEmpty())
+      selectWorktree(mWorktreePathBeforeReset, false);
     mReferenceBeforeReset = git::Reference();
+    mWorktreePathBeforeReset.clear();
     QTimer::singleShot(0, this, [this] {
       for (SectionPanel &panel : mPanels) {
         if (panel.view)
@@ -613,23 +684,6 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
   });
   connect(mIssuesRemoteFilter, &QComboBox::currentIndexChanged, this,
           &RepositoryNavigator::selectGitHubIssuesRepository);
-  connect(mSectionSplitter, &QSplitter::splitterMoved, this,
-          [this](int, int) {
-            const QList<int> sizes = mSectionSplitter->sizes();
-            for (int index = 0; index < mPanels.size(); ++index) {
-              SectionPanel &panel = mPanels[index];
-              if (panel.body->isVisible() && index < sizes.size()) {
-                panel.expandedSize = qMax(
-                    sizes.at(index), panel.header->sizeHint().height() + 24);
-                QSettings().setValue(kSectionSizeGroup + "/" +
-                                         sectionKey(panel.section),
-                                     panel.expandedSize);
-              }
-            }
-            QSettings().setValue(kSplitterStateKey,
-                                 mSectionSplitter->saveState());
-          });
-
   QVBoxLayout *layout = new QVBoxLayout(this);
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
@@ -657,17 +711,7 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
 
   restoreExpansion();
   updatePanels();
-  const bool restored = mSectionSplitter->restoreState(
-      QSettings().value(kSplitterStateKey).toByteArray());
-  if (restored) {
-    const QList<int> sizes = mSectionSplitter->sizes();
-    for (int index = 0; index < mPanels.size() && index < sizes.size(); ++index) {
-      if (mPanels.at(index).body->isVisible())
-        mPanels[index].expandedSize = sizes.at(index);
-    }
-  } else {
-    QTimer::singleShot(0, this, &RepositoryNavigator::updatePanelSizes);
-  }
+  QTimer::singleShot(0, this, &RepositoryNavigator::updatePanelSizes);
 }
 
 void RepositoryNavigator::setRepository(const git::Repository &repo) {
@@ -711,11 +755,19 @@ void RepositoryNavigator::setRepoView(RepoView *view) {
                 &RepositoryNavigator::selectReference);
     mRefreshConnection = connect(view, &RepoView::manualRefreshRequested, this,
                                  &RepositoryNavigator::refresh);
-    selectReference(view->reference());
+    git::Reference head = view->repo().head();
+    if (head.isLocalBranch())
+      setPanelExpanded(RepositoryNavigatorModel::Section::Local, true, true);
+    selectReference(head);
   }
 }
 
 RepositoryNavigatorModel *RepositoryNavigator::model() const { return mModel; }
+
+void RepositoryNavigator::resizeEvent(QResizeEvent *event) {
+  QWidget::resizeEvent(event);
+  QTimer::singleShot(0, this, &RepositoryNavigator::updatePanelSizes);
+}
 
 QTreeView *RepositoryNavigator::sectionView(
     RepositoryNavigatorModel::Section section) const {
@@ -738,6 +790,7 @@ void RepositoryNavigator::setBodyFont(const QFont &font) {
   }
   mIssuesRemoteFilter->setFont(
       FontUtils::copySize(mIssuesRemoteFilter->font(), font));
+  updatePanelSizes();
 }
 
 void RepositoryNavigator::restoreExpansion() {
@@ -764,7 +817,7 @@ void RepositoryNavigator::storeExpansion(
 }
 
 void RepositoryNavigator::setPanelExpanded(
-    RepositoryNavigatorModel::Section section, bool expanded) {
+    RepositoryNavigatorModel::Section section, bool expanded, bool prioritize) {
   SectionPanel *sectionPanel = panel(section);
   if (!sectionPanel)
     return;
@@ -772,34 +825,22 @@ void RepositoryNavigator::setPanelExpanded(
   QModelIndex index = mModel->sectionIndex(section);
   const bool available =
       index.data(RepositoryNavigatorModel::AvailableRole).toBool();
-  const bool showBody = expanded && available && sectionPanel->view;
-  const bool wasVisible = sectionPanel->body->isVisible();
-  const int panelIndex = static_cast<int>(section);
-  if (wasVisible && !showBody) {
-    const QList<int> sizes = mSectionSplitter->sizes();
-    if (panelIndex < sizes.size()) {
-      sectionPanel->expandedSize = qMax(
-          sizes.at(panelIndex), sectionPanel->header->sizeHint().height() + 24);
-      QSettings().setValue(kSectionSizeGroup + "/" + sectionKey(section),
-                           sectionPanel->expandedSize);
-    }
-  }
+  const bool effectiveExpanded = expanded && available && sectionPanel->view;
+  const bool showBody = effectiveExpanded;
+  if (prioritize && effectiveExpanded)
+    mPrioritizedSection = section;
+  else if (!effectiveExpanded && mPrioritizedSection == section)
+    mPrioritizedSection = RepositoryNavigatorModel::Section::Count;
   QSignalBlocker blocker(sectionPanel->toggle);
-  sectionPanel->toggle->setChecked(expanded);
-  sectionPanel->toggle->setArrowType(expanded ? Qt::DownArrow : Qt::RightArrow);
+  sectionPanel->toggle->setChecked(effectiveExpanded);
+  sectionPanel->toggle->setArrowType(effectiveExpanded ? Qt::DownArrow
+                                                       : Qt::RightArrow);
   sectionPanel->body->setVisible(showBody);
   sectionPanel->container->setMaximumHeight(
-      showBody ? QWIDGETSIZE_MAX : sectionPanel->header->sizeHint().height());
-  if (showBody && !wasVisible) {
-    QTimer::singleShot(0, this, [this, panelIndex, section] {
-      SectionPanel *sectionPanel = panel(section);
-      QList<int> sizes = mSectionSplitter->sizes();
-      if (!sectionPanel || panelIndex >= sizes.size())
-        return;
-      sizes[panelIndex] = sectionPanel->expandedSize;
-      mSectionSplitter->setSizes(sizes);
-    });
-  }
+      showBody ? expandedPanelHeight(*sectionPanel)
+               : sectionPanel->header->sizeHint().height());
+  updatePanelSizes();
+  updateExpandCollapseAllButton();
 }
 
 bool RepositoryNavigator::allAvailablePanelsExpanded() const {
@@ -818,11 +859,14 @@ bool RepositoryNavigator::allAvailablePanelsExpanded() const {
 
 void RepositoryNavigator::toggleAllPanels() {
   const bool expand = !allAvailablePanelsExpanded();
+  mPrioritizedSection = RepositoryNavigatorModel::Section::Count;
   for (SectionPanel &panel : mPanels) {
     QModelIndex index = mModel->sectionIndex(panel.section);
     if (panel.view &&
-        index.data(RepositoryNavigatorModel::AvailableRole).toBool())
-      panel.toggle->setChecked(expand);
+        index.data(RepositoryNavigatorModel::AvailableRole).toBool()) {
+      setPanelExpanded(panel.section, expand);
+      storeExpansion(panel.section, expand);
+    }
   }
   updateExpandCollapseAllButton();
 }
@@ -837,7 +881,7 @@ void RepositoryNavigator::updateExpandCollapseAllButton() {
         index.data(RepositoryNavigatorModel::AvailableRole).toBool()) {
       available = true;
     }
-    bodyVisible |= panel.body->isVisible();
+    bodyVisible |= !panel.body->isHidden();
     collapsedHeight += panel.header->sizeHint().height();
   }
   collapsedHeight += qMax(0, mPanels.size() - 1) *
@@ -848,19 +892,99 @@ void RepositoryNavigator::updateExpandCollapseAllButton() {
   mExpandCollapseAllButton->setAccessibleName(
       mExpandCollapseAllButton->text());
   mExpandCollapseAllButton->setToolTip(mExpandCollapseAllButton->text());
-  mSectionSplitter->setMaximumHeight(bodyVisible ? QWIDGETSIZE_MAX
-                                                 : collapsedHeight);
-  mCollapsedSpacer->setVisible(!bodyVisible);
+  if (!bodyVisible)
+    mSectionSplitter->setMaximumHeight(collapsedHeight);
+  mCollapsedSpacer->setVisible(true);
+}
+
+int RepositoryNavigator::expandedPanelHeight(
+    const RepositoryNavigator::SectionPanel &panel) const {
+  const int headerHeight = panel.header->sizeHint().height();
+  if (!panel.view)
+    return headerHeight;
+
+  QModelIndex root = panel.view->rootIndex();
+  int visibleRows = 0;
+  int rowHeight = 0;
+  for (int row = 0; row < mModel->rowCount(root); ++row) {
+    if (panel.view->isRowHidden(row, root))
+      continue;
+    ++visibleRows;
+    if (!rowHeight)
+      rowHeight = panel.view->sizeHintForRow(row);
+  }
+  if (!rowHeight)
+    rowHeight = panel.view->fontMetrics().height() + 6;
+
+  int bodyHeight = qMin(visibleRows, kMaximumVisibleRows) * rowHeight +
+                   2 * panel.view->frameWidth();
+  bodyHeight += kSectionBottomSpacing;
+  if (panel.section == RepositoryNavigatorModel::Section::GitHubIssues &&
+      mIssuesRemoteFilter->isVisible())
+    bodyHeight += mIssuesRemoteFilter->sizeHint().height();
+  return headerHeight + bodyHeight;
 }
 
 void RepositoryNavigator::updatePanelSizes() {
   QList<int> sizes;
   sizes.reserve(mPanels.size());
-  for (const SectionPanel &panel : mPanels) {
+  const int handlesHeight = qMax(0, mPanels.size() - 1) *
+                            mSectionSplitter->handleWidth();
+  int maximumHeight = handlesHeight;
+  int collapsedHeight = handlesHeight;
+  int priorityIndex = -1;
+  for (SectionPanel &panel : mPanels) {
     const int headerHeight = panel.header->sizeHint().height();
-    sizes.append(panel.body->isVisible()
-                     ? qMax(panel.expandedSize, headerHeight + 24)
-                     : headerHeight);
+    const int panelHeight =
+        !panel.body->isHidden() ? expandedPanelHeight(panel) : headerHeight;
+    panel.container->setMinimumHeight(headerHeight);
+    panel.container->setMaximumHeight(panelHeight);
+    sizes.append(panelHeight);
+    maximumHeight += panelHeight;
+    collapsedHeight += headerHeight;
+    if (panel.section == mPrioritizedSection)
+      priorityIndex = sizes.size() - 1;
+  }
+  const int actionHeight =
+      mExpandCollapseAllButton->parentWidget()->sizeHint().height();
+  const int availableHeight = qMax(0, height() - actionHeight);
+  const int splitterHeight = qMin(maximumHeight, availableHeight);
+  static_cast<SectionSplitter *>(mSectionSplitter)
+      ->setPreferredHeight(splitterHeight);
+  mSectionSplitter->setMaximumHeight(splitterHeight);
+
+  if (priorityIndex >= 0 && splitterHeight < maximumHeight) {
+    const int contentHeight = qMax(0, splitterHeight - handlesHeight);
+    int remaining = qMax(0, contentHeight - (collapsedHeight - handlesHeight));
+    const int priorityExtra =
+        sizes.at(priorityIndex) -
+        mPanels.at(priorityIndex).header->sizeHint().height();
+    const int allocatedPriority = qMin(priorityExtra, remaining);
+    remaining -= allocatedPriority;
+
+    QList<int> extras;
+    int totalExtras = 0;
+    extras.reserve(mPanels.size());
+    for (int index = 0; index < mPanels.size(); ++index) {
+      const int extra =
+          index == priorityIndex
+              ? 0
+              : sizes.at(index) -
+                    mPanels.at(index).header->sizeHint().height();
+      extras.append(extra);
+      totalExtras += extra;
+      sizes[index] = mPanels.at(index).header->sizeHint().height();
+    }
+    sizes[priorityIndex] += allocatedPriority;
+    for (int index = 0; index < extras.size() && remaining > 0; ++index) {
+      if (!extras.at(index) || !totalExtras)
+        continue;
+      const int allocated =
+          qMin(extras.at(index), remaining * extras.at(index) / totalExtras);
+      sizes[index] += allocated;
+      remaining -= allocated;
+      totalExtras -= extras.at(index);
+    }
   }
   mSectionSplitter->setSizes(sizes);
 }
@@ -910,6 +1034,7 @@ void RepositoryNavigator::updatePanels() {
         kind == RepositoryNavigatorModel::ItemKind::GitHubIssuesFilter);
   }
   mIssuesRemoteFilter->setVisible(!currentGitHubIssuesKey().isEmpty());
+  updatePanelSizes();
 }
 
 void RepositoryNavigator::clearOtherSelections(QTreeView *selected) {
@@ -1091,10 +1216,40 @@ void RepositoryNavigator::selectReference(const git::Reference &ref) {
       if (candidate.isValid() &&
           candidate.qualifiedName() == ref.qualifiedName()) {
         view->setCurrentIndex(index);
+        view->selectionModel()->select(
+            index,
+            QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+        view->scrollTo(index);
         return;
       }
     }
   }
+}
+
+bool RepositoryNavigator::selectWorktree(const QString &path, bool focus) {
+  QTreeView *view =
+      sectionView(RepositoryNavigatorModel::Section::Worktrees);
+  if (!view)
+    return false;
+
+  QModelIndex parent =
+      mModel->sectionIndex(RepositoryNavigatorModel::Section::Worktrees);
+  for (int row = 0; row < mModel->rowCount(parent); ++row) {
+    QModelIndex index = mModel->index(row, 0, parent);
+    if (index.data(RepositoryNavigatorModel::PathRole).toString() != path)
+      continue;
+
+    clearOtherSelections(view);
+    view->setCurrentIndex(index);
+    view->selectionModel()->select(
+        index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    view->scrollTo(index);
+    if (focus)
+      view->setFocus(Qt::MouseFocusReason);
+    return true;
+  }
+
+  return false;
 }
 
 void RepositoryNavigator::activate(const QModelIndex &index, bool checkout) {
@@ -1108,9 +1263,17 @@ void RepositoryNavigator::activate(const QModelIndex &index, bool checkout) {
   if (kind == RepositoryNavigatorModel::ItemKind::GitHubIssue)
     return;
   if (kind == RepositoryNavigatorModel::ItemKind::Worktree) {
-    if (index.data(RepositoryNavigatorModel::AvailableRole).toBool())
-      emit openRepositoryRequested(
-          index.data(RepositoryNavigatorModel::PathRole).toString());
+    if (!index.data(RepositoryNavigatorModel::AvailableRole).toBool())
+      return;
+
+    const QString path =
+        index.data(RepositoryNavigatorModel::PathRole).toString();
+    if (checkout) {
+      emit openRepositoryRequested(path);
+    } else {
+      emit selectRepositoryRequested(path);
+      selectWorktree(path, true);
+    }
     return;
   }
 
@@ -1120,7 +1283,9 @@ void RepositoryNavigator::activate(const QModelIndex &index, bool checkout) {
   git::Reference ref =
       index.data(RepositoryNavigatorModel::ReferenceRole).value<git::Reference>();
   if (ref.isValid()) {
-    if (checkout)
+    if (checkout && ref.isLocalBranch())
+      mRepoView->checkoutFromNavigator(ref);
+    else if (checkout)
       mRepoView->checkout(ref);
     else
       mRepoView->navigateToReference(ref);

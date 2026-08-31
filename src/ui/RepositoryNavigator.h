@@ -19,6 +19,7 @@
 
 class QComboBox;
 class QLabel;
+class QResizeEvent;
 class QSplitter;
 class QTreeView;
 class QToolButton;
@@ -48,6 +49,10 @@ public:
 
 signals:
   void openRepositoryRequested(const QString &path);
+  void selectRepositoryRequested(const QString &path);
+
+protected:
+  void resizeEvent(QResizeEvent *event) override;
 
 private:
   struct SectionPanel;
@@ -56,17 +61,19 @@ private:
   void storeExpansion(RepositoryNavigatorModel::Section section,
                       bool expanded);
   void setPanelExpanded(RepositoryNavigatorModel::Section section,
-                        bool expanded);
+                        bool expanded, bool prioritize = false);
   bool allAvailablePanelsExpanded() const;
   void toggleAllPanels();
   void updateExpandCollapseAllButton();
   void updatePanelSizes();
+  int expandedPanelHeight(const SectionPanel &panel) const;
   void updatePanels();
   void promptToCreateWorktree();
   void clearOtherSelections(QTreeView *selected);
   SectionPanel *panel(RepositoryNavigatorModel::Section section);
   const SectionPanel *panel(RepositoryNavigatorModel::Section section) const;
   void selectReference(const git::Reference &ref);
+  bool selectWorktree(const QString &path, bool focus);
   void activate(const QModelIndex &index, bool checkout);
   void showContextMenu(const QPoint &point);
   void discoverGitHubIssuesRepositories();
@@ -107,13 +114,14 @@ private:
     QWidget *body;
     QTreeView *view;
     int scrollBeforeReset = 0;
-    int expandedSize = 96;
   };
 
   QSplitter *mSectionSplitter;
   StatePushButton *mExpandCollapseAllButton;
   QToolButton *mWorktreeAdd;
   QWidget *mCollapsedSpacer;
+  RepositoryNavigatorModel::Section mPrioritizedSection =
+      RepositoryNavigatorModel::Section::Count;
   bool mCreatingWorktree = false;
   QList<SectionPanel> mPanels;
   QComboBox *mIssuesRemoteFilter;
@@ -125,6 +133,7 @@ private:
   QMetaObject::Connection mReferenceSelectedConnection;
   QMetaObject::Connection mRefreshConnection;
   git::Reference mReferenceBeforeReset;
+  QString mWorktreePathBeforeReset;
   QList<QMetaObject::Connection> mRemoteConnections;
   QList<IssuesCandidate> mIssuesCandidates;
   QHash<QString, IssuesCacheEntry> mIssuesCache;

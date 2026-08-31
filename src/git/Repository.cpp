@@ -1128,7 +1128,7 @@ QList<Commit> Repository::stashes() const {
   return commits;
 }
 
-Commit Repository::stash(const QString &message) {
+Commit Repository::stash(const QString &message, bool includeUntracked) {
   Signature signature = defaultSignature();
   if (!signature.isValid())
     return Commit();
@@ -1136,7 +1136,9 @@ Commit Repository::stash(const QString &message) {
   git_oid id;
   QByteArray buffer = message.toUtf8();
   const char *msg = !buffer.isEmpty() ? buffer.constData() : nullptr;
-  if (git_stash_save(&id, d->repo, signature, msg, GIT_STASH_DEFAULT))
+  git_stash_flags flags = includeUntracked ? GIT_STASH_INCLUDE_UNTRACKED
+                                           : GIT_STASH_DEFAULT;
+  if (git_stash_save(&id, d->repo, signature, msg, flags))
     return Commit();
 
   git_commit *commit = nullptr;
