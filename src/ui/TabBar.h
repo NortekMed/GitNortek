@@ -19,11 +19,7 @@ public:
   TabBar(QWidget *parent = nullptr);
 
 protected:
-  QSize minimumTabSizeHint(int index) const override;
   QSize tabSizeHint(int index) const override;
-
-private:
-  mutable bool mCalculatingMinimumSize = false;
 };
 
 #endif

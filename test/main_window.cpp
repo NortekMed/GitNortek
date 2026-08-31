@@ -23,6 +23,7 @@
 #include "ui/MenuBar.h"
 #include "ui/RepoView.h"
 #include "ui/RepositoryNavigatorModel.h"
+#include "ui/TabBar.h"
 #include "ui/TabWidget.h"
 #include "ui/ToolBar.h"
 #include <QLineEdit>
@@ -47,6 +48,7 @@ private slots:
   void initTestCase();
   void show();
   void singleRepositoryTabVisible();
+  void adaptiveRepositoryTabs();
   void focusUpdatesOnlyEditorActions();
   void fastIssueAccess();
   void initialRefreshOnce();
@@ -117,6 +119,37 @@ void TestMainWindow::singleRepositoryTabVisible() {
   QCOMPARE(tabs->count(), 1);
   QVERIFY(!tabBar->autoHide());
   QVERIFY(tabBar->isVisible());
+  QVERIFY(!tabBar->expanding());
+  QCOMPARE(tabBar->elideMode(), Qt::ElideRight);
+  QVERIFY(tabBar->tabRect(0).width() < tabBar->width());
+
+  const QString tooltip = tabBar->tabToolTip(0);
+  QVERIFY(tooltip.contains(tabBar->tabText(0).toHtmlEscaped()));
+  QVERIFY(tooltip.contains(":/open.png"));
+  QVERIFY(tooltip.contains(QDir::toNativeSeparators(
+      mWindow->currentView()->repo().dir(false).absolutePath())));
+}
+
+void TestMainWindow::adaptiveRepositoryTabs() {
+  {
+    TabBar bar;
+    bar.resize(900, 120);
+    bar.addTab("Short");
+    bar.addTab("A much longer repository tab title");
+    bar.show();
+    QVERIFY(qWaitForWindowExposed(&bar));
+
+    QTRY_VERIFY(bar.tabRect(0).width() + bar.tabRect(1).width() < bar.width());
+    const int naturalLongWidth = bar.tabRect(1).width();
+    QVERIFY(naturalLongWidth > bar.tabRect(0).width());
+
+    bar.resize(220, 120);
+    QTRY_VERIFY(bar.tabRect(1).width() < naturalLongWidth);
+    QCOMPARE(bar.tabText(1), QString("A much longer repository tab title"));
+  }
+
+  mWindow->activateWindow();
+  QVERIFY(qWaitForWindowActive(mWindow));
 }
 
 void TestMainWindow::focusUpdatesOnlyEditorActions() {

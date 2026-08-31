@@ -584,7 +584,15 @@ void MainWindow::updateTabNames() {
     auto ids = names.take(key);
 
     if (ids.count() == 1) {
-      tabs->setTabText(ids.first(), key);
+      const int id = ids.first();
+      const QString path = QDir::toNativeSeparators(
+          repositoryPath(view(id)->repo()));
+      const QString tooltip =
+          QStringLiteral("<qt>%1<br><img src=\":/open.png\" width=\"16\" "
+                         "height=\"16\"> %2</qt>")
+              .arg(key.toHtmlEscaped(), path.toHtmlEscaped());
+      tabs->setTabText(id, key);
+      tabs->setTabToolTip(id, tooltip);
     } else {
       for (auto id : ids) {
         auto &name = fullNames[id];

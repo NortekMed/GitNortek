@@ -38,6 +38,7 @@ Bug Fix and Feature release
 * Match local branch badges to their topology colors, retain the existing checked-out branch color, and distinguish remote branches with grey badges
 * Show the repository sidebar at startup and keep it open when opening repositories
 * Keep the repository tab bar visible when only one repository is open
+* Size repository tabs to their titles, elide crowded titles, and show full repository details on hover
 * Open repositories in the branch view even when unresolved conflicts already exist
 * Avoid redundant startup status scans and coalesce repository sidebar refreshes
 * Show Blame and Diff in the branch and commit pane when files are selected, with more default space for the commit history

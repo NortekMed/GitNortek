@@ -12,19 +12,13 @@
 TabBar::TabBar(QWidget *parent) : QTabBar(parent) {
   setAutoHide(false);
   setDocumentMode(true);
-}
-
-QSize TabBar::minimumTabSizeHint(int index) const {
-  mCalculatingMinimumSize = true;
-  QSize size = QTabBar::minimumTabSizeHint(index);
-  mCalculatingMinimumSize = false;
-  return size;
+  setExpanding(false);
+  setElideMode(Qt::ElideRight);
+  setUsesScrollButtons(true);
 }
 
 QSize TabBar::tabSizeHint(int index) const {
-  if (!count() || mCalculatingMinimumSize)
-    return QTabBar::tabSizeHint(index);
-
-  int height = fontMetrics().lineSpacing() + 12;
-  return QSize(parentWidget()->width() / count() + 1, height);
+  QSize size = QTabBar::tabSizeHint(index);
+  size.setHeight(fontMetrics().lineSpacing() + 12);
+  return size;
 }
