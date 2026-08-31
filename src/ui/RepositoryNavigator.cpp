@@ -10,6 +10,7 @@
 #include "RepositoryNavigatorModel.h"
 #include "RepoView.h"
 #include "StatePushButton.h"
+#include "WorktreeIcon.h"
 #include "dialogs/WorktreeDialog.h"
 #include "git/Branch.h"
 #include "git/Config.h"
@@ -182,8 +183,7 @@ SubmoduleVisual submoduleVisual(const QModelIndex &index,
   return visual;
 }
 
-void drawWorktreeIcon(QPainter *painter, const QRect &rect, const QColor &color,
-                      bool home) {
+void drawHomeIcon(QPainter *painter, const QRect &rect, const QColor &color) {
   painter->save();
   painter->setRenderHint(QPainter::Antialiasing);
   QPen pen(color, 1.4);
@@ -192,28 +192,14 @@ void drawWorktreeIcon(QPainter *painter, const QRect &rect, const QColor &color,
   painter->setPen(pen);
   painter->setBrush(Qt::NoBrush);
 
-  if (home) {
-    QPainterPath roof;
-    roof.moveTo(rect.left() + 1, rect.top() + 6);
-    roof.lineTo(rect.center().x(), rect.top() + 2);
-    roof.lineTo(rect.right() - 1, rect.top() + 6);
-    painter->drawPath(roof);
-    painter->drawRect(rect.adjusted(3, 6, -3, -1));
-    painter->drawLine(rect.center().x(), rect.bottom() - 4, rect.center().x(),
-                      rect.bottom() - 1);
-  } else {
-    painter->drawLine(rect.center().x(), rect.bottom() - 1, rect.center().x(),
-                      rect.top() + 5);
-    painter->drawLine(rect.center().x(), rect.top() + 8, rect.left() + 3,
-                      rect.top() + 5);
-    painter->drawLine(rect.center().x(), rect.top() + 7, rect.right() - 3,
-                      rect.top() + 4);
-    painter->setPen(Qt::NoPen);
-    painter->setBrush(color);
-    painter->drawEllipse(QRect(rect.left() + 1, rect.top() + 2, 6, 6));
-    painter->drawEllipse(QRect(rect.center().x() - 3, rect.top(), 7, 7));
-    painter->drawEllipse(QRect(rect.right() - 6, rect.top() + 1, 6, 6));
-  }
+  QPainterPath roof;
+  roof.moveTo(rect.left() + 1, rect.top() + 6);
+  roof.lineTo(rect.center().x(), rect.top() + 2);
+  roof.lineTo(rect.right() - 1, rect.top() + 6);
+  painter->drawPath(roof);
+  painter->drawRect(rect.adjusted(3, 6, -3, -1));
+  painter->drawLine(rect.center().x(), rect.bottom() - 4, rect.center().x(),
+                    rect.bottom() - 1);
   painter->restore();
 }
 
@@ -247,12 +233,7 @@ protected:
   void paintEvent(QPaintEvent *) override {
     QPainter painter(this);
     if (mSection == RepositoryNavigatorModel::Section::Worktrees) {
-      QPalette::ColorGroup group = isActiveWindow() ? QPalette::Active
-                                                    : QPalette::Inactive;
-      if (!isEnabled())
-        group = QPalette::Disabled;
-      drawWorktreeIcon(&painter, rect().adjusted(1, 1, -1, -1),
-                       palette().color(group, QPalette::Text), false);
+      WorktreeIcon::paint(&painter, rect().adjusted(1, 1, -1, -1));
       return;
     }
     mIcon.paint(&painter, rect(), Qt::AlignCenter,
@@ -309,9 +290,10 @@ public:
     if (worktree) {
       QRect iconRect(0, 0, 14, 14);
       iconRect.moveCenter(QPoint(content.x() + 7, content.center().y()));
-      drawWorktreeIcon(
-          painter, iconRect, text,
-          index.data(RepositoryNavigatorModel::MainWorktreeRole).toBool());
+      if (index.data(RepositoryNavigatorModel::MainWorktreeRole).toBool())
+        drawHomeIcon(painter, iconRect, text);
+      else
+        WorktreeIcon::paint(painter, iconRect);
       content.adjust(19, 0, 0, 0);
     }
 

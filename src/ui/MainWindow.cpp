@@ -16,6 +16,7 @@
 #include "SideBar.h"
 #include "TabWidget.h"
 #include "ToolBar.h"
+#include "WorktreeIcon.h"
 #include "conf/RecentRepositories.h"
 #include "conf/Settings.h"
 #include "git/Repository.h"
@@ -306,7 +307,7 @@ RepoView *MainWindow::addTab(const git::Repository &repo,
 
   emit tabs->tabAboutToBeInserted();
   mAddingTab = true;
-  QIcon icon = repo.isWorktree() ? QIcon(":/branches.png") : QIcon();
+  QIcon icon = repo.isWorktree() ? WorktreeIcon::icon() : QIcon();
   tabs->setCurrentIndex(tabs->addTab(view, icon, dir.dirName()));
   mAddingTab = false;
 

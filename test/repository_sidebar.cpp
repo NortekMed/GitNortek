@@ -28,6 +28,7 @@
 #include "ui/SideBar.h"
 #include "ui/StatePushButton.h"
 #include "ui/TabWidget.h"
+#include "ui/WorktreeIcon.h"
 #include <QAbstractItemModelTester>
 #include <QContextMenuEvent>
 #include <QComboBox>
@@ -2136,6 +2137,8 @@ void TestRepositorySideBar::worktreeTabs() {
   int linkedIndex = window.tabWidget()->indexOf(linkedView);
   QVERIFY(linkedIndex >= 0);
   QVERIFY(!window.tabWidget()->tabIcon(linkedIndex).isNull());
+  QCOMPARE(window.tabWidget()->tabIcon(linkedIndex).cacheKey(),
+           WorktreeIcon::icon().cacheKey());
 
   QCOMPARE(window.addTab(QDir(path).filePath(".")), linkedView);
   QCOMPARE(window.count(), 2);
