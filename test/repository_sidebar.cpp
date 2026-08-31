@@ -382,13 +382,14 @@ void TestRepositorySideBar::navigatorModel() {
       model.sectionIndex(RepositoryNavigatorModel::Section::Worktrees);
   QCOMPARE(model.rowCount(worktrees), 1);
   QModelIndex home = model.index(0, 0, worktrees);
-  QCOMPARE(home.data().toString(), QString("Home"));
+  QCOMPARE(home.data().toString(), main.name());
   QCOMPARE(static_cast<RepositoryNavigatorModel::ItemKind>(
                home.data(RepositoryNavigatorModel::ItemKindRole).toInt()),
            RepositoryNavigatorModel::ItemKind::Worktree);
   QCOMPARE(home.data(RepositoryNavigatorModel::PathRole).toString(),
            mRepo->workdir().path());
   QVERIFY(home.data(RepositoryNavigatorModel::CurrentRole).toBool());
+  QVERIFY(home.data(RepositoryNavigatorModel::MainWorktreeRole).toBool());
   QVERIFY(home.data(RepositoryNavigatorModel::AvailableRole).toBool());
 
   QVERIFY(mRepo->createBranch("notified", head).isValid());
@@ -568,6 +569,7 @@ void TestRepositorySideBar::navigatorView() {
   QTreeView *worktreeView = navigator.sectionView(
       RepositoryNavigatorModel::Section::Worktrees);
   QVERIFY(worktreeView);
+  QCOMPARE(worktreeView->verticalScrollBarPolicy(), Qt::ScrollBarAsNeeded);
   QModelIndex home = model->index(0, 0, worktreeView->rootIndex());
   QVERIFY(QMetaObject::invokeMethod(worktreeView, "doubleClicked",
                                     Qt::DirectConnection,
@@ -2060,6 +2062,18 @@ void TestRepositorySideBar::worktreeTabs() {
       repo.createWorktree("feature", path, feature, QString(), &result);
   QVERIFY2(result, qPrintable(result.errorString()));
   QVERIFY(linked.isValid());
+
+  RepositoryNavigatorModel model;
+  model.setRepository(repo);
+  QModelIndex worktrees =
+      model.sectionIndex(RepositoryNavigatorModel::Section::Worktrees);
+  QCOMPARE(model.rowCount(worktrees), 2);
+  QModelIndex home = model.index(0, 0, worktrees);
+  QModelIndex tree = model.index(1, 0, worktrees);
+  QCOMPARE(home.data().toString(), repo.head().name());
+  QVERIFY(home.data(RepositoryNavigatorModel::MainWorktreeRole).toBool());
+  QCOMPARE(tree.data().toString(), QString("feature"));
+  QVERIFY(!tree.data(RepositoryNavigatorModel::MainWorktreeRole).toBool());
 
   MainWindow window(repo);
   QCOMPARE(window.count(), 1);

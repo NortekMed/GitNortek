@@ -149,6 +149,41 @@ SubmoduleVisual submoduleVisual(const QModelIndex &index,
   return visual;
 }
 
+void drawWorktreeIcon(QPainter *painter, const QRect &rect, const QColor &color,
+                      bool home) {
+  painter->save();
+  painter->setRenderHint(QPainter::Antialiasing);
+  QPen pen(color, 1.4);
+  pen.setCapStyle(Qt::RoundCap);
+  pen.setJoinStyle(Qt::RoundJoin);
+  painter->setPen(pen);
+  painter->setBrush(Qt::NoBrush);
+
+  if (home) {
+    QPainterPath roof;
+    roof.moveTo(rect.left() + 1, rect.top() + 6);
+    roof.lineTo(rect.center().x(), rect.top() + 2);
+    roof.lineTo(rect.right() - 1, rect.top() + 6);
+    painter->drawPath(roof);
+    painter->drawRect(rect.adjusted(3, 6, -3, -1));
+    painter->drawLine(rect.center().x(), rect.bottom() - 4, rect.center().x(),
+                      rect.bottom() - 1);
+  } else {
+    painter->drawLine(rect.center().x(), rect.bottom() - 1, rect.center().x(),
+                      rect.top() + 5);
+    painter->drawLine(rect.center().x(), rect.top() + 8, rect.left() + 3,
+                      rect.top() + 5);
+    painter->drawLine(rect.center().x(), rect.top() + 7, rect.right() - 3,
+                      rect.top() + 4);
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(color);
+    painter->drawEllipse(QRect(rect.left() + 1, rect.top() + 2, 6, 6));
+    painter->drawEllipse(QRect(rect.center().x() - 3, rect.top(), 7, 7));
+    painter->drawEllipse(QRect(rect.right() - 6, rect.top() + 1, 6, 6));
+  }
+  painter->restore();
+}
+
 class NavigatorDelegate : public QStyledItemDelegate {
 public:
   NavigatorDelegate(const QFont &sectionFont, QObject *parent)
@@ -187,6 +222,19 @@ public:
     painter->setPen(text);
 
     const QColor green("#36c96b");
+    auto kind = static_cast<RepositoryNavigatorModel::ItemKind>(
+        index.data(RepositoryNavigatorModel::ItemKindRole).toInt());
+    bool worktree = !section &&
+                    kind == RepositoryNavigatorModel::ItemKind::Worktree;
+    if (worktree) {
+      QRect iconRect(0, 0, 14, 14);
+      iconRect.moveCenter(QPoint(content.x() + 7, content.center().y()));
+      drawWorktreeIcon(
+          painter, iconRect, text,
+          index.data(RepositoryNavigatorModel::MainWorktreeRole).toBool());
+      content.adjust(19, 0, 0, 0);
+    }
+
     bool localBranch =
         !section &&
         index.data(RepositoryNavigatorModel::SectionRole).toInt() ==
@@ -246,8 +294,6 @@ public:
                                .toInt()),
                        text});
     } else {
-      auto kind = static_cast<RepositoryNavigatorModel::ItemKind>(
-          index.data(RepositoryNavigatorModel::ItemKindRole).toInt());
       if (kind == RepositoryNavigatorModel::ItemKind::Submodule) {
         QString pin = "P";
         if (!visual.pinDelta.isEmpty())

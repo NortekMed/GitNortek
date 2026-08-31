@@ -247,6 +247,9 @@ QVariant RepositoryNavigatorModel::data(const QModelIndex &index,
       return row->available && row->kind != ItemKind::Status;
     case CurrentRole:
       return row->current;
+    case MainWorktreeRole:
+      return row->kind == ItemKind::Worktree ? QVariant(row->mainWorktree)
+                                             : QVariant();
     case AheadRole:
       return row->ahead >= 0 ? QVariant(row->ahead) : QVariant();
     case BehindRole:
@@ -427,12 +430,13 @@ void RepositoryNavigatorModel::rebuild() {
     for (const git::Worktree &worktree : mRepo.worktrees()) {
       Row row;
       row.kind = ItemKind::Worktree;
-      row.display = worktree.isMain() ? tr("Home") : worktree.branch();
+      row.display = worktree.branch();
       if (row.display.isEmpty())
         row.display = worktree.name();
       row.path = worktree.path();
       row.branch = worktree.branch();
       row.current = worktree.isCurrent();
+      row.mainWorktree = worktree.isMain();
       row.available = worktree.isValid() && !worktree.path().isEmpty();
       QStringList tooltip{tr("Path: %1").arg(row.path)};
       if (!row.branch.isEmpty())

@@ -60,6 +60,7 @@ public:
     CountRole,
     AvailableRole,
     CurrentRole,
+    MainWorktreeRole,
     AheadRole,
     BehindRole,
     ReferenceRole,
@@ -123,6 +124,7 @@ private:
     bool initialized = false;
     bool available = true;
     bool current = false;
+    bool mainWorktree = false;
     int ahead = -1;
     int behind = -1;
     int pinnedAhead = -1;
