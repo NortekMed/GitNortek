@@ -59,10 +59,6 @@ constexpr qint64 kIssuesRetryDelayMs = 60 * 1000;
 constexpr int kMaximumVisibleRows = 5;
 constexpr int kSectionBottomSpacing = 24;
 
-QColor dividerColor(const QPalette &palette) {
-  return palette.color(QPalette::Active, QPalette::Text).darker(150);
-}
-
 QColor stretchHandleColor(const QPalette &palette) {
   return palette.color(QPalette::Active, QPalette::Text).darker(200);
 }
@@ -227,7 +223,7 @@ protected:
       return;
 
     QPainter painter(this);
-    painter.setPen(dividerColor(palette()));
+    painter.setPen(stretchHandleColor(palette()));
     painter.drawLine(0, 0, width() - 1, 0);
   }
 

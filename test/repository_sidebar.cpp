@@ -695,7 +695,7 @@ void TestRepositorySideBar::navigatorView() {
   QCOMPARE(headerImage.pixelColor(localHeader->width() / 2, 0),
            localHeader->palette()
                .color(QPalette::Active, QPalette::Text)
-               .darker(150));
+               .darker(200));
 
   QLabel *localTitle = navigator.findChild<QLabel *>(
       "RepositoryNavigationLocalTitle");
