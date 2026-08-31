@@ -25,37 +25,45 @@ const uint kFlags =
 class RepositoryWatcherPrivate : public QThread {
   Q_OBJECT
 
+  struct Watch {
+    explicit Watch(RepositoryWatcherPrivate *watcher)
+        : watcher(watcher), buffer(16 * 1024) {
+      ZeroMemory(&overlapped, sizeof(OVERLAPPED));
+      overlapped.hEvent = this;
+    }
+
+    RepositoryWatcherPrivate *watcher;
+    HANDLE handle = INVALID_HANDLE_VALUE;
+    QVector<BYTE> buffer;
+    OVERLAPPED overlapped;
+    bool metadata = false;
+  };
+
 public:
   RepositoryWatcherPrivate(const git::Repository &repo,
-                           QObject *parent = nullptr)
-      : QThread(parent), mRepo(repo), mBuffer(16 * 1024) {
-    // Pass this to callback.
-    ZeroMemory(&mOverlapped, sizeof(OVERLAPPED));
-    mOverlapped.hEvent = this;
-
+                            QObject *parent = nullptr)
+      : QThread(parent), mRepo(repo), mWorkdir(this), mMetadata(this) {
     // Create event to signal the thread to quit.
     mStop = CreateEvent(0, false, false, 0);
 
-    // Open directory.
-    QString path = QDir::toNativeSeparators(repo.workdir().path());
-    mHandle =
-        CreateFileW((wchar_t *)path.utf16(), FILE_LIST_DIRECTORY,
-                    FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-                    nullptr, OPEN_EXISTING,
-                    FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, nullptr);
+    open(mWorkdir, repo.workdir().path(), false);
+    open(mMetadata, repo.commonDir().path(), true);
   }
 
   ~RepositoryWatcherPrivate() {
-    CloseHandle(mHandle);
+    if (mWorkdir.handle != INVALID_HANDLE_VALUE)
+      CloseHandle(mWorkdir.handle);
+    if (mMetadata.handle != INVALID_HANDLE_VALUE)
+      CloseHandle(mMetadata.handle);
     CloseHandle(mStop);
   }
 
   git::Repository repo() const { return mRepo; }
-  QVector<BYTE> buffer() const { return mBuffer; }
 
   void run() override {
     // Start watching for notifications.
-    watch();
+    watch(mWorkdir);
+    watch(mMetadata);
 
     // Wait on the stop event.
     forever {
@@ -73,9 +81,21 @@ public:
     }
   }
 
-  void watch() {
-    ReadDirectoryChangesW(mHandle, mBuffer.data(), mBuffer.size(), true, kFlags,
-                          nullptr, &mOverlapped, &notify);
+  void open(Watch &watch, const QString &path, bool metadata) {
+    watch.metadata = metadata;
+    const QString native = QDir::toNativeSeparators(path);
+    watch.handle =
+        CreateFileW((wchar_t *)native.utf16(), FILE_LIST_DIRECTORY,
+                    FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                    nullptr, OPEN_EXISTING,
+                    FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, nullptr);
+  }
+
+  void watch(Watch &watch) {
+    if (watch.handle == INVALID_HANDLE_VALUE)
+      return;
+    ReadDirectoryChangesW(watch.handle, watch.buffer.data(), watch.buffer.size(),
+                          true, kFlags, nullptr, &watch.overlapped, &notify);
   }
 
   void stop() {
@@ -89,10 +109,10 @@ public:
       return; // FIXME: Report error?
 
     // Copy buffer and restart.
-    RepositoryWatcherPrivate *watcher =
-        static_cast<RepositoryWatcherPrivate *>(overlapped->hEvent);
-    QVector<BYTE> buffer = watcher->buffer();
-    watcher->watch();
+    Watch *watch = static_cast<Watch *>(overlapped->hEvent);
+    RepositoryWatcherPrivate *watcher = watch->watcher;
+    QVector<BYTE> buffer = watch->buffer;
+    watcher->watch(*watch);
 
     // Iterate over notifications.
     git::Repository repo = watcher->repo();
@@ -104,7 +124,7 @@ public:
       int size = info->FileNameLength / sizeof(wchar_t);
       QString native = QString::fromWCharArray(info->FileName, size);
       QString path = QDir::fromNativeSeparators(native);
-      if (!path.isEmpty() && !repo.isIgnored(path)) {
+      if (!path.isEmpty() && (watch->metadata || !repo.isIgnored(path))) {
         emit watcher->notificationReceived();
         return;
       }
@@ -122,9 +142,8 @@ signals:
 private:
   git::Repository mRepo;
   HANDLE mStop;
-  HANDLE mHandle;
-  QVector<BYTE> mBuffer;
-  OVERLAPPED mOverlapped;
+  Watch mWorkdir;
+  Watch mMetadata;
 };
 
 RepositoryWatcher::RepositoryWatcher(const git::Repository &repo,

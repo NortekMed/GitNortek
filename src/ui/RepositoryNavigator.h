@@ -46,6 +46,9 @@ public:
   void setBodyFont(const QFont &font);
   void refresh();
 
+signals:
+  void openRepositoryRequested(const QString &path);
+
 private:
   struct SectionPanel;
 
@@ -58,6 +61,7 @@ private:
   void toggleAllPanels();
   void updateExpandCollapseAllButton();
   void updatePanels();
+  void promptToCreateWorktree();
   void clearOtherSelections(QTreeView *selected);
   SectionPanel *panel(RepositoryNavigatorModel::Section section);
   const SectionPanel *panel(RepositoryNavigatorModel::Section section) const;
@@ -97,6 +101,7 @@ private:
     QWidget *header;
     QToolButton *toggle;
     QLabel *title;
+    QToolButton *action;
     QWidget *body;
     QTreeView *view;
     int scrollBeforeReset = 0;
@@ -105,6 +110,7 @@ private:
 
   QSplitter *mSectionSplitter;
   StatePushButton *mExpandCollapseAllButton;
+  QToolButton *mWorktreeAdd;
   QWidget *mCollapsedSpacer;
   QList<SectionPanel> mPanels;
   QComboBox *mIssuesRemoteFilter;

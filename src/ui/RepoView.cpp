@@ -882,7 +882,7 @@ void RepoView::visitLink(const QString &link) {
       msg.setDetailedText(tr("[http]\n"
                              "  sslVerify = false\n\n"
                              "was added to %1/config")
-                              .arg(mRepo.dir().path()));
+                              .arg(mRepo.commonDir().path()));
       msg.exec();
     }
     return;
@@ -2395,6 +2395,15 @@ void RepoView::checkout(const git::Commit &commit, const git::Reference &ref,
   }
 
   LogEntry *entry = addLogEntry(name, tr("Checkout"));
+  if (!detach && ref.isLocalBranch() && !ref.isHead() &&
+      git::Branch(ref).isCheckedOut()) {
+    entry->addEntry(
+        LogEntry::Error,
+        tr("Branch '%1' is already checked out in another worktree.")
+            .arg(ref.name()));
+    return;
+  }
+
   CheckoutCallbacks callbacks(entry, GIT_CHECKOUT_NOTIFY_DIRTY);
   if (!commit.isValid() || !mRepo.checkout(commit, &callbacks) ||
       (detach && !mRepo.setHeadDetached(commit)) ||
@@ -2489,13 +2498,17 @@ void RepoView::populateReferenceContextMenu(QMenu *menu,
 
   QAction *checkout = menu->addAction(tr("Checkout"), this,
                                       [this, ref] { this->checkout(ref); });
-  checkout->setEnabled(!ref.isHead() && !mRepo.isBare());
+  const bool checkedOutElsewhere =
+      ref.isLocalBranch() && !ref.isHead() && git::Branch(ref).isCheckedOut();
+  checkout->setEnabled(!ref.isHead() && !checkedOutElsewhere && !mRepo.isBare());
   menu->addSeparator();
 
   if (ref.isLocalBranch()) {
-    menu->addAction(tr("Rename %1").arg(ref.name()), this, [this, ref] {
-      promptToRenameBranch(git::Branch(ref));
-    });
+    QAction *rename =
+        menu->addAction(tr("Rename %1").arg(ref.name()), this, [this, ref] {
+          promptToRenameBranch(git::Branch(ref));
+        });
+    rename->setEnabled(ref.isHead() || !git::Branch(ref).isCheckedOut());
   }
 
   if (ref.isTag() || ref.isLocalBranch()) {
@@ -2505,7 +2518,7 @@ void RepoView::populateReferenceContextMenu(QMenu *menu,
       else
         promptToDeleteBranch(ref);
     });
-    remove->setEnabled(ref.isTag() || !ref.isHead());
+    remove->setEnabled(ref.isTag() || !git::Branch(ref).isCheckedOut());
   }
 
   if (ref.isTag()) {

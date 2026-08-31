@@ -86,6 +86,7 @@ public:
 
   void watchGitMetadata() {
     QDir gitDir = mRepo.dir();
+    QDir commonDir = mRepo.commonDir();
     watchGitDirectory(gitDir, false);
 
     foreach (const QString &path, QStringList({"HEAD", "index", "packed-refs"}))
@@ -96,24 +97,50 @@ public:
                           "logs", "logs/refs", "logs/refs/heads",
                           "logs/refs/remotes"}))
       watchGitDirectory(QDir(gitDir.filePath(path)), true);
+
+    if (commonDir.absolutePath() != gitDir.absolutePath()) {
+      watchGitDirectory(commonDir, false);
+      mFSWatcher.addPath(commonDir.filePath("packed-refs").toUtf8());
+      foreach (const QString &path,
+               QStringList({"refs", "refs/heads", "refs/remotes", "refs/tags",
+                            "logs", "logs/refs", "logs/refs/heads",
+                            "logs/refs/remotes"}))
+        watchGitDirectory(QDir(commonDir.filePath(path)), true);
+    }
+    watchGitDirectory(QDir(commonDir.filePath("worktrees")), true);
   }
 
   bool isGitMetadataDirectory(const QString &path) const {
     QString relative = mRepo.dir().relativeFilePath(path);
+    if (relative == "." || relative == "refs" ||
+        relative.startsWith("refs/") || relative == "logs" ||
+        relative == "logs/refs" || relative.startsWith("logs/refs/heads") ||
+        relative.startsWith("logs/refs/remotes"))
+      return true;
+    relative = mRepo.commonDir().relativeFilePath(path);
     return relative == "." || relative == "refs" ||
            relative.startsWith("refs/") || relative == "logs" ||
            relative == "logs/refs" || relative.startsWith("logs/refs/heads") ||
-           relative.startsWith("logs/refs/remotes");
+           relative.startsWith("logs/refs/remotes") || relative == "worktrees" ||
+           relative.startsWith("worktrees/");
   }
 
   bool isGitMetadataPath(const QString &path) const {
     QString relative = mRepo.dir().relativeFilePath(path);
-    return relative == "HEAD" || relative == "index" ||
-           relative == "packed-refs" || relative.startsWith("refs/") ||
-           relative == "logs/HEAD" || relative == "logs/refs/heads" ||
+    if (relative == "HEAD" || relative == "index" ||
+        relative == "packed-refs" || relative.startsWith("refs/") ||
+        relative == "logs/HEAD" || relative == "logs/refs/heads" ||
+        relative.startsWith("logs/refs/heads/") ||
+        relative == "logs/refs/remotes" ||
+        relative.startsWith("logs/refs/remotes/"))
+      return true;
+    relative = mRepo.commonDir().relativeFilePath(path);
+    return relative == "packed-refs" || relative.startsWith("refs/") ||
+           relative == "logs/refs/heads" ||
            relative.startsWith("logs/refs/heads/") ||
            relative == "logs/refs/remotes" ||
-           relative.startsWith("logs/refs/remotes/");
+           relative.startsWith("logs/refs/remotes/") ||
+           relative.startsWith("worktrees/");
   }
 
 signals:

@@ -31,6 +31,9 @@ public:
   // Branches that don't have an upstream are compared with HEAD.
   bool isMerged() const;
 
+  // Is this branch checked out in this repository or any linked worktree?
+  bool isCheckedOut() const;
+
   // Valid for both local and remote tracking branches. Local branches use
   // the upstream remote tracking branch, if it exists, to get the remote.
   Remote remote() const;

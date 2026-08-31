@@ -45,12 +45,15 @@
 #include "git2/signature.h"
 #include "git2/stash.h"
 #include "git2/tag.h"
+#include "git2/worktree.h"
 #include "git2/sys/repository.h"
 #include "git2/sys/errors.h"
 #include "git2/attr.h"
+#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QMutex>
 #include <QMap>
 #include <QProcess>
 #include <QSaveFile>
@@ -69,6 +72,18 @@ namespace {
 const QString kConfigDir = "gittyup";
 const QString kConfigFile = "config";
 const QString kStarFile = "starred";
+QMutex registryMutex;
+
+QString canonicalPath(const QString &path) {
+  QFileInfo info(path);
+  QString canonical = info.canonicalFilePath();
+  return QDir::cleanPath(canonical.isEmpty() ? info.absoluteFilePath()
+                                             : canonical);
+}
+
+void setWorktreeError(const QString &message) {
+  git_error_set_str(GIT_ERROR_WORKTREE, message.toUtf8());
+}
 
 int blame_progress(const git_oid *suspect, void *payload) {
   return reinterpret_cast<Blame::Callbacks *>(payload)->progress() ? 0 : -1;
@@ -113,7 +128,7 @@ Repository::Data::Data(git_repository *repo)
     : repo(repo), notifier(new RepositoryNotifier) {
   // Load starred commits.
   git_oid_t hash_type = git_repository_oid_type(repo);
-  QDir dir(git_repository_path(repo));
+  QDir dir(git_repository_commondir(repo));
   QFile file(appDir(dir).filePath(kStarFile));
   if (!file.open(QIODevice::ReadOnly))
     return;
@@ -132,7 +147,10 @@ Repository::Data::~Data() {
 }
 
 void Repository::unregisterRepository(Data *data) {
-  registry.remove(data->repo);
+  {
+    QMutexLocker locker(&registryMutex);
+    registry.remove(data->repo);
+  }
   delete data;
 }
 
@@ -141,6 +159,7 @@ Repository::registerRepository(git_repository *repo) {
   if (!repo)
     return QSharedPointer<Data>();
 
+  QMutexLocker locker(&registryMutex);
   auto it = registry.find(repo);
   if (it != registry.end())
     return *it;
@@ -157,14 +176,10 @@ Repository::Repository(git_repository *repo) : d(registerRepository(repo)) {}
 Repository::operator git_repository *() const { return d->repo; }
 
 QDir Repository::dir(bool includeGitFolder) const {
+  if (!includeGitFolder && !isBare())
+    return workdir();
+
   QDir dir(git_repository_path(d->repo));
-  if (!includeGitFolder && dir.dirName() == ".git") {
-    if (!dir.cdUp()) {
-      assert(false); // must be done explicit, because in release build the
-                     // assert will not be executed, so assert(dir.cdUp()) does
-                     // not work in release build
-    }
-  }
   return dir;
 }
 
@@ -172,7 +187,11 @@ QDir Repository::workdir() const {
   return isBare() ? dir() : QDir(git_repository_workdir(d->repo));
 }
 
-QDir Repository::appDir() const { return appDir(dir()); }
+QDir Repository::commonDir() const {
+  return QDir(git_repository_commondir(d->repo));
+}
+
+QDir Repository::appDir() const { return appDir(commonDir()); }
 
 Id Repository::workdirId(const QString &path) const {
   git_oid id;
@@ -210,6 +229,161 @@ git_oid_t Repository::oidType() const {
 }
 
 bool Repository::isBare() const { return git_repository_is_bare(d->repo); }
+
+bool Repository::isWorktree() const {
+  return git_repository_is_worktree(d->repo);
+}
+
+QList<Worktree> Repository::worktrees() const {
+  QList<Worktree> result;
+  const QString currentPath =
+      isBare() ? QString() : canonicalPath(workdir().path());
+
+  Repository main = Repository::open(commonDir().path());
+  if (!main.isValid())
+    main = *this;
+
+  const QString mainPath = main.isBare() ? QString() : main.workdir().path();
+  Branch mainBranch = main.head();
+  result.append(Worktree(
+      "Home", mainPath, mainBranch.isValid() ? mainBranch.name() : QString(),
+      true, main.isValid(),
+      !mainPath.isEmpty() && canonicalPath(mainPath) == currentPath));
+
+  git_strarray names = {nullptr, 0};
+  if (git_worktree_list(&names, d->repo)) {
+    git_strarray_dispose(&names);
+    return result;
+  }
+
+  for (size_t i = 0; i < names.count; ++i) {
+    git_worktree *handle = nullptr;
+    QString name = QString::fromUtf8(names.strings[i]);
+    if (git_worktree_lookup(&handle, d->repo, names.strings[i])) {
+      result.append(Worktree(name, QString(), QString(), false, false, false));
+      continue;
+    }
+
+    QString path = QString::fromUtf8(git_worktree_path(handle));
+    bool valid = !git_worktree_validate(handle);
+    QString branchName;
+    Repository linked = Repository::open(path);
+    if (linked.isValid()) {
+      Branch branch = linked.head();
+      if (branch.isValid())
+        branchName = branch.name();
+    }
+
+    result.append(
+        Worktree(name, path, branchName, false, valid,
+                 !path.isEmpty() && canonicalPath(path) == currentPath));
+    git_worktree_free(handle);
+  }
+
+  git_strarray_dispose(&names);
+  return result;
+}
+
+Repository Repository::createWorktree(const QString &name, const QString &path,
+                                      const Branch &selected,
+                                      const QString &localBranchName,
+                                      Result *result) {
+  auto fail = [result](const QString &message) {
+    setWorktreeError(message);
+    if (result)
+      *result = Result(GIT_EINVALIDSPEC);
+    return Repository();
+  };
+
+  if (name.isEmpty() || path.isEmpty() || !selected.isValid())
+    return fail(tr("Invalid worktree name, path, or branch"));
+  if (QFileInfo::exists(path))
+    return fail(tr("Worktree destination already exists"));
+
+  git_worktree *existing = nullptr;
+  if (!git_worktree_lookup(&existing, d->repo, name.toUtf8())) {
+    git_worktree_free(existing);
+    return fail(tr("A worktree with this name already exists"));
+  }
+  git_error_clear();
+  if (selected.isLocalBranch() && selected.isCheckedOut())
+    return fail(tr("Branch is already checked out in another worktree"));
+
+  Branch local = selected;
+  bool created = false;
+  if (selected.isRemoteBranch()) {
+    if (!Branch::isNameValid(localBranchName) ||
+        lookupBranch(localBranchName, GIT_BRANCH_LOCAL).isValid())
+      return fail(tr("A valid new local branch name is required"));
+
+    local = createBranch(localBranchName, selected.target());
+    if (!local.isValid()) {
+      if (result)
+        *result = Result(-1);
+      return Repository();
+    }
+    local.setUpstream(selected);
+    if (!local.upstream().isValid()) {
+      Result failure(-1);
+      local.remove();
+      if (result)
+        *result = failure;
+      return Repository();
+    }
+    created = true;
+  } else if (!selected.isLocalBranch()) {
+    return fail(tr("Worktrees require a local or remote branch"));
+  }
+
+  git_worktree_add_options options = GIT_WORKTREE_ADD_OPTIONS_INIT;
+  options.checkout_existing = 1;
+  options.ref = local.d.data();
+
+  git_worktree *handle = nullptr;
+  int error = git_worktree_add(&handle, d->repo, name.toUtf8(), path.toUtf8(),
+                               &options);
+  Result addResult(error);
+  if (error) {
+    git_worktree *partial = handle;
+    if (!partial)
+      git_worktree_lookup(&partial, d->repo, name.toUtf8());
+    if (partial) {
+      git_worktree_prune_options pruneOptions = GIT_WORKTREE_PRUNE_OPTIONS_INIT;
+      pruneOptions.flags = GIT_WORKTREE_PRUNE_VALID |
+                           GIT_WORKTREE_PRUNE_WORKING_TREE;
+      git_worktree_prune(partial, &pruneOptions);
+      git_worktree_free(partial);
+    }
+    if (QFileInfo::exists(path))
+      QDir(path).removeRecursively();
+    if (created && !local.isCheckedOut())
+      local.remove();
+    if (result)
+      *result = addResult;
+    return Repository();
+  }
+
+  Repository linked = Repository::open(path);
+  if (!linked.isValid()) {
+    Result openResult(-1);
+    git_worktree_prune_options pruneOptions = GIT_WORKTREE_PRUNE_OPTIONS_INIT;
+    pruneOptions.flags = GIT_WORKTREE_PRUNE_VALID |
+                         GIT_WORKTREE_PRUNE_WORKING_TREE;
+    git_worktree_prune(handle, &pruneOptions);
+    QDir(path).removeRecursively();
+    if (created && !local.isCheckedOut())
+      local.remove();
+    git_worktree_free(handle);
+    if (result)
+      *result = openResult;
+    return Repository();
+  }
+  git_worktree_free(handle);
+
+  if (result)
+    *result = Result(0);
+  return linked;
+}
 
 Signature Repository::signature(const QString &name, const QString &email) {
   return Signature(name, email);
@@ -481,6 +655,12 @@ Branch Repository::lookupBranch(const QString &name, git_branch_t flags) const {
 
 Branch Repository::createBranch(const QString &name, const Commit &target,
                                 bool force) {
+  if (force) {
+    Branch existing = lookupBranch(name, GIT_BRANCH_LOCAL);
+    if (existing.isValid() && existing.isCheckedOut())
+      return Branch();
+  }
+
   Commit commit = target;
   if (!commit.isValid()) {
     Branch branch = head();
@@ -1212,7 +1392,9 @@ QString Repository::attributeValue(const QString &attribute,
   return QString(value);
 }
 
-bool Repository::lfsIsInitialized() { return dir().exists("hooks/pre-push"); }
+bool Repository::lfsIsInitialized() {
+  return commonDir().exists("hooks/pre-push");
+}
 
 bool Repository::lfsInitialize() {
   return (!lfsExecute({"install"}).isEmpty() && lfsIsInitialized());

@@ -24,6 +24,7 @@ public:
   enum class Section {
     Local,
     Remote,
+    Worktrees,
     Stashes,
     CloudPatches,
     PullRequests,
@@ -38,6 +39,7 @@ public:
   enum class ItemKind {
     Section,
     Reference,
+    Worktree,
     Stash,
     Submodule,
     GitHubIssuesFilter,
@@ -119,6 +121,7 @@ private:
     QString url;
     QString branch;
     bool initialized = false;
+    bool available = true;
     bool current = false;
     int ahead = -1;
     int behind = -1;

@@ -205,7 +205,7 @@ bool RemoteCallbacks::negotiation(
   if (!mRepo.isValid())
     return true;
 
-  QDir dir = mRepo.dir();
+  QDir dir = mRepo.commonDir();
   if (!dir.exists("hooks/pre-push"))
     return true;
 

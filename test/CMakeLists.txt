@@ -123,6 +123,7 @@ test(NAME commitMessageTemplate)
 test(NAME commitEditor)
 test(NAME FastIssueDialog)
 test(NAME GitHub)
+test(NAME worktree)
 
 if(DEFINED GITTYUP_CI_TESTS AND NOT DEFINED GITNORTEK_CI_TESTS)
   message(DEPRECATION

@@ -870,7 +870,7 @@ ConfigDialog::ConfigDialog(RepoView *view, Index index) : QDialog(view) {
   QPushButton *edit = buttons->addButton(tr("Edit Config File..."),
                                          QDialogButtonBox::ResetRole);
   connect(edit, &QPushButton::clicked, this, [view, generalPanel] {
-    QString file = view->repo().dir().filePath("config");
+    QString file = view->repo().commonDir().filePath("config");
     if (EditorWindow *window = view->openEditor(file))
       connect(window->widget(), &BlameEditor::saved, generalPanel,
               &GeneralPanel::init);

@@ -33,7 +33,7 @@ const QString kStyleSheet = "QTreeView {"
 
 } // namespace
 
-SideBar::SideBar(TabWidget *tabs, MainWindow *, QWidget *parent)
+SideBar::SideBar(TabWidget *tabs, MainWindow *window, QWidget *parent)
     : QWidget(parent) {
   setStyleSheet(kStyleSheet);
 
@@ -47,6 +47,8 @@ SideBar::SideBar(TabWidget *tabs, MainWindow *, QWidget *parent)
             navigator->setRepoView(
                 qobject_cast<RepoView *>(tabs->currentWidget()));
           });
+  connect(navigator, &RepositoryNavigator::openRepositoryRequested, window,
+          [window](const QString &path) { window->addTab(path); });
   bindNavigator(tabs->currentIndex());
 
   Footer *footer = new Footer(this);

@@ -27,6 +27,8 @@
 #include <QGuiApplication>
 #include <QScreen>
 #include <QCryptographicHash>
+#include <QFileInfo>
+#include <QIcon>
 #include <QMessageBox>
 #include <QMimeData>
 #include <QPushButton>
@@ -48,6 +50,17 @@ const QString kActiveKey = "active";
 const QString kSidebarWidthKey = "sidebar/repositoryNavigator/width";
 const QString kGeometryKey = "geometry";
 const QString kWindowsGroup = "windows";
+
+QString canonicalPath(const QString &path) {
+  QFileInfo info(path);
+  QString canonical = info.canonicalFilePath();
+  return QDir::cleanPath(canonical.isEmpty() ? info.absoluteFilePath()
+                                              : canonical);
+}
+
+QString repositoryPath(const git::Repository &repo) {
+  return canonicalPath(repo.dir(false).path());
+}
 
 class TabName {
 public:
@@ -237,9 +250,10 @@ RepoView *MainWindow::addTab(const QString &path, OpenSource source,
     return nullptr;
 
   TabWidget *tabs = tabWidget();
+  const QString requestedPath = canonicalPath(path);
   for (int i = 0; i < tabs->count(); i++) {
     RepoView *view = static_cast<RepoView *>(tabs->widget(i));
-    if (path == view->repo().dir(false).path()) {
+    if (requestedPath == repositoryPath(view->repo())) {
       if (!tabContext.isEmpty()) {
         view->setTabContext(tabContext);
         updateTabNames();
@@ -265,13 +279,13 @@ RepoView *MainWindow::addTab(const git::Repository &repo,
                              const QString &tabContext,
                              std::optional<bool> updateSubmodules) {
   // Update recent repository settings.
-  QDir dir = repo.dir(false);
+  QDir dir(repositoryPath(repo));
   RecentRepositories::instance()->add(dir.path());
 
   TabWidget *tabs = tabWidget();
   for (int i = 0; i < tabs->count(); i++) {
     RepoView *view = static_cast<RepoView *>(tabs->widget(i));
-    if (dir.path() == view->repo().dir(false).path()) {
+    if (dir.path() == repositoryPath(view->repo())) {
       if (!tabContext.isEmpty()) {
         view->setTabContext(tabContext);
         updateTabNames();
@@ -292,7 +306,8 @@ RepoView *MainWindow::addTab(const git::Repository &repo,
 
   emit tabs->tabAboutToBeInserted();
   mAddingTab = true;
-  tabs->setCurrentIndex(tabs->addTab(view, dir.dirName()));
+  QIcon icon = repo.isWorktree() ? QIcon(":/branches.png") : QIcon();
+  tabs->setCurrentIndex(tabs->addTab(view, icon, dir.dirName()));
   mAddingTab = false;
 
   const QList<git::Submodule> submodules =

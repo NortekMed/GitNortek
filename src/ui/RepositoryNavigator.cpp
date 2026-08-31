@@ -10,18 +10,24 @@
 #include "RepositoryNavigatorModel.h"
 #include "RepoView.h"
 #include "StatePushButton.h"
+#include "dialogs/WorktreeDialog.h"
+#include "git/Branch.h"
 #include "git/Config.h"
 #include "git/Remote.h"
+#include "git/Result.h"
 #include "host/Accounts.h"
 #include "host/Repository.h"
 #include <QApplication>
 #include <QComboBox>
 #include <QDateTime>
 #include <QDesktopServices>
+#include <QFileInfo>
+#include <QFutureWatcher>
 #include <QHBoxLayout>
 #include <QItemSelectionModel>
 #include <QLabel>
 #include <QMenu>
+#include <QMessageBox>
 #include <QMetaEnum>
 #include <QPainter>
 #include <QPainterPath>
@@ -33,6 +39,7 @@
 #include <QToolButton>
 #include <QTreeView>
 #include <QVBoxLayout>
+#include <QtConcurrent>
 #include <algorithm>
 
 namespace {
@@ -45,6 +52,11 @@ constexpr qint64 kIssuesCacheLifetimeMs = 5 * 60 * 1000;
 constexpr qint64 kIssuesManualRefreshIntervalMs = 10 * 1000;
 constexpr qint64 kIssuesRetryDelayMs = 60 * 1000;
 
+struct WorktreeCreationResult {
+  QString path;
+  git::Result result;
+};
+
 QString sectionKey(RepositoryNavigatorModel::Section section) {
   QMetaEnum meta = QMetaEnum::fromType<RepositoryNavigatorModel::Section>();
   return QString::fromLatin1(meta.valueToKey(static_cast<int>(section)));
@@ -53,8 +65,9 @@ QString sectionKey(RepositoryNavigatorModel::Section section) {
 bool hasScrollingBody(RepositoryNavigatorModel::Section section) {
   using Section = RepositoryNavigatorModel::Section;
   return section == Section::Local || section == Section::Remote ||
-         section == Section::Stashes || section == Section::GitHubIssues ||
-         section == Section::Tags || section == Section::Submodules;
+         section == Section::Worktrees || section == Section::Stashes ||
+         section == Section::GitHubIssues || section == Section::Tags ||
+         section == Section::Submodules;
 }
 
 QString comparisonDelta(const QVariant &ahead, const QVariant &behind) {
@@ -348,11 +361,26 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
     titleFont.setCapitalization(QFont::SmallCaps);
     title->setFont(titleFont);
 
+    QToolButton *action = nullptr;
+    if (section == RepositoryNavigatorModel::Section::Worktrees) {
+      action = new QToolButton(header);
+      action->setObjectName("RepositoryNavigationWorktreesAdd");
+      action->setAccessibleName(tr("Create worktree"));
+      action->setToolTip(tr("Create worktree"));
+      action->setText("+");
+      action->setAutoRaise(true);
+      mWorktreeAdd = action;
+      connect(action, &QToolButton::clicked, this,
+              &RepositoryNavigator::promptToCreateWorktree);
+    }
+
     QHBoxLayout *headerLayout = new QHBoxLayout(header);
     headerLayout->setContentsMargins(4, 2, 8, 2);
     headerLayout->setSpacing(2);
     headerLayout->addWidget(toggle);
     headerLayout->addWidget(title, 1);
+    if (action)
+      headerLayout->addWidget(action);
 
     QWidget *body = new QWidget(container);
     QVBoxLayout *bodyLayout = new QVBoxLayout(body);
@@ -393,7 +421,7 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
     const int expandedSize =
         QSettings().value(kSectionSizeGroup + "/" + key, 96).toInt();
     mPanels.append(
-        {section, container, header, toggle, title, body, view, 0,
+        {section, container, header, toggle, title, action, body, view, 0,
          qMax(expandedSize, header->sizeHint().height() + 24)});
     mSectionSplitter->addWidget(container);
     mSectionSplitter->setCollapsible(value, false);
@@ -716,6 +744,9 @@ void RepositoryNavigator::updatePanels() {
     panel.header->setToolTip(index.data(Qt::ToolTipRole).toString());
     panel.toggle->setEnabled(available && panel.view);
     panel.title->setEnabled(available);
+    if (panel.action)
+      panel.action->setEnabled(mModel->repository().isValid() &&
+                               !mModel->repository().isBare());
     if (panel.view) {
       panel.view->setRootIndex(index);
       panel.view->setEnabled(available);
@@ -935,6 +966,12 @@ void RepositoryNavigator::activate(const QModelIndex &index, bool checkout) {
     return;
   if (kind == RepositoryNavigatorModel::ItemKind::GitHubIssue)
     return;
+  if (kind == RepositoryNavigatorModel::ItemKind::Worktree) {
+    if (index.data(RepositoryNavigatorModel::AvailableRole).toBool())
+      emit openRepositoryRequested(
+          index.data(RepositoryNavigatorModel::PathRole).toString());
+    return;
+  }
 
   if (!mRepoView)
     return;
@@ -959,6 +996,77 @@ void RepositoryNavigator::activate(const QModelIndex &index, bool checkout) {
       index.data(RepositoryNavigatorModel::SubmoduleRole).value<git::Submodule>();
   if (submodule.isValid() && checkout)
     mRepoView->openSubmodule(submodule);
+}
+
+void RepositoryNavigator::promptToCreateWorktree() {
+  git::Repository repo = mModel->repository();
+  if (!repo.isValid() || repo.isBare())
+    return;
+  const QString repositoryPath = repo.commonDir().path();
+
+  WorktreeDialog *dialog = new WorktreeDialog(repo, this);
+  dialog->setAttribute(Qt::WA_DeleteOnClose);
+  connect(dialog, &QDialog::accepted, this, [this, dialog, repositoryPath] {
+    const git::Branch selected = dialog->branch();
+    const QString selectedName = selected.name();
+    const git_branch_t branchType = selected.isRemoteBranch()
+                                        ? GIT_BRANCH_REMOTE
+                                        : GIT_BRANCH_LOCAL;
+    const QString localBranchName = dialog->localBranchName();
+    const QString worktreeName = dialog->worktreeName();
+    const QString path = dialog->path();
+    const QString rootPath = QFileInfo(path).dir().absolutePath();
+    const bool createdRoot = !QFileInfo::exists(rootPath);
+    if (!QDir().mkpath(rootPath)) {
+      QMessageBox::critical(this, tr("Create Worktree"),
+                            tr("Unable to create worktree directory '%1'.")
+                                .arg(rootPath));
+      return;
+    }
+
+    mWorktreeAdd->setEnabled(false);
+    auto *watcher = new QFutureWatcher<WorktreeCreationResult>(this);
+    connect(watcher, &QFutureWatcherBase::finished, this,
+            [this, watcher, createdRoot, rootPath] {
+              WorktreeCreationResult outcome = watcher->result();
+              watcher->deleteLater();
+              mWorktreeAdd->setEnabled(mModel->repository().isValid() &&
+                                       !mModel->repository().isBare());
+              if (outcome.path.isEmpty()) {
+                if (createdRoot) {
+                  QDir root(rootPath);
+                  if (root.entryList(QDir::AllEntries | QDir::Hidden |
+                                     QDir::NoDotAndDotDot)
+                          .isEmpty())
+                    QDir().rmdir(rootPath);
+                }
+                QMessageBox::critical(
+                    this, tr("Create Worktree"),
+                    outcome.result.errorString(tr("Unable to create worktree.")));
+                return;
+              }
+
+              mModel->refresh();
+              emit openRepositoryRequested(outcome.path);
+            });
+    watcher->setFuture(QtConcurrent::run(
+        [repositoryPath, selectedName, branchType, localBranchName, worktreeName,
+         path] {
+          WorktreeCreationResult outcome;
+          git::Repository repo = git::Repository::open(repositoryPath);
+          if (!repo.isValid()) {
+            outcome.result = git::Result(-1);
+            return outcome;
+          }
+          git::Branch branch = repo.lookupBranch(selectedName, branchType);
+          git::Repository linked = repo.createWorktree(
+              worktreeName, path, branch, localBranchName, &outcome.result);
+          if (linked.isValid())
+            outcome.path = linked.workdir().path();
+          return outcome;
+        }));
+  });
+  dialog->open();
 }
 
 void RepositoryNavigator::discoverGitHubIssuesRepositories() {

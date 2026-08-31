@@ -8,6 +8,7 @@
 #include "RepositoryNavigatorModel.h"
 #include "git/Branch.h"
 #include "git/TagRef.h"
+#include "git/Worktree.h"
 #include <QUrl>
 #include <algorithm>
 
@@ -243,7 +244,7 @@ QVariant RepositoryNavigatorModel::data(const QModelIndex &index,
     case ItemKindRole:
       return static_cast<int>(row->kind);
     case AvailableRole:
-      return row->kind != ItemKind::Status;
+      return row->available && row->kind != ItemKind::Status;
     case CurrentRole:
       return row->current;
     case AheadRole:
@@ -308,7 +309,7 @@ Qt::ItemFlags RepositoryNavigatorModel::flags(const QModelIndex &index) const {
   if (isSection(index))
     return section->available ? Qt::ItemIsEnabled : Qt::NoItemFlags;
   const Row *row = rowData(index);
-  if (row && row->kind == ItemKind::Status)
+  if (row && (row->kind == ItemKind::Status || !row->available))
     return Qt::ItemIsEnabled;
   return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
@@ -374,6 +375,8 @@ void RepositoryNavigatorModel::rebuild() {
   mSections = {
       {Section::Local, tr("Local"), QString(), true, {}},
       {Section::Remote, tr("Remote"), QString(), true, {}},
+      {Section::Worktrees, tr("Worktrees"), QString(),
+       mRepo.isValid() && !mRepo.isBare(), {}},
       {Section::Stashes, tr("Stashes"), QString(), true, {}},
       {Section::CloudPatches, tr("Cloud Patches"),
        tr("Cloud Patches are not available."), false, {}},
@@ -418,6 +421,28 @@ void RepositoryNavigatorModel::rebuild() {
     remote.rows.append(row);
   }
   std::sort(remote.rows.begin(), remote.rows.end(), lessThan);
+
+  if (!mRepo.isBare()) {
+    SectionData &worktrees = mSections[static_cast<int>(Section::Worktrees)];
+    for (const git::Worktree &worktree : mRepo.worktrees()) {
+      Row row;
+      row.kind = ItemKind::Worktree;
+      row.display = worktree.isMain() ? tr("Home") : worktree.branch();
+      if (row.display.isEmpty())
+        row.display = worktree.name();
+      row.path = worktree.path();
+      row.branch = worktree.branch();
+      row.current = worktree.isCurrent();
+      row.available = worktree.isValid() && !worktree.path().isEmpty();
+      QStringList tooltip{tr("Path: %1").arg(row.path)};
+      if (!row.branch.isEmpty())
+        tooltip.append(tr("Branch: %1").arg(row.branch));
+      if (!row.available)
+        tooltip.append(tr("This worktree is unavailable."));
+      row.tooltip = tooltip.join('\n');
+      worktrees.rows.append(row);
+    }
+  }
 
   SectionData &stashes = mSections[static_cast<int>(Section::Stashes)];
   const QList<git::Commit> commits = mRepo.stashes();

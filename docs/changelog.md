@@ -5,6 +5,7 @@ Bug Fix and Feature release
 #### Added
 
 * Add a repository navigator action bar for expanding or collapsing all available sections
+* Add repository navigator worktree creation and navigation for local and remote branches
 * Add more information about the credential stores to give the user the possibility to easily see the tradeoffs of every credential store
 * Add GitNortek package artifact workflows for Linux RPM and Windows installers
 * Add submodule creation, update checks, and modification dialog support

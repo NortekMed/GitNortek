@@ -17,6 +17,7 @@
 #include "Diff.h"
 #include "Index.h"
 #include "Rebase.h"
+#include "Worktree.h"
 #include "git2/checkout.h"
 #include "git2/errors.h"
 #include "git2/revwalk.h"
@@ -76,6 +77,7 @@ public:
 
   QDir dir(bool includeGitFolder = true) const;
   QDir workdir() const;
+  QDir commonDir() const;
   QDir appDir() const;
 
   Id workdirId(const QString &path) const;
@@ -92,6 +94,14 @@ public:
 
   // bare
   bool isBare() const;
+
+  // worktree
+  bool isWorktree() const;
+  QList<Worktree> worktrees() const;
+  Repository createWorktree(const QString &name, const QString &path,
+                            const Branch &selected,
+                            const QString &localBranchName = QString(),
+                            Result *result = nullptr);
 
   // signature
   Signature defaultSignature(bool *fake = nullptr,

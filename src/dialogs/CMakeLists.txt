@@ -34,7 +34,8 @@ add_library(
   SubmoduleTableModel.cpp
   TagDialog.cpp
   ThemeDialog.cpp
-  UpdateSubmodulesDialog.cpp)
+  UpdateSubmodulesDialog.cpp
+  WorktreeDialog.cpp)
 
 target_compile_definitions(
   dialogs PRIVATE GITNORTEK_BUILD_DATE="${GITNORTEK_BUILD_DATE}"

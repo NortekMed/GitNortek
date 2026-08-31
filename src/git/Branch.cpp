@@ -77,6 +77,13 @@ bool Branch::isMerged() const {
   return !difference(branch);
 }
 
+bool Branch::isCheckedOut() const {
+  if (!isValid() || !isLocalBranch())
+    return false;
+
+  return git_branch_is_checked_out(d.data()) > 0;
+}
+
 Remote Branch::remote() const {
   if (isLocalBranch()) {
     Branch up = upstream();
@@ -100,6 +107,8 @@ Remote Branch::remote() const {
 
 Branch Branch::rename(const QString &name) {
   Q_ASSERT(isLocalBranch());
+  if (!isHead() && isCheckedOut())
+    return Branch();
 
   git_reference *ref = nullptr;
   if (git_branch_move(&ref, d.data(), name.toUtf8(), false))
@@ -114,6 +123,9 @@ Branch Branch::rename(const QString &name) {
 }
 
 void Branch::remove(bool force) {
+  if (isCheckedOut())
+    return;
+
   // Remember name.
   QString name = this->name();
 

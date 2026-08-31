@@ -167,9 +167,14 @@ public:
 
   void watchGitMetadata() {
     QDir gitDir = mRepo.dir();
+    QDir commonDir = mRepo.commonDir();
     watchGitDirectory(gitDir, false);
-
     watchGitMetadata(gitDir);
+    if (commonDir.absolutePath() != gitDir.absolutePath()) {
+      watchGitDirectory(commonDir, false);
+      watchGitMetadata(commonDir);
+    }
+    watchGitDirectory(QDir(commonDir.filePath("worktrees")), true);
     foreach (const QString &path, mSubmoduleGitDirs) {
       QDir submoduleGitDir(path);
       watchGitDirectory(submoduleGitDir, false);
@@ -188,6 +193,11 @@ public:
   bool isGitMetadataPath(const QString &path) const {
     QString relative = mRepo.dir().relativeFilePath(path);
     if (relative.startsWith("modules/") || isRepositoryMetadata(relative))
+      return true;
+
+    relative = mRepo.commonDir().relativeFilePath(path);
+    if (relative.startsWith("modules/") || relative == "worktrees" ||
+        relative.startsWith("worktrees/") || isRepositoryMetadata(relative))
       return true;
 
     foreach (const QString &gitDir, mSubmoduleGitDirs) {

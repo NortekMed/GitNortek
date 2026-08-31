@@ -10,8 +10,10 @@
 #include "app/Theme.h"
 #include "conf/Setting.h"
 #include "conf/Settings.h"
+#include "dialogs/WorktreeDialog.h"
 #include "git/Branch.h"
 #include "git/Config.h"
+#include "git/Result.h"
 #include "git/TagRef.h"
 #include "git/Tree.h"
 #include "ui/CommitList.h"
@@ -21,6 +23,7 @@
 #include "ui/MainWindow.h"
 #include "ui/RepositoryNavigator.h"
 #include "ui/RepositoryNavigatorModel.h"
+#include "ui/ReferenceList.h"
 #include "ui/RepoView.h"
 #include "ui/SideBar.h"
 #include "ui/StatePushButton.h"
@@ -200,6 +203,7 @@ private slots:
   void branchGraphColors();
   void stashInteraction();
   void submoduleInteraction();
+  void worktreeTabs();
   void cleanupTestCase();
 
 private:
@@ -322,9 +326,10 @@ void TestRepositorySideBar::navigatorModel() {
 
   QCOMPARE(model.rowCount(),
            static_cast<int>(RepositoryNavigatorModel::Section::Count));
-  const QStringList sections = {"Local",         "Remote", "Stashes",
-                                "Cloud Patches", "Pull Requests",
-                                "GitHub Issues", "Teams",  "Tags",
+  const QStringList sections = {"Local",         "Remote", "Worktrees",
+                                "Stashes",       "Cloud Patches",
+                                "Pull Requests", "GitHub Issues",
+                                "Teams",         "Tags",
                                 "Submodules"};
   for (int row = 0; row < sections.size(); ++row)
     QCOMPARE(model.index(row, 0).data().toString(), sections.at(row));
@@ -373,6 +378,19 @@ void TestRepositorySideBar::navigatorModel() {
   QVERIFY(remoteNames.contains("origin/NOTHEAD"));
   QVERIFY(!remoteNames.contains("origin/HEAD"));
 
+  QModelIndex worktrees =
+      model.sectionIndex(RepositoryNavigatorModel::Section::Worktrees);
+  QCOMPARE(model.rowCount(worktrees), 1);
+  QModelIndex home = model.index(0, 0, worktrees);
+  QCOMPARE(home.data().toString(), QString("Home"));
+  QCOMPARE(static_cast<RepositoryNavigatorModel::ItemKind>(
+               home.data(RepositoryNavigatorModel::ItemKindRole).toInt()),
+           RepositoryNavigatorModel::ItemKind::Worktree);
+  QCOMPARE(home.data(RepositoryNavigatorModel::PathRole).toString(),
+           mRepo->workdir().path());
+  QVERIFY(home.data(RepositoryNavigatorModel::CurrentRole).toBool());
+  QVERIFY(home.data(RepositoryNavigatorModel::AvailableRole).toBool());
+
   QVERIFY(mRepo->createBranch("notified", head).isValid());
   QTRY_COMPARE(model.rowCount(local), 3);
 
@@ -398,8 +416,10 @@ void TestRepositorySideBar::navigatorModel() {
 }
 
 void TestRepositorySideBar::navigatorView() {
-  const QStringList collapsibleSections = {
-      "Local", "Remote", "Stashes", "GitHubIssues", "Tags", "Submodules"};
+  const QStringList collapsibleSections = {"Local",        "Remote",
+                                           "Worktrees",    "Stashes",
+                                           "GitHubIssues", "Tags",
+                                           "Submodules"};
   QStringList settingKeys;
   for (const QString &section : collapsibleSections) {
     settingKeys.append("sidebar/repositoryNavigator/expanded/" + section);
@@ -452,6 +472,7 @@ void TestRepositorySideBar::navigatorView() {
   for (RepositoryNavigatorModel::Section section :
        {RepositoryNavigatorModel::Section::Local,
         RepositoryNavigatorModel::Section::Remote,
+        RepositoryNavigatorModel::Section::Worktrees,
         RepositoryNavigatorModel::Section::Stashes,
         RepositoryNavigatorModel::Section::GitHubIssues,
         RepositoryNavigatorModel::Section::Tags,
@@ -486,7 +507,11 @@ void TestRepositorySideBar::navigatorView() {
   QVERIFY(qWaitForWindowExposed(&host));
 
   const QStringList availableSections = {"Local", "Remote", "Stashes",
-                                         "Tags", "Submodules"};
+                                          "Tags", "Submodules"};
+  QToolButton *worktreeAdd = navigator.findChild<QToolButton *>(
+      "RepositoryNavigationWorktreesAdd");
+  QVERIFY(worktreeAdd);
+  QVERIFY(!worktreeAdd->isEnabled());
   QToolButton *issuesToggle = navigator.findChild<QToolButton *>(
       "RepositoryNavigationGitHubIssuesToggle");
   QVERIFY(issuesToggle);
@@ -536,6 +561,19 @@ void TestRepositorySideBar::navigatorView() {
 
   navigator.setRepository(mRepo);
   QVERIFY(!localToggle->isChecked());
+  QVERIFY(worktreeAdd->isEnabled());
+
+  QSignalSpy openSpy(&navigator,
+                     &RepositoryNavigator::openRepositoryRequested);
+  QTreeView *worktreeView = navigator.sectionView(
+      RepositoryNavigatorModel::Section::Worktrees);
+  QVERIFY(worktreeView);
+  QModelIndex home = model->index(0, 0, worktreeView->rootIndex());
+  QVERIFY(QMetaObject::invokeMethod(worktreeView, "doubleClicked",
+                                    Qt::DirectConnection,
+                                    Q_ARG(QModelIndex, home)));
+  QCOMPARE(openSpy.count(), 1);
+  QCOMPARE(openSpy.takeFirst().at(0).toString(), mRepo->workdir().path());
 }
 
 void TestRepositorySideBar::githubIssuesModel() {
@@ -1991,6 +2029,49 @@ void TestRepositorySideBar::submoduleInteraction() {
            parent->workdir().filePath("child"));
   QCOMPARE(window.tabWidget()->tabText(window.tabWidget()->currentIndex()),
            QString("%1 / child").arg(parent->workdir().dirName()));
+}
+
+void TestRepositorySideBar::worktreeTabs() {
+  QTemporaryDir sandbox;
+  QVERIFY(sandbox.isValid());
+
+  git::Repository repo =
+      git::Repository::init(QDir(sandbox.path()).filePath("repo"));
+  QVERIFY(repo.isValid());
+  Test::initRepo(repo);
+  git::Commit commit = repo.commit("initial");
+  QVERIFY(commit.isValid());
+  git::Branch feature = repo.createBranch("feature", commit);
+  QVERIFY(feature.isValid());
+  git::Branch reserved = repo.createBranch("CON", commit);
+  QVERIFY(reserved.isValid());
+
+  WorktreeDialog dialog(repo);
+  ReferenceList *branches =
+      dialog.findChild<ReferenceList *>("WorktreeBranch");
+  QVERIFY(branches);
+  branches->select(reserved);
+  QCOMPARE(dialog.worktreeName(), QString("CON-"));
+
+  const QString path = QDir(sandbox.path()).filePath("repo.worktrees/feature");
+  QVERIFY(QDir().mkpath(QFileInfo(path).dir().path()));
+  git::Result result;
+  git::Repository linked =
+      repo.createWorktree("feature", path, feature, QString(), &result);
+  QVERIFY2(result, qPrintable(result.errorString()));
+  QVERIFY(linked.isValid());
+
+  MainWindow window(repo);
+  QCOMPARE(window.count(), 1);
+  RepoView *linkedView = window.addTab(path);
+  QVERIFY(linkedView);
+  QCOMPARE(window.count(), 2);
+  int linkedIndex = window.tabWidget()->indexOf(linkedView);
+  QVERIFY(linkedIndex >= 0);
+  QVERIFY(!window.tabWidget()->tabIcon(linkedIndex).isNull());
+
+  QCOMPARE(window.addTab(QDir(path).filePath(".")), linkedView);
+  QCOMPARE(window.count(), 2);
 }
 
 void TestRepositorySideBar::cleanupTestCase() { mWindow->close(); }

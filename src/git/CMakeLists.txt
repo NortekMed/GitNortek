@@ -27,6 +27,7 @@ add_library(
   Tag.cpp
   TagRef.cpp
   Tree.cpp)
+target_sources(git PUBLIC Worktree.h)
 
 if(USE_SYSTEM_LIBGIT2)
   target_link_libraries(git ${LIBGIT2_LIBRARIES} gitnortekUtil Qt6::Core
