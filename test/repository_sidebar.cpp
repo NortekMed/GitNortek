@@ -520,6 +520,7 @@ void TestRepositorySideBar::navigatorView() {
   QToolButton *localToggle =
       navigator.findChild<QToolButton *>("RepositoryNavigationLocalToggle");
   QVERIFY(localToggle);
+  QCOMPARE(localToggle->accessibleName(), QString("Toggle Local"));
   QToolButton *worktreeAdd = navigator.findChild<QToolButton *>(
       "RepositoryNavigationWorktreesAdd");
   QVERIFY(worktreeAdd);

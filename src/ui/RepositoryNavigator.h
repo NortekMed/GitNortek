@@ -114,6 +114,7 @@ private:
   StatePushButton *mExpandCollapseAllButton;
   QToolButton *mWorktreeAdd;
   QWidget *mCollapsedSpacer;
+  bool mCreatingWorktree = false;
   QList<SectionPanel> mPanels;
   QComboBox *mIssuesRemoteFilter;
   RepositoryNavigatorModel *mModel;

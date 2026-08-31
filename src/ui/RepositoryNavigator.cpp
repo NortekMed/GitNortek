@@ -247,8 +247,10 @@ protected:
   void paintEvent(QPaintEvent *) override {
     QPainter painter(this);
     if (mSection == RepositoryNavigatorModel::Section::Worktrees) {
-      const QPalette::ColorGroup group = isEnabled() ? QPalette::Active
-                                                      : QPalette::Disabled;
+      QPalette::ColorGroup group = isActiveWindow() ? QPalette::Active
+                                                    : QPalette::Inactive;
+      if (!isEnabled())
+        group = QPalette::Disabled;
       drawWorktreeIcon(&painter, rect().adjusted(1, 1, -1, -1),
                        palette().color(group, QPalette::Text), false);
       return;
@@ -673,9 +675,17 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
 
   restoreExpansion();
   updatePanels();
-  mSectionSplitter->restoreState(
+  const bool restored = mSectionSplitter->restoreState(
       QSettings().value(kSplitterStateKey).toByteArray());
-  QTimer::singleShot(0, this, &RepositoryNavigator::updatePanelSizes);
+  if (restored) {
+    const QList<int> sizes = mSectionSplitter->sizes();
+    for (int index = 0; index < mPanels.size() && index < sizes.size(); ++index) {
+      if (mPanels.at(index).body->isVisible())
+        mPanels[index].expandedSize = sizes.at(index);
+    }
+  } else {
+    QTimer::singleShot(0, this, &RepositoryNavigator::updatePanelSizes);
+  }
 }
 
 void RepositoryNavigator::setRepository(const git::Repository &repo) {
@@ -798,8 +808,16 @@ void RepositoryNavigator::setPanelExpanded(
   sectionPanel->body->setVisible(showBody);
   sectionPanel->container->setMaximumHeight(
       showBody ? QWIDGETSIZE_MAX : sectionPanel->header->sizeHint().height());
-  if (showBody != wasVisible)
-    QTimer::singleShot(0, this, &RepositoryNavigator::updatePanelSizes);
+  if (showBody && !wasVisible) {
+    QTimer::singleShot(0, this, [this, panelIndex, section] {
+      SectionPanel *sectionPanel = panel(section);
+      QList<int> sizes = mSectionSplitter->sizes();
+      if (!sectionPanel || panelIndex >= sizes.size())
+        return;
+      sizes[panelIndex] = sectionPanel->expandedSize;
+      mSectionSplitter->setSizes(sizes);
+    });
+  }
 }
 
 bool RepositoryNavigator::allAvailablePanelsExpanded() const {
@@ -876,13 +894,18 @@ void RepositoryNavigator::updatePanels() {
     const int count = index.data(RepositoryNavigatorModel::CountRole).toInt();
     panel.title->setText(
         QString("%1 (%2)").arg(index.data().toString()).arg(count));
+    const QString toggleText = tr("Toggle %1").arg(index.data().toString());
+    panel.toggle->setAccessibleName(toggleText);
+    panel.toggle->setToolTip(toggleText);
+    panel.header->setAccessibleName(toggleText);
     panel.header->setToolTip(index.data(Qt::ToolTipRole).toString());
     panel.toggle->setEnabled(available && panel.view);
     panel.icon->setEnabled(available);
     panel.title->setEnabled(available);
     if (panel.action)
       panel.action->setEnabled(mModel->repository().isValid() &&
-                               !mModel->repository().isBare());
+                               !mModel->repository().isBare() &&
+                               !mCreatingWorktree);
     if (panel.view) {
       panel.view->setRootIndex(index);
       panel.view->setEnabled(available);
@@ -1160,12 +1183,14 @@ void RepositoryNavigator::promptToCreateWorktree() {
       return;
     }
 
+    mCreatingWorktree = true;
     mWorktreeAdd->setEnabled(false);
     auto *watcher = new QFutureWatcher<WorktreeCreationResult>(this);
     connect(watcher, &QFutureWatcherBase::finished, this,
             [this, watcher, createdRoot, rootPath] {
               WorktreeCreationResult outcome = watcher->result();
               watcher->deleteLater();
+              mCreatingWorktree = false;
               mWorktreeAdd->setEnabled(mModel->repository().isValid() &&
                                        !mModel->repository().isBare());
               if (outcome.path.isEmpty()) {
