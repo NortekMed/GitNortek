@@ -59,6 +59,14 @@ constexpr qint64 kIssuesRetryDelayMs = 60 * 1000;
 constexpr int kMaximumVisibleRows = 5;
 constexpr int kSectionBottomSpacing = 24;
 
+QColor dividerColor(const QPalette &palette) {
+  return palette.color(QPalette::Active, QPalette::Text).darker(150);
+}
+
+QColor stretchHandleColor(const QPalette &palette) {
+  return palette.color(QPalette::Active, QPalette::Text).darker(200);
+}
+
 struct WorktreeCreationResult {
   QString path;
   git::Result result;
@@ -219,7 +227,7 @@ protected:
       return;
 
     QPainter painter(this);
-    painter.setPen(palette().color(QPalette::ButtonText));
+    painter.setPen(dividerColor(palette()));
     painter.drawLine(0, 0, width() - 1, 0);
   }
 
@@ -242,14 +250,14 @@ public:
   using QSplitterHandle::QSplitterHandle;
 
 protected:
-  void paintEvent(QPaintEvent *event) override {
-    QSplitterHandle::paintEvent(event);
+  void paintEvent(QPaintEvent *) override {
     QPainter painter(this);
-    painter.setPen(palette().color(QPalette::ButtonText));
+    painter.fillRect(rect(), palette().color(QPalette::Window));
+    painter.setPen(stretchHandleColor(palette()));
     if (orientation() == Qt::Vertical)
-      painter.drawLine(0, height() - 1, width() - 1, height() - 1);
+      painter.drawLine(0, height() / 2, width() - 1, height() / 2);
     else
-      painter.drawLine(width() - 1, 0, width() - 1, height() - 1);
+      painter.drawLine(width() / 2, 0, width() / 2, height() - 1);
   }
 };
 
@@ -524,6 +532,12 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
     icon->setObjectName("RepositoryNavigation" + key + "Icon");
     QLabel *title = new QLabel(header);
     title->setObjectName("RepositoryNavigation" + key + "Title");
+    title->setForegroundRole(QPalette::Text);
+    QPalette titlePalette = title->palette();
+    titlePalette.setBrush(
+        QPalette::Inactive, QPalette::Text,
+        titlePalette.brush(QPalette::Active, QPalette::Text));
+    title->setPalette(titlePalette);
     QFont titleFont = title->font();
     titleFont.setBold(true);
     titleFont.setCapitalization(QFont::SmallCaps);

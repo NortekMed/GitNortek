@@ -693,7 +693,16 @@ void TestRepositorySideBar::navigatorView() {
   headerImage.fill(Qt::transparent);
   localHeader->render(&headerImage);
   QCOMPARE(headerImage.pixelColor(localHeader->width() / 2, 0),
-           localHeader->palette().color(QPalette::ButtonText));
+           localHeader->palette()
+               .color(QPalette::Active, QPalette::Text)
+               .darker(150));
+
+  QLabel *localTitle = navigator.findChild<QLabel *>(
+      "RepositoryNavigationLocalTitle");
+  QVERIFY(localTitle);
+  QCOMPARE(localTitle->foregroundRole(), QPalette::Text);
+  QCOMPARE(localTitle->palette().color(QPalette::Inactive, QPalette::Text),
+           localView->palette().color(QPalette::Active, QPalette::Text));
 
   QSplitterHandle *menuDivider = splitter->handle(1);
   QVERIFY(menuDivider);
@@ -702,8 +711,13 @@ void TestRepositorySideBar::navigatorView() {
   dividerImage.fill(Qt::transparent);
   menuDivider->render(&dividerImage);
   QCOMPARE(dividerImage.pixelColor(menuDivider->width() / 2,
+                                   menuDivider->height() / 2),
+           menuDivider->palette()
+               .color(QPalette::Active, QPalette::Text)
+               .darker(200));
+  QCOMPARE(dividerImage.pixelColor(menuDivider->width() / 2,
                                    menuDivider->height() - 1),
-           menuDivider->palette().color(QPalette::ButtonText));
+           menuDivider->palette().color(QPalette::Window));
   const int fiveRowHeight = localView->height();
 
   QVERIFY(localRepo.createBranch("branch-5", initial).isValid());
@@ -765,10 +779,7 @@ void TestRepositorySideBar::navigatorView() {
       QSettings().value("sidebar/repositoryNavigator/expanded/Local").toBool(),
       false);
 
-  QLabel *localTitle =
-      navigator.findChild<QLabel *>("RepositoryNavigationLocalTitle");
   QVERIFY(localHeader);
-  QVERIFY(localTitle);
   QPoint titleCenter =
       localTitle->mapTo(localHeader, localTitle->rect().center());
   QTest::mouseClick(localHeader, Qt::LeftButton, Qt::NoModifier, titleCenter);
