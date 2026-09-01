@@ -40,6 +40,7 @@ add_library(
   ReferenceView.cpp
   ReferenceModel.cpp
   ReferenceWidget.cpp
+  RepositoryTabStrip.cpp
   RepositoryNavigator.cpp
   RepositoryNavigatorModel.cpp
   RepoView.cpp

@@ -203,6 +203,16 @@ QString CustomTheme::styleSheet() const {
                  "  background: %7;"
                  "}"
 
+                 "RepositoryTabButton {"
+                 "  border: none;"
+                 "  border-right: 1px solid %5;"
+                 "  background: %5;"
+                 "  color: %6;"
+                 "}"
+                 "RepositoryTabButton:checked {"
+                 "  background: %7;"
+                 "}"
+
                  "ToolBar {"
                  "  border-top: none;"
                  "  border-bottom: 1px solid palette(dark)"

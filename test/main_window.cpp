@@ -23,6 +23,7 @@
 #include "ui/MenuBar.h"
 #include "ui/RepoView.h"
 #include "ui/RepositoryNavigatorModel.h"
+#include "ui/RepositoryTabStrip.h"
 #include "ui/TabBar.h"
 #include "ui/TabWidget.h"
 #include "ui/ToolBar.h"
@@ -34,7 +35,6 @@
 #include <QPushButton>
 #include <QSettings>
 #include <QSignalSpy>
-#include <QTabBar>
 #include <QTimer>
 #include <QToolButton>
 
@@ -114,17 +114,16 @@ void TestMainWindow::singleRepositoryTabVisible() {
   }
 
   TabWidget *tabs = mWindow->tabWidget();
-  QTabBar *tabBar = tabs->findChild<QTabBar *>();
+  RepositoryTabStrip *tabBar = tabs->findChild<RepositoryTabStrip *>();
   QVERIFY(tabBar);
   QCOMPARE(tabs->count(), 1);
-  QVERIFY(!tabBar->autoHide());
   QVERIFY(tabBar->isVisible());
-  QVERIFY(!tabBar->expanding());
-  QCOMPARE(tabBar->elideMode(), Qt::ElideRight);
+  QCOMPARE(tabBar->rowCount(), 1);
+  QCOMPARE(tabBar->visibleTabCount(), 1);
   QVERIFY(tabBar->tabRect(0).width() < tabBar->width());
 
-  const QString tooltip = tabBar->tabToolTip(0);
-  QVERIFY(tooltip.contains(tabBar->tabText(0).toHtmlEscaped()));
+  const QString tooltip = tabs->tabToolTip(0);
+  QVERIFY(tooltip.contains(tabs->tabText(0).toHtmlEscaped()));
   QVERIFY(tooltip.contains(":/open.png"));
   QVERIFY(tooltip.contains(QDir::toNativeSeparators(
       mWindow->currentView()->repo().dir(false).absolutePath())));

@@ -10,31 +10,57 @@
 #ifndef TABWIDGET_H
 #define TABWIDGET_H
 
-#include <QTabWidget>
+#include <QIcon>
+#include <QVector>
+#include <QWidget>
 
-class TabWidget : public QTabWidget {
+class QStackedWidget;
+class RepositoryTabStrip;
+
+class TabWidget : public QWidget {
   Q_OBJECT
 
 public:
   TabWidget(QWidget *parent = nullptr);
+  ~TabWidget() override;
+
+  int addTab(QWidget *widget, const QIcon &icon, const QString &text);
+  int count() const;
+  QWidget *widget(int index) const;
+  int indexOf(QWidget *widget) const;
+
+  int currentIndex() const;
+  QWidget *currentWidget() const;
+  void setCurrentIndex(int index);
+  void setCurrentWidget(QWidget *widget);
+
+  QIcon tabIcon(int index) const;
+  void setTabIcon(int index, const QIcon &icon);
+  QString tabText(int index) const;
+  void setTabText(int index, const QString &text);
+  QString tabToolTip(int index) const;
+  void setTabToolTip(int index, const QString &toolTip);
 
   bool closeTab(int index);
   bool closeTab(QWidget *widget);
 
 signals:
+  void currentChanged(int index);
   void tabAboutToBeInserted();
   void tabAboutToBeRemoved();
   void tabRemovalCancelled();
   void tabInserted();
   void tabRemoved();
 
-protected:
-  void resizeEvent(QResizeEvent *event) override;
-  void tabInserted(int index) override;
-  void tabRemoved(int index) override;
-
 private:
-  QWidget *mDefaultWidget;
+  void moveTab(int from, int to);
+  void removeTab(QObject *object);
+
+  RepositoryTabStrip *mTabStrip;
+  QStackedWidget *mStack;
+  QVector<QWidget *> mWidgets;
+  int mCurrentIndex = -1;
+  bool mDestroying = false;
 };
 
 #endif

@@ -9,7 +9,7 @@
 
 #include "TabWidget.h"
 #include "MenuBar.h"
-#include "TabBar.h"
+#include "RepositoryTabStrip.h"
 #include "app/Application.h"
 #include "dialogs/AccountDialog.h"
 #include "dialogs/CloneDialog.h"
@@ -20,7 +20,7 @@
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QPushButton>
-#include <QResizeEvent>
+#include <QStackedWidget>
 #include <QVBoxLayout>
 
 namespace {
@@ -140,23 +140,98 @@ private:
 
 } // namespace
 
-TabWidget::TabWidget(QWidget *parent) : QTabWidget(parent) {
-  TabBar *bar = new TabBar(this);
-  bar->setMovable(true);
-  bar->setTabsClosable(true);
-  setTabBar(bar);
+TabWidget::TabWidget(QWidget *parent) : QWidget(parent) {
+  mTabStrip = new RepositoryTabStrip(this);
+  mStack = new QStackedWidget(this);
 
-  // Create default widget.
-  mDefaultWidget = new DefaultWidget(this);
+  QWidget *defaultPage = new QWidget(mStack);
+  auto *defaultWidget = new DefaultWidget(defaultPage);
+  auto *defaultLayout = new QVBoxLayout(defaultPage);
+  defaultLayout->addStretch();
+  defaultLayout->addWidget(defaultWidget, 0, Qt::AlignHCenter);
+  defaultLayout->addStretch();
+  mStack->addWidget(defaultPage);
 
-  // Handle tab close.
-  connect(this, &TabWidget::tabCloseRequested, this,
+  auto *layout = new QVBoxLayout(this);
+  layout->setContentsMargins(0, 0, 0, 0);
+  layout->setSpacing(0);
+  layout->addWidget(mTabStrip);
+  layout->addWidget(mStack, 1);
+
+  connect(mTabStrip, &RepositoryTabStrip::currentChanged, this,
+          &TabWidget::setCurrentIndex);
+  connect(mTabStrip, &RepositoryTabStrip::closeRequested, this,
           QOverload<int>::of(&TabWidget::closeTab));
+  connect(mTabStrip, &RepositoryTabStrip::tabMoved, this, &TabWidget::moveTab);
 }
 
-bool TabWidget::closeTab(int index) {
-  return closeTab(widget(index));
+TabWidget::~TabWidget() { mDestroying = true; }
+
+int TabWidget::addTab(QWidget *widget, const QIcon &icon, const QString &text) {
+  if (!widget)
+    return -1;
+
+  mWidgets.append(widget);
+  mStack->addWidget(widget);
+  int index = mTabStrip->addTab(icon, text);
+  connect(widget, &QObject::destroyed, this, &TabWidget::removeTab);
+
+  MenuBar::instance(this)->updateWindow();
+  emit tabInserted();
+  return index;
 }
+
+int TabWidget::count() const { return mWidgets.size(); }
+
+QWidget *TabWidget::widget(int index) const {
+  return (index >= 0 && index < count()) ? mWidgets.at(index) : nullptr;
+}
+
+int TabWidget::indexOf(QWidget *widget) const {
+  return mWidgets.indexOf(widget);
+}
+
+int TabWidget::currentIndex() const { return mCurrentIndex; }
+
+QWidget *TabWidget::currentWidget() const { return widget(mCurrentIndex); }
+
+void TabWidget::setCurrentIndex(int index) {
+  if (index < 0 || index >= count() || index == mCurrentIndex)
+    return;
+
+  mCurrentIndex = index;
+  mStack->setCurrentWidget(widget(index));
+  mTabStrip->setCurrentIndex(index);
+  emit currentChanged(index);
+}
+
+void TabWidget::setCurrentWidget(QWidget *widget) {
+  setCurrentIndex(indexOf(widget));
+}
+
+QIcon TabWidget::tabIcon(int index) const { return mTabStrip->tabIcon(index); }
+
+void TabWidget::setTabIcon(int index, const QIcon &icon) {
+  mTabStrip->setTabIcon(index, icon);
+}
+
+QString TabWidget::tabText(int index) const {
+  return mTabStrip->tabText(index);
+}
+
+void TabWidget::setTabText(int index, const QString &text) {
+  mTabStrip->setTabText(index, text);
+}
+
+QString TabWidget::tabToolTip(int index) const {
+  return mTabStrip->tabToolTip(index);
+}
+
+void TabWidget::setTabToolTip(int index, const QString &toolTip) {
+  mTabStrip->setTabToolTip(index, toolTip);
+}
+
+bool TabWidget::closeTab(int index) { return closeTab(widget(index)); }
 
 bool TabWidget::closeTab(QWidget *widget) {
   if (!widget || indexOf(widget) < 0)
@@ -170,30 +245,53 @@ bool TabWidget::closeTab(QWidget *widget) {
   return false;
 }
 
-void TabWidget::resizeEvent(QResizeEvent *event) {
-  QTabWidget::resizeEvent(event);
+void TabWidget::moveTab(int from, int to) {
+  if (from < 0 || from >= count() || to < 0 || to >= count() || from == to)
+    return;
 
-  QSize size = event->size();
-  QSize sizeHint = mDefaultWidget->sizeHint();
-  int x = (size.width() - sizeHint.width()) / 2;
-  int y = (size.height() - sizeHint.height()) / 2;
-  mDefaultWidget->move(x, y);
+  QWidget *currentPage = currentWidget();
+  QWidget *page = mWidgets.takeAt(from);
+  mWidgets.insert(to, page);
+  mStack->removeWidget(page);
+  mStack->insertWidget(to + 1, page);
+  mStack->setCurrentWidget(currentPage);
+
+  int current = indexOf(currentPage);
+  if (current != mCurrentIndex) {
+    mCurrentIndex = current;
+    emit currentChanged(current);
+  }
 }
 
-void TabWidget::tabInserted(int index) {
-  QTabWidget::tabInserted(index);
-  MenuBar::instance(this)->updateWindow();
-  emit tabInserted();
+void TabWidget::removeTab(QObject *object) {
+  if (mDestroying)
+    return;
 
-  mDefaultWidget->setVisible(false);
-}
+  int index = mWidgets.indexOf(static_cast<QWidget *>(object));
+  if (index < 0)
+    return;
 
-void TabWidget::tabRemoved(int index) {
-  QTabWidget::tabRemoved(index);
+  int oldCurrent = mCurrentIndex;
+  bool removingCurrent = index == oldCurrent;
+  mWidgets.removeAt(index);
+  mTabStrip->removeTab(index);
+
+  if (mWidgets.isEmpty()) {
+    mCurrentIndex = -1;
+    mStack->setCurrentIndex(0);
+  } else if (index < oldCurrent) {
+    mCurrentIndex = oldCurrent - 1;
+    mStack->setCurrentWidget(widget(mCurrentIndex));
+  } else if (removingCurrent) {
+    mCurrentIndex = qMin(index, count() - 1);
+    mStack->setCurrentWidget(widget(mCurrentIndex));
+  }
+
+  if (removingCurrent || index < oldCurrent || mCurrentIndex < 0)
+    emit currentChanged(mCurrentIndex);
+
   MenuBar::instance(this)->updateWindow();
   emit tabRemoved();
-
-  mDefaultWidget->setVisible(!count());
 }
 
 #include "TabWidget.moc"

@@ -39,6 +39,7 @@ Bug Fix and Feature release
 * Show the repository sidebar at startup and keep it open when opening repositories
 * Keep the repository tab bar visible when only one repository is open
 * Size repository tabs to their titles, elide crowded titles, and show full repository details on hover
+* Wrap crowded repository tabs across up to four rows and provide searchable overflow for additional tabs
 * Distinguish local and linked-worktree tabs, require a double-click to open worktrees, and protect branch checkout from overwriting uncommitted changes
 * Keep navigator selection on worktrees when switching tabs and prevent empty navigator sections from expanding
 * Expand Local and focus the checked-out branch when opening a repository, with navigator lists matching the surrounding panel background
