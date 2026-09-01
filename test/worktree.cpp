@@ -105,6 +105,21 @@ void TestWorktree::localWorktree() {
   QVERIFY(!feature.rename("renamed-feature").isValid());
   feature.remove(true);
   QVERIFY(repo.lookupBranch("feature/with-slash", GIT_BRANCH_LOCAL).isValid());
+
+  QVERIFY(repo.setHeadDetached(commit));
+  QVERIFY(linked.setHeadDetached(commit));
+  const QString detachedName = repo.head().name();
+  QVERIFY(detachedName.startsWith("HEAD detached at "));
+  QList<git::Worktree> detachedWorktrees = repo.worktrees();
+  QCOMPARE(detachedWorktrees.first().branch(), detachedName);
+  bool foundDetachedLinked = false;
+  for (const git::Worktree &worktree : detachedWorktrees) {
+    if (worktree.name() == QString("feature-tree")) {
+      QCOMPARE(worktree.branch(), detachedName);
+      foundDetachedLinked = true;
+    }
+  }
+  QVERIFY(foundDetachedLinked);
 }
 
 void TestWorktree::remoteTrackingWorktree() {

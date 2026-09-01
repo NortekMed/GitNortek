@@ -928,8 +928,12 @@ int RepositoryNavigator::expandedPanelHeight(
   if (!rowHeight)
     rowHeight = panel.view->fontMetrics().height() + 6;
 
-  int bodyHeight = qMin(visibleRows, kMaximumVisibleRows) * rowHeight +
-                   2 * panel.view->frameWidth();
+  const int rowsForHeight =
+      panel.section == RepositoryNavigatorModel::Section::Submodules
+          ? visibleRows
+          : qMin(visibleRows, kMaximumVisibleRows);
+  int bodyHeight =
+      rowsForHeight * rowHeight + 2 * panel.view->frameWidth();
   bodyHeight += kSectionBottomSpacing;
   if (panel.section == RepositoryNavigatorModel::Section::GitHubIssues &&
       mIssuesRemoteFilter->isVisible())

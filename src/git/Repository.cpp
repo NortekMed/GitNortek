@@ -86,6 +86,11 @@ void setWorktreeError(const QString &message) {
   git_error_set_str(GIT_ERROR_WORKTREE, message.toUtf8());
 }
 
+QString worktreeHeadName(const Repository &repo) {
+  Reference head = repo.head();
+  return head.isValid() ? head.name() : repo.unbornHeadName();
+}
+
 int blame_progress(const git_oid *suspect, void *payload) {
   return reinterpret_cast<Blame::Callbacks *>(payload)->progress() ? 0 : -1;
 }
@@ -245,10 +250,8 @@ QList<Worktree> Repository::worktrees() const {
     main = *this;
 
   const QString mainPath = main.isBare() ? QString() : main.workdir().path();
-  Branch mainBranch = main.head();
   result.append(Worktree(
-      "Home", mainPath, mainBranch.isValid() ? mainBranch.name() : QString(),
-      true, main.isValid(),
+      "Home", mainPath, worktreeHeadName(main), true, main.isValid(),
       !mainPath.isEmpty() && canonicalPath(mainPath) == currentPath));
 
   git_strarray names = {nullptr, 0};
@@ -267,13 +270,9 @@ QList<Worktree> Repository::worktrees() const {
 
     QString path = QString::fromUtf8(git_worktree_path(handle));
     bool valid = !git_worktree_validate(handle);
-    QString branchName;
     Repository linked = Repository::open(path);
-    if (linked.isValid()) {
-      Branch branch = linked.head();
-      if (branch.isValid())
-        branchName = branch.name();
-    }
+    QString branchName =
+        linked.isValid() ? worktreeHeadName(linked) : QString();
 
     result.append(
         Worktree(name, path, branchName, false, valid,

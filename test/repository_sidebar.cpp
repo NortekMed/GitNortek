@@ -254,6 +254,7 @@ private slots:
   void sidebarVisibility();
   void navigatorModel();
   void navigatorView();
+  void submoduleExpansionSizing();
   void githubIssuesModel();
   void githubIssuesRemoteFilter();
   void activeRepositoryBinding();
@@ -847,6 +848,74 @@ void TestRepositorySideBar::navigatorView() {
   QList<QVariant> openArguments = openSpy.takeFirst();
   QCOMPARE(openArguments.at(0).toString(), mRepo->workdir().path());
   QCOMPARE(openArguments.at(1).toBool(), false);
+}
+
+void TestRepositorySideBar::submoduleExpansionSizing() {
+  Test::ScratchRepository child;
+  QVERIFY(writeFile(child, "child.txt", "child\n"));
+  QCOMPARE(runGit(child, {"add", "child.txt"}), 0);
+  QCOMPARE(runGit(child, {"commit", "-m", "child"}), 0);
+
+  Test::ScratchRepository parent;
+  for (int index = 0; index < 6; ++index) {
+    QCOMPARE(runGit(parent,
+                    {"-c", "protocol.file.allow=always", "submodule", "add",
+                     child->workdir().path(),
+                     QString("child-%1").arg(index)}),
+             0);
+  }
+  QCOMPARE(runGit(parent, {"commit", "-am", "add submodules"}), 0);
+
+  QWidget host;
+  RepositoryNavigator navigator(&host);
+  QVBoxLayout *layout = new QVBoxLayout(&host);
+  layout->setContentsMargins(0, 0, 0, 0);
+  layout->addWidget(&navigator);
+  host.resize(320, 900);
+  host.show();
+  QVERIFY(qWaitForWindowExposed(&host));
+  navigator.setRepository(parent);
+
+  for (const QString &section : QStringList({"Local", "Worktrees"})) {
+    QToolButton *toggle = navigator.findChild<QToolButton *>(
+        "RepositoryNavigation" + section + "Toggle");
+    QVERIFY(toggle);
+    toggle->setChecked(false);
+  }
+
+  QToolButton *submodulesToggle = navigator.findChild<QToolButton *>(
+      "RepositoryNavigationSubmodulesToggle");
+  QTreeView *submodulesView = navigator.sectionView(
+      RepositoryNavigatorModel::Section::Submodules);
+  QSplitter *splitter =
+      navigator.findChild<QSplitter *>("RepositorySectionSplitter");
+  QWidget *actionBar = navigator.findChild<QWidget *>(
+      "RepositoryNavigationActionBar", Qt::FindDirectChildrenOnly);
+  QVERIFY(submodulesToggle);
+  QVERIFY(submodulesView);
+  QVERIFY(splitter);
+  QVERIFY(actionBar);
+  submodulesToggle->setChecked(false);
+  submodulesToggle->setChecked(true);
+
+  QModelIndex root = submodulesView->rootIndex();
+  QCOMPARE(navigator.model()->rowCount(root), 6);
+  QModelIndex last = navigator.model()->index(5, 0, root);
+  QTRY_COMPARE(submodulesView->verticalScrollBar()->maximum(), 0);
+  QTRY_VERIFY(submodulesView->visualRect(last).bottom() <=
+              submodulesView->viewport()->rect().bottom());
+  const int fullHeight = submodulesView->height();
+  const int rowHeight = submodulesView->sizeHintForRow(0);
+  QVERIFY(fullHeight >= 6 * rowHeight);
+
+  host.resize(320, actionBar->sizeHint().height() +
+                       splitter->maximumHeight() - 2 * rowHeight);
+  QTRY_VERIFY(submodulesView->height() < fullHeight);
+  QTRY_VERIFY(submodulesView->verticalScrollBar()->maximum() > 0);
+
+  host.resize(320, 900);
+  QTRY_COMPARE(submodulesView->height(), fullHeight);
+  QTRY_COMPARE(submodulesView->verticalScrollBar()->maximum(), 0);
 }
 
 void TestRepositorySideBar::githubIssuesModel() {
