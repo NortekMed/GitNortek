@@ -19,6 +19,7 @@ add_library(
   FastIssueDialog.cpp
   HotkeysPanel.cpp
   IconLabel.cpp
+  LocalWorkspaceDialog.cpp
   MergeDialog.cpp
   ModifySubmoduleDialog.cpp
   NewBranchDialog.cpp

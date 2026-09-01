@@ -45,6 +45,7 @@ private:
 
   QToolButton *mPrevButton;
   QToolButton *mNextButton;
+  QToolButton *mLocalRepoButton;
 
   QToolButton *mFetchButton;
   QToolButton *mPullButton;

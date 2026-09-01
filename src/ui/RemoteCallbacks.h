@@ -15,7 +15,9 @@
 #include "host/Account.h"
 #include <QElapsedTimer>
 #include <QObject>
+#include <QPointer>
 #include <QSet>
+#include <atomic>
 
 class LogEntry;
 
@@ -26,12 +28,15 @@ public:
   enum Kind { Send, Receive };
 
   RemoteCallbacks(Kind kind, LogEntry *log, const QString &url,
-                  const QString &name = QString(), QObject *parent = nullptr,
-                  const git::Repository &repo = git::Repository());
+                   const QString &name = QString(), QObject *parent = nullptr,
+                   const git::Repository &repo = git::Repository(),
+                   bool allowCredentialPrompts = true,
+                   QObject *credentialPromptOwner = nullptr);
 
-  bool isCanceled() const { return mCanceled; }
+  bool isCanceled() const { return mCanceled.load(); }
   void setCanceled(bool canceled);
   bool wasRejected() const { return mRejected; }
+  void setRepositoryForOperation(const git::Repository &repo) { mRepo = repo; }
 
   void storeDeferredCredentials();
 
@@ -102,8 +107,13 @@ private:
   QElapsedTimer mTimer;
   QString mSideband;
   size_t mBytesReceived = 0;
-  bool mCanceled = false;
+  std::atomic_bool mCanceled = false;
   bool mRejected = false;
+  bool mAllowCredentialPrompts = true;
+  QString mKeyFilePath;
+  QString mConfigFilePath;
+  QPointer<QObject> mCredentialPromptOwner;
+  bool mRequireCredentialPromptOwner = false;
 
   LogEntry *mSidebandItem = nullptr;
   LogEntry *mTransferItem = nullptr;

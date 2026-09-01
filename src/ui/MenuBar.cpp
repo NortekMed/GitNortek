@@ -58,7 +58,7 @@ void openCloneDialog(CloneDialog::Kind kind) {
             MainWindow::open(dialog->path(), true,
                              MainWindow::OpenSource::Other,
                              dialog->updateSubmodules())) {
-      RepoView *view = window->currentView();
+      RepoView *view = window->activeView();
       view->addLogEntry(dialog->message(), dialog->messageTitle());
     }
   });
@@ -265,7 +265,7 @@ MenuBar::MenuBar(QWidget *parent) : QMenuBar(parent) {
   newFileHotkey.use(newFile);
   connect(newFile, &QAction::triggered, [] {
     if (MainWindow *window = MainWindow::activeWindow()) {
-      if (RepoView *view = window->currentView()) {
+      if (RepoView *view = window->activeView()) {
         view->newEditor();
         return;
       }
@@ -327,10 +327,12 @@ MenuBar::MenuBar(QWidget *parent) : QMenuBar(parent) {
       return;
 
     if (MainWindow *win = qobject_cast<MainWindow *>(window)) {
-      if (win->count() > 0) {
-        win->tabWidget()->closeTab(win->currentView());
+      if (RepoView *view = win->activeView()) {
+        win->tabWidget()->closeTab(view);
         return;
       }
+      if (win->isLocalRepositoryManagementVisible())
+        return;
     }
 
     window->close();
@@ -444,7 +446,7 @@ MenuBar::MenuBar(QWidget *parent) : QMenuBar(parent) {
   connect(mFind, &QAction::triggered, [] {
     QWidget *widget = QApplication::activeWindow();
     if (MainWindow *window = qobject_cast<MainWindow *>(widget)) {
-      window->currentView()->find();
+      window->activeView()->find();
     } else if (EditorWindow *window = qobject_cast<EditorWindow *>(widget)) {
       window->widget()->find();
     }
@@ -455,7 +457,7 @@ MenuBar::MenuBar(QWidget *parent) : QMenuBar(parent) {
   connect(mFindNext, &QAction::triggered, [] {
     QWidget *widget = QApplication::activeWindow();
     if (MainWindow *window = qobject_cast<MainWindow *>(widget)) {
-      window->currentView()->findNext();
+      window->activeView()->findNext();
     } else if (EditorWindow *window = qobject_cast<EditorWindow *>(widget)) {
       window->widget()->findNext();
     }
@@ -466,7 +468,7 @@ MenuBar::MenuBar(QWidget *parent) : QMenuBar(parent) {
   connect(mFindPrevious, &QAction::triggered, [] {
     QWidget *widget = QApplication::activeWindow();
     if (MainWindow *window = qobject_cast<MainWindow *>(widget)) {
-      window->currentView()->findPrevious();
+      window->activeView()->findPrevious();
     } else if (EditorWindow *window = qobject_cast<EditorWindow *>(widget)) {
       window->widget()->findPrevious();
     }
@@ -773,7 +775,9 @@ MenuBar::MenuBar(QWidget *parent) : QMenuBar(parent) {
     if (!win)
       return;
 
-    RepoView *view = win->currentView();
+    RepoView *view = win->activeView();
+    if (!view)
+      return;
     foreach (const git::Submodule &submodule, view->repo().submodules()) {
       QAction *action = mOpenSubmodule->addAction(submodule.name());
       connect(action, &QAction::triggered,
@@ -906,7 +910,9 @@ MenuBar::MenuBar(QWidget *parent) : QMenuBar(parent) {
     QAction *diffs = debug->addAction(tr("Load All Diffs"));
     connect(diffs, &QAction::triggered, [this] {
       if (MainWindow *win = qobject_cast<MainWindow *>(window())) {
-        RepoView *view = win->currentView();
+        RepoView *view = win->activeView();
+        if (!view)
+          return;
         CommitList *commits = view->commitList();
         QAbstractItemModel *model = commits->model();
         for (int i = 0; i < model->rowCount(); ++i) {
@@ -920,7 +926,10 @@ MenuBar::MenuBar(QWidget *parent) : QMenuBar(parent) {
     QAction *walk = debug->addAction(tr("Walk Commits"));
     connect(walk, &QAction::triggered, [this] {
       if (MainWindow *win = qobject_cast<MainWindow *>(window())) {
-        git::RevWalk walker = win->currentView()->repo().walker();
+        RepoView *view = win->activeView();
+        if (!view)
+          return;
+        git::RevWalk walker = view->repo().walker();
         while (git::Commit commit = walker.next())
           (void)commit;
       }
@@ -961,7 +970,11 @@ void MenuBar::updateFocus() {
   updateFind();
 }
 
-void MenuBar::updateFile() { mClose->setEnabled(QApplication::activeWindow()); }
+void MenuBar::updateFile() {
+  MainWindow *win = qobject_cast<MainWindow *>(window());
+  mClose->setEnabled(win ? !win->isLocalRepositoryManagementVisible()
+                         : QApplication::activeWindow() != nullptr);
+}
 
 void MenuBar::updateSave() {
   EditorWindow *win = qobject_cast<EditorWindow *>(window());
@@ -1025,7 +1038,7 @@ void MenuBar::updateSelectAll() {
 void MenuBar::updateFind() {
   MainWindow *win = qobject_cast<MainWindow *>(window());
   EditorWindow *editor = qobject_cast<EditorWindow *>(window());
-  RepoView *view = win ? win->currentView() : nullptr;
+  RepoView *view = win ? win->activeView() : nullptr;
   bool empty = FindWidget::text().isEmpty();
   mFind->setEnabled(view || editor);
   mFindNext->setEnabled((view || editor) && !empty);
@@ -1034,7 +1047,7 @@ void MenuBar::updateFind() {
 
 void MenuBar::updateView() {
   MainWindow *win = qobject_cast<MainWindow *>(window());
-  RepoView *view = win ? win->currentView() : nullptr;
+  RepoView *view = win ? win->activeView() : nullptr;
   mRefresh->setEnabled(view);
   mRepositoryDiagnostics->setEnabled(view);
   mToggleLog->setEnabled(view);
@@ -1052,7 +1065,7 @@ void MenuBar::updateView() {
 
 void MenuBar::updateRepository() {
   MainWindow *win = qobject_cast<MainWindow *>(window());
-  RepoView *view = win ? win->currentView() : nullptr;
+  RepoView *view = win ? win->activeView() : nullptr;
   mConfigureRepository->setEnabled(view);
   mCommit->setEnabled(view && view->isCommitEnabled());
   mStageAll->setEnabled(view && view->isStageEnabled());
@@ -1061,12 +1074,12 @@ void MenuBar::updateRepository() {
 
   bool lfs = view && view->repo().lfsIsInitialized();
   mLfsUnlock->setEnabled(lfs);
-  mLfsInitialize->setEnabled(!lfs);
+  mLfsInitialize->setEnabled(view && !lfs);
 }
 
 void MenuBar::updateRemote() {
   MainWindow *win = qobject_cast<MainWindow *>(window());
-  RepoView *view = win ? win->currentView() : nullptr;
+  RepoView *view = win ? win->activeView() : nullptr;
   mConfigureRemotes->setEnabled(view);
   mFetch->setEnabled(view);
   mFetchAll->setEnabled(view);
@@ -1080,7 +1093,7 @@ void MenuBar::updateRemote() {
 
 void MenuBar::updateBranch() {
   MainWindow *win = qobject_cast<MainWindow *>(window());
-  RepoView *view = win ? win->currentView() : nullptr;
+  RepoView *view = win ? win->activeView() : nullptr;
   mConfigureBranches->setEnabled(view);
 
   git::Reference ref = view ? view->reference() : git::Reference();
@@ -1130,7 +1143,7 @@ void MenuBar::updateBranch() {
 
 void MenuBar::updateSubmodules() {
   MainWindow *win = qobject_cast<MainWindow *>(window());
-  RepoView *view = win ? win->currentView() : nullptr;
+  RepoView *view = win ? win->activeView() : nullptr;
   QList<git::Submodule> submodules =
       view ? view->repo().submodules() : QList<git::Submodule>();
 
@@ -1145,7 +1158,7 @@ void MenuBar::updateSubmodules() {
 
 void MenuBar::updateStash() {
   MainWindow *win = qobject_cast<MainWindow *>(window());
-  RepoView *view = win ? win->currentView() : nullptr;
+  RepoView *view = win ? win->activeView() : nullptr;
   bool stash = view && view->repo().stashRef().isValid();
   mShowStashes->setEnabled(stash);
   mStash->setEnabled(view && view->isWorkingDirectoryDirty());
@@ -1154,15 +1167,15 @@ void MenuBar::updateStash() {
 
 void MenuBar::updateHistory() {
   MainWindow *win = qobject_cast<MainWindow *>(window());
-  RepoView *view = win ? win->currentView() : nullptr;
+  RepoView *view = win ? win->activeView() : nullptr;
   mPrev->setEnabled(view && view->history()->hasPrev());
   mNext->setEnabled(view && view->history()->hasNext());
 }
 
 void MenuBar::updateWindow() {
   MainWindow *win = qobject_cast<MainWindow *>(window());
-  mPrevTab->setEnabled(win && win->count() > 1);
-  mNextTab->setEnabled(win && win->count() > 1);
+  mPrevTab->setEnabled(win && win->activeView() && win->count() > 1);
+  mNextTab->setEnabled(win && win->activeView() && win->count() > 1);
 }
 
 QWidget *MenuBar::window() const {
@@ -1171,7 +1184,7 @@ QWidget *MenuBar::window() const {
 }
 
 RepoView *MenuBar::view() const {
-  return static_cast<MainWindow *>(window())->currentView();
+  return static_cast<MainWindow *>(window())->activeView();
 }
 
 QList<RepoView *> MenuBar::views() const {

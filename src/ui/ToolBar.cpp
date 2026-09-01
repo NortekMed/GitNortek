@@ -778,7 +778,18 @@ ToolBar::ToolBar(MainWindow *parent) : QToolBar(parent) {
   sidebarButton->setToolTip(tr("Show repository sidebar"));
   addWidget(sidebarButton);
   connect(sidebarButton, &QAbstractButton::clicked,
-          [parent] { parent->setSideBarVisible(!parent->isSideBarVisible()); });
+           [parent] { parent->setSideBarVisible(!parent->isSideBarVisible()); });
+
+  addWidget(new Spacer(4, this));
+
+  mLocalRepoButton = new Button(this);
+  mLocalRepoButton->setObjectName(QStringLiteral("localRepositoryManagement"));
+  mLocalRepoButton->setIcon(QIcon(QStringLiteral(":/open.png")));
+  mLocalRepoButton->setToolTip(tr("Local Repository Management"));
+  mLocalRepoButton->setCheckable(true);
+  addWidget(mLocalRepoButton);
+  connect(mLocalRepoButton, &QToolButton::toggled, parent,
+          &MainWindow::setLocalRepositoryManagementVisible);
 
   addWidget(new Spacer(4, this));
 
@@ -993,6 +1004,8 @@ ToolBar::ToolBar(MainWindow *parent) : QToolBar(parent) {
   addWidget(new Spacer(4, this));
 
   mSearchField = new SearchField(this);
+  mSearchField->setFixedWidth(
+      qMax(120, mSearchField->sizeHint().width() - kButtonWidth - 8));
   addWidget(mSearchField);
 
 #if 0
@@ -1144,7 +1157,8 @@ void ToolBar::updateSearch() {
 }
 
 RepoView *ToolBar::currentView() const {
-  return static_cast<MainWindow *>(parent())->currentView();
+  MainWindow *window = static_cast<MainWindow *>(parent());
+  return window->activeView();
 }
 
 #include "ToolBar.moc"

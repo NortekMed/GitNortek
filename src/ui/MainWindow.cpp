@@ -10,6 +10,7 @@
 #include "MainWindow.h"
 #include "AdvancedSearchWidget.h"
 #include "IndexCompleter.h"
+#include "LocalRepositoryManagement.h"
 #include "MenuBar.h"
 #include "RepoView.h"
 #include "SearchField.h"
@@ -29,11 +30,15 @@
 #include <QScreen>
 #include <QCryptographicHash>
 #include <QFileInfo>
+#include <QFileDialog>
 #include <QIcon>
 #include <QMessageBox>
 #include <QMimeData>
 #include <QPushButton>
 #include <QSettings>
+#include <QSignalBlocker>
+#include <QSplitter>
+#include <QStackedWidget>
 #include <QTimeLine>
 #include <QToolButton>
 #include "util/Debug.h"
@@ -144,19 +149,20 @@ MainWindow::MainWindow(const git::Repository &repo, QWidget *parent,
             }
           });
 
-  // Create splitter.
-  QSplitter *splitter = new QSplitter(this);
-  splitter->setHandleWidth(0);
-  connect(splitter, &QSplitter::splitterMoved, [this] {
-    QSplitter *splitter = static_cast<QSplitter *>(centralWidget());
-    mIsSideBarVisible = (splitter->sizes().first() > 0);
+  // Create repository view.
+  mCentralStack = new QStackedWidget(this);
+  mRepositorySplitter = new QSplitter(mCentralStack);
+  mRepositorySplitter->setHandleWidth(0);
+  connect(mRepositorySplitter, &QSplitter::splitterMoved, [this] {
+    mIsSideBarVisible = (mRepositorySplitter->sizes().first() > 0);
     if (mIsSideBarVisible)
-      QSettings().setValue(kSidebarWidthKey, splitter->sizes().first());
+      QSettings().setValue(kSidebarWidthKey,
+                           mRepositorySplitter->sizes().first());
   });
 
   // Create tab container.
-  TabWidget *tabs = new TabWidget(splitter);
-  connect(tabs, &TabWidget::currentChanged, [this](int index) {
+  mTabs = new TabWidget(mRepositorySplitter);
+  connect(mTabs, &TabWidget::currentChanged, [this](int index) {
     if (!mAddingTab) {
       if (RepoView *repoView = view(index))
         repoView->refresh(false);
@@ -166,17 +172,44 @@ MainWindow::MainWindow(const git::Repository &repo, QWidget *parent,
     MenuBar::instance(this)->update();
   });
 
-  connect(tabs, QOverload<>::of(&TabWidget::tabInserted), this,
+  connect(mTabs, QOverload<>::of(&TabWidget::tabInserted), this,
           &MainWindow::updateTabNames);
-  connect(tabs, QOverload<>::of(&TabWidget::tabRemoved), this,
+  connect(mTabs, QOverload<>::of(&TabWidget::tabRemoved), this,
           &MainWindow::updateTabNames);
 
-  splitter->addWidget(new SideBar(tabs, this, splitter));
-  splitter->addWidget(tabs);
-  splitter->setCollapsible(1, false);
-  splitter->setStretchFactor(1, 1);
+  mRepositorySplitter->addWidget(
+      new SideBar(mTabs, this, mRepositorySplitter));
+  mRepositorySplitter->addWidget(mTabs);
+  mRepositorySplitter->setCollapsible(1, false);
+  mRepositorySplitter->setStretchFactor(1, 1);
 
-  setCentralWidget(splitter);
+  mLocalRepositoryManagement =
+      new LocalRepositoryManagement(mCentralStack);
+  connect(mLocalRepositoryManagement,
+          &LocalRepositoryManagement::openRepositoryRequested, this,
+          [this](const QString &path) { addTab(path); });
+  connect(mLocalRepositoryManagement,
+          &LocalRepositoryManagement::openWorkspaceRequested, this,
+          [this](const QStringList &paths) {
+            for (const QString &path : paths)
+              addTab(path);
+          });
+  connect(mLocalRepositoryManagement,
+          &LocalRepositoryManagement::openRepositoryDialogRequested, this,
+          [this] {
+            Settings *settings = Settings::instance();
+            const QString path = QFileDialog::getExistingDirectory(
+                this, tr("Open Repository"), settings->lastPath(),
+                QFileDialog::ShowDirsOnly);
+            if (!path.isEmpty()) {
+              addTab(path);
+              settings->setLastPath(path);
+            }
+          });
+
+  mCentralStack->addWidget(mRepositorySplitter);
+  mCentralStack->addWidget(mLocalRepositoryManagement);
+  setCentralWidget(mCentralStack);
 
   if (repo)
     addTab(repo, QString(), updateSubmodules);
@@ -198,9 +231,11 @@ MainWindow::MainWindow(const git::Repository &repo, QWidget *parent,
 
   // Always start with the sidebar visible at its saved width.
   int sidebarWidth = QSettings().value(kSidebarWidthKey,
-                                       splitter->widget(0)->sizeHint().width())
+                                       mRepositorySplitter->widget(0)
+                                           ->sizeHint()
+                                           .width())
                          .toInt();
-  splitter->setSizes({qBound(220, sidebarWidth, 520), 1});
+  mRepositorySplitter->setSizes({qBound(220, sidebarWidth, 520), 1});
   mIsSideBarVisible = true;
 
   // Set initial state of interface.
@@ -216,12 +251,11 @@ void MainWindow::setSideBarVisible(bool visible) {
   mIsSideBarVisible = visible;
 
   // Animate sidebar sliding in or out.
-  QSplitter *splitter = static_cast<QSplitter *>(centralWidget());
-  QWidget *sidebar = splitter->widget(0);
+  QWidget *sidebar = mRepositorySplitter->widget(0);
   int storedWidth = QSettings().value(kSidebarWidthKey,
                                       sidebar->sizeHint().width()).toInt();
   int pos = visible ? qBound(220, storedWidth, 520)
-                    : splitter->sizes().first();
+                    : mRepositorySplitter->sizes().first();
 
   QTimeLine *timeline = new QTimeLine(250, this);
   timeline->setDirection(visible ? QTimeLine::Forward : QTimeLine::Backward);
@@ -229,8 +263,7 @@ void MainWindow::setSideBarVisible(bool visible) {
   timeline->setUpdateInterval(20);
 
   connect(timeline, &QTimeLine::valueChanged, [this, pos](qreal value) {
-    QSplitter *splitter = static_cast<QSplitter *>(centralWidget());
-    splitter->setSizes({static_cast<int>(pos * value), 1});
+    mRepositorySplitter->setSizes({static_cast<int>(pos * value), 1});
   });
 
   connect(timeline, &QTimeLine::finished,
@@ -239,10 +272,26 @@ void MainWindow::setSideBarVisible(bool visible) {
   timeline->start();
 }
 
-TabWidget *MainWindow::tabWidget() const {
-  QSplitter *splitter = static_cast<QSplitter *>(centralWidget());
-  return static_cast<TabWidget *>(splitter->widget(1));
+bool MainWindow::isLocalRepositoryManagementVisible() const {
+  return mCentralStack->currentWidget() == mLocalRepositoryManagement;
 }
+
+void MainWindow::setLocalRepositoryManagementVisible(bool visible) {
+  QWidget *page =
+      visible ? static_cast<QWidget *>(mLocalRepositoryManagement)
+              : static_cast<QWidget *>(mRepositorySplitter);
+  if (mCentralStack->currentWidget() != page)
+    mCentralStack->setCurrentWidget(page);
+  if (visible)
+    mLocalRepositoryManagement->checkOriginsIfStale();
+
+  QSignalBlocker blocker(mToolBar->mLocalRepoButton);
+  mToolBar->mLocalRepoButton->setChecked(visible);
+  updateInterface();
+  mMenuBar->update();
+}
+
+TabWidget *MainWindow::tabWidget() const { return mTabs; }
 
 RepoView *MainWindow::addTab(const QString &path, OpenSource source,
                              const QString &tabContext,
@@ -260,6 +309,7 @@ RepoView *MainWindow::addTab(const QString &path, OpenSource source,
         updateTabNames();
       }
       tabs->setCurrentIndex(i);
+      setLocalRepositoryManagementVisible(false);
       return view;
     }
   }
@@ -283,6 +333,7 @@ bool MainWindow::selectTab(const QString &path) {
     RepoView *view = static_cast<RepoView *>(tabs->widget(i));
     if (requestedPath == repositoryPath(view->repo())) {
       tabs->setCurrentIndex(i);
+      setLocalRepositoryManagementVisible(false);
       return true;
     }
   }
@@ -306,6 +357,7 @@ RepoView *MainWindow::addTab(const git::Repository &repo,
         updateTabNames();
       }
       tabs->setCurrentIndex(i);
+      setLocalRepositoryManagementVisible(false);
       return view;
     }
   }
@@ -335,10 +387,15 @@ RepoView *MainWindow::addTab(const git::Repository &repo,
   } else {
     view->refresh(false);
   }
+  setLocalRepositoryManagementVisible(false);
   return view;
 }
 
 int MainWindow::count() const { return tabWidget()->count(); }
+
+RepoView *MainWindow::activeView() const {
+  return isLocalRepositoryManagementVisible() ? nullptr : currentView();
+}
 
 RepoView *MainWindow::currentView() const {
   return static_cast<RepoView *>(tabWidget()->currentWidget());
@@ -639,6 +696,11 @@ void MainWindow::updateInterface() {
 }
 
 void MainWindow::updateWindowTitle(int ahead, int behind) {
+  if (isLocalRepositoryManagementVisible()) {
+    setWindowTitle(tr("Local Repository Management") + BUILD_DESCRIPTION);
+    return;
+  }
+
   RepoView *view = currentView();
   if (!view) {
     setWindowTitle(QCoreApplication::applicationName() + BUILD_DESCRIPTION);

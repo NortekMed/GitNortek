@@ -290,7 +290,7 @@ void TestRepositorySideBar::sidebarVisibility() {
   window.show();
   QVERIFY(qWaitForWindowExposed(&window));
   QVERIFY(window.isSideBarVisible());
-  QSplitter *splitter = qobject_cast<QSplitter *>(window.centralWidget());
+  QSplitter *splitter = qobject_cast<QSplitter *>(window.tabWidget()->parent());
   QVERIFY(splitter);
   QVERIFY(splitter->sizes().constFirst() > 0);
 

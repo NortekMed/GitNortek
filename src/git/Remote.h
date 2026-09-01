@@ -14,6 +14,7 @@
 #include "Result.h"
 #include "git2/net.h"
 #include "git2/proxy.h"
+#include <QMutex>
 #include <QSet>
 #include <QString>
 #include <QSharedPointer>
@@ -124,6 +125,7 @@ public:
     State mState = Transfer;
     QSet<QString> mAgentNames;
 #ifndef USE_SYSTEM_LIBGIT2
+    QMutex mRemoteMutex;
     git_remote *mRemote = nullptr;
 #endif
     QSet<QString> mKeyFiles;

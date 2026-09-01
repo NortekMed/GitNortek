@@ -10,6 +10,8 @@
 #include "Test.h"
 #include "conf/RecentRepositories.h"
 #include "conf/RecentRepository.h"
+#include "conf/LocalWorkspace.h"
+#include "conf/LocalWorkspaces.h"
 #include "conf/Settings.h"
 #include "dialogs/FastIssueDialog.h"
 #include "dialogs/RenameBranchDialog.h"
@@ -20,9 +22,11 @@
 #include "ui/DetailView.h"
 #include "ui/FontUtils.h"
 #include "ui/MainWindow.h"
+#include "ui/LocalRepositoryManagement.h"
 #include "ui/MenuBar.h"
 #include "ui/RepoView.h"
 #include "ui/RepositoryNavigatorModel.h"
+#include "ui/SearchField.h"
 #include "ui/TabBar.h"
 #include "ui/TabWidget.h"
 #include "ui/ToolBar.h"
@@ -51,6 +55,7 @@ private slots:
   void adaptiveRepositoryTabs();
   void focusUpdatesOnlyEditorActions();
   void fastIssueAccess();
+  void localRepositoryManagement();
   void initialRefreshOnce();
   void navigatorRefreshCoalesced();
   void diffPresentationControls();
@@ -77,11 +82,23 @@ private:
   ScratchRepository mRepo;
   ScratchRepository mSecondRepo;
   QStringList mRecentRepositories;
+  QVariant mStoredLocalWorkspaces;
+  QVariantMap mStoredLocalManagementSettings;
+  bool mHadStoredLocalWorkspaces = false;
   MainWindow *mWindow = nullptr;
 };
 
 void TestMainWindow::initTestCase() {
-  mRecentRepositories = QSettings().value("recent").toStringList();
+  QSettings settings;
+  mRecentRepositories = settings.value("recent").toStringList();
+  mHadStoredLocalWorkspaces = settings.contains("localWorkspaces");
+  mStoredLocalWorkspaces = settings.value("localWorkspaces");
+  settings.remove("localWorkspaces");
+  settings.beginGroup("localRepositoryManagement");
+  for (const QString &key : settings.allKeys())
+    mStoredLocalManagementSettings.insert(key, settings.value(key));
+  settings.remove(QString());
+  settings.endGroup();
 
   QProcess git;
   git.start(GIT_EXECUTABLE, {"init", "--bare", mRemoteDir.path()});
@@ -231,6 +248,43 @@ void TestMainWindow::fastIssueAccess() {
   QTRY_VERIFY(button->isVisible());
   QTest::mouseClick(button, Qt::LeftButton);
   QTRY_VERIFY(!button->isVisible());
+}
+
+void TestMainWindow::localRepositoryManagement() {
+  QToolButton *button =
+      mWindow->toolBar()->findChild<QToolButton *>("localRepositoryManagement");
+  QVERIFY(button);
+  QVERIFY(!button->isChecked());
+  QVERIFY(!mWindow->isLocalRepositoryManagementVisible());
+
+  LocalWorkspace workspace;
+  workspace.name = "Main window";
+  workspace.repositories.append(mRepo->workdir().path());
+  QString error;
+  QVERIFY2(LocalWorkspaces::instance()->add(workspace, &error),
+           qPrintable(error));
+  LocalRepositoryManagement *management =
+      mWindow->findChild<LocalRepositoryManagement *>();
+  QVERIFY(management);
+  QSignalSpy originCheckStarted(
+      management, &LocalRepositoryManagement::originCheckStarted);
+
+  button->click();
+  QCOMPARE(originCheckStarted.count(), 1);
+  QVERIFY(button->isChecked());
+  QVERIFY(mWindow->isLocalRepositoryManagementVisible());
+  QVERIFY(mWindow->currentView());
+  QVERIFY(!mWindow->activeView());
+  QVERIFY(!mWindow->toolBar()->searchField()->isEnabled());
+  QVERIFY(mWindow->findChild<LocalRepositoryManagement *>());
+
+  button->click();
+  QVERIFY(!button->isChecked());
+  QVERIFY(!mWindow->isLocalRepositoryManagementVisible());
+  QVERIFY(mWindow->currentView());
+  QVERIFY(mWindow->activeView());
+  QVERIFY2(LocalWorkspaces::instance()->remove(workspace.id, &error),
+           qPrintable(error));
 }
 
 void TestMainWindow::initialRefreshOnce() {
@@ -815,8 +869,19 @@ void TestMainWindow::restoreActiveRepositoryOnly() {
 void TestMainWindow::cleanupTestCase() {
   if (mWindow)
     mWindow->close();
-  QSettings().remove("windows");
-  QSettings().setValue("recent", mRecentRepositories);
+  QSettings settings;
+  settings.remove("windows");
+  settings.setValue("recent", mRecentRepositories);
+  if (mHadStoredLocalWorkspaces)
+    settings.setValue("localWorkspaces", mStoredLocalWorkspaces);
+  else
+    settings.remove("localWorkspaces");
+  settings.remove("localRepositoryManagement");
+  settings.beginGroup("localRepositoryManagement");
+  for (auto it = mStoredLocalManagementSettings.cbegin();
+       it != mStoredLocalManagementSettings.cend(); ++it)
+    settings.setValue(it.key(), it.value());
+  settings.endGroup();
 }
 
 TEST_MAIN(TestMainWindow)
