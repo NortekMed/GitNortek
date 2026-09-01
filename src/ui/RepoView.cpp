@@ -193,6 +193,9 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
     : QSplitter(Qt::Vertical, parent), mRepo(repo) {
   setHandleWidth(0);
   setAttribute(Qt::WA_DeleteOnClose);
+  mCloseCleanupTimer.setSingleShot(true);
+  connect(&mCloseCleanupTimer, &QTimer::timeout, this,
+          &RepoView::finishClosing);
 
   // Start (or restart) indexing after a reference target is updated.
   git::RepositoryNotifier *notifier = repo.notifier();
@@ -730,13 +733,6 @@ void RepoView::cancelRemoteTransfer() {
     mCallbacks->setCanceled(true);
   if (mSubmoduleUpdateCallbacks)
     mSubmoduleUpdateCallbacks->setCanceled(true);
-  QCoreApplication::processEvents();
-  if (mWatcher && mWatcher->isRunning())
-    mWatcher->waitForFinished();
-  if (mSubmoduleUpdateWatcher && mSubmoduleUpdateWatcher->isRunning())
-    mSubmoduleUpdateWatcher->waitForFinished();
-  if (mSubmodulePushCheckWatcher && mSubmodulePushCheckWatcher->isRunning())
-    mSubmodulePushCheckWatcher->waitForFinished();
 }
 
 void RepoView::cancelBackgroundTasks() {
@@ -1015,6 +1011,9 @@ void RepoView::findNext() { mDetails->findNext(); }
 void RepoView::findPrevious() { mDetails->findPrevious(); }
 
 void RepoView::startIndexing() {
+  if (mClosing)
+    return;
+
   if (!mRepo.appConfig().value<bool>("index.enable", true))
     return;
 
@@ -1239,6 +1238,9 @@ QFuture<git::Result> RepoView::fetch(const git::Remote &rmt, bool tags,
 QFuture<git::Result> RepoView::fetch(const git::Remote &rmt, bool tags,
                                      bool interactive, LogEntry *parent,
                                      QStringList *submodules, bool prune) {
+  if (mClosing)
+    return QFuture<git::Result>();
+
   if (mWatcher) {
     // Queue fetch.
     connect(mWatcher, &QFutureWatcher<git::Result>::finished, mWatcher,
@@ -3141,6 +3143,9 @@ void RepoView::checkSubmoduleUpdates(bool automatic) {
 
 void RepoView::checkSubmoduleUpdates(
     const QList<git::Submodule> &requestedSubmodules, bool automatic) {
+  if (mClosing)
+    return;
+
   if (mSubmoduleUpdateWatcher) {
     if (automatic)
       mSubmoduleUpdateCheckPending = true;
@@ -3977,6 +3982,11 @@ void RepoView::showEvent(QShowEvent *event) {
 }
 
 void RepoView::closeEvent(QCloseEvent *event) {
+  if (mClosing) {
+    event->accept();
+    return;
+  }
+
   // Try to close tracked windows.
   foreach (QWidget *window, mTrackedWindows) {
     if (!window->close()) {
@@ -3985,8 +3995,28 @@ void RepoView::closeEvent(QCloseEvent *event) {
     }
   }
 
+  mClosing = true;
+  mFetchTimer.stop();
+  mSubmoduleUpdateCheckPending = false;
+  ++mSubmoduleConfigurationGeneration;
+  setAttribute(Qt::WA_DeleteOnClose, false);
   cancelBackgroundTasks();
+  finishClosing();
   QSplitter::closeEvent(event);
+}
+
+void RepoView::finishClosing() {
+  if (!mClosing)
+    return;
+
+  bool active = mIndexer.state() != QProcess::NotRunning || mWatcher ||
+                mSubmoduleUpdateWatcher || mSubmodulePushCheckWatcher;
+  if (active) {
+    mCloseCleanupTimer.start(50);
+    return;
+  }
+
+  deleteLater();
 }
 
 ToolBar *RepoView::toolBar() const {

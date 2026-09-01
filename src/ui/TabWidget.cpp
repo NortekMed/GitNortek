@@ -10,6 +10,7 @@
 #include "TabWidget.h"
 #include "MenuBar.h"
 #include "RepositoryTabStrip.h"
+#include <QMenu>
 #include "app/Application.h"
 #include "dialogs/AccountDialog.h"
 #include "dialogs/CloneDialog.h"
@@ -162,6 +163,27 @@ TabWidget::TabWidget(QWidget *parent) : QWidget(parent) {
           &TabWidget::setCurrentIndex);
   connect(mTabStrip, &RepositoryTabStrip::closeRequested, this,
           QOverload<int>::of(&TabWidget::closeTab));
+  connect(mTabStrip, &RepositoryTabStrip::contextMenuRequested, this,
+          [this](int index, const QPoint &position) {
+            QMenu menu;
+            QAction *left = menu.addAction(tr("Close tabs on left"));
+            QAction *right = menu.addAction(tr("Close tabs on right"));
+            QAction *others = menu.addAction(tr("Close others tabs"));
+            QAction *all = menu.addAction(tr("Close all tabs"));
+            left->setEnabled(index > 0);
+            right->setEnabled(index + 1 < count());
+            others->setEnabled(count() > 1);
+            all->setEnabled(count() > 0);
+            QAction *selected = menu.exec(position);
+            if (selected == left)
+              closeTabs(index, TabCloseScope::Left);
+            else if (selected == right)
+              closeTabs(index, TabCloseScope::Right);
+            else if (selected == others)
+              closeTabs(index, TabCloseScope::Others);
+            else if (selected == all)
+              closeTabs(index, TabCloseScope::All);
+          });
   connect(mTabStrip, &RepositoryTabStrip::tabMoved, this, &TabWidget::moveTab);
 }
 
@@ -240,11 +262,64 @@ bool TabWidget::closeTab(QWidget *widget) {
     return false;
 
   emit tabAboutToBeRemoved();
-  if (widget->close())
+  if (widget->close()) {
+    detachTab(widget);
     return true;
+  }
 
   emit tabRemovalCancelled();
   return false;
+}
+
+bool TabWidget::closeTabs(int anchorIndex, TabCloseScope scope) {
+  if (count() == 0 || (scope != TabCloseScope::All &&
+                       (anchorIndex < 0 || anchorIndex >= count())))
+    return false;
+
+  QVector<QWidget *> targets;
+  for (int index = count() - 1; index >= 0; --index) {
+    bool target = scope == TabCloseScope::All ||
+                  (scope == TabCloseScope::Left && index < anchorIndex) ||
+                  (scope == TabCloseScope::Right && index > anchorIndex) ||
+                  (scope == TabCloseScope::Others && index != anchorIndex);
+    if (target)
+      targets.append(widget(index));
+  }
+
+  for (QWidget *target : targets) {
+    if (!closeTab(target))
+      return false;
+  }
+  return true;
+}
+
+void TabWidget::detachTab(QWidget *page) {
+  int index = mWidgets.indexOf(page);
+  if (index < 0)
+    return;
+
+  int oldCurrent = mCurrentIndex;
+  bool removingCurrent = index == oldCurrent;
+  mWidgets.removeAt(index);
+  mStack->removeWidget(page);
+  page->hide();
+  mTabStrip->removeTab(index);
+
+  if (mWidgets.isEmpty()) {
+    mCurrentIndex = -1;
+    mStack->setCurrentIndex(0);
+  } else if (index < oldCurrent) {
+    mCurrentIndex = oldCurrent - 1;
+    mStack->setCurrentWidget(widget(mCurrentIndex));
+  } else if (removingCurrent) {
+    mCurrentIndex = qMin(index, count() - 1);
+    mStack->setCurrentWidget(widget(mCurrentIndex));
+  }
+
+  if (removingCurrent || index < oldCurrent || mCurrentIndex < 0)
+    emit currentChanged(mCurrentIndex);
+  MenuBar::instance(this)->updateWindow();
+  emit tabRemoved();
 }
 
 void TabWidget::moveTab(int from, int to) {
@@ -276,6 +351,7 @@ void TabWidget::removeTab(QObject *object) {
   int oldCurrent = mCurrentIndex;
   bool removingCurrent = index == oldCurrent;
   mWidgets.removeAt(index);
+  mStack->removeWidget(static_cast<QWidget *>(object));
   mTabStrip->removeTab(index);
 
   if (mWidgets.isEmpty()) {

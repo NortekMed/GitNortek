@@ -135,6 +135,7 @@ public:
   // background tasks
   void cancelRemoteTransfer();
   void cancelBackgroundTasks();
+  bool isClosing() const { return mClosing; }
 
   // links
   void visitLink(const QString &link);
@@ -502,6 +503,10 @@ private:
   QList<QWidget *> mTrackedWindows;
 
   bool mShown = false;
+  bool mClosing = false;
+  QTimer mCloseCleanupTimer;
+
+  void finishClosing();
 
   friend class MenuBar;
 

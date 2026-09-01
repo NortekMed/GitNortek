@@ -693,7 +693,9 @@ void TestMainWindow::closeTab() {
   QSignalSpy removed(tabs, QOverload<>::of(&TabWidget::tabRemoved));
   QPointer<RepoView> guard(closingView);
 
-  tabs->closeTab(closingView);
+  QVERIFY(tabs->closeTab(closingView));
+  QCOMPARE(mWindow->count(), 1);
+  QCOMPARE(tabs->currentWidget(), mWindow->view(0));
 
   QTRY_COMPARE(aboutToRemove.count(), 1);
   QTRY_COMPARE(removed.count(), 1);

@@ -10,6 +10,7 @@
 #include <QAccessible>
 #include <QAccessibleWidget>
 #include <QApplication>
+#include <QContextMenuEvent>
 #include <QFrame>
 #include <QGuiApplication>
 #include <QKeyEvent>
@@ -72,6 +73,7 @@ public:
 
 signals:
   void closeClicked();
+  void contextMenuRequested(const QPoint &globalPosition);
   void navigate(int offset);
   void dragMoved(const QPoint &position);
 
@@ -127,6 +129,11 @@ protected:
     }
 
     QAbstractButton::mouseReleaseEvent(event);
+  }
+
+  void contextMenuEvent(QContextMenuEvent *event) override {
+    emit contextMenuRequested(event->globalPos());
+    event->accept();
   }
 
   void paintEvent(QPaintEvent *) override {
@@ -409,6 +416,10 @@ int RepositoryTabStrip::addTab(const QIcon &icon, const QString &text) {
           [this, button] { setCurrentIndex(indexOf(button)); });
   connect(button, &RepositoryTabButton::closeClicked, this,
           [this, button] { emit closeRequested(indexOf(button)); });
+  connect(button, &RepositoryTabButton::contextMenuRequested, this,
+          [this, button](const QPoint &position) {
+            emit contextMenuRequested(indexOf(button), position);
+          });
   connect(button, &RepositoryTabButton::navigate, this, [this](int offset) {
     if (!count())
       return;
@@ -534,6 +545,22 @@ QRect RepositoryTabStrip::tabRect(int index) const {
   if (index < 0 || index >= count() || mTabs.at(index).button->isHidden())
     return QRect();
   return mTabs.at(index).button->geometry();
+}
+
+int RepositoryTabStrip::tabAt(const QPoint &position) const {
+  for (int index = 0; index < count(); ++index) {
+    if (tabRect(index).contains(position))
+      return index;
+  }
+  return -1;
+}
+
+void RepositoryTabStrip::contextMenuEvent(QContextMenuEvent *event) {
+  int index = tabAt(event->pos());
+  if (index >= 0)
+    emit contextMenuRequested(index, event->globalPos());
+  else
+    event->ignore();
 }
 
 void RepositoryTabStrip::resizeEvent(QResizeEvent *event) {

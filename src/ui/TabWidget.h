@@ -17,6 +17,8 @@
 class QStackedWidget;
 class RepositoryTabStrip;
 
+enum class TabCloseScope { Left, Right, Others, All };
+
 class TabWidget : public QWidget {
   Q_OBJECT
 
@@ -43,6 +45,7 @@ public:
 
   bool closeTab(int index);
   bool closeTab(QWidget *widget);
+  bool closeTabs(int anchorIndex, TabCloseScope scope);
 
 signals:
   void currentChanged(int index);
@@ -54,6 +57,7 @@ signals:
 
 private:
   void moveTab(int from, int to);
+  void detachTab(QWidget *widget);
   void removeTab(QObject *object);
 
   RepositoryTabStrip *mTabStrip;

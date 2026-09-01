@@ -10,9 +10,12 @@
 #include "ui/TabWidget.h"
 #include <QAbstractButton>
 #include <QAccessible>
+#include <QContextMenuEvent>
 #include <QLineEdit>
 #include <QListWidget>
 #include <QMainWindow>
+#include <QMenu>
+#include <QTimer>
 #include <QSignalSpy>
 #include <QToolButton>
 
@@ -28,6 +31,9 @@ private slots:
   void keepsSelectedTabChecked();
   void avoidsNarrowOverflowOverlap();
   void rejectsDuplicateWidgets();
+  void closesTabScopes();
+  void routesTabContextMenu();
+  void exposesBulkCloseActions();
 };
 
 void TestRepositoryTabs::wrapsAtMinimumWidth() {
@@ -153,6 +159,84 @@ void TestRepositoryTabs::rejectsDuplicateWidgets() {
   QCOMPARE(tabs->widget(0), page);
   QCOMPARE(tabs->tabText(0), QString("Repository"));
   QCOMPARE(inserted.count(), 1);
+}
+
+void TestRepositoryTabs::closesTabScopes() {
+  QMainWindow window;
+  auto *tabs = new TabWidget(&window);
+  window.setCentralWidget(tabs);
+  for (int i = 0; i < 4; ++i) {
+    auto *page = new QWidget;
+    page->setAttribute(Qt::WA_DeleteOnClose);
+    tabs->addTab(page, QIcon(), QString("Repository %1").arg(i));
+  }
+  tabs->setCurrentIndex(2);
+
+  QVERIFY(tabs->closeTabs(2, TabCloseScope::Left));
+  QCOMPARE(tabs->count(), 2);
+  QCOMPARE(tabs->tabText(tabs->currentIndex()), QString("Repository 2"));
+
+  QVERIFY(tabs->closeTabs(0, TabCloseScope::Right));
+  QCOMPARE(tabs->count(), 1);
+  QVERIFY(tabs->closeTabs(0, TabCloseScope::All));
+  QCOMPARE(tabs->count(), 0);
+  QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+}
+
+void TestRepositoryTabs::routesTabContextMenu() {
+  RepositoryTabStrip strip;
+  strip.resize(600, 100);
+  strip.addTab(QIcon(), "First");
+  strip.addTab(QIcon(), "Second");
+  strip.show();
+  QVERIFY(qWaitForWindowExposed(&strip));
+
+  QAbstractButton *button =
+      strip.findChildren<QAbstractButton *>("RepositoryTabButton").at(1);
+  QVERIFY(button);
+  QSignalSpy requested(&strip,
+                       &RepositoryTabStrip::contextMenuRequested);
+  QPoint local(10, button->height() / 2);
+  QContextMenuEvent event(QContextMenuEvent::Mouse, local,
+                          button->mapToGlobal(local));
+  QApplication::sendEvent(button, &event);
+  QCOMPARE(requested.count(), 1);
+  QCOMPARE(requested.at(0).at(0).toInt(), 1);
+}
+
+void TestRepositoryTabs::exposesBulkCloseActions() {
+  QMainWindow window;
+  auto *tabs = new TabWidget(&window);
+  window.setCentralWidget(tabs);
+  tabs->addTab(new QWidget, QIcon(), "First");
+  tabs->addTab(new QWidget, QIcon(), "Second");
+  auto *strip = tabs->findChild<RepositoryTabStrip *>();
+  QVERIFY(strip);
+  strip->resize(600, 100);
+  window.show();
+  QVERIFY(qWaitForWindowExposed(&window));
+
+  QAbstractButton *button =
+      strip->findChildren<QAbstractButton *>("RepositoryTabButton").at(1);
+  QVERIFY(button);
+  QTimer::singleShot(0, [] {
+    QMenu *menu = qobject_cast<QMenu *>(QApplication::activePopupWidget());
+    QVERIFY(menu);
+    QCOMPARE(menu->actions().size(), 4);
+    QCOMPARE(menu->actions().at(0)->text(), QString("Close tabs on left"));
+    QCOMPARE(menu->actions().at(1)->text(), QString("Close tabs on right"));
+    QCOMPARE(menu->actions().at(2)->text(), QString("Close others tabs"));
+    QCOMPARE(menu->actions().at(3)->text(), QString("Close all tabs"));
+    QVERIFY(menu->actions().at(0)->isEnabled());
+    QVERIFY(!menu->actions().at(1)->isEnabled());
+    QVERIFY(menu->actions().at(2)->isEnabled());
+    QVERIFY(menu->actions().at(3)->isEnabled());
+    menu->close();
+  });
+  QPoint local(10, button->height() / 2);
+  QContextMenuEvent event(QContextMenuEvent::Mouse, local,
+                          button->mapToGlobal(local));
+  QApplication::sendEvent(button, &event);
 }
 
 TEST_MAIN(TestRepositoryTabs)

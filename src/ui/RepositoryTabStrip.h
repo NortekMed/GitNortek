@@ -13,6 +13,7 @@
 #include <QWidget>
 
 class QAbstractButton;
+class QContextMenuEvent;
 class QToolButton;
 
 class RepositoryTabStrip : public QWidget {
@@ -39,13 +40,16 @@ public:
   int visibleTabCount() const;
   int minimumTabWidth() const;
   QRect tabRect(int index) const;
+  int tabAt(const QPoint &position) const;
 
 signals:
   void currentChanged(int index);
   void closeRequested(int index);
+  void contextMenuRequested(int index, const QPoint &globalPosition);
   void tabMoved(int from, int to);
 
 protected:
+  void contextMenuEvent(QContextMenuEvent *event) override;
   void resizeEvent(QResizeEvent *event) override;
 
 private:
