@@ -574,6 +574,29 @@ Diff Repository::status(const Index &index, Diff::Callbacks *callbacks,
   return diff.count() ? diff : Diff();
 }
 
+QList<unsigned int> Repository::statusFlags(Result *result) const {
+  git_status_options opts = GIT_STATUS_OPTIONS_INIT;
+  opts.flags = GIT_STATUS_OPT_INCLUDE_UNTRACKED |
+               GIT_STATUS_OPT_RECURSE_UNTRACKED_DIRS |
+               GIT_STATUS_OPT_RENAMES_HEAD_TO_INDEX |
+               GIT_STATUS_OPT_RENAMES_INDEX_TO_WORKDIR;
+
+  git_status_list *list = nullptr;
+  const int error = git_status_list_new(&list, d->repo, &opts);
+  if (result)
+    *result = Result(error);
+  if (error)
+    return {};
+
+  QList<unsigned int> flags;
+  const size_t count = git_status_list_entrycount(list);
+  flags.reserve(int(count));
+  for (size_t i = 0; i < count; ++i)
+    flags.append(git_status_byindex(list, i)->status);
+  git_status_list_free(list);
+  return flags;
+}
+
 Diff Repository::diffTreeToIndex(const Tree &tree, const Index &index,
                                  bool ignoreWhitespace, Result *result) const {
   git_diff_options opts = GIT_DIFF_OPTIONS_INIT;

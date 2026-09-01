@@ -327,8 +327,10 @@ public:
 
   // terminal
   void openTerminal();
+  static void openTerminal(const QString &workingDirectory, QWidget *parent);
   // file manager
   void openFileManager();
+  static void openFileManager(const QString &path);
 
   // ignore
   void ignore(const QString &name);

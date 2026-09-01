@@ -18,6 +18,9 @@ class RepoView;
 class TabWidget;
 class ToolBar;
 class MenuBar;
+class LocalRepositoryManagement;
+class QSplitter;
+class QStackedWidget;
 
 namespace git {
 class Submodule;
@@ -39,6 +42,9 @@ public:
   bool isSideBarVisible() const;
   void setSideBarVisible(bool visible);
 
+  bool isLocalRepositoryManagementVisible() const;
+  void setLocalRepositoryManagementVisible(bool visible);
+
   TabWidget *tabWidget() const;
   RepoView *addTab(const QString &path,
                    OpenSource source = OpenSource::Other,
@@ -52,7 +58,9 @@ public:
   bool selectTab(const QString &path);
 
   int count() const;
+  RepoView *activeView() const;
   RepoView *currentView() const;
+  QString externalToolRepositoryPath() const;
   RepoView *view(int index) const;
 
   // Get the "active" main window.
@@ -97,6 +105,10 @@ private:
 
   ToolBar *mToolBar;
   MenuBar *mMenuBar;
+  QStackedWidget *mCentralStack;
+  QSplitter *mRepositorySplitter;
+  TabWidget *mTabs;
+  LocalRepositoryManagement *mLocalRepositoryManagement;
 
   bool mFullPath = false;
   bool mIsSideBarVisible = true;

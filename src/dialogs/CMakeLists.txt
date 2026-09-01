@@ -13,12 +13,14 @@ add_library(
   ConfigDialog.cpp
   DeleteBranchDialog.cpp
   DeleteTagDialog.cpp
+  DirectorySelectionDialog.cpp
   DiffPanel.cpp
   ExternalToolsDialog.cpp
   ExternalToolsModel.cpp
   FastIssueDialog.cpp
   HotkeysPanel.cpp
   IconLabel.cpp
+  LocalWorkspaceDialog.cpp
   MergeDialog.cpp
   ModifySubmoduleDialog.cpp
   NewBranchDialog.cpp

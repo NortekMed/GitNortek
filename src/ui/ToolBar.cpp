@@ -778,7 +778,18 @@ ToolBar::ToolBar(MainWindow *parent) : QToolBar(parent) {
   sidebarButton->setToolTip(tr("Show repository sidebar"));
   addWidget(sidebarButton);
   connect(sidebarButton, &QAbstractButton::clicked,
-          [parent] { parent->setSideBarVisible(!parent->isSideBarVisible()); });
+           [parent] { parent->setSideBarVisible(!parent->isSideBarVisible()); });
+
+  addWidget(new Spacer(4, this));
+
+  mLocalRepoButton = new Button(this);
+  mLocalRepoButton->setObjectName(QStringLiteral("localRepositoryManagement"));
+  mLocalRepoButton->setIcon(QIcon(QStringLiteral(":/open.png")));
+  mLocalRepoButton->setToolTip(tr("Local Repository Management"));
+  mLocalRepoButton->setCheckable(true);
+  addWidget(mLocalRepoButton);
+  connect(mLocalRepoButton, &QToolButton::toggled, parent,
+          &MainWindow::setLocalRepositoryManagementVisible);
 
   addWidget(new Spacer(4, this));
 
@@ -908,10 +919,19 @@ ToolBar::ToolBar(MainWindow *parent) : QToolBar(parent) {
   addWidget(new Spacer(-1, this));
 
   mTerminalButton = new TerminalButton(this);
+  mTerminalButton->setObjectName(QStringLiteral("openTerminal"));
   mTerminalButton->setToolTip(tr("Open Terminal"));
   addWidget(mTerminalButton);
-  connect(mTerminalButton, &Button::clicked,
-          [this] { currentView()->openTerminal(); });
+  connect(mTerminalButton, &Button::clicked, [this] {
+    if (RepoView *view = currentView()) {
+      view->openTerminal();
+      return;
+    }
+    MainWindow *window = static_cast<MainWindow *>(this->parent());
+    const QString path = window->externalToolRepositoryPath();
+    if (!path.isEmpty())
+      RepoView::openTerminal(path, window);
+  });
 
   QShortcut *shortcut = new QShortcut(this);
   terminalHotkey.use(shortcut);
@@ -920,10 +940,19 @@ ToolBar::ToolBar(MainWindow *parent) : QToolBar(parent) {
   addWidget(new Spacer(4, this));
 
   mFileManagerButton = new FileManagerButton(this);
+  mFileManagerButton->setObjectName(QStringLiteral("openFileManager"));
   mFileManagerButton->setToolTip(tr("Open file manager"));
   addWidget(mFileManagerButton);
-  connect(mFileManagerButton, &Button::clicked,
-          [this] { currentView()->openFileManager(); });
+  connect(mFileManagerButton, &Button::clicked, [this] {
+    if (RepoView *view = currentView()) {
+      view->openFileManager();
+      return;
+    }
+    MainWindow *window = static_cast<MainWindow *>(this->parent());
+    const QString path = window->externalToolRepositoryPath();
+    if (!path.isEmpty())
+      RepoView::openFileManager(path);
+  });
 
   shortcut = new QShortcut(this);
   fileManagerHotkey.use(shortcut);
@@ -993,6 +1022,8 @@ ToolBar::ToolBar(MainWindow *parent) : QToolBar(parent) {
   addWidget(new Spacer(4, this));
 
   mSearchField = new SearchField(this);
+  mSearchField->setFixedWidth(
+      qMax(120, mSearchField->sizeHint().width() - kButtonWidth - 8));
   addWidget(mSearchField);
 
 #if 0
@@ -1122,8 +1153,11 @@ void ToolBar::updateStash() {
 
 void ToolBar::updateView() {
   RepoView *view = currentView();
-  mTerminalButton->setEnabled(view);
-  mFileManagerButton->setEnabled(view);
+  MainWindow *window = static_cast<MainWindow *>(parent());
+  const bool externalToolTarget =
+      view || !window->externalToolRepositoryPath().isEmpty();
+  mTerminalButton->setEnabled(externalToolTarget);
+  mFileManagerButton->setEnabled(externalToolTarget);
   mRepoConfigAction->setEnabled(view);
   mLogButton->setEnabled(view);
   // mModeGroup->button(RepoView::Diff)->setEnabled(view);
@@ -1144,7 +1178,8 @@ void ToolBar::updateSearch() {
 }
 
 RepoView *ToolBar::currentView() const {
-  return static_cast<MainWindow *>(parent())->currentView();
+  MainWindow *window = static_cast<MainWindow *>(parent());
+  return window->activeView();
 }
 
 #include "ToolBar.moc"

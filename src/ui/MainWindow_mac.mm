@@ -112,7 +112,7 @@ static const NSTouchBarItemIdentifier kRemote = @"com.nortekmed.GitNortek.Remote
   [self.remote setImage:push forSegment:2];
   [push release];
 
-  [self.remote setEnabled:(_window->currentView() != nullptr)];
+  [self.remote setEnabled:(_window->activeView() != nullptr)];
 
   _ahead = ahead;
   _behind = behind;
@@ -172,15 +172,15 @@ static const NSTouchBarItemIdentifier kRemote = @"com.nortekmed.GitNortek.Remote
 {
   switch ([self.remote selectedSegment]) {
     case 0:
-      _window->currentView()->fetch();
+      _window->activeView()->fetch();
       break;
 
     case 1:
-      _window->currentView()->pull();
+      _window->activeView()->pull();
       break;
 
     case 2:
-      _window->currentView()->push();
+      _window->activeView()->push();
       break;
   }
 }

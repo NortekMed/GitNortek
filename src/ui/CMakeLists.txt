@@ -32,6 +32,8 @@ add_library(
   HotkeyManager.cpp
   IndexCompleter.cpp
   Location.cpp
+  LocalRepositoryManagement.cpp
+  LocalWorkspaceModel.cpp
   MainWindow.cpp
   MenuBar.cpp
   PathspecWidget.cpp

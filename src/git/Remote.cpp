@@ -248,6 +248,7 @@ private:
 #ifndef USE_SYSTEM_LIBGIT2
 void Remote::Callbacks::connected(git_remote *remote, void *payload) {
   Remote::Callbacks *cbs = reinterpret_cast<Remote::Callbacks *>(payload);
+  QMutexLocker locker(&cbs->mRemoteMutex);
   cbs->mRemote = remote;
 }
 
@@ -255,6 +256,7 @@ void Remote::Callbacks::about_to_disconnect(git_remote *remote, void *payload) {
   Q_UNUSED(remote)
 
   Remote::Callbacks *cbs = reinterpret_cast<Remote::Callbacks *>(payload);
+  QMutexLocker locker(&cbs->mRemoteMutex);
   cbs->mRemote = nullptr;
 }
 #endif
@@ -505,6 +507,7 @@ int Remote::Callbacks::remoteReady(git_remote *remote, int direction,
 
 void Remote::Callbacks::stop() {
 #ifndef USE_SYSTEM_LIBGIT2
+  QMutexLocker locker(&mRemoteMutex);
   if (mRemote)
     git_remote_stop(mRemote);
 #endif

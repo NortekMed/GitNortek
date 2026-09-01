@@ -3653,8 +3653,15 @@ ConfigDialog *RepoView::configureSettings(ConfigDialog::Index index) {
 }
 
 void RepoView::openTerminal() {
+  openTerminal(mRepo.workdir().absolutePath(), this);
+}
+
+void RepoView::openTerminal(const QString &workingDirectory, QWidget *parent) {
   QString terminalCmd =
       Settings::instance()->value(Setting::Id::TerminalCommand).toString();
+#if defined(Q_OS_UNIX)
+  bool launchDetectedPtyxis = false;
+#endif
 
   if (terminalCmd.isEmpty()) {
 #if defined(Q_OS_WIN)
@@ -3727,6 +3734,7 @@ void RepoView::openTerminal() {
 
 #elif defined(Q_OS_UNIX)
     static QString detectedTerminal = nullptr;
+    static bool detectedPtyxis = false;
     static const QStringList candidates = {
         "x-terminal-emulator",
         "xdg-terminal",
@@ -3749,6 +3757,7 @@ void RepoView::openTerminal() {
         process.waitForFinished(-1); // will wait forever until finished
         if (!process.readAllStandardOutput().isEmpty()) {
           detectedTerminal = candidate;
+          detectedPtyxis = candidate == "ptyxis";
           break;
         }
 #else
@@ -3756,12 +3765,7 @@ void RepoView::openTerminal() {
         if (!exePath.isEmpty()) {
           detectedTerminal =
               '"' + exePath.replace("\\", "\\\\").replace("\"", "\\\"") + '"';
-          if (candidate == "ptyxis") {
-            QString workdir = mRepo.workdir().absolutePath();
-            workdir.replace("\\", "\\\\").replace("\"", "\\\"");
-            detectedTerminal +=
-                QString(" --tab --working-directory \"%1\"").arg(workdir);
-          }
+          detectedPtyxis = candidate == "ptyxis";
           break;
         }
 #endif
@@ -3769,11 +3773,20 @@ void RepoView::openTerminal() {
     }
 
     terminalCmd = detectedTerminal;
+    launchDetectedPtyxis = detectedPtyxis;
+#if !defined(FLATPAK)
+    if (launchDetectedPtyxis) {
+      QString workdir = workingDirectory;
+      workdir.replace("\\", "\\\\").replace("\"", "\\\"");
+      terminalCmd +=
+          QString(" --tab --working-directory \"%1\"").arg(workdir);
+    }
+#endif
 #endif
   }
 
   if (terminalCmd.isEmpty()) {
-    auto messagebox = new QMessageBox(this);
+    auto messagebox = new QMessageBox(parent);
     messagebox->setWindowTitle(tr("No terminal executable found"));
     messagebox->setText(tr("No terminal executable was found. Please configure "
                            "a terminal in the configuration."));
@@ -3782,7 +3795,7 @@ void RepoView::openTerminal() {
     messagebox->setAttribute(Qt::WA_DeleteOnClose);
 
     connect(
-        messagebox, &QMessageBox::buttonClicked, this,
+        messagebox, &QMessageBox::buttonClicked, messagebox,
         [=](QAbstractButton *button) {
           if (messagebox->buttonRole(button) == QMessageBox::ApplyRole) {
             SettingsDialog::openSharedInstance();
@@ -3810,7 +3823,7 @@ void RepoView::openTerminal() {
   bool success = CreateProcessW(
       nullptr, cmdBuffer.get(), nullptr, nullptr, FALSE, CREATE_NEW_CONSOLE,
       nullptr,
-      (LPCWSTR)QDir::toNativeSeparators(mRepo.workdir().absolutePath()).utf16(),
+       (LPCWSTR)QDir::toNativeSeparators(workingDirectory).utf16(),
       &startupInfo, &processInfo);
 
   if (!success)
@@ -3824,19 +3837,27 @@ void RepoView::openTerminal() {
   QProcess child;
 #if defined(FLATPAK)
   child.setProgram("flatpak-spawn");
-  child.setArguments(QStringList() << "--host" << terminalCmd);
+  QStringList arguments = {QStringLiteral("--host"), terminalCmd};
+  if (launchDetectedPtyxis)
+    arguments.append({QStringLiteral("--tab"),
+                      QStringLiteral("--working-directory"), workingDirectory});
+  child.setArguments(arguments);
 #else
   child.setProgram("sh");
   child.setArguments(QStringList() << "-c" << terminalCmd);
 #endif
-  child.setWorkingDirectory(mRepo.workdir().absolutePath());
+  child.setWorkingDirectory(workingDirectory);
   Debug("Execute Terminal: Arguments: " << child.arguments());
   child.startDetached();
 #endif
 }
 
 void RepoView::openFileManager() {
-  ShowTool::openFileManager(mRepo.workdir().absolutePath());
+  openFileManager(mRepo.workdir().absolutePath());
+}
+
+void RepoView::openFileManager(const QString &path) {
+  ShowTool::openFileManager(path);
 }
 
 void RepoView::ignore(const QString &name) {

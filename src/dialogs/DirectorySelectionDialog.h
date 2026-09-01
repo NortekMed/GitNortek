@@ -1,0 +1,34 @@
+//
+// This software is licensed under the MIT License. The LICENSE.md file
+// describes the conditions under which this software may be distributed.
+//
+
+#ifndef DIRECTORYSELECTIONDIALOG_H
+#define DIRECTORYSELECTIONDIALOG_H
+
+#include <QDialog>
+#include <QStringList>
+
+class QFileSystemModel;
+class QPushButton;
+class QTreeView;
+
+class DirectorySelectionDialog : public QDialog {
+  Q_OBJECT
+
+public:
+  explicit DirectorySelectionDialog(const QString &title,
+                                    QWidget *parent = nullptr);
+
+  QStringList selectedDirectories() const;
+
+  static QStringList getExistingDirectories(QWidget *parent,
+                                            const QString &title);
+
+private:
+  QFileSystemModel *mModel;
+  QTreeView *mTree;
+  QPushButton *mSelect;
+};
+
+#endif

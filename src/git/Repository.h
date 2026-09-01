@@ -21,6 +21,7 @@
 #include "git2/checkout.h"
 #include "git2/errors.h"
 #include "git2/revwalk.h"
+#include "git2/status.h"
 #include "git2/types.h"
 #include <QCoreApplication>
 #include <QDir>
@@ -124,6 +125,7 @@ public:
   // status/diff
   Diff status(const Index &index, Diff::Callbacks *callbacks,
               bool ignoreWhitespace = false, Result *result = nullptr) const;
+  QList<unsigned int> statusFlags(Result *result = nullptr) const;
   Diff diffTreeToIndex(const Tree &tree, const Index &index = Index(),
                        bool ignoreWhitespace = false,
                        Result *result = nullptr) const;
