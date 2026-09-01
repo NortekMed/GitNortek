@@ -44,6 +44,7 @@
 #include "git2/repository.h"
 #include "git2/signature.h"
 #include "git2/stash.h"
+#include "git2/status.h"
 #include "git2/tag.h"
 #include "git2/worktree.h"
 #include "git2/sys/repository.h"
@@ -383,6 +384,66 @@ Repository Repository::createWorktree(const QString &name, const QString &path,
   if (result)
     *result = Result(0);
   return linked;
+}
+
+Result Repository::removeWorktree(const Worktree &worktree) const {
+  if (!isValid() || worktree.name().isEmpty()) {
+    setWorktreeError(tr("Invalid worktree"));
+    return Result(GIT_EINVALIDSPEC);
+  }
+  if (worktree.isMain()) {
+    setWorktreeError(tr("The Home worktree cannot be deleted"));
+    return Result(GIT_EINVALIDSPEC);
+  }
+
+  git_worktree *handle = nullptr;
+  int error = git_worktree_lookup(&handle, d->repo, worktree.name().toUtf8());
+  if (error)
+    return Result(error);
+
+  git_worktree_prune_options options = GIT_WORKTREE_PRUNE_OPTIONS_INIT;
+  options.flags = GIT_WORKTREE_PRUNE_VALID | GIT_WORKTREE_PRUNE_WORKING_TREE;
+  error = git_worktree_prune(handle, &options);
+  Result result(error);
+  git_worktree_free(handle);
+  if (!result)
+    return result;
+
+  const QList<Worktree> remaining = worktrees();
+  if (remaining.size() == 1 && remaining.first().isMain()) {
+    const QString root = remaining.first().path() + QStringLiteral(".worktrees");
+    QDir().rmdir(root);
+  }
+
+  return result;
+}
+
+bool Repository::hasWorkdirChanges(Result *result) const {
+  if (!isValid()) {
+    setWorktreeError(tr("Invalid repository"));
+    if (result)
+      *result = Result(GIT_EINVALIDSPEC);
+    return false;
+  }
+
+  git_status_options options = GIT_STATUS_OPTIONS_INIT;
+  options.show = GIT_STATUS_SHOW_INDEX_AND_WORKDIR;
+  options.flags = GIT_STATUS_OPT_INCLUDE_UNTRACKED |
+                  GIT_STATUS_OPT_RECURSE_UNTRACKED_DIRS;
+
+  git_status_list *status = nullptr;
+  int error = git_status_list_new(&status, d->repo, &options);
+  Result statusResult(error);
+  if (result)
+    *result = statusResult;
+  if (error) {
+    git_status_list_free(status);
+    return false;
+  }
+
+  const bool changed = git_status_list_entrycount(status) > 0;
+  git_status_list_free(status);
+  return changed;
 }
 
 Signature Repository::signature(const QString &name, const QString &email) {

@@ -102,6 +102,8 @@ public:
                             const Branch &selected,
                             const QString &localBranchName = QString(),
                             Result *result = nullptr);
+  Result removeWorktree(const Worktree &worktree) const;
+  bool hasWorkdirChanges(Result *result = nullptr) const;
 
   // signature
   Signature defaultSignature(bool *fake = nullptr,

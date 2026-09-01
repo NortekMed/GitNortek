@@ -7,9 +7,11 @@
 
 #include "RepositoryNavigator.h"
 #include "FontUtils.h"
+#include "MainWindow.h"
 #include "RepositoryNavigatorModel.h"
 #include "RepoView.h"
 #include "StatePushButton.h"
+#include "TabWidget.h"
 #include "WorktreeIcon.h"
 #include "dialogs/WorktreeDialog.h"
 #include "git/Branch.h"
@@ -19,9 +21,11 @@
 #include "host/Accounts.h"
 #include "host/Repository.h"
 #include <QApplication>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QDateTime>
 #include <QDesktopServices>
+#include <QDir>
 #include <QFileInfo>
 #include <QFutureWatcher>
 #include <QHBoxLayout>
@@ -35,6 +39,7 @@
 #include <QPainter>
 #include <QPaintEvent>
 #include <QPainterPath>
+#include <QPushButton>
 #include <QResizeEvent>
 #include <QScrollBar>
 #include <QSettings>
@@ -75,6 +80,13 @@ bool hasScrollingBody(RepositoryNavigatorModel::Section section) {
          section == Section::Worktrees || section == Section::Stashes ||
          section == Section::GitHubIssues || section == Section::Tags ||
          section == Section::Submodules;
+}
+
+QString canonicalPath(const QString &path) {
+  QFileInfo info(path);
+  const QString canonical = info.canonicalFilePath();
+  return QDir::cleanPath(canonical.isEmpty() ? info.absoluteFilePath()
+                                              : canonical);
 }
 
 QString sectionIconPath(RepositoryNavigatorModel::Section section) {
@@ -1086,6 +1098,20 @@ void RepositoryNavigator::showContextMenu(const QPoint &point) {
     return;
   }
 
+  if (kind == RepositoryNavigatorModel::ItemKind::Worktree) {
+    git::Worktree worktree = index.data(RepositoryNavigatorModel::WorktreeRole)
+                                 .value<git::Worktree>();
+    if (worktree.name().isEmpty())
+      return;
+
+    QAction *remove = menu.addAction(
+        tr("Delete Worktree..."), this,
+        [this, worktree] { promptToDeleteWorktree(worktree); });
+    remove->setEnabled(!worktree.isMain());
+    menu.exec(source->viewport()->mapToGlobal(point));
+    return;
+  }
+
   if (!mRepoView || !mRepoView->repo().isValid() ||
       !index.parent().isValid())
     return;
@@ -1203,6 +1229,74 @@ void RepositoryNavigator::showContextMenu(const QPoint &point) {
 
   if (!menu.isEmpty())
     menu.exec(source->viewport()->mapToGlobal(point));
+}
+
+bool RepositoryNavigator::closeWorktreeTabs(const QString &path) {
+  const QString target = canonicalPath(path);
+  for (MainWindow *window : MainWindow::windows()) {
+    for (int index = window->count() - 1; index >= 0; --index) {
+      RepoView *view = window->view(index);
+      if (view && canonicalPath(view->repo().workdir().path()) == target &&
+          !window->tabWidget()->closeTab(view)) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+void RepositoryNavigator::promptToDeleteWorktree(
+    const git::Worktree &worktree) {
+  if (worktree.isMain() || worktree.name().isEmpty())
+    return;
+
+  git::Repository linked = git::Repository::open(worktree.path());
+  git::Result statusResult;
+  const bool dirty = !linked.isValid() ||
+                     linked.hasWorkdirChanges(&statusResult) || !statusResult;
+
+  const QString text =
+      tr("Delete worktree '%1' at '%2'?\n\nThe worktree folder and all of "
+         "its contents will be permanently deleted. The branch itself will "
+         "not be deleted.")
+          .arg(worktree.name(), worktree.path());
+  QMessageBox *message =
+      new QMessageBox(QMessageBox::Warning, tr("Delete Worktree?"), text,
+                      QMessageBox::Cancel, this);
+  message->setAttribute(Qt::WA_DeleteOnClose);
+  QPushButton *remove =
+      message->addButton(tr("Delete Worktree"), QMessageBox::DestructiveRole);
+  message->setDefaultButton(QMessageBox::Cancel);
+  message->setEscapeButton(QMessageBox::Cancel);
+
+  if (dirty) {
+    message->setInformativeText(
+        tr("This worktree contains uncommitted or untracked changes."));
+    QCheckBox *acknowledge = new QCheckBox(
+        tr("I understand that these changes will be permanently lost."),
+        message);
+    acknowledge->setObjectName(
+        QStringLiteral("WorktreeDataLossAcknowledgment"));
+    message->setCheckBox(acknowledge);
+    remove->setEnabled(false);
+    connect(acknowledge, &QCheckBox::toggled, remove, &QWidget::setEnabled);
+  }
+
+  const git::Repository repo = mModel->repository();
+  connect(remove, &QPushButton::clicked, this, [this, repo, worktree] {
+    if (!closeWorktreeTabs(worktree.path()))
+      return;
+
+    git::Result result = repo.removeWorktree(worktree);
+    if (!result) {
+      QMessageBox::critical(
+          this, tr("Delete Worktree Failed"),
+          tr("Could not delete worktree '%1'.\n\n%2")
+              .arg(worktree.name(), result.errorString()));
+    }
+    mModel->refresh();
+  });
+  message->open();
 }
 
 void RepositoryNavigator::selectReference(const git::Reference &ref) {

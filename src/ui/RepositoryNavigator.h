@@ -69,6 +69,8 @@ private:
   int expandedPanelHeight(const SectionPanel &panel) const;
   void updatePanels();
   void promptToCreateWorktree();
+  void promptToDeleteWorktree(const git::Worktree &worktree);
+  bool closeWorktreeTabs(const QString &path);
   void clearOtherSelections(QTreeView *selected);
   SectionPanel *panel(RepositoryNavigatorModel::Section section);
   const SectionPanel *panel(RepositoryNavigatorModel::Section section) const;

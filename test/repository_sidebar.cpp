@@ -265,6 +265,7 @@ private slots:
   void submoduleInteraction();
   void submoduleInitialization();
   void worktreeSubmoduleInitialization();
+  void worktreeDeletion();
   void worktreeTabs();
   void cleanupTestCase();
 
@@ -2636,6 +2637,107 @@ void TestRepositorySideBar::worktreeSubmoduleInitialization() {
   QTRY_VERIFY(QFileInfo::exists(QDir(worktreePath).filePath("child/.git")));
   QTRY_VERIFY(QFileInfo::exists(
       QDir(worktreePath).filePath("child/grandchild/.git")));
+}
+
+void TestRepositorySideBar::worktreeDeletion() {
+  Test::ScratchRepository parent;
+  QVERIFY(parent->commit("initial").isValid());
+  git::Branch feature =
+      parent->createBranch("feature", parent->head().target());
+  QVERIFY(feature.isValid());
+
+  const QString root = parent->workdir().path() + ".worktrees";
+  QVERIFY(QDir().mkpath(root));
+  const QString linkedPath = QDir(root).filePath("feature");
+  git::Result result;
+  git::Repository linked = parent->createWorktree(
+      "feature", linkedPath, feature, QString(), &result);
+  QVERIFY2(result, qPrintable(result.errorString()));
+  QVERIFY(linked.isValid());
+
+  MainWindow window(parent);
+  RepositoryNavigator *navigator =
+      window.findChild<RepositoryNavigator *>("RepositoryNavigator");
+  QVERIFY(navigator);
+  QTreeView *worktreesView = navigator->sectionView(
+      RepositoryNavigatorModel::Section::Worktrees);
+  QVERIFY(worktreesView);
+
+  auto worktreeIndex = [navigator](const QString &name) {
+    QModelIndex section = navigator->model()->sectionIndex(
+        RepositoryNavigatorModel::Section::Worktrees);
+    for (int row = 0; row < navigator->model()->rowCount(section); ++row) {
+      QModelIndex index = navigator->model()->index(row, 0, section);
+      git::Worktree worktree =
+          index.data(RepositoryNavigatorModel::WorktreeRole)
+              .value<git::Worktree>();
+      if (worktree.name() == name)
+        return index;
+    }
+    return QModelIndex();
+  };
+
+  QModelIndex home = worktreeIndex("Home");
+  QModelIndex featureIndex = worktreeIndex("feature");
+  QVERIFY(home.isValid());
+  QVERIFY(featureIndex.isValid());
+  const QList<QPair<QString, bool>> homeMenu{{"Delete Worktree...", false}};
+  const QList<QPair<QString, bool>> linkedMenu{{"Delete Worktree...", true}};
+  QCOMPARE(contextMenuItems(worktreesView, home), homeMenu);
+  QCOMPARE(contextMenuItems(worktreesView, featureIndex), linkedMenu);
+
+  QVERIFY(triggerContextMenuItem(worktreesView, featureIndex,
+                                 "Delete Worktree..."));
+  QTRY_VERIFY(QApplication::activeModalWidget());
+  QMessageBox *confirmation =
+      qobject_cast<QMessageBox *>(QApplication::activeModalWidget());
+  QVERIFY(confirmation);
+  QCOMPARE(confirmation->windowTitle(), QString("Delete Worktree?"));
+  QVERIFY(confirmation->defaultButton() ==
+          confirmation->button(QMessageBox::Cancel));
+  QVERIFY(!confirmation->checkBox());
+  confirmation->button(QMessageBox::Cancel)->click();
+  QVERIFY(QFileInfo::exists(linkedPath));
+
+  QFile dirty(QDir(linkedPath).filePath("untracked.txt"));
+  QVERIFY(dirty.open(QIODevice::WriteOnly));
+  QVERIFY(dirty.write("uncommitted\n") > 0);
+  dirty.close();
+  QVERIFY(window.addTab(linked));
+  QCOMPARE(window.count(), 2);
+
+  featureIndex = worktreeIndex("feature");
+  QVERIFY(featureIndex.isValid());
+  QVERIFY(triggerContextMenuItem(worktreesView, featureIndex,
+                                 "Delete Worktree..."));
+  QTRY_VERIFY(QApplication::activeModalWidget());
+  confirmation =
+      qobject_cast<QMessageBox *>(QApplication::activeModalWidget());
+  QVERIFY(confirmation);
+  QCheckBox *acknowledge = confirmation->findChild<QCheckBox *>(
+      "WorktreeDataLossAcknowledgment");
+  QVERIFY(acknowledge);
+  QVERIFY(confirmation->informativeText().contains("uncommitted or untracked"));
+
+  QPushButton *remove = nullptr;
+  for (QAbstractButton *button : confirmation->buttons()) {
+    if (button->text() == QString("Delete Worktree"))
+      remove = qobject_cast<QPushButton *>(button);
+  }
+  QVERIFY(remove);
+  QVERIFY(!remove->isEnabled());
+  acknowledge->setChecked(true);
+  QVERIFY(remove->isEnabled());
+  remove->click();
+
+  QTRY_COMPARE(window.count(), 1);
+  QTRY_VERIFY(!QFileInfo::exists(linkedPath));
+  QTRY_VERIFY(!QFileInfo::exists(root));
+  QTRY_COMPARE(parent->worktrees().size(), 1);
+  QVERIFY(parent->lookupBranch("feature", GIT_BRANCH_LOCAL).isValid());
+  QModelIndex worktrees = navigator->model()->sectionIndex(
+      RepositoryNavigatorModel::Section::Worktrees);
+  QTRY_COMPARE(navigator->model()->rowCount(worktrees), 1);
 }
 
 void TestRepositorySideBar::worktreeTabs() {

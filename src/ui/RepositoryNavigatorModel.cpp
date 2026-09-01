@@ -250,6 +250,10 @@ QVariant RepositoryNavigatorModel::data(const QModelIndex &index,
     case MainWorktreeRole:
       return row->kind == ItemKind::Worktree ? QVariant(row->mainWorktree)
                                              : QVariant();
+    case WorktreeRole:
+      return row->kind == ItemKind::Worktree
+                 ? QVariant::fromValue(row->worktree)
+                 : QVariant();
     case AheadRole:
       return row->ahead >= 0 ? QVariant(row->ahead) : QVariant();
     case BehindRole:
@@ -431,6 +435,7 @@ void RepositoryNavigatorModel::rebuild() {
     for (const git::Worktree &worktree : mRepo.worktrees()) {
       Row row;
       row.kind = ItemKind::Worktree;
+      row.worktree = worktree;
       row.display = worktree.branch();
       if (row.display.isEmpty())
         row.display = worktree.name();

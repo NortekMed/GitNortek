@@ -11,6 +11,7 @@
 #include "git/Remote.h"
 #include "git/Result.h"
 #include "git/Worktree.h"
+#include <QFile>
 #include <QFileInfo>
 #include <QTemporaryDir>
 
@@ -32,6 +33,7 @@ class TestWorktree : public QObject {
 private slots:
   void localWorktree();
   void remoteTrackingWorktree();
+  void removeWorktree();
 };
 
 void TestWorktree::localWorktree() {
@@ -156,6 +158,68 @@ void TestWorktree::remoteTrackingWorktree() {
   QVERIFY(!QFileInfo::exists(rollbackPath));
   QCOMPARE(repo.worktrees().size(), 2);
   QVERIFY(linked.isValid());
+}
+
+void TestWorktree::removeWorktree() {
+  QTemporaryDir sandbox;
+  QVERIFY(sandbox.isValid());
+
+  git::Repository repo =
+      git::Repository::init(QDir(sandbox.path()).filePath("project"));
+  QVERIFY(repo.isValid());
+  Test::initRepo(repo);
+  git::Commit commit = initialCommit(repo);
+  QVERIFY(commit.isValid());
+
+  git::Result statusResult;
+  QVERIFY(!repo.hasWorkdirChanges(&statusResult));
+  QVERIFY(statusResult);
+  QVERIFY(!repo.removeWorktree(repo.worktrees().first()));
+
+  const QString root = repo.workdir().path() + ".worktrees";
+  QVERIFY(QDir().mkpath(root));
+  git::Branch feature = repo.createBranch("feature", commit);
+  QVERIFY(feature.isValid());
+  const QString linkedPath = QDir(root).filePath("feature");
+  git::Result result;
+  git::Repository linked = repo.createWorktree(
+      "feature", linkedPath, feature, QString(), &result);
+  QVERIFY2(result, qPrintable(result.errorString()));
+  QVERIFY(linked.isValid());
+  QVERIFY(!linked.hasWorkdirChanges(&statusResult));
+  QVERIFY(statusResult);
+
+  QFile untracked(QDir(linkedPath).filePath("untracked.txt"));
+  QVERIFY(untracked.open(QIODevice::WriteOnly));
+  QVERIFY(untracked.write("uncommitted\n") > 0);
+  untracked.close();
+  QVERIFY(linked.hasWorkdirChanges(&statusResult));
+  QVERIFY(statusResult);
+
+  git::Worktree worktree = repo.worktrees().last();
+  result = repo.removeWorktree(worktree);
+  QVERIFY2(result, qPrintable(result.errorString()));
+  QVERIFY(!QFileInfo::exists(linkedPath));
+  QVERIFY(!QFileInfo::exists(root));
+  QCOMPARE(repo.worktrees().size(), 1);
+  QVERIFY(repo.lookupBranch("feature", GIT_BRANCH_LOCAL).isValid());
+
+  QVERIFY(QDir().mkpath(root));
+  QFile sentinel(QDir(root).filePath("keep.txt"));
+  QVERIFY(sentinel.open(QIODevice::WriteOnly));
+  sentinel.close();
+  git::Branch second = repo.createBranch("second", commit);
+  QVERIFY(second.isValid());
+  const QString secondPath = QDir(root).filePath("second");
+  linked = repo.createWorktree("second", secondPath, second, QString(),
+                               &result);
+  QVERIFY2(result, qPrintable(result.errorString()));
+  worktree = repo.worktrees().last();
+  result = repo.removeWorktree(worktree);
+  QVERIFY2(result, qPrintable(result.errorString()));
+  QVERIFY(!QFileInfo::exists(secondPath));
+  QVERIFY(QFileInfo::exists(root));
+  QVERIFY(QFileInfo::exists(sentinel.fileName()));
 }
 
 TEST_MAIN(TestWorktree)

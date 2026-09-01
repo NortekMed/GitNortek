@@ -61,6 +61,7 @@ public:
     AvailableRole,
     CurrentRole,
     MainWorktreeRole,
+    WorktreeRole,
     AheadRole,
     BehindRole,
     ReferenceRole,
@@ -115,6 +116,7 @@ private:
     git::Reference reference;
     git::Commit commit;
     git::Submodule submodule;
+    git::Worktree worktree;
     int stashIndex = -1;
     QString display;
     QString tooltip;
