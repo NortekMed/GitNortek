@@ -48,7 +48,7 @@ public:
   void refresh();
 
 signals:
-  void openRepositoryRequested(const QString &path);
+  void openRepositoryRequested(const QString &path, bool initializeSubmodules);
   void selectRepositoryRequested(const QString &path);
 
 protected:

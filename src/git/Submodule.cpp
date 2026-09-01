@@ -202,9 +202,17 @@ Submodule::Submodule(git_submodule *submodule)
 Submodule::operator git_submodule *() const { return d.data(); }
 
 bool Submodule::isInitialized() const {
-  Repository repo(git_submodule_owner(d.data()));
-  QString key = QString("submodule.%1.url").arg(name());
-  return !repo.gitConfig().value<QString>(key).isEmpty();
+  if (!isValid())
+    return false;
+
+  git_repository *repo = nullptr;
+  if (git_submodule_open(&repo, d.data())) {
+    git_error_clear();
+    return false;
+  }
+
+  git_repository_free(repo);
+  return true;
 }
 
 void Submodule::initialize() const { git_submodule_init(d.data(), false); }

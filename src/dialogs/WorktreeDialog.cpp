@@ -8,6 +8,7 @@
 #include "WorktreeDialog.h"
 #include "git/Worktree.h"
 #include "ui/ReferenceList.h"
+#include <QCheckBox>
 #include <QDialogButtonBox>
 #include <QFileInfo>
 #include <QFormLayout>
@@ -47,6 +48,11 @@ WorktreeDialog::WorktreeDialog(const git::Repository &repo, QWidget *parent)
   mPath->setAccessibleName(tr("Target path"));
   mPath->setReadOnly(true);
 
+  mInitializeSubmodules = new QCheckBox(tr("Initialize submodules"), this);
+  mInitializeSubmodules->setObjectName(
+      QStringLiteral("WorktreeInitializeSubmodules"));
+  mInitializeSubmodules->setChecked(true);
+
   mReason = new QLabel(this);
   mReason->setObjectName(QStringLiteral("WorktreeValidationMessage"));
   mReason->setAccessibleName(tr("Worktree validation message"));
@@ -62,6 +68,7 @@ WorktreeDialog::WorktreeDialog(const git::Repository &repo, QWidget *parent)
   form->addRow(branchLabel, mBranches);
   form->addRow(mLocalBranchLabel, mLocalBranchName);
   form->addRow(pathLabel, mPath);
+  form->addRow(mInitializeSubmodules);
 
   QDialogButtonBox *buttons = new QDialogButtonBox(this);
   buttons->addButton(QDialogButtonBox::Cancel);
@@ -95,6 +102,10 @@ QString WorktreeDialog::localBranchName() const {
 QString WorktreeDialog::worktreeName() const { return mWorktreeName; }
 
 QString WorktreeDialog::path() const { return mPath->text(); }
+
+bool WorktreeDialog::initializeSubmodules() const {
+  return mInitializeSubmodules->isChecked();
+}
 
 void WorktreeDialog::selectBranch(const git::Reference &ref) {
   mBranch = git::Branch(ref);

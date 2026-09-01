@@ -3049,11 +3049,11 @@ QList<RepoView::SubmoduleInfo> RepoView::submoduleUpdateInfoList(
   // Gather list of submodules.
   QList<git::Submodule> modules;
   foreach (const git::Submodule &submodule, submodules) {
-    // FIXME: Add hint to init the submodule?
-    if (!init && !submodule.isInitialized())
+    const bool initialized = submodule.isInitialized();
+    if (!init && !initialized)
       continue;
 
-    if (!checkout_force &&
+    if (initialized && !checkout_force &&
         submodule.workdirId() == submodule.headId()) // indexId == headId?
       continue;
 
@@ -3522,8 +3522,14 @@ void RepoView::promptToDeleteSubmodule(const git::Submodule &submodule) {
 
 bool RepoView::canCommitSubmoduleChanges(
     const git::Submodule &submodule) const {
+  if (!mRepo.isValid() || !submodule.isValid())
+    return false;
+
   git::Commit parent = mRepo.head().target();
   git::Repository child = submodule.open();
+  if (!child.isValid())
+    return false;
+
   git::Commit checkout = child.head().target();
   if (!mRepo.head().isLocalBranch() ||
       mRepo.state() != GIT_REPOSITORY_STATE_NONE || !parent.isValid() ||
@@ -3537,8 +3543,14 @@ bool RepoView::canCommitSubmoduleChanges(
 }
 
 void RepoView::commitSubmoduleChanges(const git::Submodule &submodule) {
+  if (!mRepo.isValid() || !submodule.isValid())
+    return;
+
   git::Commit parent = mRepo.head().target();
   git::Repository child = submodule.open();
+  if (!child.isValid())
+    return;
+
   git::Commit checkout = child.head().target();
   if (!mRepo.head().isLocalBranch() ||
       mRepo.state() != GIT_REPOSITORY_STATE_NONE || !parent.isValid() ||

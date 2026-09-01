@@ -46,7 +46,10 @@ SideBar::SideBar(TabWidget *tabs, MainWindow *window, QWidget *parent)
                 qobject_cast<RepoView *>(tabs->currentWidget()));
           });
   connect(navigator, &RepositoryNavigator::openRepositoryRequested, window,
-          [window](const QString &path) { window->addTab(path); });
+          [window](const QString &path, bool initializeSubmodules) {
+            window->addTab(path, MainWindow::OpenSource::Other, QString(),
+                           initializeSubmodules);
+          });
   connect(navigator, &RepositoryNavigator::selectRepositoryRequested, window,
           &MainWindow::selectTab);
   bindNavigator(tabs->currentIndex());

@@ -43,6 +43,7 @@ Bug Fix and Feature release
 * Keep navigator selection on worktrees when switching tabs and prevent empty navigator sections from expanding
 * Expand Local and focus the checked-out branch when opening a repository, with navigator lists matching the surrounding panel background
 * Size expanded navigator lists for up to five visible items, separate menus with visible dividers and spacing, and prioritize newly opened sections when vertical space is limited
+* Let worktree creation initialize submodules by default and initialize one or all uninitialized submodules from the navigator
 * Open repositories in the branch view even when unresolved conflicts already exist
 * Avoid redundant startup status scans and coalesce repository sidebar refreshes
 * Show Blame and Diff in the branch and commit pane when files are selected, with more default space for the commit history

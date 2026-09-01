@@ -33,6 +33,7 @@
 #include "ui/WorktreeIcon.h"
 #include <QAbstractButton>
 #include <QAbstractItemModelTester>
+#include <QCheckBox>
 #include <QContextMenuEvent>
 #include <QComboBox>
 #include <QFile>
@@ -88,6 +89,30 @@ QStringList menuTexts(const QList<QPair<QString, bool>> &items) {
   for (const auto &item : items)
     texts.append(item.first);
   return texts;
+}
+
+bool triggerContextMenuItem(QTreeView *view, const QModelIndex &index,
+                            const QString &text) {
+  bool triggered = false;
+  view->scrollTo(index);
+  QPoint point = view->visualRect(index).center();
+  QTimer::singleShot(0, [&triggered, text] {
+    QMenu *menu = qobject_cast<QMenu *>(QApplication::activePopupWidget());
+    if (!menu)
+      return;
+    for (QAction *action : menu->actions()) {
+      if (action->text() == text) {
+        triggered = true;
+        menu->close();
+        action->trigger();
+        return;
+      }
+    }
+    menu->close();
+  });
+  QMetaObject::invokeMethod(view, "customContextMenuRequested",
+                            Qt::DirectConnection, Q_ARG(QPoint, point));
+  return triggered;
 }
 
 QStringList contextMenuItems(CommitList *view, const QModelIndex &index) {
@@ -238,6 +263,8 @@ private slots:
   void branchGraphColors();
   void stashInteraction();
   void submoduleInteraction();
+  void submoduleInitialization();
+  void worktreeSubmoduleInitialization();
   void worktreeTabs();
   void cleanupTestCase();
 
@@ -816,7 +843,9 @@ void TestRepositorySideBar::navigatorView() {
                                     Qt::DirectConnection,
                                     Q_ARG(QModelIndex, home)));
   QCOMPARE(openSpy.count(), 1);
-  QCOMPARE(openSpy.takeFirst().at(0).toString(), mRepo->workdir().path());
+  QList<QVariant> openArguments = openSpy.takeFirst();
+  QCOMPARE(openArguments.at(0).toString(), mRepo->workdir().path());
+  QCOMPARE(openArguments.at(1).toBool(), false);
 }
 
 void TestRepositorySideBar::githubIssuesModel() {
@@ -2414,6 +2443,199 @@ void TestRepositorySideBar::submoduleInteraction() {
            parent->workdir().filePath("child"));
   QCOMPARE(window.tabWidget()->tabText(window.tabWidget()->currentIndex()),
            QString("%1 / child").arg(parent->workdir().dirName()));
+
+  window.tabWidget()->setCurrentIndex(0);
+  selected = parentView->repo().lookupSubmodule("child");
+  selected.deinitialize();
+  parentView->repo().invalidateSubmoduleCache();
+  navigator->model()->refresh();
+  submodules = navigator->model()->sectionIndex(
+      RepositoryNavigatorModel::Section::Submodules);
+  submodule = navigator->model()->index(0, 0, submodules);
+  QVERIFY(!submodule.data(RepositoryNavigatorModel::InitializedRole).toBool());
+  menu = contextMenuItems(submodulesView, submodule);
+  QCOMPARE(menuTexts(menu),
+           QStringList({"Initialize", "Initialize All Uninitialized", "Open",
+                         "Commit Changes", "Check for Updates",
+                         "Modify...", "Delete Submodule..."}));
+}
+
+void TestRepositorySideBar::submoduleInitialization() {
+  Test::ScratchRepository child;
+  QVERIFY(writeFile(child, "child.txt", "child\n"));
+  QCOMPARE(runGit(child, {"add", "child.txt"}), 0);
+  QCOMPARE(runGit(child, {"commit", "-m", "child"}), 0);
+
+  Test::ScratchRepository parent;
+  QCOMPARE(runGit(parent,
+                  {"-c", "protocol.file.allow=always", "submodule", "add",
+                   child->workdir().path(), "child-one"}),
+           0);
+  QCOMPARE(runGit(parent,
+                  {"-c", "protocol.file.allow=always", "submodule", "add",
+                   child->workdir().path(), "child-two"}),
+           0);
+  QCOMPARE(runGit(parent, {"commit", "-am", "add submodules"}), 0);
+  git::Branch linkedBranch =
+      parent->createBranch("linked", parent->head().target());
+  QVERIFY(linkedBranch.isValid());
+  const QString linkedPath = parent->workdir().path() + ".worktrees/linked";
+  QVERIFY(QDir().mkpath(QFileInfo(linkedPath).dir().path()));
+  git::Result result;
+  git::Repository linked = parent->createWorktree(
+      "linked", linkedPath, linkedBranch, QString(), &result);
+  QVERIFY2(result, qPrintable(result.errorString()));
+  QVERIFY(linked.isValid());
+
+  MainWindow window(linked);
+  RepoView *parentView = window.currentView();
+  RepositoryNavigator *navigator =
+      window.findChild<RepositoryNavigator *>("RepositoryNavigator");
+  QVERIFY(parentView);
+  QVERIFY(navigator);
+  git::Submodule invalidSubmodule;
+  QVERIFY(!invalidSubmodule.isInitialized());
+  QVERIFY(!parentView->canCommitSubmoduleChanges(invalidSubmodule));
+  QTreeView *submodulesView = navigator->sectionView(
+      RepositoryNavigatorModel::Section::Submodules);
+  QVERIFY(submodulesView);
+
+  auto submoduleIndex = [navigator](const QString &path) {
+    QModelIndex section = navigator->model()->sectionIndex(
+        RepositoryNavigatorModel::Section::Submodules);
+    for (int row = 0; row < navigator->model()->rowCount(section); ++row) {
+      QModelIndex index = navigator->model()->index(row, 0, section);
+      if (index.data(RepositoryNavigatorModel::PathRole).toString() == path)
+        return index;
+    }
+    return QModelIndex();
+  };
+
+  QModelIndex uninitialized = submoduleIndex("child-one");
+  QModelIndex secondUninitialized = submoduleIndex("child-two");
+  QVERIFY(uninitialized.isValid());
+  QVERIFY(secondUninitialized.isValid());
+  QStringList uninitializedMenu =
+      menuTexts(contextMenuItems(submodulesView, uninitialized));
+  QVERIFY(uninitializedMenu.contains("Initialize"));
+  QVERIFY(uninitializedMenu.contains("Initialize All Uninitialized"));
+
+  QSignalSpy initializationFinished(parentView, &RepoView::submodulesChanged);
+  QVERIFY(triggerContextMenuItem(submodulesView, uninitialized, "Initialize"));
+  QTRY_VERIFY(!initializationFinished.isEmpty());
+  QTRY_VERIFY(QFileInfo::exists(linked.workdir().filePath("child-one/.git")));
+  QTRY_VERIFY(parentView->repo().lookupSubmodule("child-one").isInitialized());
+
+  QModelIndex initialized = submoduleIndex("child-one");
+  QStringList initializedMenu =
+      menuTexts(contextMenuItems(submodulesView, initialized));
+  QVERIFY(!initializedMenu.contains("Initialize"));
+  QVERIFY(initializedMenu.contains("Initialize All Uninitialized"));
+
+  initializationFinished.clear();
+  QVERIFY(triggerContextMenuItem(submodulesView, initialized,
+                                 "Initialize All Uninitialized"));
+  QTRY_VERIFY(!initializationFinished.isEmpty());
+  QTRY_VERIFY(QFileInfo::exists(linked.workdir().filePath("child-two/.git")));
+  QTRY_VERIFY(parentView->repo().lookupSubmodule("child-two").isInitialized());
+
+  initialized = submoduleIndex("child-one");
+  initializedMenu = menuTexts(contextMenuItems(submodulesView, initialized));
+  QVERIFY(!initializedMenu.contains("Initialize"));
+  QVERIFY(!initializedMenu.contains("Initialize All Uninitialized"));
+}
+
+void TestRepositorySideBar::worktreeSubmoduleInitialization() {
+  Test::ScratchRepository grandchild;
+  QVERIFY(writeFile(grandchild, "grandchild.txt", "grandchild\n"));
+  QCOMPARE(runGit(grandchild, {"add", "grandchild.txt"}), 0);
+  QCOMPARE(runGit(grandchild, {"commit", "-m", "grandchild"}), 0);
+
+  Test::ScratchRepository child;
+  QCOMPARE(runGit(child,
+                  {"-c", "protocol.file.allow=always", "submodule", "add",
+                   grandchild->workdir().path(), "grandchild"}),
+           0);
+  QCOMPARE(runGit(child, {"commit", "-am", "add grandchild"}), 0);
+
+  Test::ScratchRepository parent;
+  QCOMPARE(runGit(parent,
+                  {"-c", "protocol.file.allow=always", "submodule", "add",
+                   child->workdir().path(), "child"}),
+           0);
+  QCOMPARE(runGit(parent, {"commit", "-am", "add child"}), 0);
+  git::Branch feature =
+      parent->createBranch("feature", parent->head().target());
+  QVERIFY(feature.isValid());
+  git::Branch uninitializedBranch =
+      parent->createBranch("uninitialized", parent->head().target());
+  QVERIFY(uninitializedBranch.isValid());
+
+  const QString uninitializedPath =
+      parent->workdir().path() + ".worktrees/uninitialized";
+  QVERIFY(QDir().mkpath(QFileInfo(uninitializedPath).dir().path()));
+  git::Result result;
+  git::Repository uninitializedWorktree = parent->createWorktree(
+      "uninitialized", uninitializedPath, uninitializedBranch, QString(),
+      &result);
+  QVERIFY2(result, qPrintable(result.errorString()));
+  QVERIFY(uninitializedWorktree.isValid());
+  QVERIFY(!uninitializedWorktree.lookupSubmodule("child").isInitialized());
+
+  {
+    MainWindow uninitializedWindow(uninitializedWorktree);
+    RepositoryNavigator *uninitializedNavigator =
+        uninitializedWindow.findChild<RepositoryNavigator *>(
+            "RepositoryNavigator");
+    QVERIFY(uninitializedNavigator);
+    QModelIndex submodules = uninitializedNavigator->model()->sectionIndex(
+        RepositoryNavigatorModel::Section::Submodules);
+    QModelIndex submodule =
+        uninitializedNavigator->model()->index(0, 0, submodules);
+    QTreeView *submodulesView = uninitializedNavigator->sectionView(
+        RepositoryNavigatorModel::Section::Submodules);
+    QVERIFY(submodule.isValid());
+    QVERIFY(submodulesView);
+    QStringList menu = menuTexts(contextMenuItems(submodulesView, submodule));
+    QVERIFY(menu.contains("Initialize"));
+    QVERIFY(menu.contains("Initialize All Uninitialized"));
+    QVERIFY(!menu.contains("Update"));
+  }
+
+  MainWindow window(parent);
+  RepositoryNavigator *navigator =
+      window.findChild<RepositoryNavigator *>("RepositoryNavigator");
+  QVERIFY(navigator);
+  QToolButton *add = navigator->findChild<QToolButton *>(
+      "RepositoryNavigationWorktreesAdd");
+  QVERIFY(add);
+  QSignalSpy openSpy(navigator,
+                     &RepositoryNavigator::openRepositoryRequested);
+
+  add->click();
+  WorktreeDialog *dialog = navigator->findChild<WorktreeDialog *>();
+  QTRY_VERIFY(dialog);
+  ReferenceList *branches =
+      dialog->findChild<ReferenceList *>("WorktreeBranch");
+  QCheckBox *initializeSubmodules = dialog->findChild<QCheckBox *>(
+      "WorktreeInitializeSubmodules");
+  QPushButton *create =
+      dialog->findChild<QPushButton *>("WorktreeCreate");
+  QVERIFY(branches);
+  QVERIFY(initializeSubmodules);
+  QVERIFY(create);
+  QVERIFY(initializeSubmodules->isChecked());
+  branches->select(feature);
+  QVERIFY(create->isEnabled());
+  create->click();
+
+  QTRY_COMPARE(openSpy.count(), 1);
+  QCOMPARE(openSpy.first().at(1).toBool(), true);
+  QTRY_COMPARE(window.count(), 2);
+  const QString worktreePath = openSpy.first().at(0).toString();
+  QTRY_VERIFY(QFileInfo::exists(QDir(worktreePath).filePath("child/.git")));
+  QTRY_VERIFY(QFileInfo::exists(
+      QDir(worktreePath).filePath("child/grandchild/.git")));
 }
 
 void TestRepositorySideBar::worktreeTabs() {
@@ -2432,6 +2654,14 @@ void TestRepositorySideBar::worktreeTabs() {
   QVERIFY(reserved.isValid());
 
   WorktreeDialog dialog(repo);
+  QCheckBox *initializeSubmodules = dialog.findChild<QCheckBox *>(
+      "WorktreeInitializeSubmodules");
+  QVERIFY(initializeSubmodules);
+  QVERIFY(initializeSubmodules->isChecked());
+  QVERIFY(dialog.initializeSubmodules());
+  initializeSubmodules->setChecked(false);
+  QVERIFY(!dialog.initializeSubmodules());
+  initializeSubmodules->setChecked(true);
   ReferenceList *branches =
       dialog.findChild<ReferenceList *>("WorktreeBranch");
   QVERIFY(branches);

@@ -1086,7 +1086,8 @@ void RepositoryNavigator::showContextMenu(const QPoint &point) {
     return;
   }
 
-  if (!mRepoView || !index.parent().isValid())
+  if (!mRepoView || !mRepoView->repo().isValid() ||
+      !index.parent().isValid())
     return;
 
   git::Reference ref = index.data(RepositoryNavigatorModel::ReferenceRole)
@@ -1100,6 +1101,26 @@ void RepositoryNavigator::showContextMenu(const QPoint &point) {
     if (submodule.isValid()) {
       bool initialized =
           index.data(RepositoryNavigatorModel::InitializedRole).toBool();
+      if (!initialized) {
+        menu.addAction(tr("Initialize"), mRepoView,
+                       [view = mRepoView, submodule] {
+                         if (view)
+                           view->updateSubmodules({submodule}, true, true);
+                       });
+      }
+      QList<git::Submodule> uninitialized;
+      for (const git::Submodule &candidate : mRepoView->repo().submodules()) {
+        if (!candidate.isInitialized())
+          uninitialized.append(candidate);
+      }
+      if (!uninitialized.isEmpty()) {
+        menu.addAction(
+            tr("Initialize All Uninitialized"), mRepoView,
+            [view = mRepoView, uninitialized] {
+              if (view)
+                view->updateSubmodules(uninitialized, true, true);
+            });
+      }
       QAction *open =
           menu.addAction(tr("Open"), mRepoView, [view = mRepoView, submodule] {
             if (view)
@@ -1145,12 +1166,6 @@ void RepositoryNavigator::showContextMenu(const QPoint &point) {
           if (view)
             view->updateSubmodules({submodule});
         });
-      } else {
-        menu.addAction(tr("Initialize and Update"), mRepoView,
-                       [view = mRepoView, submodule] {
-                         if (view)
-                           view->updateSubmodules({submodule}, true, true);
-                       });
       }
       menu.addSeparator();
       menu.addAction(tr("Modify..."), mRepoView, [view = mRepoView, submodule] {
@@ -1269,7 +1284,7 @@ void RepositoryNavigator::activate(const QModelIndex &index, bool checkout) {
     const QString path =
         index.data(RepositoryNavigatorModel::PathRole).toString();
     if (checkout) {
-      emit openRepositoryRequested(path);
+      emit openRepositoryRequested(path, false);
     } else {
       emit selectRepositoryRequested(path);
       selectWorktree(path, true);
@@ -1321,6 +1336,7 @@ void RepositoryNavigator::promptToCreateWorktree() {
     const QString localBranchName = dialog->localBranchName();
     const QString worktreeName = dialog->worktreeName();
     const QString path = dialog->path();
+    const bool initializeSubmodules = dialog->initializeSubmodules();
     const QString rootPath = QFileInfo(path).dir().absolutePath();
     const bool createdRoot = !QFileInfo::exists(rootPath);
     if (!QDir().mkpath(rootPath)) {
@@ -1334,7 +1350,7 @@ void RepositoryNavigator::promptToCreateWorktree() {
     mWorktreeAdd->setEnabled(false);
     auto *watcher = new QFutureWatcher<WorktreeCreationResult>(this);
     connect(watcher, &QFutureWatcherBase::finished, this,
-            [this, watcher, createdRoot, rootPath] {
+            [this, watcher, createdRoot, rootPath, initializeSubmodules] {
               WorktreeCreationResult outcome = watcher->result();
               watcher->deleteLater();
               mCreatingWorktree = false;
@@ -1355,7 +1371,7 @@ void RepositoryNavigator::promptToCreateWorktree() {
               }
 
               mModel->refresh();
-              emit openRepositoryRequested(outcome.path);
+              emit openRepositoryRequested(outcome.path, initializeSubmodules);
             });
     watcher->setFuture(QtConcurrent::run(
         [repositoryPath, selectedName, branchType, localBranchName, worktreeName,

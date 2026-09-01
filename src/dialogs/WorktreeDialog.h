@@ -14,6 +14,7 @@
 #include <QSet>
 
 class QLabel;
+class QCheckBox;
 class QLineEdit;
 class QPushButton;
 class ReferenceList;
@@ -28,6 +29,7 @@ public:
   QString localBranchName() const;
   QString worktreeName() const;
   QString path() const;
+  bool initializeSubmodules() const;
 
 private:
   void selectBranch(const git::Reference &ref);
@@ -44,6 +46,7 @@ private:
   QLabel *mLocalBranchLabel;
   QLineEdit *mLocalBranchName;
   QLineEdit *mPath;
+  QCheckBox *mInitializeSubmodules;
   QLabel *mReason;
   QPushButton *mCreate;
   QString mWorktreeName;
