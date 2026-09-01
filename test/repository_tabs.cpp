@@ -7,10 +7,12 @@
 
 #include "Test.h"
 #include "ui/RepositoryTabStrip.h"
+#include "ui/TabWidget.h"
 #include <QAbstractButton>
 #include <QAccessible>
 #include <QLineEdit>
 #include <QListWidget>
+#include <QMainWindow>
 #include <QSignalSpy>
 #include <QToolButton>
 
@@ -25,6 +27,7 @@ private slots:
   void keepsCurrentTabVisible();
   void keepsSelectedTabChecked();
   void avoidsNarrowOverflowOverlap();
+  void rejectsDuplicateWidgets();
 };
 
 void TestRepositoryTabs::wrapsAtMinimumWidth() {
@@ -135,6 +138,21 @@ void TestRepositoryTabs::avoidsNarrowOverflowOverlap() {
       QVERIFY(!strip.tabRect(i).intersects(overflow->geometry()));
     }
   }
+}
+
+void TestRepositoryTabs::rejectsDuplicateWidgets() {
+  QMainWindow window;
+  auto *tabs = new TabWidget(&window);
+  window.setCentralWidget(tabs);
+  auto *page = new QWidget;
+  QSignalSpy inserted(tabs, &TabWidget::tabInserted);
+
+  QCOMPARE(tabs->addTab(page, QIcon(), "Repository"), 0);
+  QCOMPARE(tabs->addTab(page, QIcon(), "Duplicate"), 0);
+  QCOMPARE(tabs->count(), 1);
+  QCOMPARE(tabs->widget(0), page);
+  QCOMPARE(tabs->tabText(0), QString("Repository"));
+  QCOMPARE(inserted.count(), 1);
 }
 
 TEST_MAIN(TestRepositoryTabs)

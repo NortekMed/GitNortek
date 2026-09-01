@@ -52,6 +52,8 @@ Bug Fix and Feature release
 * Delete linked worktrees from the navigator with data-loss protection for uncommitted changes
 * Open repositories in the branch view even when unresolved conflicts already exist
 * Avoid redundant startup status scans and coalesce repository sidebar refreshes
+* Keep large commit histories responsive with adaptive ahead-of-viewport loading and show eight graph lanes by default with persistent contained scrolling for additional branches
+* Prevent duplicate or reentrant repository tab updates when opening submodules
 * Show Blame and Diff in the branch and commit pane when files are selected, with more default space for the commit history
 * Use the full repository sidebar for navigation and keep only the 20 most recent repositories
 * Brand Linux application and packages as GitNortek

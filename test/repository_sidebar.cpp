@@ -263,6 +263,7 @@ private slots:
   void checkoutConflictCommit();
   void branchGraphColors();
   void stashInteraction();
+  void historyPrefetch();
   void submoduleInteraction();
   void submoduleInitialization();
   void worktreeSubmoduleInitialization();
@@ -1522,7 +1523,8 @@ void TestRepositorySideBar::branchGraphColors() {
   RepoView *view = window.currentView();
   CommitList *commitList = view->findChild<CommitList *>();
   QVERIFY(commitList);
-  QHeaderView *header = commitList->findChild<QHeaderView *>();
+  QHeaderView *header =
+      commitList->findChild<QHeaderView *>("CommitHeader");
   QVERIFY(header);
   bool referencesHidden = header->isSectionHidden(CommitList::ReferencesColumn);
   auto restoreReferences = qScopeGuard([header, referencesHidden] {
@@ -1768,7 +1770,8 @@ void TestRepositorySideBar::stashInteraction() {
   QCoreApplication::processEvents();
   QCOMPARE(commitList->sizeHintForRow(0), 28);
 
-  QHeaderView *header = commitList->findChild<QHeaderView *>();
+  QHeaderView *header =
+      commitList->findChild<QHeaderView *>("CommitHeader");
   QVERIFY(header);
   QVERIFY(header->isVisible());
   QVERIFY(header->sectionsMovable());
@@ -1851,6 +1854,12 @@ void TestRepositorySideBar::stashInteraction() {
   QVERIFY(header->isSectionHidden(0));
   referencesAction->trigger();
   QVERIFY(!header->isSectionHidden(0));
+  QAction *resetColumns = columnOptions->menu()->actions().constLast();
+  QVERIFY(!resetColumns->isCheckable());
+  resetColumns->trigger();
+  QCoreApplication::processEvents();
+  int laneWidth = qMax(compactMetrics.ascent(), 20);
+  QCOMPARE(header->sectionSize(CommitList::GraphColumn), 8 * laneWidth);
 
   while (graphModel->canFetchMore(QModelIndex()))
     graphModel->fetchMore(QModelIndex());
@@ -2051,18 +2060,21 @@ void TestRepositorySideBar::stashInteraction() {
   QVERIFY(!forkColors.isEmpty());
   QVERIFY(forkColors.count(divergenceColor) >= 2);
 
-  int laneWidth = qMax(compactMetrics.ascent(), 20);
-  int graphMinimum = 50;
+  int graphContentWidth = 50;
   for (int row = 0; row < graphModel->rowCount(); ++row) {
     int lanes = graphModel->index(row, 0)
                     .data(CommitList::GraphRole)
                     .toList()
                     .size();
-    graphMinimum = qMax(graphMinimum, lanes * laneWidth);
+    graphContentWidth = qMax(graphContentWidth, lanes * laneWidth);
   }
-  QVERIFY(header->sectionSize(1) >= graphMinimum);
-  header->resizeSection(1, graphMinimum - 10);
-  QCOMPARE(header->sectionSize(1), graphMinimum);
+  QScrollBar *graphScrollBar =
+      commitList->findChild<QScrollBar *>("CommitGraphScrollBar");
+  QVERIFY(graphScrollBar);
+  QCOMPARE(graphScrollBar->accessibleName(),
+           QString("Scroll commit graph branches"));
+  QCOMPARE(graphScrollBar->maximum(),
+           qMax(0, graphContentWidth - header->sectionSize(1)));
 
   QStandardItemModel wideGraph(1, 1);
   QVariantList wideColumns;
@@ -2072,6 +2084,10 @@ void TestRepositorySideBar::stashInteraction() {
   int authorWidthBeforeGraphGrowth = header->sectionSize(3);
   int dateWidthBeforeGraphGrowth = header->sectionSize(4);
   int idWidthBeforeGraphGrowth = header->sectionSize(5);
+  int graphWidthBeforeGraphGrowth = header->sectionSize(1);
+  int graphScrollMaximumBeforeGraphGrowth = graphScrollBar->maximum();
+  int viewScrollMaximumBeforeGraphGrowth =
+      commitList->horizontalScrollBar()->maximum();
   QModelIndex wideIndex = wideGraph.index(0, 0);
   wideGraph.setData(wideIndex, wideColumns, CommitList::GraphRole);
   wideGraph.setData(wideIndex, wideColumns, CommitList::GraphColorRole);
@@ -2079,17 +2095,39 @@ void TestRepositorySideBar::stashInteraction() {
   commitList->setModel(&wideGraph);
   QCoreApplication::processEvents();
   QCOMPARE(header->sectionSize(0), referencesWidthBeforeGraphGrowth);
-  QCOMPARE(header->sectionSize(2), header->minimumSectionSize());
+  QCOMPARE(header->sectionSize(1), graphWidthBeforeGraphGrowth);
   QCOMPARE(header->sectionSize(3), authorWidthBeforeGraphGrowth);
   QCOMPARE(header->sectionSize(4), dateWidthBeforeGraphGrowth);
   QCOMPARE(header->sectionSize(5), idWidthBeforeGraphGrowth);
-  QVERIFY(commitList->horizontalScrollBar()->maximum() > 0);
-  commitList->horizontalScrollBar()->setValue(
-      commitList->horizontalScrollBar()->maximum());
+  QCOMPARE(commitList->horizontalScrollBar()->maximum(),
+           viewScrollMaximumBeforeGraphGrowth);
+  QCOMPARE(graphScrollBar->maximum(),
+           60 * laneWidth - graphWidthBeforeGraphGrowth);
+  QCOMPARE(graphScrollBar->pageStep(), graphWidthBeforeGraphGrowth);
+  QCOMPARE(graphScrollBar->singleStep(), laneWidth);
+  QVERIFY(graphScrollBar->isVisible());
+  QCOMPARE(graphScrollBar->parentWidget(), commitList);
+  QVERIFY(graphScrollBar->geometry().bottom() <
+          commitList->viewport()->geometry().top());
+  graphScrollBar->setValue(graphScrollBar->maximum());
+  QCOMPARE(graphScrollBar->value(), graphScrollBar->maximum());
   QCOMPARE(header->offset(), commitList->horizontalScrollBar()->value());
+
+  QStandardItemModel narrowGraph(1, 1);
+  QVariantList narrowColumns = {QVariant(QVariantList())};
+  QModelIndex narrowIndex = narrowGraph.index(0, 0);
+  narrowGraph.setData(narrowIndex, narrowColumns, CommitList::GraphRole);
+  narrowGraph.setData(narrowIndex, narrowColumns, CommitList::GraphColorRole);
+  narrowGraph.setData(narrowIndex, narrowColumns, CommitList::GraphStyleRole);
+  commitList->setModel(&narrowGraph);
+  QCoreApplication::processEvents();
+  QVERIFY(graphScrollBar->isVisible());
+  QVERIFY(!graphScrollBar->isEnabled());
+  QCOMPARE(graphScrollBar->maximum(), 0);
+
   commitList->setModel(graphModel);
   QCoreApplication::processEvents();
-  QCOMPARE(commitList->horizontalScrollBar()->maximum(), 0);
+  QCOMPARE(graphScrollBar->maximum(), graphScrollMaximumBeforeGraphGrowth);
 
   Settings::instance()->setValue(Setting::Id::ShowCommitsInCompactMode, compact);
   commitList->resetSettings();
@@ -2221,7 +2259,77 @@ void TestRepositorySideBar::stashInteraction() {
   QTRY_COMPARE(graphStashes().size(), 1);
 }
 
+void TestRepositorySideBar::historyPrefetch() {
+  constexpr int commitCount = 600;
+  Test::ScratchRepository repo;
+  for (int i = 0; i < commitCount; ++i) {
+    QVERIFY(repo->commit(QString("prefetch %1").arg(i)).isValid());
+  }
+  repo->appConfig().setValue("index.enable", false);
+  repo->appConfig().setValue(ConfigKeys::kStatusKey, false);
+  repo->appConfig().setValue(
+      ConfigKeys::kRefsKey,
+      static_cast<int>(CommitList::RefsFilter::SelectedRef));
+
+  Settings *settings = Settings::instance();
+  QVariant automaticChecks = settings->value(
+      Setting::Id::CheckSubmodulesForUpdatesAutomatically);
+  auto restoreSettings = qScopeGuard([settings, automaticChecks] {
+    settings->setValue(Setting::Id::CheckSubmodulesForUpdatesAutomatically,
+                       automaticChecks);
+  });
+  settings->setValue(Setting::Id::CheckSubmodulesForUpdatesAutomatically,
+                     false);
+
+  MainWindow window(repo);
+  window.resize(900, 400);
+  window.show();
+  QVERIFY(qWaitForWindowExposed(&window));
+  CommitList *commitList = window.currentView()->findChild<CommitList *>();
+  QVERIFY(commitList);
+  QAbstractItemModel *model = commitList->model();
+  QTimer *prefetchTimer =
+      commitList->findChild<QTimer *>("HistoryPrefetchTimer");
+  QVERIFY(prefetchTimer);
+
+  QTRY_VERIFY(model->rowCount() > 0);
+  QTest::qWait(50);
+  int initialRows = model->rowCount();
+  QVERIFY(initialRows < commitCount);
+  QVERIFY(model->canFetchMore(QModelIndex()));
+
+  QScrollBar *scrollBar = commitList->verticalScrollBar();
+  scrollBar->setSliderDown(true);
+  int pausedRows = model->rowCount();
+  scrollBar->setValue(scrollBar->maximum());
+  QTest::qWait(30);
+  QCOMPARE(model->rowCount(), pausedRows);
+
+  scrollBar->setSliderDown(false);
+  QTRY_VERIFY(model->rowCount() > pausedRows);
+  QVERIFY(model->rowCount() < commitCount);
+
+  QAbstractItemModelTester tester(
+      model, QAbstractItemModelTester::FailureReportingMode::QtTest);
+  commitList->resetSettings();
+  QCoreApplication::processEvents();
+}
+
 void TestRepositorySideBar::submoduleInteraction() {
+  Settings *settings = Settings::instance();
+  QVariant openInTabs =
+      settings->value(Setting::Id::OpenSubmodulesInTabs);
+  QVariant automaticChecks = settings->value(
+      Setting::Id::CheckSubmodulesForUpdatesAutomatically);
+  auto restoreSettings = qScopeGuard([settings, openInTabs, automaticChecks] {
+    settings->setValue(Setting::Id::OpenSubmodulesInTabs, openInTabs);
+    settings->setValue(Setting::Id::CheckSubmodulesForUpdatesAutomatically,
+                       automaticChecks);
+  });
+  settings->setValue(Setting::Id::OpenSubmodulesInTabs, true);
+  settings->setValue(Setting::Id::CheckSubmodulesForUpdatesAutomatically,
+                     false);
+
   Test::ScratchRepository child;
   QFile childFile(child->workdir().filePath("child.txt"));
   QVERIFY(childFile.open(QIODevice::WriteOnly));
@@ -2265,8 +2373,9 @@ void TestRepositorySideBar::submoduleInteraction() {
   QCOMPARE(git.exitCode(), 0);
   git::Id originCommit = child->head().target().id();
 
-  Settings::instance()->setValue(Setting::Id::OpenSubmodulesInTabs, true);
   MainWindow window(parent);
+  window.show();
+  QVERIFY(qWaitForWindowActive(&window));
   RepositoryNavigator *navigator =
       window.findChild<RepositoryNavigator *>("RepositoryNavigator");
   QVERIFY(navigator);
@@ -2403,6 +2512,23 @@ void TestRepositorySideBar::submoduleInteraction() {
 
   selected = parentView->repo().lookupSubmodule("child");
   git::Id localCommit = selected.workdirId();
+
+  QSignalSpy inserted(window.tabWidget(), &TabWidget::tabInserted);
+  QVERIFY(QMetaObject::invokeMethod(submodulesView, "doubleClicked",
+                                    Q_ARG(QModelIndex, submodule)));
+  QTRY_COMPARE(window.count(), 2);
+  QCOMPARE(inserted.count(), 1);
+  RepoView *freshChildView = window.currentView();
+  QVERIFY(freshChildView && freshChildView != parentView);
+  QVERIFY(freshChildView->isSubmoduleTab());
+  QCOMPARE(window.tabWidget()->tabText(window.tabWidget()->currentIndex()),
+           QString("%1 / child").arg(parent->workdir().dirName()));
+
+  QSignalSpy removed(window.tabWidget(), &TabWidget::tabRemoved);
+  QVERIFY(window.tabWidget()->closeTab(freshChildView));
+  QTRY_COMPARE(removed.count(), 1);
+  QTRY_COMPARE(window.count(), 1);
+  QCOMPARE(window.currentView(), parentView);
 
   RepoView *ordinaryChildView = window.addTab(selected.open());
   QVERIFY(ordinaryChildView);

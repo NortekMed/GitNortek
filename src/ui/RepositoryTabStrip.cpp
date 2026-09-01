@@ -18,6 +18,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QResizeEvent>
+#include <QScopedValueRollback>
 #include <QScreen>
 #include <QStyle>
 #include <QStyleOption>
@@ -429,6 +430,7 @@ int RepositoryTabStrip::addTab(const QIcon &icon, const QString &text) {
   mTabs.append({button, icon, text, QString()});
   if (mCurrentIndex < 0)
     setCurrentIndex(0);
+  updateAccessibleDescriptions();
   relayout();
   return mTabs.size() - 1;
 }
@@ -450,6 +452,7 @@ void RepositoryTabStrip::removeTab(int index) {
 
   for (int i = 0; i < count(); ++i)
     mTabs.at(i).button->setChecked(i == mCurrentIndex);
+  updateAccessibleDescriptions();
   relayout();
 }
 
@@ -479,6 +482,8 @@ QIcon RepositoryTabStrip::tabIcon(int index) const {
 void RepositoryTabStrip::setTabIcon(int index, const QIcon &icon) {
   if (index < 0 || index >= count())
     return;
+  if (mTabs.at(index).icon.cacheKey() == icon.cacheKey())
+    return;
   mTabs[index].icon = icon;
   static_cast<RepositoryTabButton *>(mTabs.at(index).button)->setTabIcon(icon);
   relayout();
@@ -490,6 +495,8 @@ QString RepositoryTabStrip::tabText(int index) const {
 
 void RepositoryTabStrip::setTabText(int index, const QString &text) {
   if (index < 0 || index >= count())
+    return;
+  if (mTabs.at(index).text == text)
     return;
   mTabs[index].text = text;
   static_cast<RepositoryTabButton *>(mTabs.at(index).button)->setTabText(text);
@@ -504,10 +511,11 @@ QString RepositoryTabStrip::tabToolTip(int index) const {
 void RepositoryTabStrip::setTabToolTip(int index, const QString &toolTip) {
   if (index < 0 || index >= count())
     return;
+  if (mTabs.at(index).toolTip == toolTip)
+    return;
   mTabs[index].toolTip = toolTip;
   mTabs.at(index).button->setToolTip(toolTip);
-  mTabs.at(index).button->setAccessibleDescription(
-      QTextDocumentFragment::fromHtml(toolTip).toPlainText());
+  updateAccessibleDescriptions();
 }
 
 int RepositoryTabStrip::rowCount() const { return mRowCount; }
@@ -567,13 +575,15 @@ void RepositoryTabStrip::moveTab(int from, int to) {
   } else if (from > mCurrentIndex && to <= mCurrentIndex) {
     ++mCurrentIndex;
   }
+  updateAccessibleDescriptions();
   relayout();
   emit tabMoved(from, to);
 }
 
 void RepositoryTabStrip::relayout() {
-  if (width() <= 0)
+  if (width() <= 0 || mInRelayout)
     return;
+  QScopedValueRollback<bool> guard(mInRelayout, true);
 
   const int minWidth = minimumTabWidth();
   const int fullCapacity = qMax(1, width() / minWidth);
@@ -598,9 +608,11 @@ void RepositoryTabStrip::relayout() {
   if (overflowing)
     mRowCount = kMaximumRows;
 
-  setFixedHeight(mRowCount * rowHeight());
-  for (Tab &tab : mTabs)
-    tab.button->hide();
+  int desiredHeight = mRowCount * rowHeight();
+  if (minimumHeight() != desiredHeight || maximumHeight() != desiredHeight)
+    setFixedHeight(desiredHeight);
+
+  QVector<bool> visible(count(), false);
 
   int index = mFirstVisible;
   int remaining = mVisibleCount;
@@ -641,23 +653,37 @@ void RepositoryTabStrip::relayout() {
     int x = 0;
     for (int offset = 0; offset < widths.size(); ++offset) {
       Tab &tab = mTabs[index + offset];
-      tab.button->setGeometry(x, row * rowHeight(), widths.at(offset),
-                              rowHeight());
-      tab.button->show();
+      QRect geometry(x, row * rowHeight(), widths.at(offset), rowHeight());
+      if (tab.button->geometry() != geometry)
+        tab.button->setGeometry(geometry);
+      visible[index + offset] = true;
       x += widths.at(offset);
     }
     index += rowCount;
     remaining -= rowCount;
   }
 
-  mOverflow->setVisible(overflowing);
-  if (overflowing) {
-    mOverflow->setGeometry(width() - overflowWidth,
-                           (mRowCount - 1) * rowHeight(), overflowWidth,
-                           rowHeight());
-    updateOverflow();
+  for (int i = 0; i < count(); ++i) {
+    if (visible.at(i) && mTabs.at(i).button->isHidden())
+      mTabs.at(i).button->show();
+    else if (!visible.at(i) && !mTabs.at(i).button->isHidden())
+      mTabs.at(i).button->hide();
   }
 
+  if (overflowing && mOverflow->isHidden())
+    mOverflow->show();
+  else if (!overflowing && !mOverflow->isHidden())
+    mOverflow->hide();
+  if (overflowing) {
+    QRect geometry(width() - overflowWidth, (mRowCount - 1) * rowHeight(),
+                   overflowWidth, rowHeight());
+    if (mOverflow->geometry() != geometry)
+      mOverflow->setGeometry(geometry);
+    updateOverflow();
+  }
+}
+
+void RepositoryTabStrip::updateAccessibleDescriptions() {
   for (int i = 0; i < count(); ++i) {
     QString description = tr("Repository tab %1 of %2").arg(i + 1).arg(count());
     QString details =
@@ -714,10 +740,14 @@ void RepositoryTabStrip::showOverflow() {
 
 void RepositoryTabStrip::updateOverflow() {
   int hidden = count() - mVisibleCount;
-  mOverflow->setText(tr("+%1").arg(hidden));
-  mOverflow->setAccessibleDescription(
-      hidden == 1 ? tr("1 hidden repository tab")
-                  : tr("%1 hidden repository tabs").arg(hidden));
+  QString text = tr("+%1").arg(hidden);
+  if (mOverflow->text() != text)
+    mOverflow->setText(text);
+  QString description = hidden == 1
+                            ? tr("1 hidden repository tab")
+                            : tr("%1 hidden repository tabs").arg(hidden);
+  if (mOverflow->accessibleDescription() != description)
+    mOverflow->setAccessibleDescription(description);
 }
 
 #include "RepositoryTabStrip.moc"

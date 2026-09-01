@@ -170,6 +170,8 @@ TabWidget::~TabWidget() { mDestroying = true; }
 int TabWidget::addTab(QWidget *widget, const QIcon &icon, const QString &text) {
   if (!widget)
     return -1;
+  if (int index = indexOf(widget); index >= 0)
+    return index;
 
   mWidgets.append(widget);
   mStack->addWidget(widget);

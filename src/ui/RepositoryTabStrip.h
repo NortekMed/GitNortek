@@ -62,6 +62,7 @@ private:
   void moveTab(int from, int to);
   void relayout();
   void showOverflow();
+  void updateAccessibleDescriptions();
   void updateOverflow();
 
   QVector<Tab> mTabs;
@@ -70,6 +71,7 @@ private:
   int mFirstVisible = 0;
   int mRowCount = 1;
   int mVisibleCount = 0;
+  bool mInRelayout = false;
 };
 
 #endif

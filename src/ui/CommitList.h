@@ -19,8 +19,10 @@
 class Index;
 class CommitAvatarProvider;
 class QHeaderView;
+class QScrollBar;
 class QShowEvent;
 class QStandardItemModel;
+class QTimer;
 class QToolButton;
 
 namespace git {
@@ -36,6 +38,7 @@ public:
     DiffRole = Qt::UserRole,
     CommitRole,
     GraphRole,
+    GraphLaneCountRole,
     GraphColorRole,
     GraphBaseColorRole,
     GraphStyleRole,
@@ -111,7 +114,11 @@ private:
   void resetHeader(bool saveState = true);
   int defaultReferencesWidth() const;
   int minimumColumnWidth(int column) const;
-  void updateGraphColumnWidth();
+  void updateGraphColumnWidth(int first = -1, int last = -1);
+  void updateGraphScrollBar();
+  QRect graphViewportRect() const;
+  void scheduleHistoryPrefetch();
+  void prefetchHistory();
   void resizeHeaderToFit(int protectedColumn = -1);
   void saveHeaderState();
   void storeSelection();
@@ -141,6 +148,8 @@ private:
   QAbstractListModel *mModel;
 
   QHeaderView *mHeader = nullptr;
+  QScrollBar *mGraphScrollBar = nullptr;
+  QTimer *mHistoryPrefetchTimer = nullptr;
   QStandardItemModel *mHeaderModel = nullptr;
   QToolButton *mHeaderOptions = nullptr;
   bool mUpdatingHeader = false;
@@ -150,8 +159,9 @@ private:
   bool mMigrateReferencesWidth = false;
   QByteArray mPendingHeaderState;
   int mReferencesPreferredWidth = 0;
-  int mGraphMinimumWidth = 0;
+  int mGraphContentWidth = 0;
   int mGraphPreferredWidth = 0;
+  int mHistoryPrefetchTarget = 0;
 
   bool mRestoreSelection{true};
   bool mPreserveSelectionDetails = false;

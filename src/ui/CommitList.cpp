@@ -36,6 +36,7 @@
 #include "ui/HotkeyManager.h"
 #include <QAbstractListModel>
 #include <QApplication>
+#include <QElapsedTimer>
 #include <QHeaderView>
 #include <QHelpEvent>
 #include <QMenu>
@@ -43,6 +44,7 @@
 #include <QPainterPath>
 #include <QPushButton>
 #include <QScrollBar>
+#include <QScopedValueRollback>
 #include <QSet>
 #include <QShowEvent>
 #include <QSettings>
@@ -66,9 +68,13 @@ constexpr int kCompactColumnPadding = 8;
 constexpr int kShortIdMargin = 8;
 constexpr int kReferencesMinimumWidth = 55;
 constexpr int kGraphMinimumWidth = 50;
+constexpr int kDefaultGraphLanes = 8;
 constexpr int kSummaryMinimumWidth = 24;
 constexpr int kAuthorMinimumWidth = 70;
 constexpr int kDateMinimumWidth = 100;
+constexpr int kMinimumFetchSize = 32;
+constexpr int kMaximumFetchSize = 256;
+constexpr int kFetchTimeBudgetMs = 8;
 const char kCommitHeaderStateKey[] = "commit/columns/headerStateV12";
 const char kPreviousCommitHeaderStateKey[] = "commit/columns/headerStateV11";
 const char kLegacyCommitHeaderStateKey[] = "commit/columns/headerStateV10";
@@ -301,6 +307,7 @@ public:
     mNextLane = 1;
     mHeadLane = 0;
     mRows.clear();
+    mLoadedCommits.clear();
     mNodeLanes.clear();
     mStashIndexes.clear();
     mStashAuxiliaryCommits.clear();
@@ -370,7 +377,7 @@ public:
       }
     }
 
-    if (canFetchMore(QModelIndex()))
+    if (mWalker.isValid())
       fetchMore(QModelIndex());
 
     updateHeadLane(false);
@@ -392,13 +399,24 @@ public:
   }
 
   bool canFetchMore(const QModelIndex &parent) const {
-    return mWalker.isValid();
+    return !mFetching && !mFetchPaused && mWalker.isValid();
   }
 
+  bool canPrefetch() const { return mPathspec.isEmpty(); }
+
+  void setFetchPaused(bool paused) { mFetchPaused = paused; }
+
   void fetchMore(const QModelIndex &parent) {
+    if (mFetching || !mWalker.isValid())
+      return;
+    QScopedValueRollback<bool> fetching(mFetching, true);
+
     // Load commits.
     int i = 0;
+    QElapsedTimer timer;
+    timer.start();
     QList<Row> rows;
+    QSet<git::Id> rowIds;
     git::Commit commit = nextCommit();
     while (commit.isValid()) {
       // Add root commits.
@@ -441,7 +459,8 @@ public:
       QList<git::Commit> replacements;
       foreach (const git::Commit &parent, commitParents) {
         // FIXME: Mark commits that point to existing parent?
-        if (indexOf(parent) < 0 && !contains(parent, rows))
+        if (indexOf(parent) < 0 && !mLoadedCommits.contains(parent.id()) &&
+            !rowIds.contains(parent.id()))
           replacements.append(parent);
         if (mRefsFilter == CommitList::RefsFilter::SelectedRefIgnoreMerge) {
           break;
@@ -501,10 +520,12 @@ public:
       }
 
       rows.append(Row(commit, row));
+      rowIds.insert(commit.id());
       DebugRefresh("Append commit: " << commit.shortId());
 
-      // Bail out.
-      if (i++ >= 64)
+      ++i;
+      if (i >= kMaximumFetchSize ||
+          (i >= kMinimumFetchSize && timer.hasExpired(kFetchTimeBudgetMs)))
         break;
 
       commit = nextCommit();
@@ -514,9 +535,12 @@ public:
     if (!rows.isEmpty()) {
       int first = mRows.size();
       int last = first + rows.size() - 1;
-      beginInsertRows(QModelIndex(), first, last);
+      if (!mResettingWalker)
+        beginInsertRows(QModelIndex(), first, last);
       mRows.append(rows);
-      endInsertRows();
+      mLoadedCommits.unite(rowIds);
+      if (!mResettingWalker)
+        endInsertRows();
       updateHeadLane(!mResettingWalker);
     }
 
@@ -587,6 +611,9 @@ public:
 
         return columns;
       }
+
+      case CommitList::Role::GraphLaneCountRole:
+        return row.columns.size();
 
       case CommitList::Role::GraphColorRole: {
         QVariantList columns;
@@ -716,20 +743,6 @@ private:
         return i;
     }
     return -1;
-  }
-
-  bool contains(const git::Commit &commit, const QList<Row> &rows) const {
-    foreach (const Row &row, mRows) {
-      if (row.commit == commit)
-        return true;
-    }
-
-    foreach (const Row &row, rows) {
-      if (row.commit == commit)
-        return true;
-    }
-
-    return false;
   }
 
   bool isStash(const git::Commit &commit) const {
@@ -946,6 +959,7 @@ private:
   git::Repository mRepo;
 
   QList<Row> mRows;
+  QSet<git::Id> mLoadedCommits;
   QHash<git::Id, quint64> mNodeLanes;
   QList<Parent> mParents;
   quint64 mNextLane = 1;
@@ -956,6 +970,8 @@ private:
   // walker settings
   bool mSuppressResetWalker{false};
   bool mResettingWalker = false;
+  bool mFetching = false;
+  bool mFetchPaused = false;
   CommitList::RefsFilter mRefsFilter{CommitList::RefsFilter::AllRefs};
   bool mSortDate = true;
   bool mShowCleanStatus = true;
@@ -1015,9 +1031,10 @@ class CommitDelegate : public QStyledItemDelegate {
 
 public:
   CommitDelegate(const git::Repository &repo, CommitAvatarProvider *avatars,
-                 QHeaderView *header, QObject *parent = nullptr)
+                  QHeaderView *header, QScrollBar *graphScrollBar,
+                  QObject *parent = nullptr)
       : QStyledItemDelegate(parent), mRepo(repo), mAvatars(avatars),
-        mHeader(header) {
+        mHeader(header), mGraphScrollBar(graphScrollBar) {
     updateRefs();
 
     git::RepositoryNotifier *notifier = repo.notifier();
@@ -1102,9 +1119,19 @@ public:
                                 opt.widget ? opt.widget->devicePixelRatioF()
                                            : qApp->devicePixelRatio());
 
+    CompactLayout compactColumns;
+    bool graphOnly = false;
+    if (compact) {
+      compactColumns = compactLayout(opt.rect);
+      rect = compactColumns.graph;
+      QRect clip = painter->clipBoundingRect().toAlignedRect();
+      graphOnly = clip.left() >= compactColumns.graph.left() &&
+                  clip.right() <= compactColumns.graph.right();
+    }
+
     QDateTime date;
     QString timestamp;
-    if (commit.isValid()) {
+    if (!graphOnly && commit.isValid()) {
       date = commit.committer().date().toLocalTime();
       if (compact) {
         timestamp =
@@ -1117,12 +1144,6 @@ public:
                         : QLocale().toString(date.date(), QLocale::ShortFormat);
       }
     }
-    CompactLayout compactColumns;
-    if (compact) {
-      compactColumns = compactLayout(opt.rect);
-      rect = compactColumns.graph;
-    }
-
     // Draw graph.
     painter->save();
     if (compact)
@@ -1132,10 +1153,14 @@ public:
         index.data(CommitList::Role::GraphColorRole).toList();
     QVariantList styleColumns =
         index.data(CommitList::Role::GraphStyleRole).toList();
-    for (int i = 0; i < columns.size(); ++i) {
+    int laneWidth = qMax(opt.fontMetrics.ascent(), kGraphNodeSize + 4);
+    int graphOffset = compact && mGraphScrollBar ? mGraphScrollBar->value() : 0;
+    int firstLane = qMax(0, graphOffset / laneWidth - 1);
+    rect.translate(firstLane * laneWidth - graphOffset, 0);
+    for (int i = firstLane; i < columns.size(); ++i) {
       int x = rect.x();
       int y = rect.y();
-      int w = qMax(opt.fontMetrics.ascent(), kGraphNodeSize + 4);
+      int w = laneWidth;
       int h = opt.rect.height();
       int h_2 = h / 2;
 
@@ -1305,6 +1330,11 @@ public:
     }
 
     painter->restore();
+
+    if (graphOnly) {
+      painter->restore();
+      return;
+    }
 
     // Adjust margins.
     if (compact) {
@@ -1786,6 +1816,7 @@ private:
   git::Repository mRepo;
   CommitAvatarProvider *mAvatars;
   QHeaderView *mHeader;
+  QScrollBar *mGraphScrollBar;
   QMap<git::Id, QList<Badge::Label>> mRefs;
   QHash<QString, QColor> mBranchColors;
 
@@ -1832,6 +1863,12 @@ CommitList::CommitList(Index *index, CommitAvatarProvider *avatars,
   mList = new ListModel(this);
   mModel = new CommitModel(repo, this);
   setupHeader();
+  mHistoryPrefetchTimer = new QTimer(this);
+  mHistoryPrefetchTimer->setObjectName("HistoryPrefetchTimer");
+  mHistoryPrefetchTimer->setSingleShot(true);
+  mHistoryPrefetchTimer->setInterval(1);
+  connect(mHistoryPrefetchTimer, &QTimer::timeout, this,
+          &CommitList::prefetchHistory);
   viewport()->installEventFilter(this);
   connect(Settings::instance(), &Settings::settingsChanged, this,
           [this] { updateHeader(false); });
@@ -1843,7 +1880,8 @@ CommitList::CommitList(Index *index, CommitAvatarProvider *avatars,
   setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
 
   setModel(mModel);
-  setItemDelegate(new CommitDelegate(repo, avatars, mHeader, this));
+  setItemDelegate(
+      new CommitDelegate(repo, avatars, mHeader, mGraphScrollBar, this));
   connect(&mSelectionDiff, &QFutureWatcher<git::Diff>::finished, this,
           [this] {
             if (mSelectionDiff.future().resultCount())
@@ -1851,8 +1889,25 @@ CommitList::CommitList(Index *index, CommitAvatarProvider *avatars,
                                 mSelectionDiffSpontaneous);
           });
   if (avatars) {
-    connect(avatars, &CommitAvatarProvider::avatarReady, viewport(),
-            qOverload<>(&QWidget::update));
+    connect(avatars, &CommitAvatarProvider::avatarReady, this,
+            [this](const QString &oid) {
+              QModelIndex first = indexAt(viewport()->rect().topLeft());
+              if (!first.isValid())
+                return;
+
+              QModelIndex last = indexAt(viewport()->rect().bottomLeft());
+              int lastRow =
+                  last.isValid() ? last.row() : model()->rowCount() - 1;
+              for (int row = first.row(); row <= lastRow; ++row) {
+                QModelIndex index = model()->index(row, 0);
+                git::Commit commit =
+                    index.data(CommitRole).value<git::Commit>();
+                if (commit.isValid() && commit.id().toString() == oid) {
+                  update(index);
+                  break;
+                }
+              }
+            });
     connect(avatars, &CommitAvatarProvider::avatarsChanged, viewport(),
             qOverload<>(&QWidget::update));
   }
@@ -1871,15 +1926,37 @@ CommitList::CommitList(Index *index, CommitAvatarProvider *avatars,
   }
   for (QAbstractItemModel *model : {mModel, mList}) {
     connect(model, &QAbstractItemModel::rowsInserted, this,
-            [this] { updateGraphColumnWidth(); });
-    connect(model, &QAbstractItemModel::modelReset, this,
-            &CommitList::updateGraphColumnWidth);
+            [this, model](const QModelIndex &, int first, int last) {
+              if (this->model() == model)
+                updateGraphColumnWidth(first, last);
+              scheduleHistoryPrefetch();
+            });
+    connect(model, &QAbstractItemModel::modelReset, this, [this, model] {
+      if (this->model() == model) {
+        updateGraphColumnWidth();
+        scheduleHistoryPrefetch();
+      }
+    });
   }
   connect(horizontalScrollBar(), &QScrollBar::valueChanged, this,
           [this](int value) {
             mHeader->setOffset(value);
+            updateGraphScrollBar();
             viewport()->update();
           });
+
+  connect(verticalScrollBar(), &QScrollBar::valueChanged, this,
+          [this] { scheduleHistoryPrefetch(); });
+  connect(verticalScrollBar(), &QScrollBar::rangeChanged, this,
+          [this] { scheduleHistoryPrefetch(); });
+  connect(verticalScrollBar(), &QScrollBar::sliderPressed, this, [this] {
+    mHistoryPrefetchTimer->stop();
+    static_cast<CommitModel *>(mModel)->setFetchPaused(true);
+  });
+  connect(verticalScrollBar(), &QScrollBar::sliderReleased, this, [this] {
+    static_cast<CommitModel *>(mModel)->setFetchPaused(false);
+    scheduleHistoryPrefetch();
+  });
 
   CommitModel *model = static_cast<CommitModel *>(mModel);
   connect(model, &CommitModel::statusFinished, [this, model](bool dirty) {
@@ -1936,6 +2013,7 @@ void CommitList::setupHeader() {
   mHeaderModel->setHeaderData(IdColumn, Qt::Horizontal, tr("SHA"));
 
   mHeader = new QHeaderView(Qt::Horizontal, this);
+  mHeader->setObjectName("CommitHeader");
   mHeader->installEventFilter(this);
   mHeader->setModel(mHeaderModel);
   mHeader->setSectionsMovable(true);
@@ -1952,6 +2030,13 @@ void CommitList::setupHeader() {
   mHeaderOptions->setAccessibleName(tr("Configure commit columns"));
   QMenu *menu = new QMenu(mHeaderOptions);
   mHeaderOptions->setMenu(menu);
+
+  mGraphScrollBar = new QScrollBar(Qt::Horizontal, this);
+  mGraphScrollBar->setObjectName("CommitGraphScrollBar");
+  mGraphScrollBar->setAccessibleName(tr("Scroll commit graph branches"));
+  mGraphScrollBar->hide();
+  connect(mGraphScrollBar, &QScrollBar::valueChanged, this,
+          [this] { viewport()->update(graphViewportRect()); });
   for (int column = 0; column < ColumnCount; ++column) {
     QAction *action = menu->addAction(
         mHeaderModel->headerData(column, Qt::Horizontal).toString());
@@ -2003,11 +2088,13 @@ void CommitList::setupHeader() {
             if (mHeaderInteraction)
               saveHeaderState();
             doItemsLayout();
+            updateGraphScrollBar();
             viewport()->update();
           });
   connect(mHeader, &QHeaderView::sectionMoved, this, [this] {
     saveHeaderState();
     doItemsLayout();
+    updateGraphScrollBar();
     viewport()->update();
   });
 
@@ -2039,7 +2126,9 @@ void CommitList::resetHeader(bool saveState) {
   int width = qMax(240, viewport()->width() - kCommitHeaderInset -
                             kCommitHeaderOptionsWidth);
   int refs = defaultReferencesWidth();
-  int graph = qBound(kGraphMinimumWidth, width * 7 / 100, 160);
+  int laneWidth = qMax(QFontMetrics(compactFont(font()), this).ascent(),
+                       kGraphNodeSize + 4);
+  int graph = qMax(kGraphMinimumWidth, kDefaultGraphLanes * laneWidth);
   int author = qBound(kAuthorMinimumWidth, width * 7 / 100, 120);
   int date = qBound(kDateMinimumWidth, width * 11 / 100, 160);
   int id = minimumColumnWidth(IdColumn);
@@ -2084,7 +2173,7 @@ int CommitList::minimumColumnWidth(int column) const {
     case ReferencesColumn:
       return kReferencesMinimumWidth;
     case GraphColumn:
-      return qMax(kGraphMinimumWidth, mGraphMinimumWidth);
+      return kGraphMinimumWidth;
     case SummaryColumn:
       return kSummaryMinimumWidth;
     case AuthorColumn:
@@ -2099,34 +2188,119 @@ int CommitList::minimumColumnWidth(int column) const {
   }
 }
 
-void CommitList::updateGraphColumnWidth() {
+void CommitList::updateGraphColumnWidth(int first, int last) {
   QAbstractItemModel *graphModel = model();
   if (!graphModel)
     return;
 
   int laneWidth = qMax(QFontMetrics(compactFont(font()), this).ascent(),
                        kGraphNodeSize + 4);
-  int minimum = kGraphMinimumWidth;
-  for (int row = 0; row < graphModel->rowCount(); ++row) {
-    int lanes = graphModel->index(row, 0).data(GraphRole).toList().size();
+  bool reset = first < 0 || last < first;
+  int minimum = reset ? kGraphMinimumWidth
+                      : qMax(kGraphMinimumWidth, mGraphContentWidth);
+  if (reset) {
+    first = 0;
+    last = graphModel->rowCount() - 1;
+  } else {
+    last = qMin(last, graphModel->rowCount() - 1);
+  }
+
+  for (int row = first; row <= last; ++row) {
+    QModelIndex index = graphModel->index(row, 0);
+    QVariant laneCount = index.data(GraphLaneCountRole);
+    int lanes = laneCount.isValid() ? laneCount.toInt()
+                                    : index.data(GraphRole).toList().size();
     minimum = qMax(minimum, lanes * laneWidth);
   }
 
-  mGraphMinimumWidth = minimum;
-  if (!mHeader || mHeader->isSectionHidden(GraphColumn))
+  mGraphContentWidth = minimum;
+  updateGraphScrollBar();
+  viewport()->update(graphViewportRect());
+}
+
+void CommitList::updateGraphScrollBar() {
+  if (!mGraphScrollBar || !mHeader)
     return;
 
-  int current = mHeader->sectionSize(GraphColumn);
-  int target = qMax(mGraphPreferredWidth, minimum);
-  if (current == target)
+  int laneWidth = qMax(QFontMetrics(compactFont(font()), this).ascent(),
+                       kGraphNodeSize + 4);
+  int width = mHeader->sectionSize(GraphColumn);
+  int maximum = qMax(0, mGraphContentWidth - width);
+  mGraphScrollBar->setSingleStep(laneWidth);
+  mGraphScrollBar->setPageStep(width);
+  mGraphScrollBar->setRange(0, maximum);
+
+  bool compact = !mHeader->isHidden();
+  bool visible = compact && !mHeader->isSectionHidden(GraphColumn);
+  if (!visible) {
+    mGraphScrollBar->hide();
+    return;
+  }
+
+  mGraphScrollBar->setEnabled(maximum > 0);
+  int extent = style()->pixelMetric(QStyle::PM_ScrollBarExtent, nullptr,
+                                    mGraphScrollBar);
+  int x = frameWidth() + kCommitHeaderInset +
+          mHeader->sectionPosition(GraphColumn) -
+          horizontalScrollBar()->value();
+  mGraphScrollBar->setGeometry(x, frameWidth() + kCommitHeaderHeight, width,
+                               extent);
+  mGraphScrollBar->show();
+  mGraphScrollBar->raise();
+}
+
+QRect CommitList::graphViewportRect() const {
+  if (!mHeader)
+    return QRect();
+
+  int x = kCommitHeaderInset + mHeader->sectionPosition(GraphColumn) -
+          horizontalScrollBar()->value();
+  return QRect(x, 0, mHeader->sectionSize(GraphColumn), viewport()->height());
+}
+
+void CommitList::scheduleHistoryPrefetch() {
+  if (!mHistoryPrefetchTimer)
     return;
 
-  mUpdatingHeader = true;
-  mHeader->resizeSection(GraphColumn, target);
-  mUpdatingHeader = false;
-  resizeHeaderToFit(GraphColumn);
-  doItemsLayout();
-  viewport()->update();
+  CommitModel *history = static_cast<CommitModel *>(mModel);
+  if (!isVisible() || model() != mModel ||
+      verticalScrollBar()->isSliderDown() || !history->canPrefetch()) {
+    mHistoryPrefetchTimer->stop();
+    return;
+  }
+
+  QModelIndex first = indexAt(viewport()->rect().topLeft());
+  QModelIndex last = indexAt(viewport()->rect().bottomLeft());
+  int firstRow = first.isValid() ? first.row() : 0;
+  int rowHeight = sizeHintForRow(firstRow);
+  if (rowHeight <= 0)
+    rowHeight = qMax(1, fontMetrics().height());
+  int visibleRows = last.isValid()
+                        ? qMax(1, last.row() - firstRow + 1)
+                        : qMax(1, viewport()->height() / rowHeight);
+  int lastRow = last.isValid() ? last.row() : firstRow + visibleRows - 1;
+  int lookAhead = qBound(64, visibleRows * 4, 256);
+  mHistoryPrefetchTarget = lastRow + lookAhead;
+
+  if (history->rowCount() < mHistoryPrefetchTarget &&
+      history->canFetchMore(QModelIndex())) {
+    mHistoryPrefetchTimer->start();
+  } else {
+    mHistoryPrefetchTimer->stop();
+  }
+}
+
+void CommitList::prefetchHistory() {
+  CommitModel *history = static_cast<CommitModel *>(mModel);
+  if (!isVisible() || model() != mModel ||
+      verticalScrollBar()->isSliderDown() || !history->canPrefetch() ||
+      history->rowCount() >= mHistoryPrefetchTarget ||
+      !history->canFetchMore(QModelIndex())) {
+    return;
+  }
+
+  history->fetchMore(QModelIndex());
+  scheduleHistoryPrefetch();
 }
 
 void CommitList::resizeHeaderToFit(int protectedColumn) {
@@ -2226,7 +2400,11 @@ void CommitList::updateHeader(bool saveState) {
   bool compact = Settings::instance()
                      ->value(Setting::Id::ShowCommitsInCompactMode)
                      .toBool();
-  setViewportMargins(0, compact ? kCommitHeaderHeight : 0, 0, 0);
+  int graphScrollHeight =
+      style()->pixelMetric(QStyle::PM_ScrollBarExtent, nullptr,
+                           mGraphScrollBar);
+  setViewportMargins(
+      0, compact ? kCommitHeaderHeight + graphScrollHeight : 0, 0, 0);
   mHeader->setVisible(compact);
   mHeaderOptions->setVisible(compact);
   if (compact) {
@@ -2452,6 +2630,9 @@ void CommitList::setModel(QAbstractItemModel *model) {
   if (model == this->model())
     return;
 
+  if (mHistoryPrefetchTimer)
+    mHistoryPrefetchTimer->stop();
+  static_cast<CommitModel *>(mModel)->setFetchPaused(false);
   storeSelection();
 
   // Destroy the previous selection model.
@@ -2479,6 +2660,7 @@ void CommitList::setModel(QAbstractItemModel *model) {
   setSelectionModel(selectionModel);
 
   restoreSelection();
+  scheduleHistoryPrefetch();
 }
 
 /// @brief Helper function to add a list of items to a menu.
@@ -2801,10 +2983,13 @@ void CommitList::resizeEvent(QResizeEvent *event) {
   if (!mUpdatingHeader) {
     resizeHeaderToFit();
   }
+  updateGraphScrollBar();
+  scheduleHistoryPrefetch();
 }
 
 void CommitList::showEvent(QShowEvent *event) {
   QListView::showEvent(event);
+  scheduleHistoryPrefetch();
   if (!mResetHeaderOnShow)
     return;
 
@@ -2818,6 +3003,7 @@ void CommitList::showEvent(QShowEvent *event) {
 
     mUpdatingHeader = true;
     mHeader->restoreState(mPendingHeaderState);
+    mHeader->setSectionsMovable(true);
     if (mMigrateReferencesWidth)
       mHeader->resizeSection(ReferencesColumn, defaultReferencesWidth());
     mReferencesPreferredWidth = mHeader->sectionSize(ReferencesColumn);
