@@ -1457,6 +1457,7 @@ void TestRepositorySideBar::branchGraphColors() {
             {"commit", "--allow-empty", "-m", "color base"});
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
+  git::Id baseCommit = repo->head().target().id();
   QString mainBranch = repo->head().name();
   QVERIFY(!mainBranch.isEmpty());
   git.start(GIT_EXECUTABLE, {"checkout", "-b", "color-side"});
@@ -1471,6 +1472,27 @@ void TestRepositorySideBar::branchGraphColors() {
   QCOMPARE(git.exitCode(), 0);
   git.start(GIT_EXECUTABLE,
             {"commit", "--allow-empty", "-m", "color main"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE, {"branch", "sender-alive"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  git.start(GIT_EXECUTABLE,
+            {"commit", "--allow-empty", "-m", "color main latest"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  for (int branch = 0; branch < 10; ++branch) {
+    const QString name = QString("badge-extra-%1").arg(branch);
+    git.start(GIT_EXECUTABLE,
+              {"checkout", "-b", name, baseCommit.toString()});
+    QVERIFY(git.waitForFinished());
+    QCOMPARE(git.exitCode(), 0);
+    git.start(GIT_EXECUTABLE,
+              {"commit", "--allow-empty", "-m", name});
+    QVERIFY(git.waitForFinished());
+    QCOMPARE(git.exitCode(), 0);
+  }
+  git.start(GIT_EXECUTABLE, {"checkout", mainBranch});
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
   git.start(GIT_EXECUTABLE,
@@ -1513,16 +1535,20 @@ void TestRepositorySideBar::branchGraphColors() {
 
   git::Reference main = repo->lookupRef("refs/heads/" + mainBranch);
   git::Reference side = repo->lookupRef("refs/heads/color-side");
+  git::Reference sender = repo->lookupRef("refs/heads/sender-alive");
   git::Reference remote =
       repo->lookupRef("refs/remotes/origin/color-side");
   QVERIFY(main.isValid());
   QVERIFY(side.isValid());
+  QVERIFY(sender.isValid());
   QVERIFY(remote.isValid());
   QCOMPARE(remote.target().id(), side.target().id());
   QModelIndex mainIndex = commitIndex(model, main.target().id());
   QModelIndex sideIndex = commitIndex(model, side.target().id());
+  QModelIndex senderIndex = commitIndex(model, sender.target().id());
   QVERIFY(mainIndex.isValid());
   QVERIFY(sideIndex.isValid());
+  QVERIFY(senderIndex.isValid());
 
   const QColor headColor = Application::theme()->badge(
       Theme::BadgeRole::Background, Theme::BadgeState::Head);
@@ -1538,10 +1564,35 @@ void TestRepositorySideBar::branchGraphColors() {
   QVERIFY(sideBase != remoteBadge);
   QCOMPARE(graphNodeColor(mainIndex, CommitList::GraphColorRole), headColor);
   QCOMPARE(graphNodeColor(sideIndex, CommitList::GraphColorRole), sideBase);
+  QCOMPARE(graphNodeColor(senderIndex, CommitList::GraphBaseColorRole),
+           mainBase);
   QCOMPARE(branchBadgeColor(commitList, header, mainIndex), headColor);
-  QVERIFY(referenceBadgesContainColor(commitList, header, sideIndex, sideBase));
+  const QColor sideBadge = branchBadgeColor(commitList, header, sideIndex);
+  const QColor senderBadge =
+      branchBadgeColor(commitList, header, senderIndex);
+  QVERIFY(sideBadge.isValid());
+  QVERIFY(senderBadge.isValid());
+  QVERIFY(sideBadge != headColor);
+  QVERIFY(senderBadge != headColor);
+  QVERIFY(sideBadge != senderBadge);
+  QVERIFY(referenceBadgesContainColor(commitList, header, sideIndex, sideBadge));
   QVERIFY(
       referenceBadgesContainColor(commitList, header, sideIndex, remoteBadge));
+
+  QSet<QRgb> branchBadgeColors;
+  for (int branch = 0; branch < 10; ++branch) {
+    git::Reference extra = repo->lookupRef(
+        QString("refs/heads/badge-extra-%1").arg(branch));
+    QVERIFY(extra.isValid());
+    QModelIndex extraIndex = commitIndex(model, extra.target().id());
+    QVERIFY(extraIndex.isValid());
+    QColor color = branchBadgeColor(commitList, header, extraIndex);
+    QVERIFY(color.isValid());
+    QVERIFY(color != headColor);
+    QVERIFY(color != remoteBadge);
+    branchBadgeColors.insert(color.rgba());
+  }
+  QCOMPARE(branchBadgeColors.size(), 10);
 
   for (int row = 0; row < model->rowCount(); ++row) {
     for (const QVariant &column :
@@ -1557,8 +1608,11 @@ void TestRepositorySideBar::branchGraphColors() {
   config.setValue(ConfigKeys::kGraphKey, false);
   commitList->resetSettings();
   mainIndex = commitIndex(model, main.target().id());
+  senderIndex = commitIndex(model, sender.target().id());
   QVERIFY(mainIndex.isValid());
+  QVERIFY(senderIndex.isValid());
   QCOMPARE(branchBadgeColor(commitList, header, mainIndex), headColor);
+  QCOMPARE(branchBadgeColor(commitList, header, senderIndex), senderBadge);
   config.setValue(ConfigKeys::kGraphKey, true);
   commitList->resetSettings();
   while (model->canFetchMore(QModelIndex()))
@@ -1582,13 +1636,19 @@ void TestRepositorySideBar::branchGraphColors() {
     model->fetchMore(QModelIndex());
   mainIndex = commitIndex(model, main.target().id());
   sideIndex = commitIndex(model, side.target().id());
+  senderIndex = commitIndex(model, sender.target().id());
   QTRY_COMPARE(graphNodeColor(sideIndex, CommitList::GraphColorRole), headColor);
   QCOMPARE(graphNodeColor(mainIndex, CommitList::GraphColorRole), mainBase);
   QVERIFY(
       referenceBadgesContainColor(commitList, header, sideIndex, headColor));
   QVERIFY(
       referenceBadgesContainColor(commitList, header, sideIndex, remoteBadge));
-  QCOMPARE(branchBadgeColor(commitList, header, mainIndex), mainBase);
+  QColor mainBadge = branchBadgeColor(commitList, header, mainIndex);
+  QVERIFY(mainBadge.isValid());
+  QVERIFY(mainBadge != headColor);
+  QVERIFY(mainBadge != remoteBadge);
+  QVERIFY(mainBadge != senderBadge);
+  QCOMPARE(branchBadgeColor(commitList, header, senderIndex), senderBadge);
 }
 
 void TestRepositorySideBar::stashInteraction() {

@@ -46,6 +46,7 @@ Bug Fix and Feature release
 * Expand the Submodules navigator list to show every item when vertical space permits
 * Show detached HEAD details instead of Home for detached worktree checkouts
 * Use the Submodules icon for submodule tabs and restored submodule sessions
+* Give local branch badges stable distinct colors even when branches share a graph lane
 * Let worktree creation initialize submodules by default and initialize one or all uninitialized submodules from the navigator
 * Delete linked worktrees from the navigator with data-loss protection for uncommitted changes
 * Open repositories in the branch view even when unresolved conflicts already exist

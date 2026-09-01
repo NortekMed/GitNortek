@@ -52,6 +52,7 @@
 #include <QTimer>
 #include <QToolTip>
 #include <QtConcurrent>
+#include <algorithm>
 #include <atomic>
 #include <memory>
 
@@ -1129,11 +1130,8 @@ public:
     QVariantList columns = index.data(CommitList::Role::GraphRole).toList();
     QVariantList colorColumns =
         index.data(CommitList::Role::GraphColorRole).toList();
-    QVariantList baseColorColumns =
-        index.data(CommitList::Role::GraphBaseColorRole).toList();
     QVariantList styleColumns =
         index.data(CommitList::Role::GraphStyleRole).toList();
-    QColor graphNodeBaseColor;
     for (int i = 0; i < columns.size(); ++i) {
       int x = rect.x();
       int y = rect.y();
@@ -1158,16 +1156,9 @@ public:
 
       QVariantList segments = columns.at(i).toList();
       QVariantList colors = colorColumns.at(i).toList();
-      QVariantList baseColors =
-          i < baseColorColumns.size() ? baseColorColumns.at(i).toList()
-                                      : colors;
       QVariantList styles = styleColumns.at(i).toList();
       for (int j = 0; j < segments.size(); ++j) {
         QColor color = colors.at(j).value<QColor>();
-        if (segments.at(j).toInt() == Dot)
-          graphNodeBaseColor = j < baseColors.size()
-                                   ? baseColors.at(j).value<QColor>()
-                                   : color;
         QPen pen(color, 2);
         pen.setStyle(static_cast<Qt::PenStyle>(styles.at(j).toInt()));
         if (pen.style() == Qt::DotLine) {
@@ -1353,7 +1344,7 @@ public:
         star = compactColumns.star;
 
         // Draw references before the graph.
-        QList<Badge::Label> refs = coloredRefs(commit.id(), graphNodeBaseColor);
+        QList<Badge::Label> refs = coloredRefs(commit.id());
         if (!refs.isEmpty())
           Badge::paint(painter, refs, compactColumns.refs, &opt, Qt::AlignLeft);
 
@@ -1431,7 +1422,7 @@ public:
         }
 
         // Draw references.
-        QList<Badge::Label> refs = coloredRefs(commit.id(), graphNodeBaseColor);
+        QList<Badge::Label> refs = coloredRefs(commit.id());
         if (!refs.isEmpty()) {
           QRect refsRect = rect;
           QString leftText = "";
@@ -1681,6 +1672,7 @@ private:
 
   void updateRefs() {
     mRefs.clear();
+    QStringList localBranches;
 
     if (mRepo.isHeadDetached()) {
       git::Reference head = mRepo.head();
@@ -1691,25 +1683,102 @@ private:
     foreach (const git::Reference &ref, mRepo.refs()) {
       if (ref.isRemoteHead())
         continue;
-      if (git::Commit target = ref.target())
+      if (git::Commit target = ref.target()) {
         mRefs[target.id()].append({Badge::Label::Type::Ref, ref.name(),
                                    ref.isHead(), ref.isTag(), ref.isBranch(),
                                    ref.isRemoteBranch()});
+        if (ref.isLocalBranch())
+          localBranches.append(ref.name());
+      }
     }
+    updateBranchColors(localBranches);
 
     static_cast<QAbstractItemView *>(parent())->viewport()->update();
   }
 
-  QList<Badge::Label> coloredRefs(const git::Id &id,
-                                  const QColor &nodeColor) const {
+  static int colorDistance(const QColor &lhs, const QColor &rhs) {
+    const int red = lhs.red() - rhs.red();
+    const int green = lhs.green() - rhs.green();
+    const int blue = lhs.blue() - rhs.blue();
+    return red * red + green * green + blue * blue;
+  }
+
+  static bool distinctColor(const QColor &color,
+                            const QList<QColor> &reserved) {
+    if (!color.isValid())
+      return false;
+    for (const QColor &other : reserved) {
+      if (!other.isValid())
+        continue;
+      if (colorDistance(color, other) < 45 * 45)
+        return false;
+    }
+    return true;
+  }
+
+  QColor generatedBranchColor(int index,
+                              const QList<QColor> &reserved) const {
+    for (int attempt = 0; attempt < 720; ++attempt) {
+      const int hue = (index * 137 + attempt * 29) % 360;
+      const int saturation = 160 + ((index + attempt) % 3) * 30;
+      const int value = 175 + ((index + attempt) % 2) * 50;
+      QColor color = QColor::fromHsv(hue, saturation, value);
+      if (distinctColor(color, reserved))
+        return color;
+    }
+    return QColor::fromHsv((index * 137) % 360, 200, 210);
+  }
+
+  void updateBranchColors(QStringList branches) {
+    branches.removeDuplicates();
+    std::sort(branches.begin(), branches.end());
+
+    QList<QColor> reserved{
+        headBranchColor(),
+        Application::theme()->badge(Theme::BadgeRole::Background,
+                                    Theme::BadgeState::Selected),
+        kRemoteBranchBadgeColor};
+    QHash<QString, QColor> colors;
+    for (const QString &branch : std::as_const(branches)) {
+      QColor existing = mBranchColors.value(branch);
+      if (distinctColor(existing, reserved)) {
+        colors.insert(branch, existing);
+        reserved.append(existing);
+      }
+    }
+
+    QList<QColor> palette;
+    for (const QColor &color : Application::theme()->branchTopologyEdges()) {
+      if (distinctColor(color, reserved + palette))
+        palette.append(color);
+    }
+
+    int generated = 0;
+    for (const QString &branch : std::as_const(branches)) {
+      if (colors.contains(branch))
+        continue;
+
+      QColor color;
+      if (!palette.isEmpty()) {
+        color = palette.takeFirst();
+      } else {
+        color = generatedBranchColor(generated++, reserved);
+      }
+      colors.insert(branch, color);
+      reserved.append(color);
+    }
+    mBranchColors = colors;
+  }
+
+  QList<Badge::Label> coloredRefs(const git::Id &id) const {
     QList<Badge::Label> refs = mRefs.value(id);
     for (Badge::Label &ref : refs) {
       if (!ref.branch)
         continue;
       if (ref.remoteBranch)
         ref.background = kRemoteBranchBadgeColor;
-      else if (!ref.bold && nodeColor.isValid())
-        ref.background = nodeColor;
+      else if (!ref.bold)
+        ref.background = mBranchColors.value(ref.text);
     }
     return refs;
   }
@@ -1718,6 +1787,7 @@ private:
   CommitAvatarProvider *mAvatars;
   QHeaderView *mHeader;
   QMap<git::Id, QList<Badge::Label>> mRefs;
+  QHash<QString, QColor> mBranchColors;
 
 };
 
