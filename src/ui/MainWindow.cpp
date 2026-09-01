@@ -45,6 +45,7 @@ const int kDefaultHeight = 800;
 
 const QString kPathKey = "path";
 const QString kTabContextKey = "tabContext";
+const QString kSubmoduleTabKey = "submoduleTab";
 const QString kIndexKey = "index";
 const QString kStateKey = "state";
 const QString kActiveKey = "active";
@@ -61,6 +62,12 @@ QString canonicalPath(const QString &path) {
 
 QString repositoryPath(const git::Repository &repo) {
   return canonicalPath(repo.dir(false).path());
+}
+
+QIcon repositoryIcon(const git::Repository &repo, bool submodule) {
+  if (repo.isWorktree())
+    return WorktreeIcon::icon();
+  return QIcon(submodule ? ":/submodules.png" : ":/branches.png");
 }
 
 class TabName {
@@ -89,7 +96,7 @@ bool MainWindow::sSaveWindowSettings = false;
 
 MainWindow::MainWindow(const git::Repository &repo, QWidget *parent,
                        Qt::WindowFlags flags,
-                       std::optional<bool> updateSubmodules)
+                       std::optional<bool> updateSubmodules, bool submoduleTab)
     : QMainWindow(parent, flags) {
   setAttribute(Qt::WA_DeleteOnClose);
   setUnifiedTitleAndToolBarOnMac(true);
@@ -179,7 +186,7 @@ MainWindow::MainWindow(const git::Repository &repo, QWidget *parent,
   setCentralWidget(splitter);
 
   if (repo)
-    addTab(repo, QString(), updateSubmodules);
+    addTab(repo, QString(), updateSubmodules, submoduleTab);
 
   // Set search completer.
   searchField->setCompleter(new IndexCompleter(this, searchField));
@@ -246,7 +253,8 @@ TabWidget *MainWindow::tabWidget() const {
 
 RepoView *MainWindow::addTab(const QString &path, OpenSource source,
                              const QString &tabContext,
-                             std::optional<bool> updateSubmodules) {
+                             std::optional<bool> updateSubmodules,
+                             bool submoduleTab) {
   if (path.isEmpty())
     return nullptr;
 
@@ -255,6 +263,10 @@ RepoView *MainWindow::addTab(const QString &path, OpenSource source,
   for (int i = 0; i < tabs->count(); i++) {
     RepoView *view = static_cast<RepoView *>(tabs->widget(i));
     if (requestedPath == repositoryPath(view->repo())) {
+      if (submoduleTab) {
+        view->setSubmoduleTab(true);
+        tabs->setTabIcon(i, repositoryIcon(view->repo(), true));
+      }
       if (!tabContext.isEmpty()) {
         view->setTabContext(tabContext);
         updateTabNames();
@@ -273,7 +285,7 @@ RepoView *MainWindow::addTab(const QString &path, OpenSource source,
     return nullptr;
   }
 
-  return addTab(repo, tabContext, updateSubmodules);
+  return addTab(repo, tabContext, updateSubmodules, submoduleTab);
 }
 
 bool MainWindow::selectTab(const QString &path) {
@@ -292,7 +304,8 @@ bool MainWindow::selectTab(const QString &path) {
 
 RepoView *MainWindow::addTab(const git::Repository &repo,
                              const QString &tabContext,
-                             std::optional<bool> updateSubmodules) {
+                             std::optional<bool> updateSubmodules,
+                             bool submoduleTab) {
   // Update recent repository settings.
   QDir dir(repositoryPath(repo));
   RecentRepositories::instance()->add(dir.path());
@@ -301,6 +314,10 @@ RepoView *MainWindow::addTab(const git::Repository &repo,
   for (int i = 0; i < tabs->count(); i++) {
     RepoView *view = static_cast<RepoView *>(tabs->widget(i));
     if (dir.path() == repositoryPath(view->repo())) {
+      if (submoduleTab) {
+        view->setSubmoduleTab(true);
+        tabs->setTabIcon(i, repositoryIcon(view->repo(), true));
+      }
       if (!tabContext.isEmpty()) {
         view->setTabContext(tabContext);
         updateTabNames();
@@ -312,6 +329,7 @@ RepoView *MainWindow::addTab(const git::Repository &repo,
 
   RepoView *view = new RepoView(repo, this);
   view->setTabContext(tabContext);
+  view->setSubmoduleTab(submoduleTab);
   view->detailSplitterMaximize(mMenuBar->isMaximized());
   git::RepositoryNotifier *notifier = repo.notifier();
   connect(notifier, &git::RepositoryNotifier::referenceUpdated, this,
@@ -321,8 +339,7 @@ RepoView *MainWindow::addTab(const git::Repository &repo,
 
   emit tabs->tabAboutToBeInserted();
   mAddingTab = true;
-  QIcon icon =
-      repo.isWorktree() ? WorktreeIcon::icon() : QIcon(":/branches.png");
+  QIcon icon = repositoryIcon(repo, submoduleTab);
   tabs->setCurrentIndex(tabs->addTab(view, icon, dir.dirName()));
   mAddingTab = false;
 
@@ -373,6 +390,7 @@ bool MainWindow::restoreWindows() {
     bool active;
     QStringList paths;
     QStringList tabContexts;
+    QStringList submoduleTabs;
     QByteArray state;
     QByteArray geometry;
   };
@@ -385,10 +403,11 @@ bool MainWindow::restoreWindows() {
   foreach (const QString &group, settings.childGroups()) {
     settings.beginGroup(group);
     SavedWindow window{settings.value(kIndexKey).toInt(),
-                       settings.value(kActiveKey).toBool(),
-                       settings.value(kPathKey).toStringList(),
-                       settings.value(kTabContextKey).toStringList(),
-                       settings.value(kStateKey).toByteArray(),
+                        settings.value(kActiveKey).toBool(),
+                        settings.value(kPathKey).toStringList(),
+                        settings.value(kTabContextKey).toStringList(),
+                        settings.value(kSubmoduleTabKey).toStringList(),
+                        settings.value(kStateKey).toByteArray(),
                        settings.value(kGeometryKey).toByteArray()};
     settings.endGroup();
 
@@ -417,7 +436,11 @@ bool MainWindow::restoreWindows() {
     }
 
     for (int candidate : std::as_const(candidates)) {
-      MainWindow *window = open(saved.paths.at(candidate));
+      const bool submoduleTab =
+          saved.submoduleTabs.value(candidate) == QStringLiteral("1");
+      MainWindow *window =
+          open(saved.paths.at(candidate), true, OpenSource::Other,
+               std::nullopt, submoduleTab);
       if (!window)
         continue;
 
@@ -440,7 +463,8 @@ bool MainWindow::restoreWindows() {
 
 MainWindow *MainWindow::open(const QString &path, bool warnOnInvalid,
                              OpenSource source,
-                             std::optional<bool> updateSubmodules) {
+                             std::optional<bool> updateSubmodules,
+                             bool submoduleTab) {
   DebugRefresh("Open project: " << path);
   if (path.isEmpty())
     return nullptr;
@@ -458,23 +482,25 @@ MainWindow *MainWindow::open(const QString &path, bool warnOnInvalid,
 
   if (Settings::instance()->value(Setting::Id::OpenAllReposInTabs).toBool()) {
     if (MainWindow *win = activeWindow()) {
-      win->addTab(repo, QString(), updateSubmodules);
+      win->addTab(repo, QString(), updateSubmodules, submoduleTab);
       return win;
     }
   }
 
-  return open(repo, updateSubmodules);
+  return open(repo, updateSubmodules, submoduleTab);
 }
 
 MainWindow *MainWindow::open(const git::Repository &repo,
-                             std::optional<bool> updateSubmodules) {
+                             std::optional<bool> updateSubmodules,
+                             bool submoduleTab) {
   // Update recent repository settings.
   if (repo.isValid())
     RecentRepositories::instance()->add(repo.dir(false).path());
 
   // Create the window.
   MainWindow *window =
-      new MainWindow(repo, nullptr, Qt::WindowFlags(), updateSubmodules);
+      new MainWindow(repo, nullptr, Qt::WindowFlags(), updateSubmodules,
+                     submoduleTab);
 
   const bool showMaximized =
       Settings::instance()->value(Setting::Id::ShowMaximized).toBool();
@@ -514,6 +540,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     settings.beginGroup(windowGroup());
     settings.setValue(kPathKey, paths());
     settings.setValue(kTabContextKey, tabContexts());
+    settings.setValue(kSubmoduleTabKey, submoduleTabs());
     settings.setValue(kIndexKey, tabWidget()->currentIndex());
     settings.setValue(kActiveKey, this == activeWindow());
     settings.setValue(kStateKey, saveState());
@@ -721,6 +748,14 @@ QStringList MainWindow::tabContexts() const {
   for (int i = 0; i < count(); ++i)
     contexts.append(view(i)->tabContext());
   return contexts;
+}
+
+QStringList MainWindow::submoduleTabs() const {
+  QStringList submodules;
+  for (int i = 0; i < count(); ++i)
+    submodules.append(view(i)->isSubmoduleTab() ? QStringLiteral("1")
+                                                : QStringLiteral("0"));
+  return submodules;
 }
 
 QString MainWindow::windowGroup() const {

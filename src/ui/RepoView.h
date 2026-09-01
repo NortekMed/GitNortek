@@ -88,6 +88,8 @@ public:
   git::Repository repo() const { return mRepo; }
   QString tabContext() const { return mTabContext; }
   void setTabContext(const QString &context) { mTabContext = context; }
+  bool isSubmoduleTab() const { return mSubmoduleTab; }
+  void setSubmoduleTab(bool submodule) { mSubmoduleTab = submodule; }
   History *history() const { return mHistory; }
   Index *index() const { return mIndex; }
 
@@ -454,6 +456,7 @@ private:
 
   git::Repository mRepo;
   QString mTabContext;
+  bool mSubmoduleTab = false;
   QString mPendingCheckoutRef;
   bool mSelectingPendingCheckoutStatus = false;
 

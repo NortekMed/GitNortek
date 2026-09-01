@@ -2344,9 +2344,27 @@ void TestRepositorySideBar::submoduleInteraction() {
   selected = parentView->repo().lookupSubmodule("child");
   git::Id localCommit = selected.workdirId();
 
+  RepoView *ordinaryChildView = window.addTab(selected.open());
+  QVERIFY(ordinaryChildView);
+  QCOMPARE(window.count(), 2);
+  QVERIFY(!ordinaryChildView->isSubmoduleTab());
+  QCOMPARE(window.tabWidget()
+               ->tabIcon(window.tabWidget()->currentIndex())
+               .pixmap(16, 16)
+               .toImage(),
+           QIcon(":/branches.png").pixmap(16, 16).toImage());
+  window.tabWidget()->setCurrentIndex(0);
+
   QVERIFY(parentView->openSubmodule(selected));
   RepoView *childView = window.currentView();
   QVERIFY(childView && childView != parentView);
+  QCOMPARE(childView, ordinaryChildView);
+  QVERIFY(childView->isSubmoduleTab());
+  QCOMPARE(window.tabWidget()
+               ->tabIcon(window.tabWidget()->currentIndex())
+               .pixmap(16, 16)
+               .toImage(),
+           QIcon(":/submodules.png").pixmap(16, 16).toImage());
   QSignalSpy pushedStatusChanged(
       parentView, &RepoView::submoduleUpdateStatusesChanged);
 
@@ -2506,9 +2524,17 @@ void TestRepositorySideBar::submoduleInteraction() {
   QVERIFY(confirmation->informativeText().contains("uncommitted changes"));
   confirmation->button(QMessageBox::Cancel)->click();
 
+  window.tabWidget()->setCurrentIndex(0);
+
   QVERIFY(QMetaObject::invokeMethod(submodulesView, "doubleClicked",
                                     Q_ARG(QModelIndex, submodule)));
   QTRY_COMPARE(window.count(), 2);
+  QVERIFY(window.currentView()->isSubmoduleTab());
+  QCOMPARE(window.tabWidget()
+               ->tabIcon(window.tabWidget()->currentIndex())
+               .pixmap(16, 16)
+               .toImage(),
+           QIcon(":/submodules.png").pixmap(16, 16).toImage());
   QCOMPARE(window.currentView()->repo().workdir().path(),
            parent->workdir().filePath("child"));
   QCOMPARE(window.tabWidget()->tabText(window.tabWidget()->currentIndex()),

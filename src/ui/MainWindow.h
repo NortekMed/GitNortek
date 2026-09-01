@@ -31,7 +31,8 @@ public:
 
   MainWindow(const git::Repository &repo, QWidget *parent = nullptr,
              Qt::WindowFlags flags = Qt::WindowFlags(),
-             std::optional<bool> updateSubmodules = std::nullopt);
+             std::optional<bool> updateSubmodules = std::nullopt,
+             bool submoduleTab = false);
 
   ToolBar *toolBar() const { return mToolBar; }
 
@@ -42,10 +43,12 @@ public:
   RepoView *addTab(const QString &path,
                    OpenSource source = OpenSource::Other,
                    const QString &tabContext = QString(),
-                   std::optional<bool> updateSubmodules = std::nullopt);
+                   std::optional<bool> updateSubmodules = std::nullopt,
+                   bool submoduleTab = false);
   RepoView *addTab(const git::Repository &repo,
                    const QString &tabContext = QString(),
-                   std::optional<bool> updateSubmodules = std::nullopt);
+                   std::optional<bool> updateSubmodules = std::nullopt,
+                   bool submoduleTab = false);
   bool selectTab(const QString &path);
 
   int count() const;
@@ -63,10 +66,12 @@ public:
   // Open a new window.
   static MainWindow *open(const QString &path, bool warnOnInvalid = true,
                           OpenSource source = OpenSource::Other,
-                          std::optional<bool> updateSubmodules = std::nullopt);
+                          std::optional<bool> updateSubmodules = std::nullopt,
+                          bool submoduleTab = false);
   static MainWindow *open(
       const git::Repository &repo = git::Repository(),
-      std::optional<bool> updateSubmodules = std::nullopt);
+      std::optional<bool> updateSubmodules = std::nullopt,
+      bool submoduleTab = false);
 
   // Save window settings on close.
   static void setSaveWindowSettings(bool enabled);
@@ -87,6 +92,7 @@ private:
 
   QStringList paths() const;
   QStringList tabContexts() const;
+  QStringList submoduleTabs() const;
   QString windowGroup() const;
 
   ToolBar *mToolBar;

@@ -3616,8 +3616,9 @@ bool RepoView::openSubmodule(const git::Submodule &submodule) {
   RepoView *view = nullptr;
   if (Settings::instance()->value(Setting::Id::OpenSubmodulesInTabs).toBool()) {
     view = static_cast<MainWindow *>(window())->addTab(
-        repo, mRepo.dir(false).dirName());
-  } else if (MainWindow *submoduleWindow = MainWindow::open(repo)) {
+        repo, mRepo.dir(false).dirName(), std::nullopt, true);
+  } else if (MainWindow *submoduleWindow =
+                 MainWindow::open(repo, std::nullopt, true)) {
     view = submoduleWindow->currentView();
   }
 

@@ -794,8 +794,9 @@ void TestMainWindow::restoreActiveRepositoryOnly() {
   settings.endGroup();
   settings.beginGroup("windows/active");
   settings.setValue("path", QStringList{mRepo->workdir().path(),
-                                        mSecondRepo->workdir().path()});
+                                         mSecondRepo->workdir().path()});
   settings.setValue("tabContext", QStringList{"first", "selected"});
+  settings.setValue("submoduleTab", QStringList{"0", "1"});
   settings.setValue("index", 1);
   settings.setValue("active", true);
   settings.endGroup();
@@ -808,6 +809,9 @@ void TestMainWindow::restoreActiveRepositoryOnly() {
   QCOMPARE(mWindow->currentView()->repo().workdir().path(),
            mSecondRepo->workdir().path());
   QCOMPARE(mWindow->currentView()->tabContext(), QString("selected"));
+  QVERIFY(mWindow->currentView()->isSubmoduleTab());
+  QCOMPARE(mWindow->tabWidget()->tabIcon(0).pixmap(16, 16).toImage(),
+           QIcon(":/submodules.png").pixmap(16, 16).toImage());
   QVERIFY(!settings.contains("windows/active/path"));
   QVERIFY(!settings.contains("windows/inactive/path"));
 }
