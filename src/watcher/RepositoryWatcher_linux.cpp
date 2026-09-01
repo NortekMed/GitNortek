@@ -35,12 +35,6 @@ public:
   RepositoryWatcherPrivate(const git::Repository &repo,
                            QObject *parent = nullptr)
       : QThread(parent), mRepo(repo) {
-    foreach (const git::Submodule &submodule, mRepo.submodules()) {
-      git::Repository submoduleRepo = submodule.open();
-      if (submoduleRepo.isValid())
-        mSubmoduleGitDirs.append(submoduleRepo.dir().path());
-    }
-
     mFd = inotify_init1(IN_NONBLOCK);
     if (mFd < 0)
       return; // FIXME: Report error?
@@ -61,6 +55,14 @@ public:
   bool isValid() const { return (mFd >= 0); }
 
   void run() override {
+    // Submodule discovery can be expensive for large repositories. Keep it off
+    // the GUI thread, where this watcher is constructed.
+    foreach (const git::Submodule &submodule, mRepo.submodules()) {
+      git::Repository submoduleRepo = submodule.open();
+      if (submoduleRepo.isValid())
+        mSubmoduleGitDirs.append(submoduleRepo.dir().path());
+    }
+
     // Watch the root directory.
     watchWorkdir(mRepo.workdir());
     watchGitMetadata();

@@ -32,6 +32,7 @@ Bug Fix and Feature release
 
 #### Changed
 
+* Move Linux submodule watcher discovery off the GUI thread to improve repository startup responsiveness
 * Leave uninitialized submodules untouched when opening existing repositories
 * Derive GitHub release package versions directly from validated release tags and reject mismatched artifacts
 * Keep the repository log panel hidden by default until the user opens it
