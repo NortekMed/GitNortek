@@ -1519,6 +1519,24 @@ These settings will not be saved permanently</source>
     </message>
 </context>
 <context>
+    <name>DirectorySelectionDialog</name>
+    <message>
+        <location filename="../src/dialogs/DirectorySelectionDialog.cpp" line="30"/>
+        <source>Directories</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/DirectorySelectionDialog.cpp" line="50"/>
+        <source>Select</source>
+        <translation type="unfinished">Выбрать</translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/DirectorySelectionDialog.cpp" line="56"/>
+        <source>Select one or more folders. Use Ctrl/Command or Shift to select multiple folders.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DoubleTreeWidget</name>
     <message>
         <location filename="../src/ui/DoubleTreeWidget.cpp" line="120"/>
@@ -2991,177 +3009,213 @@ Examples
 <context>
     <name>LocalRepositoryManagement</name>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="270"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="271"/>
         <source>%1↑</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="272"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="273"/>
         <source>%1↓</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="415"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="416"/>
         <source>1 modified file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="416"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="417"/>
         <source>%1 modified files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="421"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="422"/>
         <source>1 added file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="422"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="423"/>
         <source>%1 added files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="427"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="428"/>
         <source>1 removed file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="428"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="429"/>
         <source>%1 removed files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="433"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="434"/>
         <source>1 untracked file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="434"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="435"/>
         <source>%1 untracked files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="438"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="439"/>
         <source>1 conflicted file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="439"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="440"/>
         <source>%1 conflicted files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="504"/>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1208"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="506"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1381"/>
         <source>Local Repository Management</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="511"/>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1014"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="513"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1102"/>
         <source>Open Repository</source>
         <translation type="unfinished">Открыть репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="514"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="516"/>
         <source>New Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="995"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1082"/>
         <source>Collapse</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="995"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1082"/>
         <source>Expand</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="528"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1113"/>
+        <source>Add Repositories...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1183"/>
+        <source>Select Git Repositories</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1197"/>
+        <source>Not Git repositories:
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1200"/>
+        <source>Already in the workspace:
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1203"/>
+        <source>Some Folders Were Skipped</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1204"/>
+        <source>Some selected folders were skipped.
+
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="530"/>
         <source>Search repository</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="604"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="606"/>
         <source>Close details</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="875"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="911"/>
         <source>Checking...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="892"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="928"/>
         <source>Check origin (%1:%2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="901"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="937"/>
         <source>Check origin</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1016"/>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1106"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1104"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1211"/>
         <source>Remove Repository</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1024"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1112"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1227"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1233"/>
         <source>Open Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1025"/>
-        <source>Add Repository</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1026"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1114"/>
         <source>Rescan Synchronized Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1030"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1120"/>
         <source>Edit Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1031"/>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1082"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1121"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1172"/>
         <source>Delete Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1083"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1173"/>
         <source>Delete workspace &quot;%1&quot;?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1093"/>
-        <source>Select Git Repository</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1107"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1212"/>
         <source>Remove repository &quot;%1&quot; from this workspace?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1156"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1229"/>
+        <source>This will open 1 repository.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1230"/>
+        <source>This will open %1 repositories.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1273"/>
         <source>This repository has no README.md file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1158"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1275"/>
         <source>Unable to read README.md.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1160"/>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1164"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1277"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1281"/>
         <source>README.md is too large to display.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3169,165 +3223,167 @@ Examples
 <context>
     <name>LocalWorkspaceDialog</name>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="57"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="58"/>
         <source>Edit Local Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="58"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="59"/>
         <source>Create Local Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="63"/>
         <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="64"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="65"/>
         <source>Workspace name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="68"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="69"/>
         <source>Workspace icon</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="70"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="71"/>
         <source>Folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="71"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="72"/>
         <source>Development</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="72"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="73"/>
         <source>Project</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="73"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="74"/>
         <source>Server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="86"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="87"/>
         <source>Workspace color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="91"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="92"/>
         <source>Workspace description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="92"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="93"/>
         <source>Description</source>
         <translation type="unfinished">Описание</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="97"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="98"/>
         <source>Name:</source>
         <translation type="unfinished">Имя:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="98"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="99"/>
         <source>Icon:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="99"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="100"/>
         <source>Color:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="100"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="101"/>
         <source>Description:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="104"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="105"/>
         <source>Repositories</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="115"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="116"/>
         <source>Browse Repositories...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="118"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="119"/>
         <source>Remove Selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="128"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="129"/>
         <source>Sync with local directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="134"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="135"/>
         <source>Synchronized directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="136"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="137"/>
         <source>No directory selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="137"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="138"/>
         <source>Browse...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="147"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="148"/>
         <source>Save</source>
         <translation type="unfinished">Сохранить</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="147"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="148"/>
         <source>Create</source>
         <translation type="unfinished">Создать</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="154"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="155"/>
         <source>Repositories:</source>
         <translation type="unfinished">Репозитории:</translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="203"/>
-        <source>Select Git Repository</source>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="205"/>
+        <source>Select Git Repositories</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="210"/>
-        <source>Invalid Repository</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="211"/>
-        <source>The selected directory is not a Git repository:
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="238"/>
+        <source>Not Git repositories:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="219"/>
-        <source>Duplicate Repository</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="220"/>
-        <source>This repository is already in the workspace:
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="241"/>
+        <source>Already in the workspace:
 %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="234"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="244"/>
+        <source>Some Folders Were Skipped</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="245"/>
+        <source>Some selected folders were skipped.
+
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="252"/>
         <source>Select Synchronized Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="246"/>
+        <location filename="../src/dialogs/LocalWorkspaceDialog.cpp" line="264"/>
         <source>Workspace Color</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3355,114 +3411,119 @@ Examples
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="222"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="223"/>
         <source>Checked out branch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="223"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="224"/>
         <source>Repository unavailable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="230"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="231"/>
         <source>Synchronization is running.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="236"/>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="264"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="237"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="265"/>
         <source>Repository unavailable.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="238"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="239"/>
         <source>No upstream branch is configured.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="240"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="241"/>
         <source>The configured upstream cannot be checked through origin.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="232"/>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="242"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="233"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="243"/>
         <source>Waiting for origin check.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="234"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="128"/>
+        <source>%1  Local - sync paused</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="235"/>
         <source>The last origin check failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="244"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="245"/>
         <source>The local branch matches %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="246"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="247"/>
         <source>The local branch and %1 have diverged: %2 ahead and %3 behind.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="252"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="253"/>
         <source>The local branch is %1 ahead of %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="255"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="256"/>
         <source>The local branch is %1 behind %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="266"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="267"/>
         <source>Unable to read working-tree status.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="267"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="268"/>
         <source>Reading working-tree status.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="270"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="271"/>
         <source>No uncommitted changes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="275"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="276"/>
         <source>show details</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="282"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="283"/>
         <source>Synchronized repositories cannot be removed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="283"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="284"/>
         <source>Remove repository from workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="322"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="323"/>
         <source>Repository</source>
         <translation type="unfinished">Репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="324"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="325"/>
         <source>Branch</source>
         <translation type="unfinished">Ветка</translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="326"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="327"/>
         <source>Remote</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="328"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="329"/>
         <source>Changes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3470,61 +3531,67 @@ Examples
 <context>
     <name>LocalWorkspaces</name>
     <message>
-        <location filename="../src/conf/LocalWorkspaces.cpp" line="182"/>
+        <location filename="../src/conf/LocalWorkspaces.cpp" line="183"/>
         <source>Workspace ID must not be empty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/conf/LocalWorkspaces.cpp" line="186"/>
+        <location filename="../src/conf/LocalWorkspaces.cpp" line="187"/>
         <source>A workspace with this ID already exists.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/conf/LocalWorkspaces.cpp" line="190"/>
-        <location filename="../src/conf/LocalWorkspaces.cpp" line="240"/>
+        <location filename="../src/conf/LocalWorkspaces.cpp" line="191"/>
+        <location filename="../src/conf/LocalWorkspaces.cpp" line="244"/>
         <source>Workspace name must not be empty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/conf/LocalWorkspaces.cpp" line="201"/>
-        <location filename="../src/conf/LocalWorkspaces.cpp" line="252"/>
+        <location filename="../src/conf/LocalWorkspaces.cpp" line="195"/>
+        <location filename="../src/conf/LocalWorkspaces.cpp" line="248"/>
+        <source>Select a directory to enable synchronization.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/conf/LocalWorkspaces.cpp" line="205"/>
+        <location filename="../src/conf/LocalWorkspaces.cpp" line="259"/>
         <source>A workspace with this name already exists.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/conf/LocalWorkspaces.cpp" line="215"/>
-        <location filename="../src/conf/LocalWorkspaces.cpp" line="300"/>
+        <location filename="../src/conf/LocalWorkspaces.cpp" line="219"/>
+        <location filename="../src/conf/LocalWorkspaces.cpp" line="303"/>
         <source>Not a valid Git repository: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/conf/LocalWorkspaces.cpp" line="236"/>
-        <location filename="../src/conf/LocalWorkspaces.cpp" line="285"/>
-        <location filename="../src/conf/LocalWorkspaces.cpp" line="294"/>
-        <location filename="../src/conf/LocalWorkspaces.cpp" line="318"/>
-        <location filename="../src/conf/LocalWorkspaces.cpp" line="356"/>
+        <location filename="../src/conf/LocalWorkspaces.cpp" line="240"/>
+        <location filename="../src/conf/LocalWorkspaces.cpp" line="293"/>
+        <location filename="../src/conf/LocalWorkspaces.cpp" line="321"/>
+        <location filename="../src/conf/LocalWorkspaces.cpp" line="353"/>
+        <location filename="../src/conf/LocalWorkspaces.cpp" line="391"/>
         <source>Workspace not found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/conf/LocalWorkspaces.cpp" line="329"/>
+        <location filename="../src/conf/LocalWorkspaces.cpp" line="364"/>
         <source>Repositories synchronized from a directory cannot be removed individually.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/conf/LocalWorkspaces.cpp" line="347"/>
+        <location filename="../src/conf/LocalWorkspaces.cpp" line="382"/>
         <source>Repository not found in workspace.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/conf/LocalWorkspaces.cpp" line="360"/>
+        <location filename="../src/conf/LocalWorkspaces.cpp" line="395"/>
         <source>Workspace has no synchronized directory.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/conf/LocalWorkspaces.cpp" line="83"/>
-        <location filename="../src/conf/LocalWorkspaces.cpp" line="195"/>
-        <location filename="../src/conf/LocalWorkspaces.cpp" line="245"/>
+        <location filename="../src/conf/LocalWorkspaces.cpp" line="199"/>
+        <location filename="../src/conf/LocalWorkspaces.cpp" line="252"/>
         <source>Synchronized directory does not exist: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3626,89 +3693,89 @@ Examples
         <translation type="unfinished">Открыть репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="618"/>
+        <location filename="../src/ui/MainWindow.cpp" line="628"/>
         <source>Invalid Git Repository</source>
         <translation>Неправильный Git-репозиторий</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="619"/>
+        <location filename="../src/ui/MainWindow.cpp" line="629"/>
         <source>%1 does not contain a valid git repository.</source>
         <translation>%1 не содержит правильный git-репозиторий.</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="624"/>
+        <location filename="../src/ui/MainWindow.cpp" line="634"/>
         <source>Recent Repository Unavailable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="625"/>
+        <location filename="../src/ui/MainWindow.cpp" line="635"/>
         <source>The recent repository &apos;%1&apos; could not be opened.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="626"/>
+        <location filename="../src/ui/MainWindow.cpp" line="636"/>
         <source>It may no longer be a valid Git repository or may be inaccessible. Do you want to remove it from the recent repository list?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="633"/>
+        <location filename="../src/ui/MainWindow.cpp" line="643"/>
         <source>Remove From Recent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="634"/>
+        <location filename="../src/ui/MainWindow.cpp" line="644"/>
         <source>Keep</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="700"/>
+        <location filename="../src/ui/MainWindow.cpp" line="710"/>
         <source>Local Repository Management</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="715"/>
-        <location filename="../src/ui/MainWindow.cpp" line="733"/>
+        <location filename="../src/ui/MainWindow.cpp" line="725"/>
+        <location filename="../src/ui/MainWindow.cpp" line="743"/>
         <source>%1 - %2</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="727"/>
+        <location filename="../src/ui/MainWindow.cpp" line="737"/>
         <source>ahead: %1</source>
         <translation>обгоняет: %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="729"/>
+        <location filename="../src/ui/MainWindow.cpp" line="739"/>
         <source>behind: %1</source>
         <translation>отстаёт: %1</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="731"/>
+        <location filename="../src/ui/MainWindow.cpp" line="741"/>
         <source>up-to-date</source>
         <translation>уже самое новое</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="732"/>
-        <location filename="../src/ui/MainWindow.cpp" line="769"/>
+        <location filename="../src/ui/MainWindow.cpp" line="742"/>
+        <location filename="../src/ui/MainWindow.cpp" line="779"/>
         <source>%1 (%2)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="741"/>
+        <location filename="../src/ui/MainWindow.cpp" line="751"/>
         <source>MERGING</source>
         <translation>СЛИВАЕМ</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="746"/>
+        <location filename="../src/ui/MainWindow.cpp" line="756"/>
         <source>REVERTING</source>
         <translation>ОТКАТЫВАЕМ</translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="751"/>
+        <location filename="../src/ui/MainWindow.cpp" line="761"/>
         <source>CHERRY-PICKING</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/ui/MainWindow.cpp" line="760"/>
+        <location filename="../src/ui/MainWindow.cpp" line="770"/>
         <source>REBASING</source>
         <translation>ПЕРЕБАЗИРУЕМ</translation>
     </message>
@@ -5718,7 +5785,7 @@ was added to %1</source>
     <message>
         <location filename="../src/ui/RepoView.cpp" line="1777"/>
         <location filename="../src/ui/RepoView.cpp" line="1797"/>
-        <location filename="../src/ui/RepoView.cpp" line="4021"/>
+        <location filename="../src/ui/RepoView.cpp" line="4042"/>
         <source>squash</source>
         <translation>объединить</translation>
     </message>
@@ -6587,62 +6654,62 @@ The submodule will be removed from this project. Its working files and cached lo
         <translation>Подмодуль &apos;%1&apos; не имеет верного репозитория. Вам может быть нужно инициализировать и/или обновить подмодуль для извлечения репозитория.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3759"/>
+        <location filename="../src/ui/RepoView.cpp" line="3772"/>
         <source>No terminal executable found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3760"/>
+        <location filename="../src/ui/RepoView.cpp" line="3773"/>
         <source>No terminal executable was found. Please configure a terminal in the configuration.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3763"/>
+        <location filename="../src/ui/RepoView.cpp" line="3776"/>
         <source>Open Configuration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3995"/>
+        <location filename="../src/ui/RepoView.cpp" line="4016"/>
         <source>There was a merge conflict.</source>
         <translation>Конфликт слияния.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="3998"/>
+        <location filename="../src/ui/RepoView.cpp" line="4019"/>
         <source>Resolve conflicts, then commit to conclude the %1. See &lt;a href=&apos;expand&apos;&gt;details&lt;/a&gt;.</source>
         <translation>Разрешите конфликты, затем закоммитьте, чтобы завершить %1. См. &lt;a href=&apos;expand&apos;&gt;подробности&lt;/a&gt;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="4000"/>
+        <location filename="../src/ui/RepoView.cpp" line="4021"/>
         <source>Resolve conflicts in each conflicted (!) file in one of the following ways:</source>
         <translation>Разрешите конфликты в каждом конфликтующем (!) файле одним из следующих способов:</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="4002"/>
+        <location filename="../src/ui/RepoView.cpp" line="4023"/>
         <source>1. Click the &apos;Ours&apos; or &apos;Theirs&apos; button to choose the correct change. Then click the &apos;Save&apos; button to apply.</source>
         <translation>1. Щёлкните кнопку &apos;Наш&apos; или &apos;Их&apos;, чтобы выбрать правильное изменение. Затем щёлкните кнопку &apos;Сохранить&apos;, чтобы применить.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="4004"/>
+        <location filename="../src/ui/RepoView.cpp" line="4025"/>
         <source>2. Edit the file in the editor to make a different change. Remember to remove conflict markers.</source>
         <translation>2. Редактируйте файл в редакторе, чтобы сделать разные изменения. Не забудьте удалить маркеры конфликта.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="4006"/>
+        <location filename="../src/ui/RepoView.cpp" line="4027"/>
         <source>3. Use an external merge tool. Right-click on the files in the list and choose &apos;External Merge&apos;.</source>
         <translation>3. Используйте внешний инструмент слияния. Щелчок правой на файлах в списке, и выберите &apos;Внешнее слияние&apos;.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="4008"/>
+        <location filename="../src/ui/RepoView.cpp" line="4029"/>
         <source>After all conflicts in the file are resolved, click the check box to mark it as resolved.</source>
         <translation>После того, как все конфликты разрешены, кликните флажок, чтобы пометить их разрешёнными.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="4010"/>
+        <location filename="../src/ui/RepoView.cpp" line="4031"/>
         <source>After all conflicted files are staged, commit to conclude the %1.</source>
         <translation>После того, как все конфликтующие файлы добавлены, закоммитьте, чтобы завершить %1.</translation>
     </message>
     <message>
-        <location filename="../src/ui/RepoView.cpp" line="4022"/>
+        <location filename="../src/ui/RepoView.cpp" line="4043"/>
         <source>You can &lt;a href=&apos;action:abort&apos;&gt;abort&lt;/a&gt; the %1 to return the repository to its previous state.</source>
         <translation>Вы можете &lt;a href=&apos;action:abort&apos;&gt;прервать&lt;/a&gt; %1 , чтобы вернуть репозиторий в предыдущее состояние.</translation>
     </message>
@@ -7786,38 +7853,38 @@ x (number) determines the number of maximum files shown</source>
         <translation>Вынуть из схрона</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="922"/>
+        <location filename="../src/ui/ToolBar.cpp" line="923"/>
         <source>Open Terminal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="934"/>
+        <location filename="../src/ui/ToolBar.cpp" line="944"/>
         <source>Open file manager</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="946"/>
+        <location filename="../src/ui/ToolBar.cpp" line="964"/>
         <source>Configure Settings</source>
         <translation>Настроить</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="954"/>
+        <location filename="../src/ui/ToolBar.cpp" line="972"/>
         <source>Repository settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="958"/>
+        <location filename="../src/ui/ToolBar.cpp" line="976"/>
         <source>Application settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="965"/>
-        <location filename="../src/ui/ToolBar.cpp" line="1148"/>
+        <location filename="../src/ui/ToolBar.cpp" line="983"/>
+        <location filename="../src/ui/ToolBar.cpp" line="1169"/>
         <source>Show Log</source>
         <translation>Показать журнал</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="983"/>
+        <location filename="../src/ui/ToolBar.cpp" line="1001"/>
         <source>Double Tree View</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7826,17 +7893,17 @@ x (number) determines the number of maximum files shown</source>
         <translation type="vanished">Смотреть diff</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="988"/>
+        <location filename="../src/ui/ToolBar.cpp" line="1006"/>
         <source>Tree View</source>
         <translation>Смотреть дерево</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="1001"/>
+        <location filename="../src/ui/ToolBar.cpp" line="1019"/>
         <source>Show Starred Commits</source>
         <translation>Показать отзвёзденные коммиты</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="1148"/>
+        <location filename="../src/ui/ToolBar.cpp" line="1169"/>
         <source>Hide Log</source>
         <translation>Скрыть журнал</translation>
     </message>

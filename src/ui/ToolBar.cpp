@@ -919,10 +919,19 @@ ToolBar::ToolBar(MainWindow *parent) : QToolBar(parent) {
   addWidget(new Spacer(-1, this));
 
   mTerminalButton = new TerminalButton(this);
+  mTerminalButton->setObjectName(QStringLiteral("openTerminal"));
   mTerminalButton->setToolTip(tr("Open Terminal"));
   addWidget(mTerminalButton);
-  connect(mTerminalButton, &Button::clicked,
-          [this] { currentView()->openTerminal(); });
+  connect(mTerminalButton, &Button::clicked, [this] {
+    if (RepoView *view = currentView()) {
+      view->openTerminal();
+      return;
+    }
+    MainWindow *window = static_cast<MainWindow *>(this->parent());
+    const QString path = window->externalToolRepositoryPath();
+    if (!path.isEmpty())
+      RepoView::openTerminal(path, window);
+  });
 
   QShortcut *shortcut = new QShortcut(this);
   terminalHotkey.use(shortcut);
@@ -931,10 +940,19 @@ ToolBar::ToolBar(MainWindow *parent) : QToolBar(parent) {
   addWidget(new Spacer(4, this));
 
   mFileManagerButton = new FileManagerButton(this);
+  mFileManagerButton->setObjectName(QStringLiteral("openFileManager"));
   mFileManagerButton->setToolTip(tr("Open file manager"));
   addWidget(mFileManagerButton);
-  connect(mFileManagerButton, &Button::clicked,
-          [this] { currentView()->openFileManager(); });
+  connect(mFileManagerButton, &Button::clicked, [this] {
+    if (RepoView *view = currentView()) {
+      view->openFileManager();
+      return;
+    }
+    MainWindow *window = static_cast<MainWindow *>(this->parent());
+    const QString path = window->externalToolRepositoryPath();
+    if (!path.isEmpty())
+      RepoView::openFileManager(path);
+  });
 
   shortcut = new QShortcut(this);
   fileManagerHotkey.use(shortcut);
@@ -1135,8 +1153,11 @@ void ToolBar::updateStash() {
 
 void ToolBar::updateView() {
   RepoView *view = currentView();
-  mTerminalButton->setEnabled(view);
-  mFileManagerButton->setEnabled(view);
+  MainWindow *window = static_cast<MainWindow *>(parent());
+  const bool externalToolTarget =
+      view || !window->externalToolRepositoryPath().isEmpty();
+  mTerminalButton->setEnabled(externalToolTarget);
+  mFileManagerButton->setEnabled(externalToolTarget);
   mRepoConfigAction->setEnabled(view);
   mLogButton->setEnabled(view);
   // mModeGroup->button(RepoView::Diff)->setEnabled(view);

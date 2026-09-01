@@ -41,6 +41,7 @@
 #include <QTabBar>
 #include <QTimer>
 #include <QToolButton>
+#include <QTreeView>
 
 using namespace Test;
 using namespace QTest;
@@ -265,7 +266,15 @@ void TestMainWindow::localRepositoryManagement() {
            qPrintable(error));
   LocalRepositoryManagement *management =
       mWindow->findChild<LocalRepositoryManagement *>();
+  QToolButton *terminal =
+      mWindow->toolBar()->findChild<QToolButton *>("openTerminal");
+  QToolButton *fileManager =
+      mWindow->toolBar()->findChild<QToolButton *>("openFileManager");
   QVERIFY(management);
+  QVERIFY(terminal);
+  QVERIFY(fileManager);
+  QVERIFY(terminal->isEnabled());
+  QVERIFY(fileManager->isEnabled());
   QSignalSpy originCheckStarted(
       management, &LocalRepositoryManagement::originCheckStarted);
 
@@ -277,12 +286,35 @@ void TestMainWindow::localRepositoryManagement() {
   QVERIFY(!mWindow->activeView());
   QVERIFY(!mWindow->toolBar()->searchField()->isEnabled());
   QVERIFY(mWindow->findChild<LocalRepositoryManagement *>());
+  QVERIFY(!terminal->isEnabled());
+  QVERIFY(!fileManager->isEnabled());
+
+  QTreeView *tree = management->findChild<QTreeView *>(
+      "LocalRepositoryManagementTree");
+  QVERIFY(tree);
+  const QModelIndex workspaceIndex = tree->model()->index(0, 0);
+  const QModelIndex repositoryIndex = tree->model()->index(0, 0, workspaceIndex);
+  tree->setCurrentIndex(repositoryIndex);
+  QTRY_VERIFY(terminal->isEnabled());
+  QVERIFY(fileManager->isEnabled());
+  QCOMPARE(mWindow->externalToolRepositoryPath(), mRepo->workdir().path());
+  QVERIFY(mWindow->isLocalRepositoryManagementVisible());
+  QVERIFY(!mWindow->activeView());
+
+  tree->setCurrentIndex(workspaceIndex);
+  QVERIFY(!terminal->isEnabled());
+  QVERIFY(!fileManager->isEnabled());
+  tree->setCurrentIndex(repositoryIndex);
+  QTRY_VERIFY(terminal->isEnabled());
 
   button->click();
   QVERIFY(!button->isChecked());
   QVERIFY(!mWindow->isLocalRepositoryManagementVisible());
   QVERIFY(mWindow->currentView());
   QVERIFY(mWindow->activeView());
+  QVERIFY(terminal->isEnabled());
+  QVERIFY(fileManager->isEnabled());
+  QCOMPARE(mWindow->externalToolRepositoryPath(), mRepo->workdir().path());
   QVERIFY2(LocalWorkspaces::instance()->remove(workspace.id, &error),
            qPrintable(error));
 }

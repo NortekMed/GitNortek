@@ -20,6 +20,7 @@ public:
   QString iconName;
   QColor color;
   QString syncDirectory;
+  bool syncEnabled = false;
   QStringList repositories;
   QStringList manualRepositories;
   QStringList synchronizedRepositories;

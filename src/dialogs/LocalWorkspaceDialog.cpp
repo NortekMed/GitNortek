@@ -4,6 +4,7 @@
 //
 
 #include "LocalWorkspaceDialog.h"
+#include "DirectorySelectionDialog.h"
 #include "git/Repository.h"
 #include <QCheckBox>
 #include <QColorDialog>
@@ -127,7 +128,7 @@ LocalWorkspaceDialog::LocalWorkspaceDialog(
 
   mSync = new QCheckBox(tr("Sync with local directory"), this);
   mSync->setObjectName(QStringLiteral("LocalWorkspaceSyncEnabled"));
-  mSync->setChecked(!mWorkspace.syncDirectory.isEmpty());
+  mSync->setChecked(mWorkspace.syncEnabled);
   mSyncDirectory = new QLineEdit(mWorkspace.syncDirectory, this);
   mSyncDirectory->setObjectName(
       QStringLiteral("LocalWorkspaceSyncDirectory"));
@@ -194,38 +195,55 @@ LocalWorkspace LocalWorkspaceDialog::workspace() const {
     if (mRepositories->item(i)->data(Qt::UserRole + 1).toBool())
       result.manualRepositories.append(mRepositories->item(i)->text());
   }
-  result.syncDirectory = mSync->isChecked() ? mSyncDirectory->text() : QString();
+  result.syncDirectory = mSyncDirectory->text();
+  result.syncEnabled = mSync->isChecked();
   return result;
 }
 
 void LocalWorkspaceDialog::browseRepository() {
-  const QString path = QFileDialog::getExistingDirectory(
-      this, tr("Select Git Repository"), QString(),
-      QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-  if (path.isEmpty())
+  const QStringList paths = DirectorySelectionDialog::getExistingDirectories(
+      this, tr("Select Git Repositories"));
+  if (paths.isEmpty())
     return;
 
-  const git::Repository repository = git::Repository::open(path, true);
-  if (!repository.isValid()) {
-    QMessageBox::warning(this, tr("Invalid Repository"),
-                         tr("The selected directory is not a Git repository:\n%1")
-                             .arg(path));
-    return;
-  }
-
-  const QString root = repository.dir(false).path();
-  for (int i = 0; i < mRepositories->count(); ++i) {
-    if (pathsMatch(mRepositories->item(i)->text(), root)) {
-      QMessageBox::warning(this, tr("Duplicate Repository"),
-                           tr("This repository is already in the workspace:\n%1")
-                               .arg(root));
-      return;
+  QStringList invalid;
+  QStringList duplicates;
+  for (const QString &path : paths) {
+    const git::Repository repository = git::Repository::open(path, true);
+    if (!repository.isValid()) {
+      invalid.append(path);
+      continue;
     }
+
+    const QString root = repository.dir(false).path();
+    bool duplicate = false;
+    for (int i = 0; i < mRepositories->count(); ++i) {
+      if (pathsMatch(mRepositories->item(i)->text(), root)) {
+        duplicate = true;
+        break;
+      }
+    }
+    if (duplicate) {
+      duplicates.append(root);
+      continue;
+    }
+
+    QListWidgetItem *item = new QListWidgetItem(root, mRepositories);
+    item->setData(Qt::UserRole, false);
+    item->setData(Qt::UserRole + 1, true);
   }
 
-  QListWidgetItem *item = new QListWidgetItem(root, mRepositories);
-  item->setData(Qt::UserRole, false);
-  item->setData(Qt::UserRole + 1, true);
+  QStringList skipped;
+  if (!invalid.isEmpty())
+    skipped.append(tr("Not Git repositories:\n%1").arg(invalid.join('\n')));
+  if (!duplicates.isEmpty())
+    skipped.append(
+        tr("Already in the workspace:\n%1").arg(duplicates.join('\n')));
+  if (!skipped.isEmpty())
+    QMessageBox::warning(
+        this, tr("Some Folders Were Skipped"),
+        tr("Some selected folders were skipped.\n\n%1")
+            .arg(skipped.join(QStringLiteral("\n\n"))));
   updateState();
 }
 
@@ -261,10 +279,10 @@ void LocalWorkspaceDialog::updateState() {
   const bool synchronized = mSync->isChecked();
   mSyncDirectory->setEnabled(synchronized);
   mBrowseSyncDirectory->setEnabled(synchronized);
-  const bool hasLocation = mRepositories->count() > 0 ||
-                           (synchronized && !mSyncDirectory->text().isEmpty());
+  const bool hasLocation =
+      mRepositories->count() > 0 || !mSyncDirectory->text().isEmpty();
   mSave->setEnabled(!mName->text().trimmed().isEmpty() && hasLocation);
   QListWidgetItem *item = mRepositories->currentItem();
   mRemoveRepository->setEnabled(
-      item && (!synchronized || !item->data(Qt::UserRole).toBool()));
+      item && !item->data(Qt::UserRole).toBool());
 }

@@ -8,6 +8,7 @@
 
 #include <QDateTime>
 #include <QFutureWatcher>
+#include <QPersistentModelIndex>
 #include <QPointer>
 #include <QSet>
 #include <QStringList>
@@ -37,6 +38,7 @@ public:
   ~LocalRepositoryManagement() override;
 
   void checkOriginsIfStale();
+  QString selectedRepositoryPath() const;
 
 signals:
   void openRepositoryRequested(const QString &path);
@@ -46,6 +48,7 @@ signals:
   void originCheckFinished(int successful, int failed);
   void originFetchStarted(const QString &path);
   void originFetchFinished(const QString &path, bool successful);
+  void selectedRepositoryChanged(const QString &path);
 
 protected:
   bool eventFilter(QObject *watched, QEvent *event) override;
@@ -73,6 +76,11 @@ private:
   void deleteCurrentItem();
   void showDetails(const QString &path);
   void updateWorkspaceSpans();
+  void updateSelectedRepository();
+  void restoreWorkspaceExpansion();
+  void clearPendingWorkspaceClick(bool restore = false);
+  bool isWorkspaceDisclosure(const QModelIndex &index,
+                             const QPoint &position) const;
   void updateOriginCheckStates();
   void toggleWorkspaceExpansion();
   void updateExpansionButton();
@@ -96,13 +104,20 @@ private:
   QPointer<QFutureWatcher<OriginCheckEvent>> mOriginCheckWatcher;
   QTimer *mOriginCooldownTimer;
   QTimer *mOriginAnimationTimer;
+  QTimer *mWorkspaceClickTimer;
   QList<RemoteCallbacks *> mOriginCallbacks;
   QSet<QString> mActiveOriginFetches;
   QSet<QString> mUntrustedOriginFetches;
+  QSet<QString> mExpandedWorkspaceIds;
+  QString mSelectedRepositoryPath;
+  QPersistentModelIndex mPendingWorkspaceClick;
   QDateTime mOriginCooldownDeadline;
   bool mFirstOriginOpen = true;
   bool mResolveOriginAfterPaint = false;
   bool mOriginResolutionScheduled = false;
+  bool mRestoringWorkspaceExpansion = false;
+  bool mIgnoreNextWorkspaceRelease = false;
+  bool mPendingWorkspaceWasExpanded = false;
   bool mDetailsInitialized = false;
 };
 

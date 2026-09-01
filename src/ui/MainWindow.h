@@ -57,6 +57,7 @@ public:
   int count() const;
   RepoView *activeView() const;
   RepoView *currentView() const;
+  QString externalToolRepositoryPath() const;
   RepoView *view(int index) const;
 
   // Get the "active" main window.

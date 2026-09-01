@@ -9,6 +9,7 @@
 #include "RemoteCallbacks.h"
 #include "conf/LocalWorkspace.h"
 #include "conf/LocalWorkspaces.h"
+#include "dialogs/DirectorySelectionDialog.h"
 #include "dialogs/LocalWorkspaceDialog.h"
 #include "git/Branch.h"
 #include "git/Remote.h"
@@ -20,12 +21,12 @@
 #include <QDateTime>
 #include <QDir>
 #include <QFile>
-#include <QFileDialog>
 #include <QFont>
 #include <QHeaderView>
 #include <QHelpEvent>
 #include <QHBoxLayout>
 #include <QImageReader>
+#include <QItemSelectionModel>
 #include <QKeyEvent>
 #include <QLabel>
 #include <QLineEdit>
@@ -498,7 +499,8 @@ LocalRepositoryManagement::LocalRepositoryManagement(QWidget *parent)
       mDetailsTitle(new QLabel(mDetailsPane)),
       mReadme(new ReadmeBrowser(mDetailsPane)),
       mOriginCooldownTimer(new QTimer(this)),
-      mOriginAnimationTimer(new QTimer(this)) {
+      mOriginAnimationTimer(new QTimer(this)),
+      mWorkspaceClickTimer(new QTimer(this)) {
   setObjectName(QStringLiteral("LocalRepositoryManagement"));
 
   QLabel *title = new QLabel(tr("Local Repository Management"), this);
@@ -641,14 +643,35 @@ LocalRepositoryManagement::LocalRepositoryManagement(QWidget *parent)
   connect(mExpansionToggle, &QPushButton::clicked, this,
           &LocalRepositoryManagement::toggleWorkspaceExpansion);
   connect(mSearch, &QLineEdit::textChanged, this,
-          [this](const QString &text) {
-            mProxy->setFilterFixedString(text);
+           [this](const QString &text) {
+             clearPendingWorkspaceClick();
+             mRestoringWorkspaceExpansion = true;
+             mProxy->setFilterFixedString(text);
+             restoreWorkspaceExpansion();
+             updateSelectedRepository();
+           });
+  connect(mTree, &QTreeView::expanded, this,
+          [this](const QModelIndex &index) {
+            if (!mRestoringWorkspaceExpansion) {
+              const QString id =
+                  index.data(LocalWorkspaceModel::WorkspaceIdRole).toString();
+              const LocalWorkspace *workspace = mWorkspaces->workspace(id);
+              if (workspace && !workspace->repositories.isEmpty())
+                mExpandedWorkspaceIds.insert(id);
+            }
             updateExpansionButton();
           });
-  connect(mTree, &QTreeView::expanded, this,
-          [this] { updateExpansionButton(); });
   connect(mTree, &QTreeView::collapsed, this,
-          [this] { updateExpansionButton(); });
+          [this](const QModelIndex &index) {
+            if (!mRestoringWorkspaceExpansion)
+              mExpandedWorkspaceIds.remove(
+                  index.data(LocalWorkspaceModel::WorkspaceIdRole).toString());
+            updateExpansionButton();
+          });
+  connect(mTree->selectionModel(), &QItemSelectionModel::currentChanged, this,
+          [this] { updateSelectedRepository(); });
+  connect(mModel, &QAbstractItemModel::dataChanged, this,
+          [this] { updateSelectedRepository(); });
   connect(mTree, &QAbstractItemView::entered, this,
           [this](const QModelIndex &index) {
             const bool action =
@@ -665,11 +688,20 @@ LocalRepositoryManagement::LocalRepositoryManagement(QWidget *parent)
   connect(mTree, &QWidget::customContextMenuRequested, this,
            &LocalRepositoryManagement::showContextMenu);
   connect(closeDetails, &QToolButton::clicked, mDetailsPane, &QWidget::hide);
+  connect(mProxy, &QAbstractItemModel::modelAboutToBeReset, this,
+          [this] {
+            clearPendingWorkspaceClick();
+            mRestoringWorkspaceExpansion = true;
+          });
   connect(mProxy, &QAbstractItemModel::modelReset, this, [this] {
-    updateWorkspaceSpans();
-    updateExpansionButton();
+    restoreWorkspaceExpansion();
     updateOriginCheckStates();
+    updateSelectedRepository();
   });
+  mWorkspaceClickTimer->setSingleShot(true);
+  mWorkspaceClickTimer->setInterval(QApplication::doubleClickInterval());
+  connect(mWorkspaceClickTimer, &QTimer::timeout, this,
+          [this] { clearPendingWorkspaceClick(); });
   QTimer *branchRefresh = new QTimer(this);
   branchRefresh->setInterval(2000);
   connect(branchRefresh, &QTimer::timeout, mModel,
@@ -696,6 +728,10 @@ LocalRepositoryManagement::LocalRepositoryManagement(QWidget *parent)
 }
 
 LocalRepositoryManagement::~LocalRepositoryManagement() = default;
+
+QString LocalRepositoryManagement::selectedRepositoryPath() const {
+  return mSelectedRepositoryPath;
+}
 
 void LocalRepositoryManagement::checkOriginsIfStale() {
   if (mFirstOriginOpen) {
@@ -927,8 +963,55 @@ bool LocalRepositoryManagement::eventFilter(QObject *watched, QEvent *event) {
       const auto *mouse = static_cast<QMouseEvent *>(event);
       if (mouse->button() != Qt::LeftButton)
         return false;
-      activate(mTree->indexAt(mouse->position().toPoint()));
+      const QPoint position = mouse->position().toPoint();
+      const QModelIndex index = mTree->indexAt(position);
+      if (!index.isValid())
+        return false;
+      if (index.data(LocalWorkspaceModel::ItemKindRole).toInt() ==
+          LocalWorkspaceModel::WorkspaceItem) {
+        if (isWorkspaceDisclosure(index, position))
+          return false;
+        clearPendingWorkspaceClick(mPendingWorkspaceClick == index);
+        mIgnoreNextWorkspaceRelease = true;
+        const QString id =
+            index.data(LocalWorkspaceModel::WorkspaceIdRole).toString();
+        QTimer::singleShot(0, this, [this, id] {
+          editWorkspace(id);
+          mIgnoreNextWorkspaceRelease = false;
+        });
+        return true;
+      }
+      activate(index);
       return true;
+    }
+    if (event->type() == QEvent::MouseButtonRelease) {
+      const auto *mouse = static_cast<QMouseEvent *>(event);
+      if (mouse->button() != Qt::LeftButton)
+        return false;
+      const QPoint position = mouse->position().toPoint();
+      const QModelIndex index = mTree->indexAt(position);
+      if (index.isValid() &&
+          index.data(LocalWorkspaceModel::ItemKindRole).toInt() ==
+              LocalWorkspaceModel::WorkspaceItem) {
+        if (mIgnoreNextWorkspaceRelease) {
+          mIgnoreNextWorkspaceRelease = false;
+        } else if (isWorkspaceDisclosure(index, position)) {
+          clearPendingWorkspaceClick();
+        } else {
+          clearPendingWorkspaceClick();
+          const QString id =
+              index.data(LocalWorkspaceModel::WorkspaceIdRole).toString();
+          const LocalWorkspace *workspace = mWorkspaces->workspace(id);
+          if (workspace && !workspace->repositories.isEmpty()) {
+            mPendingWorkspaceClick = index;
+            mPendingWorkspaceWasExpanded = mTree->isExpanded(index);
+            mTree->setExpanded(index, !mPendingWorkspaceWasExpanded);
+            mWorkspaceClickTimer->start();
+          }
+        }
+      } else {
+        clearPendingWorkspaceClick();
+      }
     }
     if (event->type() == QEvent::MouseMove) {
       const auto *mouse = static_cast<QMouseEvent *>(event);
@@ -966,10 +1049,10 @@ void LocalRepositoryManagement::activate(const QModelIndex &index) {
         index.data(LocalWorkspaceModel::PathRole).toString());
     return;
   }
-  mTree->setExpanded(index, !mTree->isExpanded(index));
 }
 
 void LocalRepositoryManagement::toggleWorkspaceExpansion() {
+  clearPendingWorkspaceClick();
   bool expanded = false;
   for (int row = 0; row < mProxy->rowCount(); ++row) {
     if (mTree->isExpanded(mProxy->index(row, 0))) {
@@ -977,11 +1060,15 @@ void LocalRepositoryManagement::toggleWorkspaceExpansion() {
       break;
     }
   }
-  if (expanded)
-    mTree->collapseAll();
-  else
-    mTree->expandAll();
-  updateExpansionButton();
+  mExpandedWorkspaceIds.clear();
+  if (!expanded) {
+    for (int i = 0; i < mWorkspaces->count(); ++i) {
+      const LocalWorkspace *workspace = mWorkspaces->workspace(i);
+      if (workspace && !workspace->repositories.isEmpty())
+        mExpandedWorkspaceIds.insert(workspace->id);
+    }
+  }
+  restoreWorkspaceExpansion();
 }
 
 void LocalRepositoryManagement::updateExpansionButton() {
@@ -996,6 +1083,7 @@ void LocalRepositoryManagement::updateExpansionButton() {
 }
 
 void LocalRepositoryManagement::showContextMenu(const QPoint &position) {
+  clearPendingWorkspaceClick();
   const QModelIndex proxyIndex = mTree->indexAt(position);
   if (!proxyIndex.isValid())
     return;
@@ -1022,10 +1110,12 @@ void LocalRepositoryManagement::showContextMenu(const QPoint &position) {
             [this, id, path] { removeRepository(id, path); });
   } else {
     QAction *open = menu.addAction(tr("Open Workspace"));
-    QAction *add = menu.addAction(tr("Add Repository"));
+    QAction *add = menu.addAction(tr("Add Repositories..."));
     QAction *rescan = menu.addAction(tr("Rescan Synchronized Directory"));
     const LocalWorkspace *workspace = mWorkspaces->workspace(id);
-    rescan->setEnabled(workspace && !workspace->syncDirectory.isEmpty());
+    open->setEnabled(workspace && !workspace->repositories.isEmpty());
+    rescan->setEnabled(workspace && workspace->syncEnabled &&
+                       !workspace->syncDirectory.isEmpty());
     menu.addSeparator();
     QAction *edit = menu.addAction(tr("Edit Workspace"));
     QAction *remove = menu.addAction(tr("Delete Workspace"));
@@ -1089,15 +1179,30 @@ void LocalRepositoryManagement::deleteWorkspace(const QString &id) {
 }
 
 void LocalRepositoryManagement::addRepository(const QString &id) {
-  const QString path = QFileDialog::getExistingDirectory(
-      this, tr("Select Git Repository"), QString(),
-      QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-  if (path.isEmpty())
+  const QStringList paths = DirectorySelectionDialog::getExistingDirectories(
+      this, tr("Select Git Repositories"));
+  if (paths.isEmpty())
     return;
 
+  QStringList invalid;
+  QStringList duplicates;
   QString error;
-  if (!mWorkspaces->addRepository(id, path, &error))
+  if (!mWorkspaces->addRepositories(id, paths, &invalid, &duplicates, &error)) {
     showError(error);
+    return;
+  }
+
+  QStringList skipped;
+  if (!invalid.isEmpty())
+    skipped.append(tr("Not Git repositories:\n%1").arg(invalid.join('\n')));
+  if (!duplicates.isEmpty())
+    skipped.append(
+        tr("Already in the workspace:\n%1").arg(duplicates.join('\n')));
+  if (!skipped.isEmpty())
+    QMessageBox::warning(
+        this, tr("Some Folders Were Skipped"),
+        tr("Some selected folders were skipped.\n\n%1")
+            .arg(skipped.join(QStringLiteral("\n\n"))));
 }
 
 void LocalRepositoryManagement::removeRepository(const QString &id,
@@ -1115,9 +1220,21 @@ void LocalRepositoryManagement::removeRepository(const QString &id,
 
 void LocalRepositoryManagement::openWorkspace(const QString &id) {
   const LocalWorkspace *workspace = mWorkspaces->workspace(id);
-  if (!workspace)
+  if (!workspace || workspace->repositories.isEmpty())
     return;
   const QStringList paths = workspace->repositories;
+  QMessageBox confirmation(
+      QMessageBox::Question, tr("Open Workspace"),
+      paths.size() == 1
+          ? tr("This will open 1 repository.")
+          : tr("This will open %1 repositories.").arg(paths.size()),
+      QMessageBox::Cancel, this);
+  QPushButton *open =
+      confirmation.addButton(tr("Open Workspace"), QMessageBox::AcceptRole);
+  confirmation.setDefaultButton(QMessageBox::Cancel);
+  confirmation.exec();
+  if (confirmation.clickedButton() != open)
+    return;
   emit openWorkspaceRequested(paths);
 }
 
@@ -1183,6 +1300,62 @@ void LocalRepositoryManagement::showDetails(const QString &path) {
 void LocalRepositoryManagement::updateWorkspaceSpans() {
   for (int row = 0; row < mProxy->rowCount(); ++row)
     mTree->setFirstColumnSpanned(row, {}, true);
+}
+
+void LocalRepositoryManagement::updateSelectedRepository() {
+  const QModelIndex index = mTree->currentIndex();
+  QString path;
+  if (index.isValid() &&
+      index.data(LocalWorkspaceModel::ItemKindRole).toInt() ==
+          LocalWorkspaceModel::RepositoryItem &&
+      index.data(LocalWorkspaceModel::AvailableRole).toBool())
+    path = index.data(LocalWorkspaceModel::PathRole).toString();
+  if (path == mSelectedRepositoryPath)
+    return;
+  mSelectedRepositoryPath = path;
+  emit selectedRepositoryChanged(path);
+}
+
+void LocalRepositoryManagement::restoreWorkspaceExpansion() {
+  QSet<QString> nonemptyWorkspaceIds;
+  for (int i = 0; i < mWorkspaces->count(); ++i) {
+    const LocalWorkspace *workspace = mWorkspaces->workspace(i);
+    if (workspace && !workspace->repositories.isEmpty())
+      nonemptyWorkspaceIds.insert(workspace->id);
+  }
+  mExpandedWorkspaceIds.intersect(nonemptyWorkspaceIds);
+
+  mRestoringWorkspaceExpansion = true;
+  updateWorkspaceSpans();
+  for (int row = 0; row < mProxy->rowCount(); ++row) {
+    const QModelIndex index = mProxy->index(row, 0);
+    const QString id =
+        index.data(LocalWorkspaceModel::WorkspaceIdRole).toString();
+    mTree->setExpanded(index, mExpandedWorkspaceIds.contains(id));
+  }
+  mRestoringWorkspaceExpansion = false;
+  updateExpansionButton();
+}
+
+void LocalRepositoryManagement::clearPendingWorkspaceClick(bool restore) {
+  mWorkspaceClickTimer->stop();
+  const QModelIndex index = mPendingWorkspaceClick;
+  mPendingWorkspaceClick = QPersistentModelIndex();
+  if (restore && index.isValid())
+    mTree->setExpanded(index, mPendingWorkspaceWasExpanded);
+  mPendingWorkspaceWasExpanded = false;
+}
+
+bool LocalRepositoryManagement::isWorkspaceDisclosure(
+    const QModelIndex &index, const QPoint &position) const {
+  const QRect item = mTree->visualRect(index);
+  const int width = mTree->indentation();
+  const QRect disclosure = mTree->layoutDirection() == Qt::RightToLeft
+                               ? QRect(item.right() + 1, item.top(), width,
+                                       item.height())
+                               : QRect(item.left() - width, item.top(), width,
+                                       item.height());
+  return disclosure.contains(position);
 }
 
 void LocalRepositoryManagement::updateOriginCheckStates() {

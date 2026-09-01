@@ -206,6 +206,9 @@ MainWindow::MainWindow(const git::Repository &repo, QWidget *parent,
               settings->setLastPath(path);
             }
           });
+  connect(mLocalRepositoryManagement,
+          &LocalRepositoryManagement::selectedRepositoryChanged, this,
+          [this] { mToolBar->updateView(); });
 
   mCentralStack->addWidget(mRepositorySplitter);
   mCentralStack->addWidget(mLocalRepositoryManagement);
@@ -399,6 +402,13 @@ RepoView *MainWindow::activeView() const {
 
 RepoView *MainWindow::currentView() const {
   return static_cast<RepoView *>(tabWidget()->currentWidget());
+}
+
+QString MainWindow::externalToolRepositoryPath() const {
+  if (isLocalRepositoryManagementVisible())
+    return mLocalRepositoryManagement->selectedRepositoryPath();
+  RepoView *view = currentView();
+  return view ? view->repo().workdir().absolutePath() : QString();
 }
 
 RepoView *MainWindow::view(int index) const {

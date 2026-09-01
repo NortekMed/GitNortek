@@ -6,17 +6,24 @@
 #include "Test.h"
 #include "conf/LocalWorkspace.h"
 #include "conf/LocalWorkspaces.h"
+#include "dialogs/DirectorySelectionDialog.h"
 #include "dialogs/LocalWorkspaceDialog.h"
 #include "git/Reference.h"
 #include "ui/LocalRepositoryManagement.h"
 #include "ui/LocalWorkspaceModel.h"
 #include <QAbstractItemModelTester>
+#include <QAbstractButton>
 #include <QCryptographicHash>
+#include <QCheckBox>
 #include <QDir>
 #include <QFile>
+#include <QFileSystemModel>
 #include <QHeaderView>
 #include <QHelpEvent>
 #include <QIcon>
+#include <QLineEdit>
+#include <QMenu>
+#include <QMessageBox>
 #include <QMouseEvent>
 #include <QProcess>
 #include <QPushButton>
@@ -70,6 +77,15 @@ QString originFailureKey(const QString &path) {
                      QStringLiteral("originFailure"));
 }
 
+QModelIndex workspaceIndex(QTreeView *tree, const QString &id) {
+  for (int row = 0; row < tree->model()->rowCount(); ++row) {
+    const QModelIndex index = tree->model()->index(row, 0);
+    if (index.data(LocalWorkspaceModel::WorkspaceIdRole).toString() == id)
+      return index;
+  }
+  return {};
+}
+
 } // namespace
 
 class TestLocalWorkspaces : public QObject {
@@ -80,8 +96,12 @@ private slots:
   void persistenceAndModel();
   void synchronizedDirectory();
   void manualRepositorySurvivesSynchronization();
+  void addMultipleRepositories();
+  void directorySelectionDialog();
   void readmeDetails();
   void managementInteraction();
+  void managementPreservesWorkspaceExpansion();
+  void openWorkspaceConfirmation();
   void repositoryStatus();
   void cleanupTestCase();
 
@@ -173,6 +193,7 @@ void TestLocalWorkspaces::synchronizedDirectory() {
   LocalWorkspace workspace;
   workspace.name = "Synchronized";
   workspace.syncDirectory = root.path();
+  workspace.syncEnabled = true;
   LocalWorkspaces *workspaces = LocalWorkspaces::instance();
   QString error;
   QVERIFY2(workspaces->add(workspace, &error), qPrintable(error));
@@ -183,7 +204,18 @@ void TestLocalWorkspaces::synchronizedDirectory() {
   QVERIFY(stored);
   QCOMPARE(stored->repositories, QStringList({direct.dir(false).path()}));
   QCOMPARE(stored->synchronizedRepositories, stored->repositories);
+  QVERIFY(stored->manualRepositories.isEmpty());
   QVERIFY(!stored->repositories.contains(nested.dir(false).path()));
+
+  QStringList invalid;
+  QStringList duplicates;
+  QVERIFY2(workspaces->addRepositories(workspace.id, {direct.dir(false).path()},
+                                       &invalid, &duplicates, &error),
+           qPrintable(error));
+  QVERIFY(invalid.isEmpty());
+  QVERIFY(duplicates.isEmpty());
+  QCOMPARE(workspaces->workspace(workspace.id)->manualRepositories,
+           QStringList({direct.dir(false).path()}));
 
   LocalWorkspaceModel model;
   const QModelIndex workspaceIndex = model.index(0, 0);
@@ -232,6 +264,7 @@ void TestLocalWorkspaces::manualRepositorySurvivesSynchronization() {
   workspace.name = "Manual and synchronized";
   workspace.repositories.append(repositoryPath);
   workspace.syncDirectory = root.path();
+  workspace.syncEnabled = true;
 
   LocalWorkspaces *workspaces = LocalWorkspaces::instance();
   QString error;
@@ -241,19 +274,120 @@ void TestLocalWorkspaces::manualRepositorySurvivesSynchronization() {
   QCOMPARE(stored->repositories, QStringList({repositoryPath}));
   QCOMPARE(stored->manualRepositories, QStringList({repositoryPath}));
   QCOMPARE(stored->synchronizedRepositories, QStringList({repositoryPath}));
-
   LocalWorkspaceDialog dialog(*stored);
   QCOMPARE(dialog.workspace().manualRepositories,
            QStringList({repositoryPath}));
+  QCheckBox *sync = dialog.findChild<QCheckBox *>(
+      "LocalWorkspaceSyncEnabled");
+  QVERIFY(sync);
+  QVERIFY(sync->isChecked());
+  sync->setChecked(false);
 
-  LocalWorkspace updated = *stored;
-  updated.syncDirectory.clear();
+  LocalWorkspace updated = dialog.workspace();
+  QVERIFY(!updated.syncEnabled);
+  QCOMPARE(updated.syncDirectory, root.path());
   QVERIFY2(workspaces->update(updated, &error), qPrintable(error));
   stored = workspaces->workspace(workspace.id);
   QVERIFY(stored);
+  QVERIFY(!stored->syncEnabled);
+  QCOMPARE(stored->syncDirectory, root.path());
   QCOMPARE(stored->repositories, QStringList({repositoryPath}));
   QCOMPARE(stored->manualRepositories, QStringList({repositoryPath}));
-  QVERIFY(stored->synchronizedRepositories.isEmpty());
+  QCOMPARE(stored->synchronizedRepositories, QStringList({repositoryPath}));
+  const QVariantList persisted = QSettings().value("localWorkspaces").toList();
+  QCOMPARE(persisted.size(), 1);
+  const QVariantMap persistedWorkspace = persisted.first().toMap();
+  QCOMPARE(persistedWorkspace.value("syncEnabled").toBool(), false);
+  QCOMPARE(persistedWorkspace.value("syncDirectory").toString(), root.path());
+  QCOMPARE(persistedWorkspace.value("synchronizedRepositories").toStringList(),
+           QStringList({repositoryPath}));
+
+  QVERIFY(directory.mkdir("created-while-paused"));
+  git::Repository createdWhilePaused =
+      git::Repository::init(directory.filePath("created-while-paused"));
+  QVERIFY(createdWhilePaused.isValid());
+  QTest::qWait(700);
+  QVERIFY(!workspaces->workspace(workspace.id)->repositories.contains(
+      createdWhilePaused.dir(false).path()));
+
+  updated = *workspaces->workspace(workspace.id);
+  updated.syncEnabled = true;
+  QVERIFY2(workspaces->update(updated, &error), qPrintable(error));
+  stored = workspaces->workspace(workspace.id);
+  QVERIFY(stored->syncEnabled);
+  QVERIFY(stored->repositories.contains(createdWhilePaused.dir(false).path()));
+}
+
+void TestLocalWorkspaces::addMultipleRepositories() {
+  clearWorkspaces();
+  QTemporaryDir root;
+  QVERIFY(root.isValid());
+  QDir directory(root.path());
+  QVERIFY(directory.mkdir("first"));
+  QVERIFY(directory.mkdir("second"));
+  QVERIFY(directory.mkdir("invalid"));
+  const git::Repository first =
+      git::Repository::init(directory.filePath("first"));
+  const git::Repository second =
+      git::Repository::init(directory.filePath("second"));
+  QVERIFY(first.isValid());
+  QVERIFY(second.isValid());
+
+  LocalWorkspace workspace;
+  workspace.name = "Multiple repositories";
+  workspace.repositories.append(first.dir(false).path());
+  LocalWorkspaces *workspaces = LocalWorkspaces::instance();
+  QString error;
+  QVERIFY2(workspaces->add(workspace, &error), qPrintable(error));
+
+  QSignalSpy changed(workspaces, &LocalWorkspaces::workspacesChanged);
+  QStringList invalid;
+  QStringList duplicates;
+  QVERIFY2(workspaces->addRepositories(
+               workspace.id,
+               {first.dir(false).path(), second.dir(false).path(),
+                directory.filePath("invalid"), second.dir(false).path()},
+               &invalid, &duplicates, &error),
+           qPrintable(error));
+  QCOMPARE(changed.count(), 1);
+  QCOMPARE(invalid, QStringList({directory.filePath("invalid")}));
+  QCOMPARE(duplicates,
+           QStringList({first.dir(false).path(), second.dir(false).path()}));
+  QCOMPARE(workspaces->workspace(workspace.id)->repositories,
+           QStringList({first.dir(false).path(), second.dir(false).path()}));
+}
+
+void TestLocalWorkspaces::directorySelectionDialog() {
+  QTemporaryDir root;
+  QVERIFY(root.isValid());
+  QDir directory(root.path());
+  QVERIFY(directory.mkdir("first"));
+  QVERIFY(directory.mkdir("second"));
+
+  DirectorySelectionDialog dialog("Select directories");
+  QTreeView *tree = dialog.findChild<QTreeView *>("DirectorySelectionTree");
+  QVERIFY(tree);
+  QCOMPARE(tree->selectionMode(), QAbstractItemView::ExtendedSelection);
+  QFileSystemModel *model = qobject_cast<QFileSystemModel *>(tree->model());
+  QVERIFY(model);
+  const QModelIndex rootIndex = model->setRootPath(root.path());
+  tree->setRootIndex(rootIndex);
+  QTRY_VERIFY(model->rowCount(rootIndex) >= 2);
+
+  const QModelIndex first = model->index(directory.filePath("first"));
+  const QModelIndex second = model->index(directory.filePath("second"));
+  QVERIFY(first.isValid());
+  QVERIFY(second.isValid());
+  tree->selectionModel()->select(
+      first, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+  tree->selectionModel()->select(
+      second, QItemSelectionModel::Select | QItemSelectionModel::Rows);
+  QStringList selected = dialog.selectedDirectories();
+  selected.sort();
+  QStringList expected = {directory.filePath("first"),
+                          directory.filePath("second")};
+  expected.sort();
+  QCOMPARE(selected, expected);
 }
 
 void TestLocalWorkspaces::readmeDetails() {
@@ -371,18 +505,62 @@ void TestLocalWorkspaces::managementInteraction() {
   QVERIFY(!tree->isExpanded(workspaceIndex));
   QCOMPARE(expansion->text(), QString("Expand"));
   const QPoint workspacePosition =
-      tree->visualRect(workspaceIndex).topLeft() + QPoint(20, 10);
-  QTest::mouseDClick(tree->viewport(), Qt::LeftButton, Qt::NoModifier,
-                     workspacePosition);
-  QTRY_VERIFY(tree->isExpanded(workspaceIndex));
+      tree->visualRect(workspaceIndex).center();
+  QTest::mouseClick(tree->viewport(), Qt::LeftButton, Qt::NoModifier,
+                    workspacePosition);
+  QVERIFY(tree->isExpanded(workspaceIndex));
   QCOMPARE(expansion->text(), QString("Collapse"));
+  QTest::mouseClick(tree->viewport(), Qt::LeftButton, Qt::NoModifier,
+                    workspacePosition);
+  QVERIFY(!tree->isExpanded(workspaceIndex));
+  QCOMPARE(expansion->text(), QString("Expand"));
+
+  const QPoint disclosurePosition(
+      tree->visualRect(workspaceIndex).left() - tree->indentation() / 2,
+      tree->visualRect(workspaceIndex).center().y());
+  QTest::mouseClick(tree->viewport(), Qt::LeftButton, Qt::NoModifier,
+                    disclosurePosition);
+  QVERIFY(tree->isExpanded(workspaceIndex));
+  QTest::mouseClick(tree->viewport(), Qt::LeftButton, Qt::NoModifier,
+                    disclosurePosition);
+  QVERIFY(!tree->isExpanded(workspaceIndex));
+
+  QTest::mouseClick(tree->viewport(), Qt::LeftButton, Qt::NoModifier,
+                    workspacePosition);
+  QVERIFY(tree->isExpanded(workspaceIndex));
+  bool editOpened = false;
+  QTimer::singleShot(50, [&] {
+    LocalWorkspaceDialog *dialog =
+        qobject_cast<LocalWorkspaceDialog *>(QApplication::activeModalWidget());
+    if (!dialog)
+      return;
+    editOpened = true;
+    dialog->reject();
+  });
   QTest::mouseDClick(tree->viewport(), Qt::LeftButton, Qt::NoModifier,
                      workspacePosition);
-  QTRY_VERIFY(!tree->isExpanded(workspaceIndex));
-  QCOMPARE(expansion->text(), QString("Expand"));
+  QTRY_VERIFY(editOpened);
+  QVERIFY(!tree->isExpanded(workspaceIndex));
   QTest::mouseClick(expansion, Qt::LeftButton);
   QTRY_VERIFY(tree->isExpanded(workspaceIndex));
   QCOMPARE(expansion->text(), QString("Collapse"));
+
+  QTest::mouseClick(tree->viewport(), Qt::LeftButton, Qt::NoModifier,
+                    workspacePosition);
+  QVERIFY(!tree->isExpanded(workspaceIndex));
+  editOpened = false;
+  QTimer::singleShot(50, [&] {
+    LocalWorkspaceDialog *dialog =
+        qobject_cast<LocalWorkspaceDialog *>(QApplication::activeModalWidget());
+    if (!dialog)
+      return;
+    editOpened = true;
+    dialog->reject();
+  });
+  QTest::mouseDClick(tree->viewport(), Qt::LeftButton, Qt::NoModifier,
+                     workspacePosition);
+  QTRY_VERIFY(editOpened);
+  QVERIFY(tree->isExpanded(workspaceIndex));
   QTest::mouseClick(expansion, Qt::LeftButton);
   QTRY_VERIFY(!tree->isExpanded(workspaceIndex));
   QCOMPARE(expansion->text(), QString("Expand"));
@@ -395,6 +573,16 @@ void TestLocalWorkspaces::managementInteraction() {
            int(Qt::AlignLeft | Qt::AlignVCenter));
   QCOMPARE(changesIndex.data(Qt::TextAlignmentRole).toInt(),
            int(Qt::AlignLeft | Qt::AlignVCenter));
+  QSignalSpy selectedRepositoryChanged(
+      &management, &LocalRepositoryManagement::selectedRepositoryChanged);
+  tree->setCurrentIndex(remoteIndex);
+  QCOMPARE(management.selectedRepositoryPath(), root);
+  QCOMPARE(selectedRepositoryChanged.count(), 1);
+  tree->setCurrentIndex(workspaceIndex);
+  QVERIFY(management.selectedRepositoryPath().isEmpty());
+  QCOMPARE(selectedRepositoryChanged.count(), 2);
+  tree->setCurrentIndex(remoteIndex);
+  QCOMPARE(management.selectedRepositoryPath(), root);
   QTRY_VERIFY(
       remoteIndex.data(LocalWorkspaceModel::OriginCheckEligibleRole).toBool());
   QVERIFY(!remoteIndex.data(LocalWorkspaceModel::OriginCheckFreshRole).toBool());
@@ -537,6 +725,185 @@ void TestLocalWorkspaces::managementInteraction() {
               .toBool());
   QTRY_COMPARE(staleStarted.count(), 1);
   QTRY_COMPARE(staleFinished.count(), 1);
+}
+
+void TestLocalWorkspaces::managementPreservesWorkspaceExpansion() {
+  clearWorkspaces();
+  Test::ScratchRepository first;
+  Test::ScratchRepository second;
+  Test::ScratchRepository third;
+  const QString firstPath = git::Repository(first).dir(false).path();
+  const QString secondPath = git::Repository(second).dir(false).path();
+  const QString thirdPath = git::Repository(third).dir(false).path();
+
+  LocalWorkspace primary;
+  primary.name = "Primary expansion";
+  primary.repositories = {firstPath, secondPath};
+  LocalWorkspace secondary;
+  secondary.name = "Secondary expansion";
+  secondary.repositories = {thirdPath};
+  LocalWorkspaces *workspaces = LocalWorkspaces::instance();
+  QString error;
+  QVERIFY2(workspaces->add(primary, &error), qPrintable(error));
+  QVERIFY2(workspaces->add(secondary, &error), qPrintable(error));
+
+  LocalRepositoryManagement management;
+  management.resize(1000, 600);
+  management.show();
+  QTreeView *tree = management.findChild<QTreeView *>(
+      "LocalRepositoryManagementTree");
+  QLineEdit *search = management.findChild<QLineEdit *>(
+      "LocalRepositoryManagementSearch");
+  QPushButton *expansion = management.findChild<QPushButton *>(
+      "LocalRepositoryManagementExpansionToggle");
+  QVERIFY(tree);
+  QVERIFY(search);
+  QVERIFY(expansion);
+  QModelIndex primaryIndex = workspaceIndex(tree, primary.id);
+  QModelIndex secondaryIndex = workspaceIndex(tree, secondary.id);
+  QVERIFY(primaryIndex.isValid());
+  QVERIFY(secondaryIndex.isValid());
+  tree->setExpanded(primaryIndex, true);
+  tree->setExpanded(secondaryIndex, true);
+
+  search->setText(primary.name);
+  QTRY_COMPARE(tree->model()->rowCount(), 1);
+  primaryIndex = workspaceIndex(tree, primary.id);
+  QVERIFY(tree->isExpanded(primaryIndex));
+  QVERIFY2(workspaces->removeRepository(primary.id, firstPath, &error),
+           qPrintable(error));
+  primaryIndex = workspaceIndex(tree, primary.id);
+  QVERIFY(primaryIndex.isValid());
+  QVERIFY(tree->isExpanded(primaryIndex));
+
+  search->clear();
+  QTRY_COMPARE(tree->model()->rowCount(), 2);
+  primaryIndex = workspaceIndex(tree, primary.id);
+  secondaryIndex = workspaceIndex(tree, secondary.id);
+  QVERIFY(tree->isExpanded(primaryIndex));
+  QVERIFY(tree->isExpanded(secondaryIndex));
+
+  search->setText(primary.name);
+  QTRY_COMPARE(tree->model()->rowCount(), 1);
+  QTest::mouseClick(expansion, Qt::LeftButton);
+  search->clear();
+  QTRY_COMPARE(tree->model()->rowCount(), 2);
+  QVERIFY(!tree->isExpanded(workspaceIndex(tree, primary.id)));
+  QVERIFY(!tree->isExpanded(workspaceIndex(tree, secondary.id)));
+  QTest::mouseClick(expansion, Qt::LeftButton);
+  QVERIFY(tree->isExpanded(workspaceIndex(tree, primary.id)));
+  QVERIFY(tree->isExpanded(workspaceIndex(tree, secondary.id)));
+
+  QVERIFY2(workspaces->removeRepository(primary.id, secondPath, &error),
+           qPrintable(error));
+  primaryIndex = workspaceIndex(tree, primary.id);
+  secondaryIndex = workspaceIndex(tree, secondary.id);
+  QVERIFY(!tree->isExpanded(primaryIndex));
+  QVERIFY(tree->isExpanded(secondaryIndex));
+
+  QVERIFY2(workspaces->addRepository(primary.id, firstPath, &error),
+           qPrintable(error));
+  primaryIndex = workspaceIndex(tree, primary.id);
+  QVERIFY(!tree->isExpanded(primaryIndex));
+  QVERIFY(tree->isExpanded(workspaceIndex(tree, secondary.id)));
+}
+
+void TestLocalWorkspaces::openWorkspaceConfirmation() {
+  clearWorkspaces();
+  Test::ScratchRepository first;
+  Test::ScratchRepository second;
+  const QString firstPath = git::Repository(first).dir(false).path();
+  const QString secondPath = git::Repository(second).dir(false).path();
+
+  LocalWorkspace workspace;
+  workspace.name = "Open confirmation";
+  workspace.repositories = {firstPath, secondPath};
+  LocalWorkspace empty;
+  empty.name = "Empty workspace";
+  LocalWorkspaces *workspaces = LocalWorkspaces::instance();
+  QString error;
+  QVERIFY2(workspaces->add(workspace, &error), qPrintable(error));
+  QVERIFY2(workspaces->add(empty, &error), qPrintable(error));
+
+  LocalRepositoryManagement management;
+  management.resize(1000, 600);
+  management.show();
+  QTreeView *tree = management.findChild<QTreeView *>(
+      "LocalRepositoryManagementTree");
+  QVERIFY(tree);
+  QSignalSpy opened(&management,
+                    &LocalRepositoryManagement::openWorkspaceRequested);
+
+  const auto triggerOpen = [&](bool accept) {
+    bool messageSeen = false;
+    QString messageText;
+    const QModelIndex index = workspaceIndex(tree, workspace.id);
+    const QPoint position = tree->visualRect(index).center();
+    QTimer::singleShot(0, [&] {
+      QMenu *menu = qobject_cast<QMenu *>(QApplication::activePopupWidget());
+      QVERIFY(menu);
+      QAction *open = nullptr;
+      for (QAction *action : menu->actions()) {
+        if (action->text() == QString("Open Workspace")) {
+          open = action;
+          break;
+        }
+      }
+      QVERIFY(open);
+      QTimer::singleShot(0, [&] {
+        QMessageBox *message =
+            qobject_cast<QMessageBox *>(QApplication::activeModalWidget());
+        QVERIFY(message);
+        messageSeen = true;
+        messageText = message->text();
+        if (!accept) {
+          message->button(QMessageBox::Cancel)->click();
+          return;
+        }
+        for (QAbstractButton *button : message->buttons()) {
+          if (button->text().remove('&') == QString("Open Workspace")) {
+            button->click();
+            return;
+          }
+        }
+        QFAIL("Open Workspace confirmation button not found");
+      });
+      open->trigger();
+      menu->close();
+    });
+    QMetaObject::invokeMethod(tree, "customContextMenuRequested",
+                              Qt::DirectConnection, Q_ARG(QPoint, position));
+    QVERIFY(messageSeen);
+    QCOMPARE(messageText, QString("This will open 2 repositories."));
+  };
+
+  triggerOpen(false);
+  QCOMPARE(opened.count(), 0);
+  triggerOpen(true);
+  QCOMPARE(opened.count(), 1);
+  QCOMPARE(opened.first().at(0).toStringList(),
+           QStringList({firstPath, secondPath}));
+
+  bool openFound = false;
+  bool openEnabled = true;
+  const QModelIndex emptyIndex = workspaceIndex(tree, empty.id);
+  const QPoint emptyPosition = tree->visualRect(emptyIndex).center();
+  QTimer::singleShot(0, [&] {
+    QMenu *menu = qobject_cast<QMenu *>(QApplication::activePopupWidget());
+    QVERIFY(menu);
+    for (QAction *action : menu->actions()) {
+      if (action->text() == QString("Open Workspace")) {
+        openFound = true;
+        openEnabled = action->isEnabled();
+      }
+    }
+    menu->close();
+  });
+  QMetaObject::invokeMethod(tree, "customContextMenuRequested",
+                            Qt::DirectConnection,
+                            Q_ARG(QPoint, emptyPosition));
+  QVERIFY(openFound);
+  QVERIFY(!openEnabled);
 }
 
 void TestLocalWorkspaces::repositoryStatus() {

@@ -27,6 +27,10 @@ public:
 
   bool addRepository(const QString &id, const QString &path,
                      QString *error = nullptr);
+  bool addRepositories(const QString &id, const QStringList &paths,
+                       QStringList *invalidPaths = nullptr,
+                       QStringList *duplicatePaths = nullptr,
+                       QString *error = nullptr);
   bool removeRepository(const QString &id, const QString &path,
                         QString *error = nullptr);
   bool rescanSynchronizedDirectory(const QString &id,

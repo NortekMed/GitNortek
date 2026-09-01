@@ -115,8 +115,9 @@ void updateRepositories(LocalWorkspace *workspace) {
 
 bool equal(const LocalWorkspace &lhs, const LocalWorkspace &rhs) {
   return lhs.id == rhs.id && lhs.name == rhs.name &&
-         lhs.description == rhs.description && lhs.iconName == rhs.iconName &&
+          lhs.description == rhs.description && lhs.iconName == rhs.iconName &&
           lhs.color == rhs.color && lhs.syncDirectory == rhs.syncDirectory &&
+          lhs.syncEnabled == rhs.syncEnabled &&
           lhs.repositories == rhs.repositories &&
           lhs.manualRepositories == rhs.manualRepositories &&
           lhs.synchronizedRepositories == rhs.synchronizedRepositories;
@@ -145,7 +146,7 @@ LocalWorkspaces::LocalWorkspaces(QObject *parent)
     updateWatchedDirectories();
     QStringList ids;
     for (const LocalWorkspace &workspace : std::as_const(mWorkspaces)) {
-      if (!workspace.syncDirectory.isEmpty())
+      if (workspace.syncEnabled && !workspace.syncDirectory.isEmpty())
         ids.append(workspace.id);
     }
     for (const QString &id : std::as_const(ids))
@@ -154,7 +155,7 @@ LocalWorkspaces::LocalWorkspaces(QObject *parent)
 
   QStringList synchronizedIds;
   for (const LocalWorkspace &workspace : std::as_const(mWorkspaces)) {
-    if (!workspace.syncDirectory.isEmpty())
+    if (workspace.syncEnabled && !workspace.syncDirectory.isEmpty())
       synchronizedIds.append(workspace.id);
   }
   for (const QString &id : std::as_const(synchronizedIds))
@@ -190,8 +191,11 @@ bool LocalWorkspaces::add(const LocalWorkspace &workspace, QString *error) {
     setError(error, tr("Workspace name must not be empty."));
     return false;
   }
-  if (!workspace.syncDirectory.isEmpty() &&
-      !QDir(workspace.syncDirectory).exists()) {
+  if (workspace.syncEnabled && workspace.syncDirectory.isEmpty()) {
+    setError(error, tr("Select a directory to enable synchronization."));
+    return false;
+  }
+  if (workspace.syncEnabled && !QDir(workspace.syncDirectory).exists()) {
     setError(error, tr("Synchronized directory does not exist: %1")
                         .arg(workspace.syncDirectory));
     return false;
@@ -218,7 +222,7 @@ bool LocalWorkspaces::add(const LocalWorkspace &workspace, QString *error) {
     if (!containsPath(added.manualRepositories, root))
       added.manualRepositories.append(root);
   }
-  if (!added.syncDirectory.isEmpty() &&
+  if (added.syncEnabled &&
       !scanSynchronizedDirectory(added.syncDirectory,
                                  &added.synchronizedRepositories, error))
     return false;
@@ -240,8 +244,11 @@ bool LocalWorkspaces::update(const LocalWorkspace &workspace, QString *error) {
     setError(error, tr("Workspace name must not be empty."));
     return false;
   }
-  if (!workspace.syncDirectory.isEmpty() &&
-      !QDir(workspace.syncDirectory).exists()) {
+  if (workspace.syncEnabled && workspace.syncDirectory.isEmpty()) {
+    setError(error, tr("Select a directory to enable synchronization."));
+    return false;
+  }
+  if (workspace.syncEnabled && !QDir(workspace.syncDirectory).exists()) {
     setError(error, tr("Synchronized directory does not exist: %1")
                         .arg(workspace.syncDirectory));
     return false;
@@ -258,11 +265,12 @@ bool LocalWorkspaces::update(const LocalWorkspace &workspace, QString *error) {
   updated.name = updated.name.trimmed();
   updated.syncDirectory = cleanOptionalPath(updated.syncDirectory);
   updated.manualRepositories = manualRepositories(workspace);
-  updated.synchronizedRepositories.clear();
-  if (!updated.syncDirectory.isEmpty() &&
-      !scanSynchronizedDirectory(updated.syncDirectory,
-                                 &updated.synchronizedRepositories, error))
-    return false;
+  if (updated.syncEnabled) {
+    updated.synchronizedRepositories.clear();
+    if (!scanSynchronizedDirectory(updated.syncDirectory,
+                                   &updated.synchronizedRepositories, error))
+      return false;
+  }
   updateRepositories(&updated);
   if (equal(*current, updated))
     return true;
@@ -288,25 +296,52 @@ bool LocalWorkspaces::remove(const QString &id, QString *error) {
 
 bool LocalWorkspaces::addRepository(const QString &id, const QString &path,
                                     QString *error) {
+  QStringList invalidPaths;
+  if (!addRepositories(id, {path}, &invalidPaths, nullptr, error))
+    return false;
+  if (!invalidPaths.isEmpty()) {
+    setError(error, tr("Not a valid Git repository: %1").arg(path));
+    return false;
+  }
+  return true;
+}
+
+bool LocalWorkspaces::addRepositories(const QString &id,
+                                      const QStringList &paths,
+                                      QStringList *invalidPaths,
+                                      QStringList *duplicatePaths,
+                                      QString *error) {
   setError(error, {});
+  if (invalidPaths)
+    invalidPaths->clear();
+  if (duplicatePaths)
+    duplicatePaths->clear();
   LocalWorkspace *workspace = find(id);
   if (!workspace) {
     setError(error, tr("Workspace not found."));
     return false;
   }
 
-  QString root;
-  if (!repositoryRoot(path, &root)) {
-    setError(error, tr("Not a valid Git repository: %1").arg(path));
-    return false;
+  bool changedWorkspace = false;
+  for (const QString &path : paths) {
+    QString root;
+    if (!repositoryRoot(path, &root)) {
+      if (invalidPaths)
+        invalidPaths->append(path);
+      continue;
+    }
+    if (containsPath(workspace->manualRepositories, root)) {
+      if (duplicatePaths)
+        duplicatePaths->append(root);
+      continue;
+    }
+    workspace->manualRepositories.append(root);
+    if (!containsPath(workspace->repositories, root))
+      workspace->repositories.append(root);
+    changedWorkspace = true;
   }
-  if (containsPath(workspace->manualRepositories, root))
-    return true;
-
-  workspace->manualRepositories.append(root);
-  if (!containsPath(workspace->repositories, root))
-    workspace->repositories.append(root);
-  changed();
+  if (changedWorkspace)
+    changed();
   return true;
 }
 
@@ -356,7 +391,7 @@ bool LocalWorkspaces::rescanSynchronizedDirectory(const QString &id,
     setError(error, tr("Workspace not found."));
     return false;
   }
-  if (workspace->syncDirectory.isEmpty()) {
+  if (!workspace->syncEnabled || workspace->syncDirectory.isEmpty()) {
     setError(error, tr("Workspace has no synchronized directory."));
     return false;
   }
@@ -412,6 +447,9 @@ void LocalWorkspaces::load() {
     workspace.iconName = map.value("iconName").toString();
     workspace.color = QColor(map.value("color").toString());
     workspace.syncDirectory = map.value("syncDirectory").toString();
+    workspace.syncEnabled = map.contains("syncEnabled")
+                                ? map.value("syncEnabled").toBool()
+                                : !workspace.syncDirectory.isEmpty();
     workspace.repositories =
         normalizedRepositories(map.value("repositories").toStringList());
     workspace.synchronizedRepositories = normalizedRepositories(
@@ -442,6 +480,7 @@ void LocalWorkspaces::store() const {
                             ? workspace.color.name(QColor::HexArgb)
                             : QString());
     map.insert("syncDirectory", workspace.syncDirectory);
+    map.insert("syncEnabled", workspace.syncEnabled);
     map.insert("repositories", workspace.repositories);
     map.insert("manualRepositories", workspace.manualRepositories);
     map.insert("synchronizedRepositories",
@@ -464,7 +503,7 @@ void LocalWorkspaces::updateWatchedDirectories() {
 
   QStringList directories;
   for (const LocalWorkspace &workspace : std::as_const(mWorkspaces)) {
-    if (workspace.syncDirectory.isEmpty())
+    if (!workspace.syncEnabled || workspace.syncDirectory.isEmpty())
       continue;
 
     const QFileInfo syncInfo(workspace.syncDirectory);

@@ -122,9 +122,10 @@ QVariant LocalWorkspaceModel::data(const QModelIndex &index, int role) const {
     case Qt::DisplayRole: {
       const QString name =
           tr("%1 (%2)").arg(workspace->name).arg(workspace->repositories.size());
-      return workspace->syncDirectory.isEmpty()
-                 ? name
-                 : tr("%1  Local - synced").arg(name);
+      if (workspace->syncDirectory.isEmpty())
+        return name;
+      return workspace->syncEnabled ? tr("%1  Local - synced").arg(name)
+                                    : tr("%1  Local - sync paused").arg(name);
     }
     case Qt::ToolTipRole:
       return workspace->description;

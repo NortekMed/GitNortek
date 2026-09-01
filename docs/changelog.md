@@ -5,6 +5,8 @@ Bug Fix and Feature release
 #### Added
 
 * Add local repository workspaces with persistent organization, directory synchronization, asynchronous origin checks with pending, failure, and live status, branch and upstream status, uncommitted file summaries, README previews, search, and full repository management
+* Preserve paused workspace synchronization settings and support selecting multiple repository folders with Ctrl/Command or Shift
+* Refine workspace interactions with responsive title-click expansion, double-click editing, preserved expansion after repository removal, confirmation before opening all repositories, and terminal or file-manager actions for the selected repository
 * Add a repository navigator action bar for expanding or collapsing all available sections
 * Add repository navigator worktree creation and navigation for local and remote branches
 * Add more information about the credential stores to give the user the possibility to easily see the tradeoffs of every credential store
