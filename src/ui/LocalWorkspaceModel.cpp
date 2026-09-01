@@ -11,6 +11,7 @@
 #include "git/Diff.h"
 #include "git/Index.h"
 #include "git/Reference.h"
+#include "git/Remote.h"
 #include "git/Repository.h"
 #include "git/Result.h"
 
@@ -185,6 +186,14 @@ QVariant LocalWorkspaceModel::data(const QModelIndex &index, int role) const {
     return state.statusError;
   case OriginFetchActiveRole:
     return mActiveOriginFetches.contains(path);
+  case OriginCheckEligibleRole:
+    return state.originCheckEligible;
+  case OriginCheckFreshRole:
+    return mFreshOriginChecks.contains(path);
+  case OriginCheckFailedRole:
+    return mFailedOriginChecks.contains(path);
+  case OriginInitialPendingRole:
+    return mInitialPendingOrigins.contains(path);
   case Qt::ForegroundRole:
     if (!state.available)
       return QColor(Qt::gray);
@@ -219,10 +228,18 @@ QVariant LocalWorkspaceModel::data(const QModelIndex &index, int role) const {
     if (role == Qt::ToolTipRole) {
       if (mActiveOriginFetches.contains(path))
         return tr("Synchronization is running.");
+      if (mInitialPendingOrigins.contains(path))
+        return tr("Waiting for origin check.");
+      if (mFailedOriginChecks.contains(path))
+        return tr("The last origin check failed.");
       if (!state.available)
         return tr("Repository unavailable.");
       if (!state.trackingReady)
         return tr("No upstream branch is configured.");
+      if (!state.originCheckEligible)
+        return tr("The configured upstream cannot be checked through origin.");
+      if (!mFreshOriginChecks.contains(path))
+        return tr("Waiting for origin check.");
       if (!state.ahead && !state.behind)
         return tr("The local branch matches %1.").arg(state.upstream);
       if (state.ahead && state.behind) {
@@ -334,6 +351,10 @@ QHash<int, QByteArray> LocalWorkspaceModel::roleNames() const {
   roles.insert(StatusReadyRole, "statusReady");
   roles.insert(StatusErrorRole, "statusError");
   roles.insert(OriginFetchActiveRole, "originFetchActive");
+  roles.insert(OriginCheckEligibleRole, "originCheckEligible");
+  roles.insert(OriginCheckFreshRole, "originCheckFresh");
+  roles.insert(OriginCheckFailedRole, "originCheckFailed");
+  roles.insert(OriginInitialPendingRole, "originInitialPending");
   return roles;
 }
 
@@ -346,6 +367,10 @@ QStringList LocalWorkspaceModel::repositoryPaths() const {
     }
   }
   return paths;
+}
+
+bool LocalWorkspaceModel::isOriginCheckFresh(const QString &path) const {
+  return mFreshOriginChecks.contains(path);
 }
 
 void LocalWorkspaceModel::setOriginFetchActive(const QString &path,
@@ -368,6 +393,45 @@ void LocalWorkspaceModel::setOriginFetchActive(const QString &path,
           index(repositoryRow, RemoteColumn, workspaceIndex);
       emit dataChanged(remote, remote,
                        {OriginFetchActiveRole, Qt::ToolTipRole});
+    }
+  }
+}
+
+void LocalWorkspaceModel::setOriginCheckFresh(const QString &path, bool fresh) {
+  setPathState(mFreshOriginChecks, path, fresh, OriginCheckFreshRole);
+}
+
+void LocalWorkspaceModel::setOriginCheckFailed(const QString &path,
+                                               bool failed) {
+  setPathState(mFailedOriginChecks, path, failed, OriginCheckFailedRole);
+}
+
+void LocalWorkspaceModel::setOriginInitialPending(const QString &path,
+                                                  bool pending) {
+  setPathState(mInitialPendingOrigins, path, pending,
+               OriginInitialPendingRole);
+}
+
+void LocalWorkspaceModel::setPathState(QSet<QString> &paths,
+                                       const QString &path, bool enabled,
+                                       int role) {
+  if (enabled == paths.contains(path))
+    return;
+  if (enabled)
+    paths.insert(path);
+  else
+    paths.remove(path);
+
+  for (int workspaceRow = 0; workspaceRow < mSnapshot.size(); ++workspaceRow) {
+    const QModelIndex workspaceIndex = index(workspaceRow, 0);
+    const QStringList &repositories = mSnapshot.at(workspaceRow).repositories;
+    for (int repositoryRow = 0; repositoryRow < repositories.size();
+         ++repositoryRow) {
+      if (repositories.at(repositoryRow) != path)
+        continue;
+      const QModelIndex remote =
+          index(repositoryRow, RemoteColumn, workspaceIndex);
+      emit dataChanged(remote, remote, {role, Qt::ToolTipRole});
     }
   }
 }
@@ -410,6 +474,9 @@ void LocalWorkspaceModel::refreshRepositories() {
           state.ahead = head.difference(upstream);
           state.behind = upstream.difference(head);
           state.trackingReady = true;
+          state.originCheckEligible =
+              state.upstream.section('/', 0, 0) == QStringLiteral("origin") &&
+              repository.lookupRemote(QStringLiteral("origin")).isValid();
         }
       }
 
@@ -452,6 +519,7 @@ bool LocalWorkspaceModel::statesEqual(const RepositoryState &lhs,
          lhs.upstream == rhs.upstream && lhs.ahead == rhs.ahead &&
          lhs.behind == rhs.behind &&
          lhs.trackingReady == rhs.trackingReady &&
+         lhs.originCheckEligible == rhs.originCheckEligible &&
          lhs.modified == rhs.modified && lhs.added == rhs.added &&
          lhs.removed == rhs.removed && lhs.untracked == rhs.untracked &&
          lhs.conflicted == rhs.conflicted &&
@@ -503,10 +571,17 @@ LocalWorkspaceModel::repositoryState(const QString &path) const {
 void LocalWorkspaceModel::reload() {
   mSnapshot.clear();
   mRepositoryStates.clear();
+  QSet<QString> currentPaths;
   for (int i = 0; i < mWorkspaces->count(); ++i) {
     const LocalWorkspace workspace = *mWorkspaces->workspace(i);
     mSnapshot.append(workspace);
-    for (const QString &path : workspace.repositories)
+    for (const QString &path : workspace.repositories) {
+      currentPaths.insert(path);
       mRepositoryStates.insert(path, repositoryState(path));
+    }
   }
+  mActiveOriginFetches.intersect(currentPaths);
+  mFreshOriginChecks.intersect(currentPaths);
+  mFailedOriginChecks.intersect(currentPaths);
+  mInitialPendingOrigins.intersect(currentPaths);
 }

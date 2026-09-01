@@ -50,7 +50,11 @@ public:
     ConflictedRole,
     StatusReadyRole,
     StatusErrorRole,
-    OriginFetchActiveRole
+    OriginFetchActiveRole,
+    OriginCheckEligibleRole,
+    OriginCheckFreshRole,
+    OriginCheckFailedRole,
+    OriginInitialPendingRole
   };
 
   explicit LocalWorkspaceModel(QObject *parent = nullptr);
@@ -68,7 +72,11 @@ public:
   Qt::ItemFlags flags(const QModelIndex &index) const override;
   QHash<int, QByteArray> roleNames() const override;
   QStringList repositoryPaths() const;
+  bool isOriginCheckFresh(const QString &path) const;
   void setOriginFetchActive(const QString &path, bool active);
+  void setOriginCheckFresh(const QString &path, bool fresh);
+  void setOriginCheckFailed(const QString &path, bool failed);
+  void setOriginInitialPending(const QString &path, bool pending);
   void refreshRepositories();
 
 private:
@@ -79,6 +87,7 @@ private:
     int ahead = 0;
     int behind = 0;
     bool trackingReady = false;
+    bool originCheckEligible = false;
     int modified = 0;
     int added = 0;
     int removed = 0;
@@ -92,12 +101,17 @@ private:
                    const RepositoryState &rhs) const;
   void applyRepositoryStates(const QHash<QString, RepositoryState> &states);
   RepositoryState repositoryState(const QString &path) const;
+  void setPathState(QSet<QString> &paths, const QString &path, bool enabled,
+                    int role);
   void reload();
 
   LocalWorkspaces *mWorkspaces;
   QList<LocalWorkspace> mSnapshot;
   QHash<QString, RepositoryState> mRepositoryStates;
   QSet<QString> mActiveOriginFetches;
+  QSet<QString> mFreshOriginChecks;
+  QSet<QString> mFailedOriginChecks;
+  QSet<QString> mInitialPendingOrigins;
   QFutureWatcher<QHash<QString, RepositoryState>> *mRefreshWatcher;
   bool mRefreshPending = false;
 };

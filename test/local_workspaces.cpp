@@ -64,6 +64,12 @@ QString originCacheKey(const QString &path) {
       .arg(QString::fromLatin1(hash));
 }
 
+QString originFailureKey(const QString &path) {
+  QString key = originCacheKey(path);
+  return key.replace(QStringLiteral("originSuccess"),
+                     QStringLiteral("originFailure"));
+}
+
 } // namespace
 
 class TestLocalWorkspaces : public QObject {
@@ -389,6 +395,11 @@ void TestLocalWorkspaces::managementInteraction() {
            int(Qt::AlignLeft | Qt::AlignVCenter));
   QCOMPARE(changesIndex.data(Qt::TextAlignmentRole).toInt(),
            int(Qt::AlignLeft | Qt::AlignVCenter));
+  QTRY_VERIFY(
+      remoteIndex.data(LocalWorkspaceModel::OriginCheckEligibleRole).toBool());
+  QVERIFY(!remoteIndex.data(LocalWorkspaceModel::OriginCheckFreshRole).toBool());
+  QCOMPARE(remoteIndex.data(Qt::ToolTipRole).toString(),
+           QString("Waiting for origin check."));
 
   QSignalSpy started(&management,
                      &LocalRepositoryManagement::originCheckStarted);
@@ -417,6 +428,8 @@ void TestLocalWorkspaces::managementInteraction() {
                      .data(LocalWorkspaceModel::OriginFetchActiveRole)
                      .toBool();
           });
+  QVERIFY(runGit(root, {"remote", "set-url", "origin",
+                        QDir(root).filePath("missing-origin")}));
   bool eventLoopAdvanced = false;
   QTimer::singleShot(0, &management,
                      [&] { eventLoopAdvanced = true; });
@@ -430,32 +443,99 @@ void TestLocalWorkspaces::managementInteraction() {
   QVERIFY(activeStateObserved);
   QVERIFY(inactiveStateObserved);
   QVERIFY(!animation->isActive());
-  QCOMPARE(finished.first().at(0).toInt(), 1);
-  QCOMPARE(finished.first().at(1).toInt(), 0);
+  QVERIFY(!remoteIndex.data(LocalWorkspaceModel::OriginCheckFreshRole).toBool());
+  QVERIFY(remoteIndex.data(LocalWorkspaceModel::OriginCheckFailedRole).toBool());
+  QCOMPARE(remoteIndex.data(Qt::ToolTipRole).toString(),
+           QString("The last origin check failed."));
+  QCOMPARE(finished.first().at(0).toInt(), 0);
+  QCOMPARE(finished.first().at(1).toInt(), 1);
   QVERIFY(!check->isEnabled());
   QVERIFY(check->text().startsWith("Check origin ("));
   QTest::mouseClick(check, Qt::LeftButton);
   QCOMPARE(started.count(), 1);
+  QVERIFY(QSettings().contains(originFailureKey(root)));
 
+  LocalRepositoryManagement failedStateManagement;
+  QTreeView *failedTree = failedStateManagement.findChild<QTreeView *>(
+      "LocalRepositoryManagementTree");
+  QVERIFY(failedTree);
+  const QModelIndex failedWorkspace = failedTree->model()->index(0, 0);
+  const QModelIndex failedRemote = failedTree->model()->index(
+      0, LocalWorkspaceModel::RemoteColumn, failedWorkspace);
+  QVERIFY(failedRemote.data(LocalWorkspaceModel::OriginCheckFailedRole).toBool());
+
+  QVERIFY(runGit(root, {"remote", "set-url", "origin", root}));
   QSettings settings;
   settings.setValue("localRepositoryManagement/originLastAttempt",
                     QDateTime::currentDateTimeUtc().addSecs(-121));
+  LocalRepositoryManagement successManagement;
+  QPushButton *successCheck = successManagement.findChild<QPushButton *>(
+      "LocalRepositoryManagementCheckOrigin");
+  QTreeView *successTree = successManagement.findChild<QTreeView *>(
+      "LocalRepositoryManagementTree");
+  QVERIFY(successCheck);
+  QVERIFY(successTree);
+  const QModelIndex successWorkspace = successTree->model()->index(0, 0);
+  const QModelIndex successRemote = successTree->model()->index(
+      0, LocalWorkspaceModel::RemoteColumn, successWorkspace);
+  QSignalSpy successFinished(
+      &successManagement, &LocalRepositoryManagement::originCheckFinished);
+  QTest::mouseClick(successCheck, Qt::LeftButton);
+  QTRY_COMPARE(successFinished.count(), 1);
+  QCOMPARE(successFinished.first().at(0).toInt(), 1);
+  QCOMPARE(successFinished.first().at(1).toInt(), 0);
+  QVERIFY(
+      successRemote.data(LocalWorkspaceModel::OriginCheckFreshRole).toBool());
+  QVERIFY(!successRemote.data(LocalWorkspaceModel::OriginCheckFailedRole)
+               .toBool());
+  QVERIFY(!settings.contains(originFailureKey(root)));
+
+  settings.setValue("localRepositoryManagement/originLastAttempt",
+                    QDateTime::currentDateTimeUtc().addSecs(-121));
   LocalRepositoryManagement freshManagement;
+  QTreeView *freshTree = freshManagement.findChild<QTreeView *>(
+      "LocalRepositoryManagementTree");
+  QVERIFY(freshTree);
+  const QModelIndex freshWorkspace = freshTree->model()->index(0, 0);
+  const QModelIndex freshRemote = freshTree->model()->index(
+      0, LocalWorkspaceModel::RemoteColumn, freshWorkspace);
   QSignalSpy freshStarted(
       &freshManagement, &LocalRepositoryManagement::originCheckStarted);
   freshManagement.checkOriginsIfStale();
+  QVERIFY(freshRemote.data(LocalWorkspaceModel::OriginInitialPendingRole)
+              .toBool());
+  QCOMPARE(freshRemote.data(Qt::ToolTipRole).toString(),
+           QString("Waiting for origin check."));
+  freshManagement.show();
+  QTRY_VERIFY(!freshRemote.data(LocalWorkspaceModel::OriginInitialPendingRole)
+                   .toBool());
+  QVERIFY(freshRemote.data(LocalWorkspaceModel::OriginCheckFreshRole).toBool());
   QTest::qWait(50);
   QCOMPARE(freshStarted.count(), 0);
 
   settings.setValue(originCacheKey(root),
                     QDateTime::currentDateTimeUtc().addSecs(-301));
   LocalRepositoryManagement staleManagement;
+  QTreeView *staleTree = staleManagement.findChild<QTreeView *>(
+      "LocalRepositoryManagementTree");
+  QVERIFY(staleTree);
+  const QModelIndex staleWorkspace = staleTree->model()->index(0, 0);
+  const QModelIndex staleRemote = staleTree->model()->index(
+      0, LocalWorkspaceModel::RemoteColumn, staleWorkspace);
+  QVERIFY(!staleRemote.data(LocalWorkspaceModel::OriginCheckFreshRole).toBool());
+  QTRY_VERIFY(
+      staleRemote.data(LocalWorkspaceModel::OriginCheckEligibleRole).toBool());
+  QCOMPARE(staleRemote.data(Qt::ToolTipRole).toString(),
+           QString("Waiting for origin check."));
+  staleManagement.show();
   QSignalSpy staleStarted(
       &staleManagement, &LocalRepositoryManagement::originCheckStarted);
   QSignalSpy staleFinished(
       &staleManagement, &LocalRepositoryManagement::originCheckFinished);
   staleManagement.checkOriginsIfStale();
-  QCOMPARE(staleStarted.count(), 1);
+  QVERIFY(staleRemote.data(LocalWorkspaceModel::OriginInitialPendingRole)
+              .toBool());
+  QTRY_COMPARE(staleStarted.count(), 1);
   QTRY_COMPARE(staleFinished.count(), 1);
 }
 
@@ -490,6 +570,9 @@ void TestLocalWorkspaces::repositoryStatus() {
   QTRY_VERIFY(changesIndex.data(LocalWorkspaceModel::StatusReadyRole).toBool());
   QCOMPARE(remoteIndex.data(LocalWorkspaceModel::TrackingReadyRole).toBool(),
            false);
+  QCOMPARE(
+      remoteIndex.data(LocalWorkspaceModel::OriginCheckEligibleRole).toBool(),
+      false);
 
   QVERIFY(runGit(root, {"remote", "add", "origin", root}));
   QVERIFY(runGit(root,
@@ -498,6 +581,8 @@ void TestLocalWorkspaces::repositoryStatus() {
   QVERIFY(runGit(root, {"branch", "--set-upstream-to", upstream, branch}));
   model.refreshRepositories();
   QTRY_VERIFY(remoteIndex.data(LocalWorkspaceModel::TrackingReadyRole).toBool());
+  QVERIFY(
+      remoteIndex.data(LocalWorkspaceModel::OriginCheckEligibleRole).toBool());
   QCOMPARE(remoteIndex.data(LocalWorkspaceModel::AheadRole).toInt(), 0);
   QCOMPARE(remoteIndex.data(LocalWorkspaceModel::BehindRole).toInt(), 0);
   QCOMPARE(remoteIndex.data(LocalWorkspaceModel::UpstreamRole).toString(),

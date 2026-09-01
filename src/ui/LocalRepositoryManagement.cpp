@@ -74,6 +74,12 @@ QString originCacheKey(const QString &path) {
       .arg(QString::fromLatin1(hash));
 }
 
+QString originFailureKey(const QString &path) {
+  QString key = originCacheKey(path);
+  return key.replace(QStringLiteral("originSuccess"),
+                     QStringLiteral("originFailure"));
+}
+
 class WorkspaceFilterProxy : public QSortFilterProxyModel {
 public:
   using QSortFilterProxyModel::QSortFilterProxyModel;
@@ -220,6 +226,14 @@ public:
     const int behind = behindValue.toInt();
     const bool fetching =
         index.data(LocalWorkspaceModel::OriginFetchActiveRole).toBool();
+    const bool eligible =
+        index.data(LocalWorkspaceModel::OriginCheckEligibleRole).toBool();
+    const bool fresh =
+        index.data(LocalWorkspaceModel::OriginCheckFreshRole).toBool();
+    const bool failed =
+        index.data(LocalWorkspaceModel::OriginCheckFailedRole).toBool();
+    const bool initialPending =
+        index.data(LocalWorkspaceModel::OriginInitialPendingRole).toBool();
 
     painter->save();
     QFont font = option.font;
@@ -241,8 +255,14 @@ public:
           (QDateTime::currentMSecsSinceEpoch() / 250) % 2;
       draw(alternate ? QString::fromUtf8("⌛") : QString::fromUtf8("⏳"),
            amber);
-    } else if (!ready) {
+    } else if (initialPending) {
+      draw(QString::fromUtf8("◷"), gray);
+    } else if (failed) {
+      draw(QString::fromUtf8("◷"), QColor(QStringLiteral("#e25555")));
+    } else if (!ready || !eligible) {
       draw(QStringLiteral("?"), gray);
+    } else if (!fresh) {
+      draw(QString::fromUtf8("◷"), gray);
     } else if (!ahead && !behind) {
       draw(QString::fromUtf8("✓"), green);
     } else {
@@ -648,11 +668,14 @@ LocalRepositoryManagement::LocalRepositoryManagement(QWidget *parent)
   connect(mProxy, &QAbstractItemModel::modelReset, this, [this] {
     updateWorkspaceSpans();
     updateExpansionButton();
+    updateOriginCheckStates();
   });
   QTimer *branchRefresh = new QTimer(this);
   branchRefresh->setInterval(2000);
   connect(branchRefresh, &QTimer::timeout, mModel,
           &LocalWorkspaceModel::refreshRepositories);
+  connect(branchRefresh, &QTimer::timeout, this,
+          &LocalRepositoryManagement::updateOriginCheckStates);
   branchRefresh->start();
   mOriginCooldownTimer->setInterval(1000);
   connect(mOriginCooldownTimer, &QTimer::timeout, this,
@@ -669,15 +692,26 @@ LocalRepositoryManagement::LocalRepositoryManagement(QWidget *parent)
   updateOriginCheckButton();
   updateWorkspaceSpans();
   updateExpansionButton();
+  updateOriginCheckStates();
 }
 
 LocalRepositoryManagement::~LocalRepositoryManagement() = default;
 
 void LocalRepositoryManagement::checkOriginsIfStale() {
+  if (mFirstOriginOpen) {
+    mFirstOriginOpen = false;
+    mResolveOriginAfterPaint = true;
+    for (const QString &path : mModel->repositoryPaths())
+      mModel->setOriginInitialPending(path, true);
+    mTree->viewport()->update();
+    return;
+  }
+  updateOriginCheckStates();
   checkOrigins(false);
 }
 
 void LocalRepositoryManagement::checkOrigins(bool force) {
+  updateOriginCheckStates();
   const QDateTime now = QDateTime::currentDateTimeUtc();
   const QDateTime storedAttempt =
       QSettings().value(QLatin1String(kOriginLastAttemptKey)).toDateTime();
@@ -692,13 +726,10 @@ void LocalRepositoryManagement::checkOrigins(bool force) {
     return;
 
   QStringList paths = mModel->repositoryPaths();
-  if (!force) {
-    QSettings settings;
-    paths.removeIf([&](const QString &path) {
-      const QDateTime success = settings.value(originCacheKey(path)).toDateTime();
-      return success.isValid() && success.secsTo(now) < kOriginCacheSeconds;
+  if (!force)
+    paths.removeIf([this](const QString &path) {
+      return mModel->isOriginCheckFresh(path);
     });
-  }
   if (paths.isEmpty()) {
     updateOriginCheckButton();
     return;
@@ -716,6 +747,10 @@ void LocalRepositoryManagement::checkOrigins(bool force) {
   }
 
   const QList<RemoteCallbacks *> callbacks = mOriginCallbacks;
+  QList<bool> untrusted;
+  untrusted.reserve(paths.size());
+  for (const QString &path : paths)
+    untrusted.append(!mModel->isOriginCheckFresh(path));
   connect(watcher, &QFutureWatcher<OriginCheckEvent>::resultReadyAt, this,
           &LocalRepositoryManagement::handleOriginCheckEvent);
   connect(qApp, &QCoreApplication::aboutToQuit, watcher, [callbacks] {
@@ -723,15 +758,20 @@ void LocalRepositoryManagement::checkOrigins(bool force) {
       callback->setCanceled(true);
   });
   connect(watcher, &QFutureWatcher<OriginCheckEvent>::finished, watcher,
-          [watcher, callbacks] {
+          [watcher, callbacks, untrusted] {
             const QList<OriginCheckEvent> events = watcher->future().results();
             QSettings settings;
             const QDateTime now = QDateTime::currentDateTimeUtc();
             for (const OriginCheckEvent &event : events) {
-              if (event.type != FetchFinished || !event.successful)
+              if (event.type != FetchFinished)
                 continue;
-              settings.setValue(originCacheKey(event.path), now);
-              callbacks.at(event.callbackIndex)->storeDeferredCredentials();
+              if (event.successful) {
+                settings.setValue(originCacheKey(event.path), now);
+                settings.remove(originFailureKey(event.path));
+                callbacks.at(event.callbackIndex)->storeDeferredCredentials();
+              } else if (untrusted.at(event.callbackIndex)) {
+                settings.setValue(originFailureKey(event.path), now);
+              }
             }
             watcher->deleteLater();
           });
@@ -776,6 +816,8 @@ void LocalRepositoryManagement::handleOriginCheckEvent(int index) {
   const OriginCheckEvent event = mOriginCheckWatcher->resultAt(index);
   if (event.type == FetchStarted) {
     mActiveOriginFetches.insert(event.path);
+    if (!mModel->isOriginCheckFresh(event.path))
+      mUntrustedOriginFetches.insert(event.path);
     mModel->setOriginFetchActive(event.path, true);
     mOriginAnimationTimer->start();
     emit originFetchStarted(event.path);
@@ -783,6 +825,20 @@ void LocalRepositoryManagement::handleOriginCheckEvent(int index) {
   }
 
   mActiveOriginFetches.remove(event.path);
+  if (event.successful) {
+    QSettings settings;
+    settings.setValue(originCacheKey(event.path),
+                      QDateTime::currentDateTimeUtc());
+    settings.remove(originFailureKey(event.path));
+    mModel->setOriginCheckFailed(event.path, false);
+    mModel->setOriginCheckFresh(event.path, true);
+  } else if (mUntrustedOriginFetches.contains(event.path)) {
+    QSettings().setValue(originFailureKey(event.path),
+                         QDateTime::currentDateTimeUtc());
+    mModel->setOriginCheckFresh(event.path, false);
+    mModel->setOriginCheckFailed(event.path, true);
+  }
+  mUntrustedOriginFetches.remove(event.path);
   mModel->setOriginFetchActive(event.path, false);
   mModel->refreshRepositories();
   if (mActiveOriginFetches.isEmpty())
@@ -806,6 +862,7 @@ void LocalRepositoryManagement::finishOriginCheck() {
   for (const QString &path : std::as_const(mActiveOriginFetches))
     mModel->setOriginFetchActive(path, false);
   mActiveOriginFetches.clear();
+  mUntrustedOriginFetches.clear();
   mOriginAnimationTimer->stop();
   mOriginCallbacks.clear();
   mModel->refreshRepositories();
@@ -854,6 +911,18 @@ bool LocalRepositoryManagement::eventFilter(QObject *watched, QEvent *event) {
     }
   }
   if (watched == mTree->viewport()) {
+    if (event->type() == QEvent::Paint && mResolveOriginAfterPaint &&
+        !mOriginResolutionScheduled) {
+      mOriginResolutionScheduled = true;
+      QTimer::singleShot(0, this, [this] {
+        mResolveOriginAfterPaint = false;
+        mOriginResolutionScheduled = false;
+        updateOriginCheckStates();
+        for (const QString &path : mModel->repositoryPaths())
+          mModel->setOriginInitialPending(path, false);
+        checkOrigins(false);
+      });
+    }
     if (event->type() == QEvent::MouseButtonDblClick) {
       const auto *mouse = static_cast<QMouseEvent *>(event);
       if (mouse->button() != Qt::LeftButton)
@@ -1114,6 +1183,25 @@ void LocalRepositoryManagement::showDetails(const QString &path) {
 void LocalRepositoryManagement::updateWorkspaceSpans() {
   for (int row = 0; row < mProxy->rowCount(); ++row)
     mTree->setFirstColumnSpanned(row, {}, true);
+}
+
+void LocalRepositoryManagement::updateOriginCheckStates() {
+  QSettings settings;
+  const QDateTime now = QDateTime::currentDateTimeUtc();
+  for (const QString &path : mModel->repositoryPaths()) {
+    const QDateTime success =
+        settings.value(originCacheKey(path)).toDateTime();
+    const QDateTime failure =
+        settings.value(originFailureKey(path)).toDateTime();
+    const bool failed = failure.isValid() &&
+                        (!success.isValid() || failure > success);
+    const bool fresh = !failed && success.isValid() &&
+                       success.secsTo(now) < kOriginCacheSeconds;
+    mModel->setOriginCheckFresh(path, fresh);
+    mModel->setOriginCheckFailed(path, failed);
+    if (mResolveOriginAfterPaint)
+      mModel->setOriginInitialPending(path, true);
+  }
 }
 
 void LocalRepositoryManagement::showError(const QString &error) {

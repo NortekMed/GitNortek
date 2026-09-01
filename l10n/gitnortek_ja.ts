@@ -2988,177 +2988,177 @@ Examples
 <context>
     <name>LocalRepositoryManagement</name>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="250"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="270"/>
         <source>%1↑</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="252"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="272"/>
         <source>%1↓</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="395"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="415"/>
         <source>1 modified file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="396"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="416"/>
         <source>%1 modified files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="401"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="421"/>
         <source>1 added file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="402"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="422"/>
         <source>%1 added files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="407"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="427"/>
         <source>1 removed file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="408"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="428"/>
         <source>%1 removed files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="413"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="433"/>
         <source>1 untracked file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="414"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="434"/>
         <source>%1 untracked files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="418"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="438"/>
         <source>1 conflicted file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="419"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="439"/>
         <source>%1 conflicted files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="484"/>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1120"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="504"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1208"/>
         <source>Local Repository Management</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="491"/>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="945"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="511"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1014"/>
         <source>Open Repository</source>
         <translation type="unfinished">リポジトリを開く</translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="494"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="514"/>
         <source>New Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="926"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="995"/>
         <source>Collapse</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="926"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="995"/>
         <source>Expand</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="508"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="528"/>
         <source>Search repository</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="584"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="604"/>
         <source>Close details</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="818"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="875"/>
         <source>Checking...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="835"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="892"/>
         <source>Check origin (%1:%2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="844"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="901"/>
         <source>Check origin</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="947"/>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1037"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1016"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1106"/>
         <source>Remove Repository</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="955"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1024"/>
         <source>Open Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="956"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1025"/>
         <source>Add Repository</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="957"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1026"/>
         <source>Rescan Synchronized Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="961"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1030"/>
         <source>Edit Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="962"/>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1013"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1031"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1082"/>
         <source>Delete Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1014"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1083"/>
         <source>Delete workspace &quot;%1&quot;?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1024"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1093"/>
         <source>Select Git Repository</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1038"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1107"/>
         <source>Remove repository &quot;%1&quot; from this workspace?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1087"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1156"/>
         <source>This repository has no README.md file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1089"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1158"/>
         <source>Unable to read README.md.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1091"/>
-        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1095"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1160"/>
+        <location filename="../src/ui/LocalRepositoryManagement.cpp" line="1164"/>
         <source>README.md is too large to display.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3332,118 +3332,134 @@ Examples
 <context>
     <name>LocalWorkspaceModel</name>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="26"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="27"/>
         <source>1 commit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="27"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="28"/>
         <source>%1 commits</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="123"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="124"/>
         <source>%1 (%2)</source>
         <translation type="unfinished">%1 (%2)</translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="126"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="127"/>
         <source>%1  Local - synced</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="213"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="222"/>
         <source>Checked out branch</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="214"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="223"/>
         <source>Repository unavailable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="221"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="230"/>
         <source>Synchronization is running.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="223"/>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="247"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="236"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="264"/>
         <source>Repository unavailable.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="225"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="238"/>
         <source>No upstream branch is configured.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="227"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="240"/>
+        <source>The configured upstream cannot be checked through origin.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="232"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="242"/>
+        <source>Waiting for origin check.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="234"/>
+        <source>The last origin check failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="244"/>
         <source>The local branch matches %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="229"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="246"/>
         <source>The local branch and %1 have diverged: %2 ahead and %3 behind.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="235"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="252"/>
         <source>The local branch is %1 ahead of %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="238"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="255"/>
         <source>The local branch is %1 behind %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="249"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="266"/>
         <source>Unable to read working-tree status.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="250"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="267"/>
         <source>Reading working-tree status.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="253"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="270"/>
         <source>No uncommitted changes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="258"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="275"/>
         <source>show details</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="265"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="282"/>
         <source>Synchronized repositories cannot be removed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="266"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="283"/>
         <source>Remove repository from workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="305"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="322"/>
         <source>Repository</source>
         <translation type="unfinished">リポジトリ</translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="307"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="324"/>
         <source>Branch</source>
         <translation type="unfinished">ブランチ</translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="309"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="326"/>
         <source>Remote</source>
         <translation type="unfinished">リモート</translation>
     </message>
     <message>
-        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="311"/>
+        <location filename="../src/ui/LocalWorkspaceModel.cpp" line="328"/>
         <source>Changes</source>
         <translation type="unfinished"></translation>
     </message>

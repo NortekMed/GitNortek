@@ -73,6 +73,7 @@ private:
   void deleteCurrentItem();
   void showDetails(const QString &path);
   void updateWorkspaceSpans();
+  void updateOriginCheckStates();
   void toggleWorkspaceExpansion();
   void updateExpansionButton();
   void checkOrigins(bool force);
@@ -97,7 +98,11 @@ private:
   QTimer *mOriginAnimationTimer;
   QList<RemoteCallbacks *> mOriginCallbacks;
   QSet<QString> mActiveOriginFetches;
+  QSet<QString> mUntrustedOriginFetches;
   QDateTime mOriginCooldownDeadline;
+  bool mFirstOriginOpen = true;
+  bool mResolveOriginAfterPaint = false;
+  bool mOriginResolutionScheduled = false;
   bool mDetailsInitialized = false;
 };
 

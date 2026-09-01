@@ -270,7 +270,7 @@ void TestMainWindow::localRepositoryManagement() {
       management, &LocalRepositoryManagement::originCheckStarted);
 
   button->click();
-  QCOMPARE(originCheckStarted.count(), 1);
+  QTRY_COMPARE(originCheckStarted.count(), 1);
   QVERIFY(button->isChecked());
   QVERIFY(mWindow->isLocalRepositoryManagementVisible());
   QVERIFY(mWindow->currentView());
