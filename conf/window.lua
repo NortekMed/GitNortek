@@ -10,7 +10,8 @@ return {
   },
   tabs = {
     submodule = true,
-    repository = true
+    repository = true,
+    restore = true
   },
   prompt = {
     merge = true,

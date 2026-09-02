@@ -74,7 +74,8 @@ private slots:
   void closeTab();
   void recentRepositoryLimit();
   void invalidRecentRepository();
-  void restoreActiveRepositoryOnly();
+  void restoreActiveWindowTabs();
+  void restoreSelectedRepositoryOnly();
   void cleanupTestCase();
 
 private:
@@ -865,7 +866,7 @@ void TestMainWindow::invalidRecentRepository() {
   QVERIFY(!contains());
 }
 
-void TestMainWindow::restoreActiveRepositoryOnly() {
+void TestMainWindow::restoreActiveWindowTabs() {
   mWindow->close();
   delete mWindow;
   mWindow = nullptr;
@@ -881,13 +882,52 @@ void TestMainWindow::restoreActiveRepositoryOnly() {
   settings.endGroup();
   settings.beginGroup("windows/active");
   settings.setValue("path", QStringList{mRepo->workdir().path(),
-                                         mSecondRepo->workdir().path()});
+                                        mSecondRepo->workdir().path()});
   settings.setValue("tabContext", QStringList{"first", "selected"});
   settings.setValue("submoduleTab", QStringList{"0", "1"});
   settings.setValue("index", 1);
   settings.setValue("active", true);
   settings.endGroup();
 
+  Settings::instance()->setValue(Setting::Id::RestoreRepositoryTabs, true);
+  QVERIFY(MainWindow::restoreWindows());
+  QTRY_COMPARE(MainWindow::windows().size(), 1);
+  const QList<MainWindow *> windows = MainWindow::windows();
+  QCOMPARE(windows.size(), 1);
+  mWindow = windows.first();
+  QTRY_COMPARE(mWindow->count(), 2);
+  QTRY_COMPARE(mWindow->view(0)->repo().workdir().path(),
+               mRepo->workdir().path());
+  QCOMPARE(mWindow->view(0)->tabContext(), QString("first"));
+  QVERIFY(!mWindow->view(0)->isSubmoduleTab());
+  QCOMPARE(mWindow->view(1)->repo().workdir().path(),
+           mSecondRepo->workdir().path());
+  QCOMPARE(mWindow->view(1)->tabContext(), QString("selected"));
+  QVERIFY(mWindow->view(1)->isSubmoduleTab());
+  QCOMPARE(mWindow->tabWidget()->currentIndex(), 1);
+  QCOMPARE(mWindow->tabWidget()->tabIcon(1).pixmap(16, 16).toImage(),
+           QIcon(":/submodules.png").pixmap(16, 16).toImage());
+  QVERIFY(!settings.contains("windows/active/path"));
+  QVERIFY(!settings.contains("windows/inactive/path"));
+}
+
+void TestMainWindow::restoreSelectedRepositoryOnly() {
+  mWindow->close();
+  delete mWindow;
+  mWindow = nullptr;
+  QCOMPARE(MainWindow::windows().size(), 0);
+
+  MainWindow::setSaveWindowSettings(false);
+  QSettings settings;
+  settings.remove("windows");
+  settings.beginGroup("windows/active");
+  settings.setValue("path", QStringList{mRepo->workdir().path(),
+                                        mSecondRepo->workdir().path()});
+  settings.setValue("index", 1);
+  settings.setValue("active", true);
+  settings.endGroup();
+
+  Settings::instance()->setValue(Setting::Id::RestoreRepositoryTabs, false);
   QVERIFY(MainWindow::restoreWindows());
   const QList<MainWindow *> windows = MainWindow::windows();
   QCOMPARE(windows.size(), 1);
@@ -895,12 +935,7 @@ void TestMainWindow::restoreActiveRepositoryOnly() {
   QCOMPARE(mWindow->count(), 1);
   QCOMPARE(mWindow->currentView()->repo().workdir().path(),
            mSecondRepo->workdir().path());
-  QCOMPARE(mWindow->currentView()->tabContext(), QString("selected"));
-  QVERIFY(mWindow->currentView()->isSubmoduleTab());
-  QCOMPARE(mWindow->tabWidget()->tabIcon(0).pixmap(16, 16).toImage(),
-           QIcon(":/submodules.png").pixmap(16, 16).toImage());
-  QVERIFY(!settings.contains("windows/active/path"));
-  QVERIFY(!settings.contains("windows/inactive/path"));
+  Settings::instance()->setValue(Setting::Id::RestoreRepositoryTabs, true);
 }
 
 void TestMainWindow::cleanupTestCase() {

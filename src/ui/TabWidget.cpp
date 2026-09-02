@@ -184,7 +184,8 @@ TabWidget::TabWidget(QWidget *parent) : QWidget(parent) {
             else if (selected == all)
               closeTabs(index, TabCloseScope::All);
           });
-  connect(mTabStrip, &RepositoryTabStrip::tabMoved, this, &TabWidget::moveTab);
+  connect(mTabStrip, &RepositoryTabStrip::tabMoved, this,
+          &TabWidget::moveTabFromStrip);
 }
 
 TabWidget::~TabWidget() { mDestroying = true; }
@@ -322,7 +323,9 @@ void TabWidget::detachTab(QWidget *page) {
   emit tabRemoved();
 }
 
-void TabWidget::moveTab(int from, int to) {
+void TabWidget::moveTab(int from, int to) { mTabStrip->moveTab(from, to); }
+
+void TabWidget::moveTabFromStrip(int from, int to) {
   if (from < 0 || from >= count() || to < 0 || to >= count() || from == to)
     return;
 

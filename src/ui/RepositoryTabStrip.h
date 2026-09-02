@@ -24,6 +24,7 @@ public:
 
   int addTab(const QIcon &icon, const QString &text);
   void removeTab(int index);
+  void moveTab(int from, int to);
 
   int count() const;
   int currentIndex() const;
@@ -63,7 +64,6 @@ private:
   int indexOf(const QObject *object) const;
   int rowHeight() const;
   int naturalTabWidth(int index) const;
-  void moveTab(int from, int to);
   void relayout();
   void showOverflow();
   void updateAccessibleDescriptions();

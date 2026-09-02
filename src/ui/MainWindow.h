@@ -84,6 +84,9 @@ public:
   // Save window settings on close.
   static void setSaveWindowSettings(bool enabled);
 
+signals:
+  void firstPainted();
+
 protected:
   void paintEvent(QPaintEvent *event) override;
   void showEvent(QShowEvent *event) override;

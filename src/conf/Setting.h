@@ -41,6 +41,7 @@ public:
     ShowFullRepoPath,
     OpenSubmodulesInTabs,
     OpenAllReposInTabs,
+    RestoreRepositoryTabs,
     HideMenuBar,
     ShowAvatars,
     ShowMaximized,

@@ -27,6 +27,7 @@ public:
   ~TabWidget() override;
 
   int addTab(QWidget *widget, const QIcon &icon, const QString &text);
+  void moveTab(int from, int to);
   int count() const;
   QWidget *widget(int index) const;
   int indexOf(QWidget *widget) const;
@@ -56,7 +57,7 @@ signals:
   void tabRemoved();
 
 private:
-  void moveTab(int from, int to);
+  void moveTabFromStrip(int from, int to);
   void detachTab(QWidget *widget);
   void removeTab(QObject *object);
 

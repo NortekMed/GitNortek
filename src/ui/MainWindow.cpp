@@ -35,6 +35,7 @@
 #include <QMessageBox>
 #include <QMimeData>
 #include <QPaintEvent>
+#include <QPointer>
 #include <QPushButton>
 #include <QSettings>
 #include <QSignalBlocker>
@@ -43,6 +44,8 @@
 #include <QTimeLine>
 #include <QTimer>
 #include <QToolButton>
+#include <functional>
+#include <memory>
 #include "util/Debug.h"
 #include "util/PerformanceTrace.h"
 
@@ -475,11 +478,11 @@ bool MainWindow::restoreWindows() {
   foreach (const QString &group, settings.childGroups()) {
     settings.beginGroup(group);
     SavedWindow window{settings.value(kIndexKey).toInt(),
-                        settings.value(kActiveKey).toBool(),
-                        settings.value(kPathKey).toStringList(),
-                        settings.value(kTabContextKey).toStringList(),
-                        settings.value(kSubmoduleTabKey).toStringList(),
-                        settings.value(kStateKey).toByteArray(),
+                       settings.value(kActiveKey).toBool(),
+                       settings.value(kPathKey).toStringList(),
+                       settings.value(kTabContextKey).toStringList(),
+                       settings.value(kSubmoduleTabKey).toStringList(),
+                       settings.value(kStateKey).toByteArray(),
                        settings.value(kGeometryKey).toByteArray()};
     settings.endGroup();
 
@@ -498,36 +501,88 @@ bool MainWindow::restoreWindows() {
     }
   }
 
-  for (const SavedWindow &saved : std::as_const(windows)) {
-    QList<int> candidates;
-    if (saved.index >= 0 && saved.index < saved.paths.size())
-      candidates.append(saved.index);
-    for (int i = 0; i < saved.paths.size(); ++i) {
-      if (i != saved.index)
-        candidates.append(i);
+  if (windows.isEmpty())
+    return false;
+
+  const SavedWindow saved = windows.constFirst();
+  QList<int> candidates;
+  if (saved.index >= 0 && saved.index < saved.paths.size())
+    candidates.append(saved.index);
+  for (int i = 0; i < saved.paths.size(); ++i) {
+    if (i != saved.index)
+      candidates.append(i);
+  }
+
+  for (int candidate : std::as_const(candidates)) {
+    const bool submoduleTab =
+        saved.submoduleTabs.value(candidate) == QStringLiteral("1");
+    MainWindow *window = open(saved.paths.at(candidate), true,
+                              OpenSource::Other, std::nullopt, submoduleTab);
+    if (!window)
+      continue;
+
+    const QString context = saved.tabContexts.value(candidate);
+    if (!context.isEmpty()) {
+      window->currentView()->setTabContext(context);
+      window->updateTabNames();
     }
 
-    for (int candidate : std::as_const(candidates)) {
-      const bool submoduleTab =
-          saved.submoduleTabs.value(candidate) == QStringLiteral("1");
-      MainWindow *window =
-          open(saved.paths.at(candidate), true, OpenSource::Other,
-               std::nullopt, submoduleTab);
-      if (!window)
-        continue;
+    window->restoreState(saved.state);
+    window->restoreGeometry(saved.geometry);
+    window->raise();
+    window->activateWindow();
 
-      const QString context = saved.tabContexts.value(candidate);
-      if (!context.isEmpty()) {
-        window->currentView()->setTabContext(context);
-        window->updateTabNames();
+    if (!Settings::instance()
+             ->value(Setting::Id::RestoreRepositoryTabs)
+             .toBool())
+      return true;
+
+    QList<int> pending;
+    for (int i = 0; i < saved.paths.size(); ++i) {
+      if (i != candidate)
+        pending.append(i);
+    }
+
+    QPointer<MainWindow> restoredWindow(window);
+    QPointer<RepoView> selectedView(window->currentView());
+    auto next = std::make_shared<int>(0);
+    auto selectedPosition = std::make_shared<int>(0);
+    auto restoreNext = std::make_shared<std::function<void()>>();
+    std::weak_ptr<std::function<void()>> weakRestoreNext = restoreNext;
+    *restoreNext = [restoredWindow, selectedView, saved, pending, candidate,
+                    next, selectedPosition, weakRestoreNext] {
+      if (!restoredWindow || !selectedView)
+        return;
+
+      if (*next >= pending.size()) {
+        TabWidget *tabs = restoredWindow->tabWidget();
+        const int selectedIndex = tabs->indexOf(selectedView);
+        if (selectedIndex >= 0) {
+          tabs->moveTab(selectedIndex, *selectedPosition);
+          tabs->setCurrentIndex(*selectedPosition);
+        }
+        return;
       }
 
-      window->restoreState(saved.state);
-      window->restoreGeometry(saved.geometry);
-      window->raise();
-      window->activateWindow();
-      return true;
-    }
+      const int index = pending.at((*next)++);
+      const bool submoduleTab =
+          saved.submoduleTabs.value(index) == QStringLiteral("1");
+      RepoView *view = restoredWindow->addTab(
+          saved.paths.at(index), OpenSource::Other,
+          saved.tabContexts.value(index), std::nullopt, submoduleTab);
+      if (view && view != selectedView && index < candidate)
+        ++*selectedPosition;
+
+      restoredWindow->tabWidget()->setCurrentWidget(selectedView);
+      QTimer::singleShot(0, restoredWindow, [weakRestoreNext] {
+        if (auto restoreNext = weakRestoreNext.lock())
+          (*restoreNext)();
+      });
+    };
+    connect(window, &MainWindow::firstPainted, window, [window, restoreNext] {
+      QTimer::singleShot(0, window, [restoreNext] { (*restoreNext)(); });
+    });
+    return true;
   }
 
   return false;
@@ -603,6 +658,7 @@ void MainWindow::paintEvent(QPaintEvent *event) {
   if (!mFirstPaintTraced) {
     mFirstPaintTraced = true;
     PerformanceTrace::event("startup", "MainWindow first paint");
+    emit firstPainted();
   }
 }
 
@@ -621,7 +677,21 @@ void MainWindow::showEvent(QShowEvent *event) {
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
-  // FIXME: Attempt to close windows before writing settings?
+  const QString savedWindowGroup = windowGroup();
+  const QStringList savedPaths = paths();
+  const QStringList savedTabContexts = tabContexts();
+  const QStringList savedSubmoduleTabs = submoduleTabs();
+  const int savedIndex = tabWidget()->currentIndex();
+  const bool savedActive = this == activeWindow();
+  const QByteArray savedState = saveState();
+  const QByteArray savedGeometry = saveGeometry();
+
+  for (int i = 0; i < count(); ++i) {
+    if (!view(i)->close()) {
+      event->ignore();
+      return;
+    }
+  }
 
   if (sSaveWindowSettings) {
     // Store window state.
@@ -629,23 +699,16 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     // Instead order the active window first and leave others undefined.
     QSettings settings;
     settings.beginGroup(kWindowsGroup);
-    settings.beginGroup(windowGroup());
-    settings.setValue(kPathKey, paths());
-    settings.setValue(kTabContextKey, tabContexts());
-    settings.setValue(kSubmoduleTabKey, submoduleTabs());
-    settings.setValue(kIndexKey, tabWidget()->currentIndex());
-    settings.setValue(kActiveKey, this == activeWindow());
-    settings.setValue(kStateKey, saveState());
-    settings.setValue(kGeometryKey, saveGeometry());
+    settings.beginGroup(savedWindowGroup);
+    settings.setValue(kPathKey, savedPaths);
+    settings.setValue(kTabContextKey, savedTabContexts);
+    settings.setValue(kSubmoduleTabKey, savedSubmoduleTabs);
+    settings.setValue(kIndexKey, savedIndex);
+    settings.setValue(kActiveKey, savedActive);
+    settings.setValue(kStateKey, savedState);
+    settings.setValue(kGeometryKey, savedGeometry);
     settings.endGroup();
     settings.endGroup();
-  }
-
-  for (int i = 0; i < count(); ++i) {
-    if (!view(i)->close()) {
-      event->ignore();
-      return;
-    }
   }
 
   mClosing = true;

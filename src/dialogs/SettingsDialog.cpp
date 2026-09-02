@@ -106,6 +106,8 @@ public:
         new QCheckBox(tr("Update submodules after pull and clone"), this);
     mCheckSubmoduleUpdates = new QCheckBox(
         tr("Check submodules for updates when opening repositories"), this);
+    mRestoreRepositoryTabs =
+        new QCheckBox(tr("Reopen tabs from the previous session"), this);
     mAutoPrune = new QCheckBox(tr("Prune when fetching"), this);
     mNoTranslation = new QCheckBox(tr("No translation"), this);
     mLanguages = new QComboBox(this);
@@ -133,6 +135,7 @@ public:
     form->addRow(tr("Automatic actions:"), fetchLayout);
     form->addRow(QString(), mPullUpdate);
     form->addRow(QString(), mCheckSubmoduleUpdates);
+    form->addRow(QString(), mRestoreRepositoryTabs);
     form->addRow(QString(), mAutoPrune);
     form->addRow(tr("Language:"), mNoTranslation);
     form->addRow(tr("Language:"), mLanguages);
@@ -190,6 +193,11 @@ public:
     connect(mCheckSubmoduleUpdates, &QCheckBox::toggled, [](bool checked) {
       Settings::instance()->setValue(
           Setting::Id::CheckSubmodulesForUpdatesAutomatically, checked);
+    });
+
+    connect(mRestoreRepositoryTabs, &QCheckBox::toggled, [](bool checked) {
+      Settings::instance()->setValue(Setting::Id::RestoreRepositoryTabs,
+                                     checked);
     });
 
     connect(mAutoPrune, &QCheckBox::toggled, [](bool checked) {
@@ -251,6 +259,8 @@ public:
     mCheckSubmoduleUpdates->setChecked(
         settings->value(Setting::Id::CheckSubmodulesForUpdatesAutomatically)
             .toBool());
+    mRestoreRepositoryTabs->setChecked(
+        settings->value(Setting::Id::RestoreRepositoryTabs).toBool());
     mAutoPrune->setChecked(
         settings->value(Setting::Id::PruneAfterFetch).toBool());
 
@@ -301,6 +311,7 @@ private:
   QSpinBox *mFetchMinutes;
   QCheckBox *mPullUpdate;
   QCheckBox *mCheckSubmoduleUpdates;
+  QCheckBox *mRestoreRepositoryTabs;
   QCheckBox *mAutoPrune;
   QCheckBox *mNoTranslation;
   QComboBox *mLanguages;

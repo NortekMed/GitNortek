@@ -18,6 +18,7 @@ void Setting::initialize(QMap<Id, QString> &keys) {
   keys[Id::ShowFullRepoPath] = "window/path/full";
   keys[Id::OpenSubmodulesInTabs] = "window/tabs/submodule";
   keys[Id::OpenAllReposInTabs] = "window/tabs/repository";
+  keys[Id::RestoreRepositoryTabs] = "window/tabs/restore";
   keys[Id::HideMenuBar] = "window/view/menuBarHidden";
   keys[Id::ShowAvatars] = "window/view/avatarsVisible";
   keys[Id::ShowMaximized] = "window/view/showMaximized";
