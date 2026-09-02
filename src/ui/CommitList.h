@@ -130,6 +130,8 @@ private:
   void saveHeaderState();
   void storeSelection();
   void restoreSelection();
+  void storeViewport();
+  void restoreViewport();
   void updateModel();
 
   QModelIndexList sortedIndexes() const;
@@ -173,6 +175,10 @@ private:
   bool mRestoreSelection{true};
   bool mPreserveSelectionDetails = false;
   bool mSuppressSelectionNotification = false;
+  QString mViewportCommit;
+  int mViewportOffset = 0;
+  int mViewportPosition = 0;
+  bool mViewportStatus = false;
 
   QFutureWatcher<git::Diff> mSelectionDiff;
   QString mSelectionDiffFile;

@@ -17,6 +17,7 @@
 #include <QLabel>
 #include <QPointer>
 #include <QPushButton>
+#include <QScrollBar>
 #include <QStackedWidget>
 #include <QTextEdit>
 #include <QTimer>
@@ -61,6 +62,7 @@ private slots:
   void conflictedAndStagedFile();
   void stageAllChangesButton();
   void externalRefreshPreservesSelection();
+  void externalRefreshPreservesViewport();
 
 private:
 };
@@ -689,6 +691,71 @@ void TestTreeView::externalRefreshPreservesSelection() {
   QCOMPARE(visibleFile->name(), QString("file.txt"));
   QVERIFY(!visibleFile->editors().isEmpty());
   QVERIFY(visibleFile->editors().first()->length() > 0);
+
+}
+
+void TestTreeView::externalRefreshPreservesViewport() {
+  INIT_REPO("TestRepository.zip", true);
+
+  auto *commits = repoView->findChild<CommitList *>();
+  QVERIFY(commits);
+  QTRY_COMPARE(commits->selectedRange(),
+               repo.head().target().id().toString());
+  commits->cancelStatus();
+  refresh(repoView, false);
+
+  commits->setFixedHeight(80);
+  commits->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+  while (commits->model()->canFetchMore(QModelIndex()))
+    commits->model()->fetchMore(QModelIndex());
+  QTRY_VERIFY(commits->verticalScrollBar()->maximum() > 0);
+
+  QModelIndex selectedIndex;
+  for (int row = 0; row < commits->model()->rowCount(); ++row) {
+    QModelIndex index = commits->model()->index(row, 0);
+    if (index.data(CommitList::CommitRole).isValid()) {
+      selectedIndex = index;
+      break;
+    }
+  }
+  QVERIFY(selectedIndex.isValid());
+  commits->selectionModel()->select(selectedIndex,
+                                    QItemSelectionModel::ClearAndSelect);
+  const QString selectedCommit = commits->selectedRange();
+
+  commits->verticalScrollBar()->setValue(
+      commits->verticalScrollBar()->maximum() / 2);
+  auto topCommit = [commits] {
+    QModelIndex index = commits->indexAt(commits->viewport()->rect().topLeft());
+    return index.data(CommitList::CommitRole)
+        .value<git::Commit>()
+        .id()
+        .toString();
+  };
+  const QString viewportCommit = topCommit();
+  QVERIFY(!viewportCommit.isEmpty());
+
+  QSignalSpy cleanStatus(repoView, &RepoView::statusChanged);
+  emit repo.notifier()->workdirChanged();
+  QTRY_VERIFY(!cleanStatus.isEmpty());
+  QCOMPARE(commits->selectedRange(), selectedCommit);
+  QCOMPARE(topCommit(), viewportCommit);
+
+  QFile file(repo.workdir().filePath("viewport-refresh.txt"));
+  QVERIFY(file.open(QFile::WriteOnly));
+  file.close();
+  QSignalSpy dirtyStatus(repoView, &RepoView::statusChanged);
+  emit repo.notifier()->workdirChanged();
+  QTRY_VERIFY(!dirtyStatus.isEmpty());
+  QCOMPARE(commits->selectedRange(), selectedCommit);
+  QCOMPARE(topCommit(), viewportCommit);
+
+  QVERIFY(QFile::remove(file.fileName()));
+  QSignalSpy cleanFinalStatus(repoView, &RepoView::statusChanged);
+  emit repo.notifier()->workdirChanged();
+  QTRY_VERIFY(!cleanFinalStatus.isEmpty());
+  QCOMPARE(commits->selectedRange(), selectedCommit);
+  QCOMPARE(topCommit(), viewportCommit);
 }
 
 TEST_MAIN(TestTreeView)

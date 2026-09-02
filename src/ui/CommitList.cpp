@@ -2005,11 +2005,13 @@ CommitList::CommitList(Index *index, CommitAvatarProvider *avatars,
 
   git::RepositoryNotifier *notifier = repo.notifier();
   connect(notifier, &git::RepositoryNotifier::referenceUpdated,
-          [this](const git::Reference &ref, bool restoreSelection,
-                 bool refreshStatus) {
-            mRestoreSelection = restoreSelection;
-            static_cast<CommitModel *>(mModel)->resetReference(ref,
-                                                               refreshStatus);
+           [this](const git::Reference &ref, bool restoreSelection,
+                  bool refreshStatus) {
+             mRestoreSelection = restoreSelection;
+             if (restoreSelection)
+               preserveSelectionOnRefresh();
+             static_cast<CommitModel *>(mModel)->resetReference(ref,
+                                                                refreshStatus);
           });
   connect(this, &CommitList::entered,
           [this](const QModelIndex &index) { update(index); });
@@ -2532,7 +2534,6 @@ void CommitList::setReference(const git::Reference &ref) {
   static_cast<CommitModel *>(mModel)->setReference(ref);
   if (!isResetWalkerSuppressed())
     updateModel();
-  setFocus();
 }
 
 void CommitList::setFilter(const QString &filter) {
@@ -2690,6 +2691,9 @@ void CommitList::setModel(QAbstractItemModel *model) {
   connect(
       selectionModel, &QItemSelectionModel::selectionChanged,
       [this](const QItemSelection &selected, const QItemSelection &deselected) {
+        if (!selected.indexes().isEmpty())
+          mRestoreSelection = true;
+
         // Update the index before each selected/deselected range.
         foreach (const QItemSelectionRange &range, selected + deselected) {
           if (int row = range.top())
@@ -3072,8 +3076,10 @@ bool CommitList::eventFilter(QObject *watched, QEvent *event) {
 
 void CommitList::storeSelection() {
   mSelectedRange = selectedRange();
-  if (mPreserveSelectionDetails)
+  if (mPreserveSelectionDetails) {
     mSuppressSelectionNotification = true;
+    storeViewport();
+  }
   DebugRefresh("Selected Range: " << mSelectedRange);
   Debug(mSelectedRange);
 }
@@ -3091,11 +3097,53 @@ void CommitList::restoreSelection() {
   if (!restoreSelection || selectionFailed) {
     DebugRefresh("Failed to restore");
   }
+  if (mPreserveSelectionDetails)
+    restoreViewport();
   mSuppressSelectionNotification = false;
   mPreserveSelectionDetails = false;
 
   mSelectedRange = QString();
   mRestoreSelection = true;
+}
+
+void CommitList::storeViewport() {
+  mViewportCommit.clear();
+  mViewportStatus = false;
+  mViewportPosition = verticalScrollBar()->value();
+
+  QModelIndex index = indexAt(viewport()->rect().topLeft());
+  if (!index.isValid())
+    return;
+
+  mViewportOffset = visualRect(index).top();
+  git::Commit commit = index.data(CommitRole).value<git::Commit>();
+  if (commit.isValid())
+    mViewportCommit = commit.id().toString();
+  else
+    mViewportStatus = true;
+}
+
+void CommitList::restoreViewport() {
+  QModelIndex anchor;
+  if (mViewportStatus) {
+    QModelIndex index = model()->index(0, 0);
+    if (index.isValid() && !index.data(CommitRole).isValid())
+      anchor = index;
+  } else if (!mViewportCommit.isEmpty()) {
+    git::Commit commit = RepoView::parentView(this)->repo().lookupCommit(
+        mViewportCommit);
+    if (commit.isValid())
+      anchor = findCommit(commit);
+  }
+
+  if (anchor.isValid()) {
+    scrollTo(anchor, PositionAtTop);
+    verticalScrollBar()->setValue(verticalScrollBar()->value() -
+                                  mViewportOffset);
+  } else {
+    verticalScrollBar()->setValue(
+        qMin(mViewportPosition, verticalScrollBar()->maximum()));
+  }
 }
 
 void CommitList::updateModel() {

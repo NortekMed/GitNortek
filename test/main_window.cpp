@@ -31,6 +31,7 @@
 #include "ui/TabBar.h"
 #include "ui/TabWidget.h"
 #include "ui/ToolBar.h"
+#include <QFile>
 #include <QLineEdit>
 #include <QMenu>
 #include <QMessageBox>
@@ -64,6 +65,7 @@ private slots:
   void commitReferencesOnSecondLine();
   void toggleLogPanel();
   void preserveSelectionAfterRemoteUpdate();
+  void tabActivationPreservesCommitSelection();
   void cancelRemoteBranchCreation();
   void createAndTrackRemoteBranch();
   void trackExistingRemoteBranch();
@@ -474,6 +476,39 @@ void TestMainWindow::preserveSelectionAfterRemoteUpdate() {
   QCOMPARE(mRepo->lookupRef(remoteName).target().id(), head.target().id());
 
   QCOMPARE(commits->selectedRange(), selected.id().toString());
+}
+
+void TestMainWindow::tabActivationPreservesCommitSelection() {
+  RepoView *firstView = mWindow->view(0);
+  QVERIFY(firstView);
+  CommitList *commits = firstView->findChild<CommitList *>();
+  QVERIFY(commits);
+
+  QFile file(mRepo->workdir().filePath("tab-refresh.txt"));
+  QVERIFY(file.open(QFile::WriteOnly));
+  file.close();
+  QSignalSpy dirtyStatus(firstView, &RepoView::statusChanged);
+  emit mRepo->notifier()->workdirChanged();
+  QTRY_VERIFY(!dirtyStatus.isEmpty());
+
+  git::Commit selected = mRepo->head().target().parents().first();
+  QVERIFY(selected.isValid());
+  QVERIFY(commits->selectRange(selected.id().toString()));
+  QCOMPARE(commits->selectedRange(), selected.id().toString());
+
+  RepoView *secondView = mWindow->addTab(mSecondRepo);
+  QVERIFY(secondView);
+  QSignalSpy activatedStatus(firstView, &RepoView::statusChanged);
+  mWindow->tabWidget()->setCurrentIndex(mWindow->tabWidget()->indexOf(firstView));
+  QTRY_VERIFY(!activatedStatus.isEmpty());
+  QCOMPARE(commits->selectedRange(), selected.id().toString());
+
+  QVERIFY(mWindow->tabWidget()->closeTab(secondView));
+  QTRY_COMPARE(mWindow->count(), 1);
+  QVERIFY(QFile::remove(file.fileName()));
+  QSignalSpy cleanStatus(firstView, &RepoView::statusChanged);
+  emit mRepo->notifier()->workdirChanged();
+  QTRY_VERIFY(!cleanStatus.isEmpty());
 }
 
 void TestMainWindow::cancelRemoteBranchCreation() {

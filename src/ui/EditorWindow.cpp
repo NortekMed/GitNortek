@@ -25,8 +25,7 @@ EditorWindow::EditorWindow(const git::Repository &repo, QWidget *parent)
     if (!repo.isValid())
       return;
 
-    // Notify window that the head branch is changed.
-    emit repo.notifier()->referenceUpdated(repo.head());
+    emit repo.notifier()->workdirChanged();
   });
 
   TextEditor *editor = widget->editor();

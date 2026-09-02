@@ -176,9 +176,9 @@ MainWindow::MainWindow(const git::Repository &repo, QWidget *parent,
   // Create tab container.
   mTabs = new TabWidget(mRepositorySplitter);
   connect(mTabs, &TabWidget::currentChanged, [this](int index) {
-    if (!mAddingTab) {
+    if (!mAddingTab && !mRestoringTabs) {
       if (RepoView *repoView = view(index))
-        repoView->refresh(false);
+        repoView->refresh(true);
     }
 
     updateInterface();
@@ -329,7 +329,8 @@ RepoView *MainWindow::addTab(const QString &path, OpenSource source,
         view->setTabContext(tabContext);
         updateTabNames();
       }
-      tabs->setCurrentIndex(i);
+      if (!mRestoringTabs)
+        tabs->setCurrentIndex(i);
       setLocalRepositoryManagementVisible(false);
       return view;
     }
@@ -353,7 +354,8 @@ bool MainWindow::selectTab(const QString &path) {
   for (int i = 0; i < tabs->count(); ++i) {
     RepoView *view = static_cast<RepoView *>(tabs->widget(i));
     if (requestedPath == repositoryPath(view->repo())) {
-      tabs->setCurrentIndex(i);
+      if (!mRestoringTabs)
+        tabs->setCurrentIndex(i);
       setLocalRepositoryManagementVisible(false);
       return true;
     }
@@ -401,7 +403,9 @@ RepoView *MainWindow::addTab(const git::Repository &repo,
   emit tabs->tabAboutToBeInserted();
   mAddingTab = true;
   QIcon icon = repositoryIcon(repo, submoduleTab);
-  tabs->setCurrentIndex(tabs->addTab(view, icon, dir.dirName()));
+  const int index = tabs->addTab(view, icon, dir.dirName());
+  if (!mRestoringTabs)
+    tabs->setCurrentIndex(index);
   mAddingTab = false;
 
   QTimer::singleShot(0, view, [view, repo, updateSubmodules] {
@@ -543,6 +547,8 @@ bool MainWindow::restoreWindows() {
         pending.append(i);
     }
 
+    window->mRestoringTabs = !pending.isEmpty();
+
     QPointer<MainWindow> restoredWindow(window);
     QPointer<RepoView> selectedView(window->currentView());
     auto next = std::make_shared<int>(0);
@@ -551,8 +557,11 @@ bool MainWindow::restoreWindows() {
     std::weak_ptr<std::function<void()>> weakRestoreNext = restoreNext;
     *restoreNext = [restoredWindow, selectedView, saved, pending, candidate,
                     next, selectedPosition, weakRestoreNext] {
-      if (!restoredWindow || !selectedView)
+      if (!restoredWindow || !selectedView) {
+        if (restoredWindow)
+          restoredWindow->mRestoringTabs = false;
         return;
+      }
 
       if (*next >= pending.size()) {
         TabWidget *tabs = restoredWindow->tabWidget();
@@ -561,6 +570,8 @@ bool MainWindow::restoreWindows() {
           tabs->moveTab(selectedIndex, *selectedPosition);
           tabs->setCurrentIndex(*selectedPosition);
         }
+        restoredWindow->mRestoringTabs = false;
+        restoredWindow->updateInterface();
         return;
       }
 
@@ -573,7 +584,6 @@ bool MainWindow::restoreWindows() {
       if (view && view != selectedView && index < candidate)
         ++*selectedPosition;
 
-      restoredWindow->tabWidget()->setCurrentWidget(selectedView);
       QTimer::singleShot(0, restoredWindow, [weakRestoreNext] {
         if (auto restoreNext = weakRestoreNext.lock())
           (*restoreNext)();

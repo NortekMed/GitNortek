@@ -3920,10 +3920,6 @@ EditorWindow *RepoView::openEditor(const QString &path, int line,
   }
 
   connect(widget, &BlameEditor::linkActivated, this, &RepoView::visitLink);
-  connect(widget, &BlameEditor::saved, this, [this] {
-    // Notify window that the head branch is changed.
-    emit mRepo.notifier()->referenceUpdated(mRepo.head());
-  });
 
   // Track this window.
   mTrackedWindows.append(window);

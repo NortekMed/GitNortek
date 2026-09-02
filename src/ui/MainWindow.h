@@ -121,6 +121,7 @@ private:
   bool mFirstPaintTraced = false;
   bool mClosing = false;
   bool mAddingTab = false;
+  bool mRestoringTabs = false;
 
   static bool sSaveWindowSettings;
 };
