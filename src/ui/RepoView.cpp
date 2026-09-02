@@ -343,6 +343,8 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
           &RepoView::referenceSelected);
   connect(mRefs, &ReferenceWidget::referenceSelected, mCommits,
           &CommitList::selectReference);
+  connect(mCommits, &CommitList::firstPainted, this,
+          &RepoView::commitListFirstPainted);
   connect(mCommits, &CommitList::statusChanged, this, &RepoView::statusChanged);
   connect(mCommits, &CommitList::statusSelected, this,
           &RepoView::statusSelected);

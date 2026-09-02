@@ -404,6 +404,7 @@ private slots:
   void rebaseConflict(const git::Rebase rebase);
 
 signals:
+  void commitListFirstPainted();
   void statusChanged(bool dirty);
   void referenceChanged(const git::Reference &ref);
   void referenceSelected(const git::Reference &ref);

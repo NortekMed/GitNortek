@@ -2027,6 +2027,14 @@ CommitList::CommitList(Index *index, CommitAvatarProvider *avatars,
 
 }
 
+void CommitList::paintEvent(QPaintEvent *event) {
+  QListView::paintEvent(event);
+  if (!mFirstPainted) {
+    mFirstPainted = true;
+    emit firstPainted();
+  }
+}
+
 void CommitList::setupHeader() {
   mHeaderModel = new QStandardItemModel(0, ColumnCount, this);
   mHeaderModel->setHeaderData(ReferencesColumn, Qt::Horizontal,

@@ -20,6 +20,7 @@
 class Index;
 class CommitAvatarProvider;
 class QHeaderView;
+class QPaintEvent;
 class QScrollBar;
 class QShowEvent;
 class QStandardItemModel;
@@ -96,6 +97,7 @@ public:
   void setModel(QAbstractItemModel *model) override;
 
 signals:
+  void firstPainted();
   void statusChanged(bool dirty);
   void statusError(const QString &error);
   void selectedRangeChanged(const QString &range);
@@ -106,6 +108,7 @@ signals:
                       bool spontaneous = false);
 
 protected:
+  void paintEvent(QPaintEvent *event) override;
   void contextMenuEvent(QContextMenuEvent *event) override;
   void mouseMoveEvent(QMouseEvent *event) override;
   void mousePressEvent(QMouseEvent *event) override;
@@ -173,6 +176,7 @@ private:
   int mHistoryPrefetchTarget = 0;
 
   bool mRestoreSelection{true};
+  bool mFirstPainted = false;
   bool mPreserveSelectionDetails = false;
   bool mSuppressSelectionNotification = false;
   QString mViewportCommit;

@@ -52,6 +52,7 @@ class TestMainWindow : public QObject {
 
 private slots:
   void initTestCase();
+  void commitListFirstPainted();
   void show();
   void singleRepositoryTabVisible();
   void adaptiveRepositoryTabs();
@@ -121,6 +122,15 @@ void TestMainWindow::initTestCase() {
   mRepo->appConfig().setValue("autofetch.enable", false);
 
   mWindow = new MainWindow(mRepo);
+}
+
+void TestMainWindow::commitListFirstPainted() {
+  MainWindow window(mSecondRepo);
+  QSignalSpy painted(window.currentView(), &RepoView::commitListFirstPainted);
+  window.show();
+
+  QVERIFY(qWaitForWindowExposed(&window));
+  QTRY_COMPARE(painted.count(), 1);
 }
 
 void TestMainWindow::show() {
