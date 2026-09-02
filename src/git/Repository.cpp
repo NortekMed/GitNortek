@@ -28,6 +28,7 @@
 #include "Submodule.h"
 #include "TagRef.h"
 #include "Tree.h"
+#include "util/PerformanceTrace.h"
 #include "util/Path.h"
 #include "git2/buffer.h"
 #include "git2/branch.h"
@@ -55,6 +56,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QMutex>
+#include <QMutexLocker>
 #include <QMap>
 #include <QProcess>
 #include <QSaveFile>
@@ -1082,22 +1084,49 @@ void Repository::setCommitStarred(const Id &commit, bool starred) {
 }
 
 void Repository::invalidateSubmoduleCache() {
+  QMutexLocker locker(&d->submodulesMutex);
   d->submodules.clear();
   d->submodulesCached = false;
 }
 
+bool Repository::hasSubmodules() const {
+  PerformanceTrace::Span span("submodule", "Repository::hasSubmodules",
+                              dir(false).path());
+  ensureSubmodulesCached();
+  QMutexLocker locker(&d->submodulesMutex);
+  return !d->submodules.isEmpty();
+}
+
 QList<Submodule> Repository::submodules() const {
+  PerformanceTrace::Span span("submodule", "Repository::submodules",
+                              dir(false).path());
   ensureSubmodulesCached();
 
   QList<Submodule> submodules;
-  foreach (const QString &name, d->submodules) {
-    int status = submoduleStatus(name);
+  QStringList names;
+  {
+    QMutexLocker locker(&d->submodulesMutex);
+    names = d->submodules;
+  }
+
+  foreach (const QString &name, names) {
+    int status = 0;
+    {
+      PerformanceTrace::Span statusSpan("submodule", "git_submodule_status",
+                                        dir(false).path(), {{"name", name}});
+      status = submoduleStatus(name, GIT_SUBMODULE_IGNORE_ALL);
+    }
     bool present = status >= 0 &&
                    (status & (GIT_SUBMODULE_STATUS_IN_CONFIG |
                               GIT_SUBMODULE_STATUS_IN_INDEX |
                               GIT_SUBMODULE_STATUS_IN_WD));
     if (present) {
-      Submodule submodule = lookupSubmodule(name);
+      Submodule submodule;
+      {
+        PerformanceTrace::Span lookupSpan("submodule", "git_submodule_lookup",
+                                          dir(false).path(), {{"name", name}});
+        submodule = lookupSubmodule(name);
+      }
       if (submodule)
         submodules.append(submodule);
     }
@@ -1115,12 +1144,16 @@ Submodule Repository::lookupSubmodule(const QString &name) const {
 }
 
 int Repository::submoduleStatus(const QString &name) const {
+  return submoduleStatus(name, GIT_SUBMODULE_IGNORE_UNSPECIFIED);
+}
+
+int Repository::submoduleStatus(const QString &name,
+                                git_submodule_ignore_t ignore) const {
 
   unsigned int status;
-  // TODO: testing!!!!
   int returnValue =
       git_submodule_status(&status, d->repo, name.toLocal8Bit().data(),
-                           GIT_SUBMODULE_IGNORE_UNSPECIFIED);
+                           ignore);
   if (returnValue < 0)
     return returnValue;
   return status;
@@ -1634,16 +1667,21 @@ void Repository::shutdown() { git_libgit2_shutdown(); }
 RepositoryNotifier::RepositoryNotifier(QObject *parent) : QObject(parent) {}
 
 void Repository::ensureSubmodulesCached() const {
-  if (!d->submodulesCached) {
-    d->submodulesCached = true;
-    git_submodule_foreach(
-        d->repo,
-        [](git_submodule *, const char *name, void *payload) {
-          reinterpret_cast<QStringList *>(payload)->append(name);
-          return 0;
-        },
-        &d->submodules);
-  }
+  QMutexLocker locker(&d->submodulesMutex);
+  if (d->submodulesCached)
+    return;
+
+  PerformanceTrace::Span span("submodule", "git_submodule_foreach",
+                              dir(false).path());
+  d->submodules.clear();
+  d->submodulesCached = true;
+  git_submodule_foreach(
+      d->repo,
+      [](git_submodule *, const char *name, void *payload) {
+        reinterpret_cast<QStringList *>(payload)->append(name);
+        return 0;
+      },
+      &d->submodules);
 }
 
 QByteArray Repository::lfsExecute(const QStringList &args,

@@ -22,6 +22,7 @@
 #include "git/Index.h"
 #include "git/Config.h"
 #include "git/Patch.h"
+#include "util/PerformanceTrace.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -623,6 +624,8 @@ void DoubleTreeWidget::setDiff(const git::Diff &diff, const QString &file,
   DebugRefresh("time: " << QDateTime::currentDateTime()
                         << "Counter: " << mSetDiffCounter);
 
+  mStatusSnapshotMode = false;
+  mStatusSnapshot = git::WorkingTreeStatusSnapshot();
   mDiff = diff;
   RepoView *repoView = RepoView::parentView(this);
   if (repoView->repo().state() == GIT_REPOSITORY_STATE_NONE)
@@ -718,7 +721,77 @@ void DoubleTreeWidget::setDiff(const git::Diff &diff, const QString &file,
   mIgnoreSelectionChange = ignoreSelectionChange;
 
   DebugRefresh("finished, time: " << QDateTime::currentDateTime()
-                                  << "Counter: " << mSetDiffCounter);
+                                   << "Counter: " << mSetDiffCounter);
+}
+
+void DoubleTreeWidget::setWorkingTreeStatus(
+    const git::WorkingTreeStatusSnapshot &status, const QString &file) {
+  Q_UNUSED(file)
+
+  PerformanceTrace::Span span(
+      "detail", "DoubleTreeWidget::setWorkingTreeStatus",
+      RepoView::parentView(this)->repo().dir(false).path(),
+      {{"entries", status.entries().size()}});
+
+  mSetDiffCounter++;
+  bool ignoreSelectionChange = mIgnoreSelectionChange;
+  mIgnoreSelectionChange = true;
+
+  mDiff = git::Diff();
+  mStatusSnapshot = status;
+  mStatusSnapshotMode = status.isValid();
+
+  storeSelection();
+
+  TreeProxy *proxy = static_cast<TreeProxy *>(unstagedFiles->model());
+  DiffTreeModel *model = static_cast<DiffTreeModel *>(proxy->sourceModel());
+
+  bool singleTree =
+      Settings::instance()
+          ->value(Setting::Id::ShowChangedFilesInSingleView, false)
+          .toBool();
+  bool listView = Settings::instance()
+                      ->value(Setting::Id::ShowChangedFilesAsList, false)
+                      .toBool();
+  const bool multiColumn =
+      Settings::instance()
+          ->value(Setting::Id::ShowChangedFilesMultiColumn, true)
+          .toBool();
+
+  model->enableListView(listView);
+  model->setMultiColumn(multiColumn);
+  model->setStatusSnapshot(status);
+  stagedFiles->setRootIsDecorated(!listView);
+  unstagedFiles->setRootIsDecorated(!listView);
+  collapseButtonStagedFiles->setVisible(!listView);
+  collapseButtonUnstagedFiles->setVisible(!listView);
+  updateConflictUi();
+  updateStageAllChangesButton();
+
+  unstagedFiles->updateView();
+  stagedFiles->updateView();
+  mUnstagedCommitedFiles->setText(singleTree ? kAllFiles : kUnstagedFiles);
+  mUnstagedCommitedFiles->setEnabled(true);
+  mShowAllFiles->setVisible(false);
+  proxy->enableFilter(!singleTree);
+  mStagedWidget->setVisible(!singleTree);
+
+  if (status.entries().size() < fileCountExpansionThreshold) {
+    stagedFiles->expandAll();
+    unstagedFiles->expandAll();
+  } else {
+    stagedFiles->collapseAll();
+    unstagedFiles->collapseAll();
+  }
+
+  mEditor->clear();
+  mDiffView->setDiff(git::Diff());
+
+  if (status.isDirty() && !mFileInspectionClosed && loadSelection() &&
+      RepoView::parentView(this)->isFileInspectionVisible())
+    scheduleEditorContentLoad();
+
+  mIgnoreSelectionChange = ignoreSelectionChange;
 }
 
 void DoubleTreeWidget::find() { mEditor->find(); }
@@ -730,8 +803,9 @@ void DoubleTreeWidget::findPrevious() { mEditor->findPrevious(); }
 void DoubleTreeWidget::cancelBackgroundTasks() { mEditor->cancelBlame(); }
 
 void DoubleTreeWidget::updateStageAllChangesButton() {
-  const bool statusDiff = mDiff.isValid() && mDiff.isStatusDiff();
-  const bool conflictMode = statusDiff && mDiff.isConflicted();
+  const bool statusDiff = mStatusSnapshotMode ||
+                          (mDiff.isValid() && mDiff.isStatusDiff());
+  const bool conflictMode = mDiff.isValid() && mDiff.isConflicted();
   mStageAllChanges->setVisible(statusDiff && !conflictMode);
   mStageAllChanges->setEnabled(statusDiff && !conflictMode &&
                                RepoView::parentView(this)->isStageEnabled());
@@ -866,7 +940,8 @@ bool DoubleTreeWidget::loadSelection() {
   QModelIndex index;
   Qt::CheckState state;
 
-  if (mDiff.isConflicted()) {
+  const bool conflictMode = mDiff.isValid() && mDiff.isConflicted();
+  if (conflictMode) {
     int start = 0;
     for (int i = 0; i < mDiff.count(); ++i) {
       if (mDiff.patch(i).name() == mSelectedFile.filename) {
@@ -887,7 +962,7 @@ bool DoubleTreeWidget::loadSelection() {
     }
   }
 
-  if (!mDiff.isConflicted() && mSelectedFile.filename != "") {
+  if (!conflictMode && mSelectedFile.filename != "") {
     index = mDiffTreeModel->index(mSelectedFile.filename);
 
     if (!index.isValid()) {
@@ -906,7 +981,7 @@ bool DoubleTreeWidget::loadSelection() {
         mDiffTreeModel->data(index, Qt::CheckStateRole).toInt());
   }
 
-  if (!mDiff.isConflicted() &&
+  if (!conflictMode &&
       (!index.isValid() ||
        (mSelectedFile.stagedModel && state != Qt::CheckState::Checked) ||
        (!mSelectedFile.stagedModel && state != Qt::CheckState::Unchecked))) {

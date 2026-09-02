@@ -14,6 +14,7 @@
 #include "git/Index.h"
 #include "git/Tree.h"
 #include "git/Repository.h"
+#include "git/WorkingTreeStatus.h"
 #include <QAbstractItemModel>
 #include <QAbstractListModel>
 #include <QFileIconProvider>
@@ -101,6 +102,7 @@ public:
 
   void setDiff(const git::Diff &diff = git::Diff(),
                const QStringList &resolvedPaths = {});
+  void setStatusSnapshot(const git::WorkingTreeStatusSnapshot &status);
   void setTree(const git::Tree &tree, const git::Diff &diff = git::Diff());
   void refresh(const QStringList &paths);
   void setMultiColumn(bool);
@@ -171,6 +173,8 @@ private:
   QFileIconProvider mIconProvider;
 
   git::Diff mDiff;
+  git::WorkingTreeStatusSnapshot mStatusSnapshot;
+  bool mStatusSnapshotMode = false;
   Node *mRoot{nullptr};
   git::Repository mRepo;
   QSet<QString> mResolvedPaths;

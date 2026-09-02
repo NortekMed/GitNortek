@@ -36,6 +36,8 @@ Bug Fix and Feature release
 #### Changed
 
 * Improve large-repository startup responsiveness by deferring reference loading and the initial refresh, caching reference sort metadata, coalescing search-index reloads, and limiting indexer worker concurrency
+* Avoid recursively scanning submodule worktrees when listing submodules, improving startup for repositories with large dependencies
+* Show changed file paths from a lightweight status snapshot before building full working-tree diffs for selected changes
 * Keep the interface responsive after checking for changes by coalescing refresh requests and deferring history graph rebuilding
 * Move Linux submodule watcher discovery off the GUI thread to improve repository startup responsiveness
 * Leave uninitialized submodules untouched when opening existing repositories

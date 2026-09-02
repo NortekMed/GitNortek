@@ -45,6 +45,8 @@ public:
 
   void setDiff(const git::Diff &diff, const QString &file = QString(),
                const QString &pathspec = QString()) override;
+  void setWorkingTreeStatus(const git::WorkingTreeStatusSnapshot &status,
+                            const QString &file = QString()) override;
 
   void cancelBackgroundTasks() override;
 
@@ -133,6 +135,8 @@ private:
   int mEditorLoadGeneration{0};
 
   git::Diff mDiff;
+  git::WorkingTreeStatusSnapshot mStatusSnapshot;
+  bool mStatusSnapshotMode = false;
 
   int fileCountExpansionThreshold{100};
 

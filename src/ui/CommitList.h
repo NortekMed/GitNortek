@@ -12,6 +12,7 @@
 
 #include "git/Diff.h"
 #include "git/Reference.h"
+#include "git/WorkingTreeStatus.h"
 #include <QByteArray>
 #include <QFutureWatcher>
 #include <QListView>
@@ -62,6 +63,9 @@ public:
 
   // Get the status diff item.
   git::Diff status() const;
+  bool hasStatusChanges() const;
+  bool hasTrackedStatusChanges() const;
+  QStringList untrackedStatusPaths() const;
 
   // Get the current selection.
   QString selectedRange() const;
@@ -97,6 +101,9 @@ signals:
   void selectedRangeChanged(const QString &range);
   void diffSelected(const git::Diff diff, const QString &file = QString(),
                     bool spontaneous = false);
+  void statusSelected(const git::WorkingTreeStatusSnapshot status,
+                      const QString &file = QString(),
+                      bool spontaneous = false);
 
 protected:
   void contextMenuEvent(QContextMenuEvent *event) override;
@@ -170,6 +177,8 @@ private:
   QFutureWatcher<git::Diff> mSelectionDiff;
   QString mSelectionDiffFile;
   bool mSelectionDiffSpontaneous = false;
+  quint64 mSelectionDiffGeneration = 0;
+  quint64 mActiveSelectionDiffGeneration = 0;
   QString mSelectedRange;
 };
 

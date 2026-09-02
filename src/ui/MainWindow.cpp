@@ -34,6 +34,7 @@
 #include <QIcon>
 #include <QMessageBox>
 #include <QMimeData>
+#include <QPaintEvent>
 #include <QPushButton>
 #include <QSettings>
 #include <QSignalBlocker>
@@ -43,6 +44,7 @@
 #include <QTimer>
 #include <QToolButton>
 #include "util/Debug.h"
+#include "util/PerformanceTrace.h"
 
 namespace {
 
@@ -535,11 +537,17 @@ MainWindow *MainWindow::open(const QString &path, bool warnOnInvalid,
                              OpenSource source,
                              std::optional<bool> updateSubmodules,
                              bool submoduleTab) {
+  PerformanceTrace::Span span("startup", "MainWindow::open(path)", path);
+  PerformanceTrace::event("startup", "open-request", path);
   DebugRefresh("Open project: " << path);
   if (path.isEmpty())
     return nullptr;
 
-  git::Repository repo = git::Repository::open(path, true);
+  git::Repository repo;
+  {
+    PerformanceTrace::Span repoSpan("startup", "Repository::open", path);
+    repo = git::Repository::open(path, true);
+  }
   if (!repo.isValid()) {
     if (warnOnInvalid) {
       if (source == OpenSource::RecentRepository)
@@ -563,14 +571,19 @@ MainWindow *MainWindow::open(const QString &path, bool warnOnInvalid,
 MainWindow *MainWindow::open(const git::Repository &repo,
                              std::optional<bool> updateSubmodules,
                              bool submoduleTab) {
+  const QString path = repo.isValid() ? repo.dir(false).path() : QString();
+  PerformanceTrace::Span span("startup", "MainWindow::open(repo)", path);
   // Update recent repository settings.
   if (repo.isValid())
     RecentRepositories::instance()->add(repo.dir(false).path());
 
   // Create the window.
-  MainWindow *window =
-      new MainWindow(repo, nullptr, Qt::WindowFlags(), updateSubmodules,
-                     submoduleTab);
+  MainWindow *window = nullptr;
+  {
+    PerformanceTrace::Span ctorSpan("startup", "MainWindow constructor", path);
+    window = new MainWindow(repo, nullptr, Qt::WindowFlags(), updateSubmodules,
+                            submoduleTab);
+  }
 
   const bool showMaximized =
       Settings::instance()->value(Setting::Id::ShowMaximized).toBool();
@@ -580,8 +593,17 @@ MainWindow *MainWindow::open(const git::Repository &repo,
   } else {
     window->show();
   }
+  PerformanceTrace::event("startup", "MainWindow show returned", path);
 
   return window;
+}
+
+void MainWindow::paintEvent(QPaintEvent *event) {
+  QMainWindow::paintEvent(event);
+  if (!mFirstPaintTraced) {
+    mFirstPaintTraced = true;
+    PerformanceTrace::event("startup", "MainWindow first paint");
+  }
 }
 
 void MainWindow::setSaveWindowSettings(bool enabled) {

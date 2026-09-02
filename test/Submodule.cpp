@@ -43,6 +43,26 @@
 using namespace Test;
 using namespace QTest;
 
+namespace {
+
+bool runGit(const QString &path, const QStringList &arguments) {
+  QProcess git;
+  git.setWorkingDirectory(path);
+  git.start(GIT_EXECUTABLE, arguments);
+  return git.waitForFinished() && git.exitCode() == 0;
+}
+
+bool writeFile(const QString &path, const QByteArray &contents) {
+  QFile file(path);
+  if (!file.open(QIODevice::WriteOnly))
+    return false;
+
+  file.write(contents);
+  return true;
+}
+
+} // namespace
+
 class TestSubmodule : public QObject {
   Q_OBJECT
 
@@ -54,6 +74,9 @@ private slots:
   void canceledStatusIsDiscarded();
   void cleanAfterBranchRename();
   void movedHeadDetected();
+  void listsUninitializedSubmodules();
+  void excludesRemovedSubmodules();
+  void listsDirtySubmodules();
   void removeSubmodule();
   void refuseRemovalWithGitmodulesChanges();
 
@@ -99,6 +122,12 @@ void TestSubmodule::updateSubmoduleClone() {
   }
 
   QVERIFY(view);
+  QTRY_VERIFY_WITH_TIMEOUT(
+      [&view] {
+        const QList<git::Submodule> submodules = view->repo().submodules();
+        return submodules.count() == 1 && submodules.first().isInitialized();
+      }(),
+      10000);
   QCOMPARE(view->repo().submodules().count(), 1);
   for (const auto &s : view->repo().submodules()) {
     QVERIFY(s.isValid());
@@ -460,6 +489,64 @@ void TestSubmodule::movedHeadDetected() {
   QCOMPARE(status.count(), 1);
   QCOMPARE(status.name(0), QString("parent.txt"));
   QVERIFY(parent->index().isTracked("parent.txt"));
+}
+
+void TestSubmodule::listsUninitializedSubmodules() {
+  ScratchRepository child;
+  QVERIFY(writeFile(child->workdir().filePath("child.txt"), "child\n"));
+  QVERIFY(runGit(child->workdir().path(), {"add", "child.txt"}));
+  QVERIFY(runGit(child->workdir().path(), {"commit", "-m", "child"}));
+
+  ScratchRepository parent;
+  QVERIFY(runGit(parent->workdir().path(),
+                 {"-c", "protocol.file.allow=always", "submodule", "add",
+                  child->workdir().path(), "child"}));
+  QVERIFY(runGit(parent->workdir().path(), {"commit", "-m", "add child"}));
+  QVERIFY(runGit(parent->workdir().path(),
+                 {"submodule", "deinit", "-f", "child"}));
+
+  parent->invalidateSubmoduleCache();
+  QList<git::Submodule> submodules = parent->submodules();
+  QCOMPARE(submodules.count(), 1);
+  QCOMPARE(submodules.first().name(), QString("child"));
+  QVERIFY(!submodules.first().isInitialized());
+}
+
+void TestSubmodule::excludesRemovedSubmodules() {
+  ScratchRepository child;
+  QVERIFY(writeFile(child->workdir().filePath("child.txt"), "child\n"));
+  QVERIFY(runGit(child->workdir().path(), {"add", "child.txt"}));
+  QVERIFY(runGit(child->workdir().path(), {"commit", "-m", "child"}));
+
+  ScratchRepository parent;
+  QVERIFY(runGit(parent->workdir().path(),
+                 {"-c", "protocol.file.allow=always", "submodule", "add",
+                  child->workdir().path(), "child"}));
+  QVERIFY(runGit(parent->workdir().path(), {"commit", "-m", "add child"}));
+  QVERIFY(runGit(parent->workdir().path(), {"rm", "-f", "child"}));
+
+  parent->invalidateSubmoduleCache();
+  QCOMPARE(parent->submodules().count(), 0);
+}
+
+void TestSubmodule::listsDirtySubmodules() {
+  ScratchRepository child;
+  QVERIFY(writeFile(child->workdir().filePath("child.txt"), "child\n"));
+  QVERIFY(runGit(child->workdir().path(), {"add", "child.txt"}));
+  QVERIFY(runGit(child->workdir().path(), {"commit", "-m", "child"}));
+
+  ScratchRepository parent;
+  QVERIFY(runGit(parent->workdir().path(),
+                 {"-c", "protocol.file.allow=always", "submodule", "add",
+                  child->workdir().path(), "child"}));
+  QVERIFY(runGit(parent->workdir().path(), {"commit", "-m", "add child"}));
+  QVERIFY(writeFile(parent->workdir().filePath("child/dirty.txt"), "dirty\n"));
+
+  parent->invalidateSubmoduleCache();
+  QList<git::Submodule> submodules = parent->submodules();
+  QCOMPARE(submodules.count(), 1);
+  QCOMPARE(submodules.first().name(), QString("child"));
+  QVERIFY(submodules.first().isInitialized());
 }
 
 void TestSubmodule::removeSubmodule() {

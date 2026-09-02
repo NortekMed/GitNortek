@@ -21,6 +21,7 @@
 #include "git/Submodule.h"
 #include "git/SubmoduleAvailability.h"
 #include "git/Rebase.h"
+#include "git/WorkingTreeStatus.h"
 #include "host/Account.h"
 #include <QFuture>
 #include <QFutureWatcher>
@@ -389,6 +390,8 @@ public:
 public slots:
   void diffSelected(const git::Diff diff, const QString &file,
                     bool spontaneous);
+  void statusSelected(const git::WorkingTreeStatusSnapshot status,
+                      const QString &file, bool spontaneous);
 
 private slots:
   void rebaseInitError();
@@ -411,6 +414,7 @@ signals:
   void pushSucceeded(const QString &repositoryPath);
 
 protected:
+  void paintEvent(QPaintEvent *event) override;
   void showEvent(QShowEvent *event) override;
   void closeEvent(QCloseEvent *event) override;
 
@@ -506,6 +510,7 @@ private:
   QList<QWidget *> mTrackedWindows;
 
   bool mShown = false;
+  bool mFirstPaintTraced = false;
   bool mClosing = false;
   QTimer mCloseCleanupTimer;
 

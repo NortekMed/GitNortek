@@ -11,6 +11,7 @@
 #define DETAILVIEW_H
 
 #include "RepoView.h"
+#include "git/WorkingTreeStatus.h"
 #include <QLabel>
 #include <QWidget>
 
@@ -34,6 +35,9 @@ public:
 
   virtual void setDiff(const git::Diff &diff, const QString &file = QString(),
                        const QString &pathspec = QString()) = 0;
+  virtual void setWorkingTreeStatus(
+      const git::WorkingTreeStatusSnapshot &,
+      const QString & = QString()) {}
 
   virtual void cancelBackgroundTasks() {}
 
@@ -74,6 +78,8 @@ public:
   void setCommitMessage(const QString &message);
   void setDiff(const git::Diff &diff, const QString &file = QString(),
                const QString &pathspec = QString());
+  void setWorkingTreeStatus(const git::WorkingTreeStatusSnapshot &status,
+                            const QString &file = QString());
 
   void cancelBackgroundTasks();
 

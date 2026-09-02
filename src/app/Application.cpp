@@ -17,6 +17,7 @@
 #include "ui/TabWidget.h"
 #include "languages.h"
 #include "util/Debug.h"
+#include "util/PerformanceTrace.h"
 #include <QCloseEvent>
 #include <QCommandLineParser>
 #include <QDesktopServices>
@@ -117,6 +118,8 @@ Application::Application(int &argc, char **argv, bool haltOnParseError)
   parser.addOption({{"t", "theme"}, "Choose theme.", "name"});
   parser.addOption({{"f", "filter"}, "Set the pathspec filter.", "pathspec"});
   parser.addOption({"no-translation", "Disable translation."});
+  parser.addOption({"performance-trace", "Write repository lifecycle timings.",
+                    "file"});
 
   if (haltOnParseError) {
     parser.process(arguments());
@@ -126,6 +129,8 @@ Application::Application(int &argc, char **argv, bool haltOnParseError)
 
   // Remember positional args.
   mPositionalArguments = parser.positionalArguments();
+
+  PerformanceTrace::init(parser.value("performance-trace"));
 
   // Set debug menu option.
   MenuBar::setDebugMenuVisible(parser.isSet("debug-menu"));

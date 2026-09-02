@@ -22,9 +22,11 @@
 #include "git2/errors.h"
 #include "git2/revwalk.h"
 #include "git2/status.h"
+#include "git2/submodule.h"
 #include "git2/types.h"
 #include <QCoreApplication>
 #include <QDir>
+#include <QMutex>
 #include <QObject>
 #include <QSet>
 #include <QSharedPointer>
@@ -190,6 +192,7 @@ public:
 
   // submodule
   void invalidateSubmoduleCache();
+  bool hasSubmodules() const;
   QList<Submodule> submodules() const;
   Submodule lookupSubmodule(const QString &path) const;
   int submoduleStatus(const QString &name) const;
@@ -298,6 +301,7 @@ private:
     git_repository *repo;
     RepositoryNotifier *notifier;
 
+    mutable QMutex submodulesMutex;
     QStringList submodules;
     bool submodulesCached = false;
 
@@ -311,6 +315,7 @@ private:
   operator git_repository *() const;
 
   void ensureSubmodulesCached() const;
+  int submoduleStatus(const QString &name, git_submodule_ignore_t ignore) const;
 
   Commit commitTree(const Signature &author, const Signature &committer,
                     const QString &message, const Tree &tree,

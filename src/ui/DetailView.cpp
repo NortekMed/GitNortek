@@ -21,6 +21,7 @@
 #include "git/Diff.h"
 #include "git/Repository.h"
 #include "git/Signature.h"
+#include "util/PerformanceTrace.h"
 #include <QAbstractTextDocumentLayout>
 #include <QApplication>
 #include <QActionGroup>
@@ -610,6 +611,20 @@ void DetailView::setDiff(const git::Diff &diff, const QString &file,
 
   ContentWidget *cw = static_cast<ContentWidget *>(mContent->currentWidget());
   cw->setDiff(diff, file, pathspec);
+
+  // Update menu actions.
+  MenuBar::instance(this)->updateRepository();
+}
+
+void DetailView::setWorkingTreeStatus(
+    const git::WorkingTreeStatusSnapshot &status, const QString &file) {
+  PerformanceTrace::Span span("detail", "DetailView::setWorkingTreeStatus");
+  mDetail->setCurrentIndex(EditorIndex);
+  mDetail->setVisible(status.isValid() && status.isDirty());
+  mCommitEditor->setDiff(git::Diff());
+
+  ContentWidget *cw = static_cast<ContentWidget *>(mContent->currentWidget());
+  cw->setWorkingTreeStatus(status, file);
 
   // Update menu actions.
   MenuBar::instance(this)->updateRepository();

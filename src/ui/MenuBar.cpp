@@ -1144,16 +1144,15 @@ void MenuBar::updateBranch() {
 void MenuBar::updateSubmodules() {
   MainWindow *win = qobject_cast<MainWindow *>(window());
   RepoView *view = win ? win->activeView() : nullptr;
-  QList<git::Submodule> submodules =
-      view ? view->repo().submodules() : QList<git::Submodule>();
+  const bool hasSubmodules = view && view->repo().hasSubmodules();
 
   mConfigureSubmodules->setEnabled(view);
-  mCheckSubmoduleUpdates->setEnabled(!submodules.isEmpty());
-  mUpdateSubmodules->setEnabled(!submodules.isEmpty());
-  mInitSubmodules->setEnabled(!submodules.isEmpty());
+  mCheckSubmoduleUpdates->setEnabled(hasSubmodules);
+  mUpdateSubmodules->setEnabled(hasSubmodules);
+  mInitSubmodules->setEnabled(hasSubmodules);
 
   // FIXME: This doesn't actually work on Mac.
-  mOpenSubmodule->setEnabled(!submodules.isEmpty());
+  mOpenSubmodule->setEnabled(hasSubmodules);
 }
 
 void MenuBar::updateStash() {

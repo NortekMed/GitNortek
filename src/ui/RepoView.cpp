@@ -53,6 +53,7 @@
 #include "git/Tree.h"
 #include "git/Signature.h"
 #include "git2/merge.h"
+#include "util/PerformanceTrace.h"
 #include "host/Accounts.h"
 #include "index/Index.h"
 #include "log/LogEntry.h"
@@ -66,10 +67,12 @@
 #include <QFileInfo>
 #include <QFrame>
 #include <QHBoxLayout>
+#include <QJsonObject>
 #include <QLabel>
 #include <QMessageBox>
 #include <QMenu>
 #include <QtNetwork>
+#include <QPaintEvent>
 #include <QPushButton>
 #include <QProcess>
 #include <QStandardPaths>
@@ -191,6 +194,8 @@ private:
 
 RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
     : QSplitter(Qt::Vertical, parent), mRepo(repo) {
+  PerformanceTrace::Span span("startup", "RepoView constructor",
+                              repo.dir(false).path());
   setHandleWidth(0);
   setAttribute(Qt::WA_DeleteOnClose);
   mCloseCleanupTimer.setSingleShot(true);
@@ -225,16 +230,24 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
   // Initialize index.
   mIndex = new Index(repo, this);
   SearchField *searchField = toolBar->searchField();
-  connect(&mIndexer, &QProcess::started, this, [searchField] {
+  connect(&mIndexer, &QProcess::started, this, [this, searchField] {
+    QJsonObject fields;
+    fields["pid"] = mIndexer.processId();
+    PerformanceTrace::event("indexer", "started", mRepo.dir(false).path(),
+                            fields);
     searchField->setPlaceholderText(tr("Indexing..."));
   });
   using Signal = void (QProcess::*)(int, QProcess::ExitStatus);
   auto signal = static_cast<Signal>(&QProcess::finished);
   connect(&mIndexer, signal, this,
-          [this, searchField](int code, QProcess::ExitStatus status) {
-            Q_UNUSED(code)
+           [this, searchField](int code, QProcess::ExitStatus status) {
+             QJsonObject fields;
+             fields["exitCode"] = code;
+             fields["crashed"] = status == QProcess::CrashExit;
+             PerformanceTrace::event("indexer", "finished",
+                                     mRepo.dir(false).path(), fields);
 
-            searchField->setPlaceholderText(tr("Search"));
+             searchField->setPlaceholderText(tr("Search"));
             if (status == QProcess::CrashExit) {
               QString text =
                   tr("The indexer worker process crashed. If this problem "
@@ -331,6 +344,8 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
   connect(mRefs, &ReferenceWidget::referenceSelected, mCommits,
           &CommitList::selectReference);
   connect(mCommits, &CommitList::statusChanged, this, &RepoView::statusChanged);
+  connect(mCommits, &CommitList::statusSelected, this,
+          &RepoView::statusSelected);
   connect(mCommits, &CommitList::selectedRangeChanged, this,
           [this](const QString &range) {
             if (!mSelectingPendingCheckoutStatus &&
@@ -592,6 +607,12 @@ void RepoView::diffSelected(const git::Diff diff, const QString &file,
   mDetails->setDiff(diff2, file, mPathspec->pathspec());
 }
 
+void RepoView::statusSelected(const git::WorkingTreeStatusSnapshot status,
+                              const QString &file, bool spontaneous) {
+  mHistory->update(location(), spontaneous);
+  mDetails->setWorkingTreeStatus(status, file);
+}
+
 RepoView::~RepoView() {
   cancelIndexing();
 
@@ -674,18 +695,8 @@ bool RepoView::isFileInspectionVisible() const {
 }
 
 bool RepoView::isWorkingDirectoryDirty() const {
-  git::Diff status = mCommits->status();
-  if (!status.isValid())
-    return false;
-
   // FIXME: Add option to stash untracked files?
-  int count = status.count();
-  for (int i = 0; i < count; ++i) {
-    if (status.status(i) != GIT_DELTA_UNTRACKED)
-      return true;
-  }
-
-  return false;
+  return mCommits->hasTrackedStatusChanges();
 }
 
 git::Reference RepoView::reference() const { return mRefs->currentReference(); }
@@ -1038,6 +1049,7 @@ void RepoView::startIndexing() {
   if (!check_file.isFile()) {
     Debug("No indexer found: " << indexer_cmd);
   }
+  PerformanceTrace::event("indexer", "start requested", mRepo.dir(false).path());
   mIndexer.start(indexer_cmd, args);
 }
 
@@ -1047,11 +1059,20 @@ void RepoView::cancelIndexing() {
     return;
 
   const qint64 processId = mIndexer.processId();
+  QJsonObject fields;
+  fields["pid"] = processId;
+  PerformanceTrace::event("indexer", "terminate requested",
+                          mRepo.dir(false).path(), fields);
   mIndexer.terminate();
   QTimer::singleShot(1000, &mIndexer, [this, processId] {
     if (mIndexer.state() != QProcess::NotRunning &&
-        mIndexer.processId() == processId)
+        mIndexer.processId() == processId) {
+      QJsonObject fields;
+      fields["pid"] = processId;
+      PerformanceTrace::event("indexer", "kill requested",
+                              mRepo.dir(false).path(), fields);
       mIndexer.kill();
+    }
   });
 }
 
@@ -4004,6 +4025,8 @@ void RepoView::showEvent(QShowEvent *event) {
 }
 
 void RepoView::closeEvent(QCloseEvent *event) {
+  PerformanceTrace::event("close", "RepoView closeEvent entered",
+                          mRepo.dir(false).path());
   if (mClosing) {
     event->accept();
     return;
@@ -4025,6 +4048,8 @@ void RepoView::closeEvent(QCloseEvent *event) {
   cancelBackgroundTasks();
   finishClosing();
   QSplitter::closeEvent(event);
+  PerformanceTrace::event("close", "RepoView closeEvent accepted",
+                          mRepo.dir(false).path());
 }
 
 void RepoView::finishClosing() {
@@ -4033,12 +4058,29 @@ void RepoView::finishClosing() {
 
   bool active = mIndexer.state() != QProcess::NotRunning || mWatcher ||
                 mSubmoduleUpdateWatcher || mSubmodulePushCheckWatcher;
+  QJsonObject fields;
+  fields["indexer"] = mIndexer.state() != QProcess::NotRunning;
+  fields["remote"] = mWatcher != nullptr;
+  fields["submoduleUpdate"] = mSubmoduleUpdateWatcher != nullptr;
+  fields["submodulePushCheck"] = mSubmodulePushCheckWatcher != nullptr;
+  PerformanceTrace::event("close", active ? "finishClosing active"
+                                           : "finishClosing deleteLater",
+                          mRepo.dir(false).path(), fields);
   if (active) {
     mCloseCleanupTimer.start(50);
     return;
   }
 
   deleteLater();
+}
+
+void RepoView::paintEvent(QPaintEvent *event) {
+  QSplitter::paintEvent(event);
+  if (!mFirstPaintTraced) {
+    mFirstPaintTraced = true;
+    PerformanceTrace::event("startup", "RepoView first paint",
+                            mRepo.dir(false).path());
+  }
 }
 
 ToolBar *RepoView::toolBar() const {

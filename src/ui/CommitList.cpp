@@ -32,7 +32,9 @@
 #include "git/Signature.h"
 #include "git/TagRef.h"
 #include "git/Tree.h"
+#include "git/WorkingTreeStatus.h"
 #include "git2/errors.h"
+#include "util/PerformanceTrace.h"
 #include "ui/HotkeyManager.h"
 #include <QAbstractListModel>
 #include <QApplication>
@@ -150,21 +152,8 @@ enum GraphSegment {
   ForkRightOut
 };
 
-class DiffCallbacks : public git::Diff::Callbacks {
-public:
-  void setCanceled(bool canceled) { mCanceled.store(canceled); }
-
-  bool progress(const QString &oldPath, const QString &newPath) override {
-    return !mCanceled.load();
-  }
-
-private:
-  std::atomic_bool mCanceled = false;
-};
-
 struct StatusResult {
-  git::Diff diff;
-  git::Result result{0};
+  git::WorkingTreeStatusSnapshot snapshot;
 };
 
 /*!
@@ -190,7 +179,7 @@ public:
         return;
 
       mTimer.stop();
-      mStatusCallbacks.reset();
+      mStatusCancel.reset();
       if (mStatusRefreshPending) {
         mStatusRefreshPending = false;
         QTimer::singleShot(0, this, [this] { startStatus(); });
@@ -202,6 +191,10 @@ public:
         return;
 
       StatusResult status = mStatus.future().result();
+      mStatusSnapshot = status.snapshot;
+      PerformanceTrace::event("status", "snapshot accepted",
+                              mRepo.dir(false).path(),
+                              {{"entries", status.snapshot.entries().size()}});
       if (!mRows.isEmpty() && !mRows.constFirst().commit.isValid()) {
         QModelIndex statusIndex = index(0, 0);
         emit dataChanged(statusIndex, statusIndex, {Qt::DisplayRole,
@@ -213,9 +206,10 @@ public:
           return;
 
         resetWalker();
-        if (!status.result && status.result.error() != GIT_EUSER)
-          emit statusFailed(status.result.errorString(tr("Unable to read status")));
-        emit statusFinished(status.diff.isValid());
+        if (!status.snapshot.result() && status.snapshot.result().error() != GIT_EUSER)
+          emit statusFailed(
+              status.snapshot.result().errorString(tr("Unable to read status")));
+        emit statusFinished(status.snapshot.isDirty());
       });
     });
 
@@ -227,14 +221,21 @@ public:
   bool isHeadDetached() const { return mRepo.isHeadDetached(); }
 
   git::Diff status() const {
-    if (!mStatus.isFinished())
-      return git::Diff();
+    return git::Diff();
+  }
 
-    QFuture<StatusResult> future = mStatus.future();
-    if (!future.resultCount())
-      return git::Diff();
+  bool hasStatusChanges() const { return mStatusSnapshot.isDirty(); }
 
-    return future.result().diff;
+  bool hasTrackedStatusChanges() const {
+    return mStatusSnapshot.hasTrackedChanges();
+  }
+
+  QStringList untrackedStatusPaths() const {
+    return mStatusSnapshot.untrackedPaths();
+  }
+
+  git::WorkingTreeStatusSnapshot statusSnapshot() const {
+    return mStatusSnapshot;
   }
 
   void startStatus() {
@@ -247,22 +248,22 @@ public:
     mActiveStatusGeneration = mStatusGeneration;
     mStatusRefreshPending = false;
 
-    // Reload the index before starting the status thread. Allowing it to reload
-    // on the thread frequently corrupts the index.
-    git::Index index = mRepo.index();
-    index.read();
-
-    // Check for uncommitted changes asynchronously.
+    // Check for uncommitted changes asynchronously without creating GitNortek
+    // repository/index/diff wrappers in the worker.
     mProgress = 0;
     mTimer.start(50);
-    const bool ignoreWhitespace = Settings::instance()->isWhitespaceIgnored();
-    const git::Repository repo = mRepo;
-    mStatusCallbacks = std::make_shared<DiffCallbacks>();
-    const std::shared_ptr<DiffCallbacks> callbacks = mStatusCallbacks;
-    mStatus.setFuture(QtConcurrent::run([repo, index, callbacks, ignoreWhitespace] {
+    git::WorkingTreeStatusOptions options;
+    options.includeUntracked =
+        !mRepo.appConfig().value<bool>("untracked.hide", false);
+    options.recurseUntrackedDirs = options.includeUntracked;
+    const QString repoPath = mRepo.dir(false).path();
+    PerformanceTrace::event("status", "snapshot requested", repoPath);
+    mStatusCancel = std::make_shared<std::atomic_bool>(false);
+    const std::shared_ptr<std::atomic_bool> cancel = mStatusCancel;
+    mStatus.setFuture(QtConcurrent::run([repoPath, options, cancel] {
       StatusResult status;
-      status.diff = repo.status(index, callbacks.get(), ignoreWhitespace,
-                                &status.result);
+      status.snapshot =
+          git::WorkingTreeStatusSnapshot::scan(repoPath, options, cancel.get());
       return status;
     }));
   }
@@ -270,8 +271,8 @@ public:
   void cancelStatus() {
     ++mStatusGeneration;
     mStatusRefreshPending = false;
-    if (mStatus.isRunning() && mStatusCallbacks)
-      mStatusCallbacks->setCanceled(true);
+    if (mStatus.isRunning() && mStatusCancel)
+      mStatusCancel->store(true);
   }
 
   void setPathspec(const QString &pathspec) {
@@ -314,6 +315,8 @@ public:
   }
 
   void resetWalker() {
+    PerformanceTrace::Span span("history", "CommitModel::resetWalker",
+                                mRepo.dir(false).path());
     mResettingWalker = true;
     beginResetModel();
 
@@ -331,7 +334,7 @@ public:
     // Update status row.
     bool head = (!mRef.isValid() || mRef.isHead());
     bool pending = !mStatus.isFinished();
-    bool dirty = !pending && status().isValid();
+    bool dirty = !pending && mStatusSnapshot.isDirty();
     if (head && (dirty || (mShowCleanStatus && pending)) &&
         mPathspec.isEmpty()) {
       QVector<Column> row;
@@ -964,8 +967,9 @@ private:
   QTimer mTimer;
   int mProgress = 0;
 
-  std::shared_ptr<DiffCallbacks> mStatusCallbacks;
+  std::shared_ptr<std::atomic_bool> mStatusCancel;
   QFutureWatcher<StatusResult> mStatus;
+  git::WorkingTreeStatusSnapshot mStatusSnapshot;
   bool mStatusRefreshPending = false;
   quint64 mStatusGeneration = 0;
   quint64 mActiveStatusGeneration = 0;
@@ -1901,6 +1905,9 @@ CommitList::CommitList(Index *index, CommitAvatarProvider *avatars,
       new CommitDelegate(repo, avatars, mHeader, mGraphScrollBar, this));
   connect(&mSelectionDiff, &QFutureWatcher<git::Diff>::finished, this,
           [this] {
+            if (mActiveSelectionDiffGeneration != mSelectionDiffGeneration)
+              return;
+
             if (mSelectionDiff.future().resultCount())
               emit diffSelected(mSelectionDiff.result(), mSelectionDiffFile,
                                 mSelectionDiffSpontaneous);
@@ -2448,6 +2455,18 @@ git::Diff CommitList::status() const {
   return static_cast<CommitModel *>(mModel)->status();
 }
 
+bool CommitList::hasStatusChanges() const {
+  return static_cast<CommitModel *>(mModel)->hasStatusChanges();
+}
+
+bool CommitList::hasTrackedStatusChanges() const {
+  return static_cast<CommitModel *>(mModel)->hasTrackedStatusChanges();
+}
+
+QStringList CommitList::untrackedStatusPaths() const {
+  return static_cast<CommitModel *>(mModel)->untrackedStatusPaths();
+}
+
 QString CommitList::selectedRange() const {
   QList<git::Commit> commits = selectedCommits();
   if (commits.isEmpty())
@@ -2473,6 +2492,12 @@ git::Diff CommitList::selectedDiff() const {
     return git::Diff();
 
   if (indexes.size() == 1) {
+    if (!indexes.first().data(CommitRole).value<git::Commit>().isValid()) {
+      if (mSelectionDiff.isFinished() && mSelectionDiff.future().resultCount())
+        return mSelectionDiff.result();
+      return git::Diff();
+    }
+
     auto first = indexes.first().data(DiffRole);
     return first.isValid() ? first.value<git::Diff>() : git::Diff();
   }
@@ -2710,13 +2735,7 @@ void CommitList::contextMenuEvent(QContextMenuEvent *event) {
     QMenu menu;
 
     // clean
-    QStringList untracked;
-    if (git::Diff diff = status()) {
-      for (int i = 0; i < diff.count(); i++) {
-        if (diff.status(i) == GIT_DELTA_UNTRACKED)
-          untracked.append(diff.name(i));
-      }
-    }
+    QStringList untracked = untrackedStatusPaths();
 
     QAction *clean =
         menu.addAction(tr("Remove Untracked Files"),
@@ -3165,8 +3184,31 @@ void CommitList::notifySelectionChanged() {
     update(index);
   const QList<git::Commit> commits = selectedCommits();
   if (commits.isEmpty()) {
-    mSelectionDiff.setFuture(QFuture<git::Diff>());
-    emit diffSelected(status(), mFile, mSpontaneous);
+    ++mSelectionDiffGeneration;
+    if (!hasStatusChanges()) {
+      mActiveSelectionDiffGeneration = mSelectionDiffGeneration;
+      mSelectionDiff.setFuture(QFuture<git::Diff>());
+      emit diffSelected(git::Diff(), mFile, mSpontaneous);
+      return;
+    }
+
+    // Build the complete working-tree diff only after the status row is
+    // selected. The periodic refresh itself uses a lightweight status snapshot.
+    git::Index index = RepoView::parentView(this)->repo().index();
+    index.read();
+    const git::Repository repo = RepoView::parentView(this)->repo();
+    const bool ignoreWhitespace = Settings::instance()->isWhitespaceIgnored();
+    mSelectionDiffFile = mFile;
+    mSelectionDiffSpontaneous = mSpontaneous;
+    mActiveSelectionDiffGeneration = mSelectionDiffGeneration;
+    emit statusSelected(static_cast<CommitModel *>(mModel)->statusSnapshot(),
+                        mFile, mSpontaneous);
+    PerformanceTrace::event("diff", "status diff requested", repo.dir(false).path());
+    mSelectionDiff.setFuture(QtConcurrent::run([repo, index, ignoreWhitespace] {
+      PerformanceTrace::Span span("diff", "full status diff", repo.dir(false).path());
+      git::Result result(0);
+      return repo.status(index, nullptr, ignoreWhitespace, &result);
+    }));
     return;
   }
 
@@ -3174,8 +3216,10 @@ void CommitList::notifySelectionChanged() {
   const git::Commit last = commits.size() > 1 ? commits.last() : git::Commit();
   const git::Repository repo = first.repo();
   const bool ignoreWhitespace = Settings::instance()->isWhitespaceIgnored();
+  ++mSelectionDiffGeneration;
   mSelectionDiffFile = mFile;
   mSelectionDiffSpontaneous = mSpontaneous;
+  mActiveSelectionDiffGeneration = mSelectionDiffGeneration;
   mSelectionDiff.setFuture(QtConcurrent::run(
       [repo, first, last, ignoreWhitespace] {
         Q_UNUSED(repo)

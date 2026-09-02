@@ -16,6 +16,7 @@
 #include "git/RevWalk.h"
 #include "git/Submodule.h"
 #include "git/Patch.h"
+#include "util/PerformanceTrace.h"
 #include <QStringBuilder>
 #include <QUrl>
 #include <qobjectdefs.h>
@@ -32,6 +33,33 @@ bool asList() {
   return Settings::instance()
       ->value(Setting::Id::ShowChangedFilesAsList, false)
       .toBool();
+}
+
+git::Index::StagedState stageState(
+    const git::WorkingTreeStatusEntry &entry) {
+  if (entry.isConflicted())
+    return git::Index::Conflicted;
+  if (entry.hasIndexChange() && entry.hasWorkdirChange())
+    return git::Index::PartiallyStaged;
+  if (entry.hasIndexChange())
+    return git::Index::Staged;
+  return git::Index::Unstaged;
+}
+
+QString statusText(const git::WorkingTreeStatusEntry &entry) {
+  if (entry.isConflicted())
+    return QStringLiteral("!");
+
+  QString status;
+  for (git_delta_t delta : {entry.indexStatus, entry.workdirStatus}) {
+    if (delta == GIT_DELTA_UNMODIFIED)
+      continue;
+
+    const QChar ch = git::Diff::statusChar(delta);
+    if (!status.contains(ch))
+      status.append(ch);
+  }
+  return status;
 }
 
 } // namespace
@@ -79,6 +107,8 @@ void DiffTreeModel::setDiff(const git::Diff &diff,
 
   delete mRoot;
   mRoot = nullptr;
+  mStatusSnapshotMode = false;
+  mStatusSnapshot = git::WorkingTreeStatusSnapshot();
   mResolvedPaths = QSet<QString>(resolvedPaths.cbegin(), resolvedPaths.cend());
   if (diff || !mResolvedPaths.isEmpty()) {
     mDiff = diff;
@@ -95,11 +125,35 @@ void DiffTreeModel::setDiff(const git::Diff &diff,
   endResetModel();
 }
 
+void DiffTreeModel::setStatusSnapshot(
+    const git::WorkingTreeStatusSnapshot &status) {
+  PerformanceTrace::Span span("detail", "DiffTreeModel::setStatusSnapshot",
+                              mRepo.dir(false).path(),
+                              {{"entries", status.entries().size()}});
+  beginResetModel();
+
+  delete mRoot;
+  mDiff = git::Diff();
+  mResolvedPaths.clear();
+  mStatusSnapshot = status;
+  mStatusSnapshotMode = status.isValid();
+  mRoot = mStatusSnapshotMode ? new Node(mRepo.workdir().path(), -1) : nullptr;
+  if (mRoot) {
+    const auto &entries = mStatusSnapshot.entries();
+    for (int i = 0; i < entries.size(); ++i)
+      mRoot->addChild(entries.at(i).path.split('/'), i, mListView);
+  }
+
+  endResetModel();
+}
+
 void DiffTreeModel::setTree(const git::Tree &tree, const git::Diff &diff) {
   beginResetModel();
 
   delete mRoot;
   mDiff = diff;
+  mStatusSnapshotMode = false;
+  mStatusSnapshot = git::WorkingTreeStatusSnapshot();
   mResolvedPaths.clear();
   mRoot = tree.isValid() ? new Node(mRepo.workdir().path(), -1) : nullptr;
   if (mRoot)
@@ -294,15 +348,29 @@ QVariant DiffTreeModel::data(const QModelIndex &index, int role) const {
       if (index.column() > 0)
         return QVariant();
 
-      const bool statusDiff = mDiff.isValid() && mDiff.isStatusDiff();
+      const bool statusDiff = mStatusSnapshotMode ||
+                              (mDiff.isValid() && mDiff.isStatusDiff());
       const bool resolvedPath =
           !node->hasChildren() && mResolvedPaths.contains(node->path(true));
       if (!statusDiff && !resolvedPath)
         return QVariant();
 
-      const git::Index repoIndex = statusDiff ? mDiff.index() : mRepo.index();
-      const auto state =
-          node->stageState(repoIndex, Node::ParentStageState::Any);
+      git::Index::StagedState state = git::Index::Unstaged;
+      if (mStatusSnapshotMode) {
+        QList<int> entryIndexes;
+        node->patchIndices(entryIndexes);
+        for (int i = 0; i < entryIndexes.size(); ++i) {
+          const auto entryState =
+              stageState(mStatusSnapshot.entries().at(entryIndexes.at(i)));
+          if (i == 0)
+            state = entryState;
+          else if (state != entryState)
+            state = git::Index::PartiallyStaged;
+        }
+      } else {
+        const git::Index repoIndex = statusDiff ? mDiff.index() : mRepo.index();
+        state = node->stageState(repoIndex, Node::ParentStageState::Any);
+      }
       switch (state) {
         case git::Index::StagedState::PartiallyStaged:
           return Qt::CheckState::PartiallyChecked;
@@ -343,16 +411,21 @@ QVariant DiffTreeModel::data(const QModelIndex &index, int role) const {
     }
 
     case StatusRole: {
-      if (!mDiff.isValid())
+      if (!mDiff.isValid() && !mStatusSnapshotMode)
         return QString();
 
       QString status;
       QList<int> patchIndices;
       node->patchIndices(patchIndices);
       for (auto patchIndex : patchIndices) {
-        QChar ch = git::Diff::statusChar(mDiff.status(patchIndex));
-        if (!status.contains(ch))
-          status.append(ch);
+        const QString chars =
+            mStatusSnapshotMode
+                ? statusText(mStatusSnapshot.entries().at(patchIndex))
+                : QString(git::Diff::statusChar(mDiff.status(patchIndex)));
+        for (QChar ch : chars) {
+          if (!status.contains(ch))
+            status.append(ch);
+        }
       }
 
       return status;
@@ -381,20 +454,38 @@ bool DiffTreeModel::discard(const QModelIndex &index) {
   node->patchIndices(list);
 
   QStringList trackedPatches;
-  for (auto i : list) {
-    auto patch = mDiff.patch(i);
-    if (patch.isUntracked()) {
-      QString name = patch.name();
-      git::Repository repo = patch.repo();
-      QDir dir = repo.workdir();
-      if (QFileInfo(dir.filePath(name)).isDir()) {
-        if (dir.cd(name))
-          dir.removeRecursively();
+  if (mStatusSnapshotMode) {
+    for (auto i : list) {
+      const auto &entry = mStatusSnapshot.entries().at(i);
+      const QString name = entry.path;
+      if (entry.isUntracked()) {
+        QDir dir = mRepo.workdir();
+        if (QFileInfo(dir.filePath(name)).isDir()) {
+          if (dir.cd(name))
+            dir.removeRecursively();
+        } else {
+          dir.remove(name);
+        }
       } else {
-        dir.remove(name);
+        trackedPatches.append(name);
       }
-    } else {
-      trackedPatches.append(patch.name());
+    }
+  } else {
+    for (auto i : list) {
+      auto patch = mDiff.patch(i);
+      if (patch.isUntracked()) {
+        QString name = patch.name();
+        git::Repository repo = patch.repo();
+        QDir dir = repo.workdir();
+        if (QFileInfo(dir.filePath(name)).isDir()) {
+          if (dir.cd(name))
+            dir.removeRecursively();
+        } else {
+          dir.remove(name);
+        }
+      } else {
+        trackedPatches.append(patch.name());
+      }
     }
   }
 
@@ -418,8 +509,7 @@ bool DiffTreeModel::discard(const QModelIndex &index) {
 
   if (filePatches.length() > 0) {
     int strategy = GIT_CHECKOUT_FORCE;
-    auto repo = mDiff.patch(list[0]).repo(); // does not matter which index is
-                                             // used all are in the same repo
+    auto repo = mStatusSnapshotMode ? mRepo : mDiff.patch(list[0]).repo();
     if (!repo.checkout(git::Commit(), nullptr, trackedPatches, strategy))
       return false;
   }
@@ -439,9 +529,11 @@ bool DiffTreeModel::setData(const QModelIndex &index, const QVariant &value,
         git::Index::StagedState state =
             static_cast<git::Index::StagedState>(value.toInt());
         if (state == git::Index::StagedState::Staged)
-          mDiff.index().setStaged(files, true);
+          (mStatusSnapshotMode ? mRepo.index() : mDiff.index())
+              .setStaged(files, true);
         else if (state == git::Index::StagedState::Unstaged)
-          mDiff.index().setStaged(files, false);
+          (mStatusSnapshotMode ? mRepo.index() : mDiff.index())
+              .setStaged(files, false);
         else if (state == git::Index::StagedState::PartiallyStaged)
           // is done directly in the hunkwidget, because it gets to complicated
           // to do line staging here.

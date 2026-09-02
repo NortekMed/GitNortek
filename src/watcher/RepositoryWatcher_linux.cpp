@@ -9,6 +9,8 @@
 
 #include "RepositoryWatcher.h"
 #include "git/Submodule.h"
+#include "util/PerformanceTrace.h"
+#include <QJsonObject>
 #include <QMap>
 #include <QSet>
 #include <QStringList>
@@ -55,19 +57,34 @@ public:
   bool isValid() const { return (mFd >= 0); }
 
   void run() override {
+    const QString repoPath = mRepo.dir(false).path();
+    PerformanceTrace::event("watcher", "thread started", repoPath);
     // Submodule discovery can be expensive for large repositories. Keep it off
     // the GUI thread, where this watcher is constructed.
-    foreach (const git::Submodule &submodule, mRepo.submodules()) {
-      git::Repository submoduleRepo = submodule.open();
-      if (submoduleRepo.isValid())
-        mSubmoduleGitDirs.append(submoduleRepo.dir().path());
+    {
+      PerformanceTrace::Span span("watcher", "submodule discovery", repoPath);
+      foreach (const git::Submodule &submodule, mRepo.submodules()) {
+        git::Repository submoduleRepo = submodule.open();
+        if (submoduleRepo.isValid())
+          mSubmoduleGitDirs.append(submoduleRepo.dir().path());
+      }
     }
 
     // Watch the root directory.
-    watchWorkdir(mRepo.workdir());
-    watchGitMetadata();
+    {
+      PerformanceTrace::Span span("watcher", "workdir traversal", repoPath);
+      watchWorkdir(mRepo.workdir());
+    }
+    {
+      PerformanceTrace::Span span("watcher", "metadata traversal", repoPath);
+      watchGitMetadata();
+    }
 
     // Start listening for notifications.
+    QJsonObject fields;
+    fields["watchDescriptors"] = mDirWds.size();
+    fields["submoduleGitDirs"] = mSubmoduleGitDirs.size();
+    PerformanceTrace::event("watcher", "poll entered", repoPath, fields);
     forever {
       pollfd pollFds[2];
       pollFds[0].fd = mPipe[0];
@@ -78,8 +95,10 @@ public:
         return; // FIXME: Report error?
 
       // Check for signal to quit.
-      if (pollFds[0].revents & POLLIN)
+      if (pollFds[0].revents & POLLIN) {
+        PerformanceTrace::event("watcher", "stop observed", repoPath);
         return;
+      }
 
       // Check for notifications.
       if (!(pollFds[1].revents & POLLIN))
@@ -221,6 +240,7 @@ public:
   }
 
   void stop() {
+    PerformanceTrace::event("watcher", "stop requested", mRepo.dir(false).path());
     if (write(mPipe[1], "\n", 1) < 0)
       terminate(); // FIXME: Report error?
   }
@@ -252,6 +272,7 @@ RepositoryWatcher::RepositoryWatcher(const git::Repository &repo,
 RepositoryWatcher::~RepositoryWatcher() {
   if (d->isValid()) {
     d->stop();
+    PerformanceTrace::Span span("watcher", "destructor wait");
     d->wait();
   }
 }
