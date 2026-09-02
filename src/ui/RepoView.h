@@ -466,6 +466,7 @@ private:
   Index *mIndex;
   CommitAvatarProvider *mAvatarProvider;
   QProcess mIndexer;
+  QTimer mIndexResetTimer;
   bool mRestartIndexer = false;
 
   History *mHistory;

@@ -24,6 +24,7 @@
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
 #include <QTreeView>
+#include <QTimer>
 #include <QVBoxLayout>
 
 #include "ReferenceModel.h"
@@ -189,8 +190,16 @@ ReferenceView::ReferenceView(const git::Repository &repo, Kinds kinds,
   // Keep focus on the field.
   setFocusProxy(field);
 
-  // Update model last.
-  static_cast<ReferenceModel *>(mSource)->update();
+  // The repository sidebar is constructed while opening a repository. Defer
+  // its initial Git reference scan so the window can be shown first. Popup
+  // views still need their model ready synchronously for immediate use.
+  if (popup) {
+    static_cast<ReferenceModel *>(mSource)->update();
+  } else {
+    QTimer::singleShot(0, this, [this] {
+      static_cast<ReferenceModel *>(mSource)->update();
+    });
+  }
 }
 
 void ReferenceView::setCommit(const git::Commit &commit) {

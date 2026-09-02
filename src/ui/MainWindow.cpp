@@ -40,6 +40,7 @@
 #include <QSplitter>
 #include <QStackedWidget>
 #include <QTimeLine>
+#include <QTimer>
 #include <QToolButton>
 #include "util/Debug.h"
 
@@ -398,15 +399,17 @@ RepoView *MainWindow::addTab(const git::Repository &repo,
   tabs->setCurrentIndex(tabs->addTab(view, icon, dir.dirName()));
   mAddingTab = false;
 
-  const QList<git::Submodule> submodules =
-      updateSubmodules.value_or(false) ? repo.submodules()
-                                       : QList<git::Submodule>();
-  if (!submodules.isEmpty()) {
-    // The submodule update refreshes after it completes.
-    view->updateSubmodules(submodules, true, true, false, nullptr);
-  } else {
-    view->refresh(false);
-  }
+  QTimer::singleShot(0, view, [view, repo, updateSubmodules] {
+    const QList<git::Submodule> submodules =
+        updateSubmodules.value_or(false) ? repo.submodules()
+                                         : QList<git::Submodule>();
+    if (!submodules.isEmpty()) {
+      // The submodule update refreshes after it completes.
+      view->updateSubmodules(submodules, true, true, false, nullptr);
+    } else {
+      view->refresh(false);
+    }
+  });
   setLocalRepositoryManagementVisible(false);
   return view;
 }

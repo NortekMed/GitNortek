@@ -197,13 +197,10 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
   connect(&mCloseCleanupTimer, &QTimer::timeout, this,
           &RepoView::finishClosing);
 
-  // Start (or restart) indexing after a reference target is updated.
+  // Start (or restart) indexing after the initial status check has completed.
   git::RepositoryNotifier *notifier = repo.notifier();
-  connect(notifier, &git::RepositoryNotifier::referenceUpdated, this,
-          [this](const git::Reference &, bool, bool refreshStatus) {
-            if (refreshStatus)
-              startIndexing();
-          });
+  connect(this, &RepoView::statusChanged, this,
+          [this] { startIndexing(); });
 
   MenuBar *menuBar = MenuBar::instance(parent);
   connect(this, &RepoView::statusChanged, menuBar, &MenuBar::updateStash);
@@ -254,9 +251,14 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
 
   // Forward indexer stderr. Read from stdout.
   mIndexer.setProcessChannelMode(QProcess::ForwardedErrorChannel);
+  mIndexResetTimer.setSingleShot(true);
+  mIndexResetTimer.setInterval(200);
+  connect(&mIndexResetTimer, &QTimer::timeout, mIndex, &Index::reset);
   connect(&mIndexer, &QProcess::readyReadStandardOutput, this, [this] {
     mIndexer.readAllStandardOutput();
-    mIndex->reset();
+    // Index updates arrive in bursts. Reload once after the burst instead of
+    // rereading the complete index for every notification.
+    mIndexResetTimer.start();
   });
 
   // Initialize history.
@@ -3994,7 +3996,6 @@ void RepoView::showEvent(QShowEvent *event) {
 
   // Start background tasks after showing for the first time.
   mShown = true;
-  startIndexing();
   startFetchTimer();
   if (Settings::instance()
           ->value(Setting::Id::CheckSubmodulesForUpdatesAutomatically)

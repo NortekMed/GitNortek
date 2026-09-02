@@ -199,7 +199,9 @@ bool Indexer::start() {
   // processing done in the worker threads are the limiting factor. Aside from
   // using more RAM, the over-commitment doesn't seem to impact performance
   int numGabbers = std::min(4, std::max(1, QThread::idealThreadCount() / 2));
-  int numWorkers = QThread::idealThreadCount();
+  // Leave CPU capacity for the UI and other Git operations. Large
+  // repositories otherwise make indexing compete with the initial refresh.
+  int numWorkers = std::min(4, std::max(1, QThread::idealThreadCount()));
 
   log("start");
   mReduce.start();

@@ -7,14 +7,35 @@
 
 #include <QDateTime>
 
+#include <algorithm>
+
 namespace {
 const QString kNowrapFmt = "<span style='white-space: nowrap'>%1</span>";
 
-bool refComparator(const git::Reference &lhs, const git::Reference &rhs) {
-  git::Commit lhsCommit = lhs.target();
-  git::Commit rhsCommit = rhs.target();
-  return (lhsCommit.isValid() && rhsCommit.isValid() &&
-          lhsCommit.committer().date() > rhsCommit.committer().date());
+void sortReferences(QList<git::Reference> &refs) {
+  struct SortKey {
+    git::Reference ref;
+    QDateTime date;
+  };
+
+  QList<SortKey> keyed;
+  keyed.reserve(refs.size());
+  for (const git::Reference &ref : refs) {
+    git::Commit commit = ref.target();
+    keyed.append({ref, commit.isValid() ? commit.committer().date()
+                                        : QDateTime()});
+  }
+
+  std::stable_sort(keyed.begin(), keyed.end(),
+                   [](const SortKey &lhs, const SortKey &rhs) {
+                     return lhs.date.isValid() && rhs.date.isValid() &&
+                            lhs.date > rhs.date;
+                   });
+
+  refs.clear();
+  refs.reserve(keyed.size());
+  for (const SortKey &key : keyed)
+    refs.append(key.ref);
 }
 } // namespace
 
@@ -95,7 +116,7 @@ void ReferenceModel::update() {
         branches.append(branch);
     }
 
-    std::sort(branches.begin(), branches.end(), refComparator);
+    sortReferences(branches);
 
     // Add top references.
     if (detachedHead.isValid())
@@ -129,7 +150,7 @@ void ReferenceModel::update() {
         remotes.append(branch);
     }
 
-    std::sort(remotes.begin(), remotes.end(), refComparator);
+    sortReferences(remotes);
     if (mKinds & ReferenceView::InvalidRef)
       remotes.prepend(git::Reference());
     mRefs.append({tr("Remotes"), remotes,
@@ -147,7 +168,7 @@ void ReferenceModel::update() {
         tags.append(tag);
     }
 
-    std::sort(tags.begin(), tags.end(), refComparator);
+    sortReferences(tags);
     mRefs.append(
         {tr("Tags"), tags, ReferenceType::Tags}); // Third element in mRefs
   }

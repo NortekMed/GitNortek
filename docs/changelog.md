@@ -35,6 +35,8 @@ Bug Fix and Feature release
 
 #### Changed
 
+* Improve large-repository startup responsiveness by deferring reference loading and the initial refresh, caching reference sort metadata, coalescing search-index reloads, and limiting indexer worker concurrency
+* Keep the interface responsive while checking for changes by loading the Git index in the status worker and starting search indexing afterward
 * Move Linux submodule watcher discovery off the GUI thread to improve repository startup responsiveness
 * Leave uninitialized submodules untouched when opening existing repositories
 * Derive GitHub release package versions directly from validated release tags and reject mismatched artifacts

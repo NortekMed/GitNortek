@@ -232,12 +232,9 @@ public:
 
     mRestartStatus = false;
 
-    // Reload the index before starting the status thread. Allowing
-    // it to reload on the thread frequently corrupts the index.
-    git::Index index = mRepo.index();
-    index.read();
-
-    // Check for uncommitted changes asynchronously.
+    // Reload the index and check for uncommitted changes asynchronously. Keep
+    // the index handle local to the worker so the GUI thread never blocks on
+    // a large index file.
     mProgress = 0;
     mTimer.start(50);
     const bool ignoreWhitespace = Settings::instance()->isWhitespaceIgnored();
@@ -245,7 +242,9 @@ public:
     mStatusCallbacks = std::make_shared<DiffCallbacks>();
     const std::shared_ptr<DiffCallbacks> callbacks = mStatusCallbacks;
     mStatus.setFuture(QtConcurrent::run(
-        [repo, index, callbacks, ignoreWhitespace] {
+        [repo, callbacks, ignoreWhitespace] {
+      git::Index index = repo.index();
+      index.read();
       StatusResult status;
       status.diff = repo.status(index, callbacks.get(), ignoreWhitespace,
                                 &status.result);
