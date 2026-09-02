@@ -191,17 +191,32 @@ public:
 
       mTimer.stop();
       mStatusCallbacks.reset();
-      if (mRestartStatus) {
-        mRestartStatus = false;
+      if (mStatusRefreshPending) {
+        mStatusRefreshPending = false;
         QTimer::singleShot(0, this, [this] { startStatus(); });
         return;
       }
 
-      resetWalker();
+      const quint64 generation = mActiveStatusGeneration;
+      if (generation != mStatusGeneration)
+        return;
+
       StatusResult status = mStatus.future().result();
-      if (!status.result && status.result.error() != GIT_EUSER)
-        emit statusFailed(status.result.errorString(tr("Unable to read status")));
-      emit statusFinished(status.diff.isValid());
+      if (!mRows.isEmpty() && !mRows.constFirst().commit.isValid()) {
+        QModelIndex statusIndex = index(0, 0);
+        emit dataChanged(statusIndex, statusIndex, {Qt::DisplayRole,
+                                                    Qt::DecorationRole});
+      }
+      // Let the completed status row paint before rebuilding the history graph.
+      QTimer::singleShot(16, this, [this, generation, status] {
+        if (generation != mStatusGeneration || mStatus.isRunning())
+          return;
+
+        resetWalker();
+        if (!status.result && status.result.error() != GIT_EUSER)
+          emit statusFailed(status.result.errorString(tr("Unable to read status")));
+        emit statusFinished(status.diff.isValid());
+      });
     });
 
     resetSettings();
@@ -224,27 +239,27 @@ public:
 
   void startStatus() {
     if (mStatus.isRunning()) {
-      mRestartStatus = true;
-      if (mStatusCallbacks)
-        mStatusCallbacks->setCanceled(true);
+      mStatusRefreshPending = true;
       return;
     }
 
-    mRestartStatus = false;
+    ++mStatusGeneration;
+    mActiveStatusGeneration = mStatusGeneration;
+    mStatusRefreshPending = false;
 
-    // Reload the index and check for uncommitted changes asynchronously. Keep
-    // the index handle local to the worker so the GUI thread never blocks on
-    // a large index file.
+    // Reload the index before starting the status thread. Allowing it to reload
+    // on the thread frequently corrupts the index.
+    git::Index index = mRepo.index();
+    index.read();
+
+    // Check for uncommitted changes asynchronously.
     mProgress = 0;
     mTimer.start(50);
     const bool ignoreWhitespace = Settings::instance()->isWhitespaceIgnored();
     const git::Repository repo = mRepo;
     mStatusCallbacks = std::make_shared<DiffCallbacks>();
     const std::shared_ptr<DiffCallbacks> callbacks = mStatusCallbacks;
-    mStatus.setFuture(QtConcurrent::run(
-        [repo, callbacks, ignoreWhitespace] {
-      git::Index index = repo.index();
-      index.read();
+    mStatus.setFuture(QtConcurrent::run([repo, index, callbacks, ignoreWhitespace] {
       StatusResult status;
       status.diff = repo.status(index, callbacks.get(), ignoreWhitespace,
                                 &status.result);
@@ -253,7 +268,8 @@ public:
   }
 
   void cancelStatus() {
-    mRestartStatus = false;
+    ++mStatusGeneration;
+    mStatusRefreshPending = false;
     if (mStatus.isRunning() && mStatusCallbacks)
       mStatusCallbacks->setCanceled(true);
   }
@@ -950,7 +966,9 @@ private:
 
   std::shared_ptr<DiffCallbacks> mStatusCallbacks;
   QFutureWatcher<StatusResult> mStatus;
-  bool mRestartStatus = false;
+  bool mStatusRefreshPending = false;
+  quint64 mStatusGeneration = 0;
+  quint64 mActiveStatusGeneration = 0;
 
   QString mPathspec;
   git::Reference mRef;
