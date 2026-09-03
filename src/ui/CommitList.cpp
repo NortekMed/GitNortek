@@ -1052,9 +1052,7 @@ public:
     QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
 
-    bool compact = Settings::instance()
-                       ->value(Setting::Id::ShowCommitsInCompactMode)
-                       .toBool();
+    bool compact = true;
     if (compact) {
       opt.font = compactFont(opt.font);
       opt.fontMetrics = QFontMetrics(opt.font, opt.widget);
@@ -1588,9 +1586,7 @@ public:
 
   QSize sizeHint(const QStyleOptionViewItem &option,
                  const QModelIndex &index) const override {
-    bool compact = Settings::instance()
-                       ->value(Setting::Id::ShowCommitsInCompactMode)
-                       .toBool();
+    bool compact = true;
     LayoutConstants constants = layoutConstants(compact);
 
     int lineHeight = constants.lineSpacing + constants.vMargin;
@@ -1603,9 +1599,7 @@ public:
   bool helpEvent(QHelpEvent *event, QAbstractItemView *view,
                  const QStyleOptionViewItem &option,
                  const QModelIndex &index) override {
-    bool compact = Settings::instance()
-                       ->value(Setting::Id::ShowCommitsInCompactMode)
-                       .toBool();
+    bool compact = true;
     git::Commit commit =
         index.data(CommitList::Role::CommitRole).value<git::Commit>();
     QRect refsRect = compactLayout(option.rect).refs;
@@ -1636,9 +1630,7 @@ public:
 
   QRect starRect(const QStyleOptionViewItem &option,
                  const QModelIndex &index) const {
-    bool compact = Settings::instance()
-                       ->value(Setting::Id::ShowCommitsInCompactMode)
-                       .toBool();
+    bool compact = true;
     if (compact)
       return compactLayout(option.rect).star;
 
@@ -2048,26 +2040,43 @@ void CommitList::setupHeader() {
         Settings::instance()->setValue(Setting::Id::ShowCommitsDate, visible);
       else if (column == IdColumn)
         Settings::instance()->setValue(Setting::Id::ShowCommitsId, visible);
+      else if (column == GraphColumn)
+        RepoView::parentView(this)->repo().appConfig().setValue(
+            ConfigKeys::kGraphKey, visible);
       resizeEvent(nullptr);
       saveHeaderState();
       doItemsLayout();
       viewport()->update();
+      if (column == GraphColumn)
+        resetSettings();
     });
   }
   menu->addSeparator();
+  QAction *status = menu->addAction(tr("Show Clean Status"));
+  status->setCheckable(true);
+  connect(status, &QAction::triggered, this, [this](bool visible) {
+    git::Config config = RepoView::parentView(this)->repo().appConfig();
+    config.setValue(ConfigKeys::kStatusKey, visible);
+    resetSettings();
+  });
+  menu->addSeparator();
   menu->addAction(tr("Reset columns"), this, [this] {
+    RepoView::parentView(this)->repo().appConfig().setValue(
+        ConfigKeys::kGraphKey, true);
     Settings::instance()->setValue(Setting::Id::ShowCommitsAuthor, true);
     Settings::instance()->setValue(Setting::Id::ShowCommitsDate, true);
     Settings::instance()->setValue(Setting::Id::ShowCommitsId, true);
     resetHeader();
   });
-  connect(menu, &QMenu::aboutToShow, this, [this, menu] {
+  connect(menu, &QMenu::aboutToShow, this, [this, menu, status] {
+    git::Config config = RepoView::parentView(this)->repo().appConfig();
     for (QAction *action : menu->actions()) {
-      if (action->isCheckable()) {
+      if (action->data().isValid()) {
         int column = action->data().toInt();
         action->setChecked(!mHeader->isSectionHidden(column));
       }
     }
+    status->setChecked(config.value<bool>(ConfigKeys::kStatusKey, true));
   });
 
   connect(mHeader, &QHeaderView::sectionResized, this,
@@ -2319,13 +2328,14 @@ void CommitList::updateHeader(bool saveState) {
     return;
   bool updating = mUpdatingHeader;
   mUpdatingHeader = true;
-  bool compact = Settings::instance()
-                     ->value(Setting::Id::ShowCommitsInCompactMode)
-                     .toBool();
+  bool compact = true;
+  git::Config config = RepoView::parentView(this)->repo().appConfig();
   setViewportMargins(0, compact ? kCommitHeaderHeight : 0, 0, 0);
   mHeader->setVisible(compact);
   mHeaderOptions->setVisible(compact);
   if (compact) {
+    mHeader->setSectionHidden(
+        GraphColumn, !config.value<bool>(ConfigKeys::kGraphKey, true));
     mHeader->setSectionHidden(AuthorColumn,
                               !Settings::instance()
                                    ->value(Setting::Id::ShowCommitsAuthor, true)

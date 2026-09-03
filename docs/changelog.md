@@ -23,6 +23,7 @@ Bug Fix and Feature release
 * Show colored Pin summaries on the left and aligned P and O delta columns for submodules in the repository navigator
 * Mark the checked-out local branch with a green checkbox and color ahead and behind indicators
 * Align Compact Mode into configurable columns with content-aware widths, bottom-connected stash ancestry, and side-connected merge and divergence curves
+* Consolidate commit-list appearance settings into the column header menu and keep the configurable column layout enabled
 * Display stashes as square nodes with dotted topology and stash actions in the combined commit graph
 * Display GitHub or Gravatar author avatars inside larger commit graph nodes and commit details when avatars are enabled
 * Commit checked-out submodule revisions directly from the repository navigator

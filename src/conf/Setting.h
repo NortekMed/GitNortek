@@ -56,7 +56,6 @@ public:
     SshConfigFilePath,
     SshKeyFilePath,
     CommitMergeImmediately,
-    ShowCommitsInCompactMode,
     ShowCommitsAuthor,
     ShowCommitsDate,
     ShowCommitsId,

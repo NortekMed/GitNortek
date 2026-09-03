@@ -1496,15 +1496,6 @@ void TestRepositorySideBar::branchGraphColors() {
   config.setValue(ConfigKeys::kStatusKey, false);
   config.setValue(ConfigKeys::kGraphKey, true);
 
-  bool compact = Settings::instance()
-                     ->value(Setting::Id::ShowCommitsInCompactMode)
-                     .toBool();
-  auto restoreCompactMode = qScopeGuard([compact] {
-    Settings::instance()->setValue(Setting::Id::ShowCommitsInCompactMode,
-                                   compact);
-  });
-  Settings::instance()->setValue(Setting::Id::ShowCommitsInCompactMode, true);
-
   MainWindow window(repo);
   window.resize(1200, 700);
   window.show();
@@ -1744,16 +1735,6 @@ void TestRepositorySideBar::stashInteraction() {
 
   QAbstractItemModel *graphModel = commitList->model();
 
-  bool compact = Settings::instance()
-                     ->value(Setting::Id::ShowCommitsInCompactMode)
-                     .toBool();
-  auto restoreCompactMode = qScopeGuard([compact] {
-    Settings::instance()->setValue(Setting::Id::ShowCommitsInCompactMode,
-                                   compact);
-  });
-  Settings::instance()->setValue(Setting::Id::ShowCommitsInCompactMode, true);
-  commitList->resetSettings();
-  QCoreApplication::processEvents();
   QCOMPARE(commitList->sizeHintForRow(0), 28);
 
   QHeaderView *header = commitList->findChild<QHeaderView *>("CommitHeader");
@@ -1832,6 +1813,9 @@ void TestRepositorySideBar::stashInteraction() {
   }
   QVERIFY(columnOptions);
   QAction *referencesAction = columnOptions->menu()->actions().constFirst();
+  QAction *graphAction =
+      columnOptions->menu()->actions().at(CommitList::GraphColumn);
+  QVERIFY(graphAction->isCheckable());
   referencesAction->setChecked(true);
   referencesAction->trigger();
   QVERIFY(header->isSectionHidden(0));
@@ -1841,6 +1825,15 @@ void TestRepositorySideBar::stashInteraction() {
   QVERIFY(!resetColumns->isCheckable());
   resetColumns->trigger();
   QCoreApplication::processEvents();
+  QAction *status = nullptr;
+  for (QAction *action : columnOptions->menu()->actions()) {
+    if (action->text() == "Show Clean Status") {
+      status = action;
+      break;
+    }
+  }
+  QVERIFY(status);
+  QVERIFY(status->isCheckable());
   int laneWidth = qMax(compactMetrics.ascent(), 20);
   QCOMPARE(header->sectionSize(CommitList::GraphColumn), 8 * laneWidth);
 
@@ -2073,10 +2066,6 @@ void TestRepositorySideBar::stashInteraction() {
   commitList->setModel(graphModel);
   QCoreApplication::processEvents();
   QCOMPARE(header->sectionSize(1), graphWidthBeforeGraphGrowth);
-
-  Settings::instance()->setValue(Setting::Id::ShowCommitsInCompactMode,
-                                 compact);
-  commitList->resetSettings();
 
   auto graphStashes = [graphModel] {
     while (graphModel->canFetchMore(QModelIndex()))

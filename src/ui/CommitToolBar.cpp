@@ -9,10 +9,8 @@
 
 #include "CommitToolBar.h"
 #include "CommitList.h"
-#include "ContextMenuButton.h"
 #include "RepoView.h"
 #include "ConfigKeys.h"
-#include "conf/Settings.h"
 #include "git/Config.h"
 #include <QActionGroup>
 #include <QApplication>
@@ -138,88 +136,4 @@ CommitToolBar::CommitToolBar(QWidget *parent) : QToolBar(parent) {
   spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
   addWidget(spacer);
 
-  // Add context menu button.
-  RepoView *view = RepoView::parentView(this);
-  git::Config config = view->repo().appConfig();
-
-  ContextMenuButton *button = new ContextMenuButton(this);
-  addWidget(button);
-
-  QMenu *menu = new QMenu(button);
-  button->setMenu(menu);
-
-  QAction *graph = menu->addAction(tr("Show Graph"));
-  graph->setCheckable(true);
-  graph->setChecked(config.value<bool>(ConfigKeys::kGraphKey, true));
-  connect(graph, &QAction::triggered, [this](bool checked) {
-    RepoView *view = RepoView::parentView(this);
-    git::Config config = view->repo().appConfig();
-    config.setValue(ConfigKeys::kGraphKey, checked);
-    emit settingsChanged();
-  });
-
-  QAction *status = menu->addAction(tr("Show Clean Status"));
-  status->setCheckable(true);
-  status->setChecked(config.value<bool>(ConfigKeys::kStatusKey, true));
-  connect(status, &QAction::triggered, [this](bool checked) {
-    RepoView *view = RepoView::parentView(this);
-    view->repo().appConfig().setValue(ConfigKeys::kStatusKey, checked);
-    emit settingsChanged();
-  });
-
-  menu->addSeparator();
-
-  QAction *compact = menu->addAction(tr("Compact Mode"));
-  compact->setCheckable(true);
-  compact->setChecked(Settings::instance()
-                          ->value(Setting::Id::ShowCommitsInCompactMode)
-                          .toBool());
-  connect(compact, &QAction::triggered, [this](bool checked) {
-    Settings::instance()->setValue(Setting::Id::ShowCommitsInCompactMode,
-                                   checked);
-    emit settingsChanged();
-  });
-
-  menu->addSeparator();
-
-  QAction *author = menu->addAction(tr("Show Author"));
-  author->setCheckable(true);
-  author->setChecked(Settings::instance()
-                         ->value(Setting::Id::ShowCommitsAuthor, true)
-                         .toBool());
-  connect(author, &QAction::triggered, [this](bool checked) {
-    Settings::instance()->setValue(Setting::Id::ShowCommitsAuthor, checked);
-    emit settingsChanged();
-  });
-
-  QAction *date = menu->addAction(tr("Show Date"));
-  date->setCheckable(true);
-  date->setChecked(
-      Settings::instance()->value(Setting::Id::ShowCommitsDate, true).toBool());
-  connect(date, &QAction::triggered, [this](bool checked) {
-    Settings::instance()->setValue(Setting::Id::ShowCommitsDate, checked);
-    emit settingsChanged();
-  });
-
-  QAction *id = menu->addAction(tr("Show Id"));
-  id->setCheckable(true);
-  id->setChecked(
-      Settings::instance()->value(Setting::Id::ShowCommitsId, true).toBool());
-  connect(id, &QAction::triggered, [this](bool checked) {
-    Settings::instance()->setValue(Setting::Id::ShowCommitsId, checked);
-    emit settingsChanged();
-  });
-
-  connect(menu, &QMenu::aboutToShow, this, [compact, author, date, id] {
-    compact->setChecked(Settings::instance()
-                            ->value(Setting::Id::ShowCommitsInCompactMode)
-                            .toBool());
-    author->setChecked(Settings::instance()
-                           ->value(Setting::Id::ShowCommitsAuthor, true)
-                           .toBool());
-    date->setChecked(
-        Settings::instance()->value(Setting::Id::ShowCommitsDate, true).toBool());
-    id->setChecked(
-        Settings::instance()->value(Setting::Id::ShowCommitsId, true).toBool());
-  });
 }
