@@ -40,7 +40,6 @@ public:
     DiffRole = Qt::UserRole,
     CommitRole,
     GraphRole,
-    GraphLaneCountRole,
     GraphColorRole,
     GraphBaseColorRole,
     GraphStyleRole,
@@ -50,8 +49,15 @@ public:
   enum class GraphNode { Commit, Stash };
   Q_ENUM(GraphNode)
 
-  enum Column { ReferencesColumn, GraphColumn, SummaryColumn, AuthorColumn,
-                DateColumn, IdColumn, ColumnCount };
+  enum Column {
+    ReferencesColumn,
+    GraphColumn,
+    SummaryColumn,
+    AuthorColumn,
+    DateColumn,
+    IdColumn,
+    ColumnCount
+  };
 
   enum class RefsFilter {
     AllRefs,
@@ -124,9 +130,6 @@ private:
   void resetHeader(bool saveState = true);
   int defaultReferencesWidth() const;
   int minimumColumnWidth(int column) const;
-  void updateGraphColumnWidth(int first = -1, int last = -1);
-  void updateGraphScrollBar();
-  QRect graphViewportRect() const;
   void scheduleHistoryPrefetch();
   void prefetchHistory();
   void resizeHeaderToFit(int protectedColumn = -1);
@@ -160,7 +163,6 @@ private:
   QAbstractListModel *mModel;
 
   QHeaderView *mHeader = nullptr;
-  QScrollBar *mGraphScrollBar = nullptr;
   QTimer *mHistoryPrefetchTimer = nullptr;
   QStandardItemModel *mHeaderModel = nullptr;
   QToolButton *mHeaderOptions = nullptr;
@@ -171,7 +173,6 @@ private:
   bool mMigrateReferencesWidth = false;
   QByteArray mPendingHeaderState;
   int mReferencesPreferredWidth = 0;
-  int mGraphContentWidth = 0;
   int mGraphPreferredWidth = 0;
   int mHistoryPrefetchTarget = 0;
 

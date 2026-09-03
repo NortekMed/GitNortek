@@ -126,8 +126,7 @@ int shortIdTextWidth(const QFont &font, const QPaintDevice *device) {
           qMax(maxPairAdjustment, pairWidth - firstWidth - secondWidth);
     }
   }
-  return kShortIdSize * maxCharacter +
-         (kShortIdSize - 1) * maxPairAdjustment;
+  return kShortIdSize * maxCharacter + (kShortIdSize - 1) * maxPairAdjustment;
 }
 
 enum GraphSegment {
@@ -197,8 +196,8 @@ public:
                               {{"entries", status.snapshot.entries().size()}});
       if (!mRows.isEmpty() && !mRows.constFirst().commit.isValid()) {
         QModelIndex statusIndex = index(0, 0);
-        emit dataChanged(statusIndex, statusIndex, {Qt::DisplayRole,
-                                                    Qt::DecorationRole});
+        emit dataChanged(statusIndex, statusIndex,
+                         {Qt::DisplayRole, Qt::DecorationRole});
       }
       // Let the completed status row paint before rebuilding the history graph.
       QTimer::singleShot(16, this, [this, generation, status] {
@@ -206,9 +205,10 @@ public:
           return;
 
         resetWalker();
-        if (!status.snapshot.result() && status.snapshot.result().error() != GIT_EUSER)
-          emit statusFailed(
-              status.snapshot.result().errorString(tr("Unable to read status")));
+        if (!status.snapshot.result() &&
+            status.snapshot.result().error() != GIT_EUSER)
+          emit statusFailed(status.snapshot.result().errorString(
+              tr("Unable to read status")));
         emit statusFinished(status.snapshot.isDirty());
       });
     });
@@ -220,9 +220,7 @@ public:
 
   bool isHeadDetached() const { return mRepo.isHeadDetached(); }
 
-  git::Diff status() const {
-    return git::Diff();
-  }
+  git::Diff status() const { return git::Diff(); }
 
   bool hasStatusChanges() const { return mStatusSnapshot.isDirty(); }
 
@@ -340,9 +338,8 @@ public:
       QVector<Column> row;
       if (mGraphVisible && mRef.isValid() && mStatus.isFinished()) {
         row.append({Segment(Bottom, kTaintedColor), Segment(Dot, QColor())});
-        mParents.append(
-            Parent(mRef.target(), nextColor(), true, Qt::SolidLine,
-                   mNextLane++));
+        mParents.append(Parent(mRef.target(), nextColor(), true, Qt::SolidLine,
+                               mNextLane++));
       }
       DebugRefresh("mRows append invalid commit");
       mRows.append(Row(git::Commit(), row)); // Uncommitted changes
@@ -448,9 +445,8 @@ public:
               Parent(commit, nextColor(), false, style, mNextLane++);
         } else {
           rootIndex = mParents.size();
-          mParents.insert(
-              rootIndex,
-              Parent(commit, nextColor(), false, style, mNextLane++));
+          mParents.insert(rootIndex, Parent(commit, nextColor(), false, style,
+                                            mNextLane++));
         }
       }
 
@@ -459,10 +455,9 @@ public:
         if (!stashParents.isEmpty() && indexOf(stashParents.constFirst()) < 0 &&
             indexOfSpacer(stashParents.constFirst()) < 0) {
           int stashIndex = indexOf(commit);
-          mParents.insert(stashIndex,
-                          Parent(stashParents.constFirst(), QColor(), false,
-                                 Qt::SolidLine, mNextLane++, git::Commit(),
-                                 true));
+          mParents.insert(stashIndex, Parent(stashParents.constFirst(),
+                                             QColor(), false, Qt::SolidLine,
+                                             mNextLane++, git::Commit(), true));
           if (rootIndex >= stashIndex)
             ++rootIndex;
         }
@@ -494,21 +489,17 @@ public:
             (isStash(commit) || indexOf(commitParents.constFirst()) >= 0);
         if (deferJoin) {
           git::Commit target = commitParents.constFirst();
-          Qt::PenStyle style =
-              isStash(commit) ? parent.style : Qt::SolidLine;
-          mParents.insert(index,
-                          Parent(target, parent.color, false, style, parent.lane,
-                                 target));
+          Qt::PenStyle style = isStash(commit) ? parent.style : Qt::SolidLine;
+          mParents.insert(index, Parent(target, parent.color, false, style,
+                                        parent.lane, target));
         } else if (!replacements.isEmpty()) {
           git::Commit replacement = replacements.takeFirst();
           Qt::PenStyle style = isStash(commit) ? parent.style : Qt::SolidLine;
-          mParents.insert(
-              index,
-              Parent(replacement, parent.color, false, style, parent.lane));
+          mParents.insert(index, Parent(replacement, parent.color, false, style,
+                                        parent.lane));
           foreach (const git::Commit &replacement, replacements)
-            mParents.append(
-                Parent(replacement, nextColor(), false, Qt::SolidLine,
-                       mNextLane++));
+            mParents.append(Parent(replacement, nextColor(), false,
+                                   Qt::SolidLine, mNextLane++));
         }
       }
 
@@ -630,9 +621,6 @@ public:
         return columns;
       }
 
-      case CommitList::Role::GraphLaneCountRole:
-        return row.columns.size();
-
       case CommitList::Role::GraphColorRole: {
         QVariantList columns;
         foreach (const Column &column, row.columns) {
@@ -694,8 +682,8 @@ signals:
 private:
   struct Parent {
     Parent(const git::Commit &commit, const QColor &color, bool tainted = false,
-            Qt::PenStyle style = Qt::SolidLine, quint64 lane = 0,
-            const git::Commit &joinTarget = git::Commit(), bool spacer = false)
+           Qt::PenStyle style = Qt::SolidLine, quint64 lane = 0,
+           const git::Commit &joinTarget = git::Commit(), bool spacer = false)
         : commit(commit), joinTarget(joinTarget), color(color), lane(lane),
           tainted(tainted), spacer(spacer), style(style) {}
 
@@ -778,8 +766,7 @@ private:
     git::Commit commit;
     do {
       commit = mWalker.next(mPathspec);
-    } while (commit.isValid() &&
-             mStashAuxiliaryCommits.contains(commit.id()));
+    } while (commit.isValid() && mStashAuxiliaryCommits.contains(commit.id()));
     return commit;
   }
 
@@ -817,21 +804,21 @@ private:
           continue;
 
         if (i < nodeIndex) {
-          columns[i]
-              << Segment(ForkRightIn, alias.color, alias.lane, alias.style);
+          columns[i] << Segment(ForkRightIn, alias.color, alias.lane,
+                                alias.style);
           for (int j = i + 1; j < nodeIndex; ++j)
-            columns[j]
-                << Segment(ForkCross, alias.color, alias.lane, alias.style);
+            columns[j] << Segment(ForkCross, alias.color, alias.lane,
+                                  alias.style);
           columns[nodeIndex]
               << Segment(ForkLeftOut, alias.color, alias.lane, alias.style);
         } else if (i > nodeIndex) {
           columns[nodeIndex]
               << Segment(ForkRightOut, alias.color, alias.lane, alias.style);
           for (int j = nodeIndex + 1; j < i; ++j)
-            columns[j]
-                << Segment(ForkCross, alias.color, alias.lane, alias.style);
-          columns[i]
-              << Segment(ForkLeftIn, alias.color, alias.lane, alias.style);
+            columns[j] << Segment(ForkCross, alias.color, alias.lane,
+                                  alias.style);
+          columns[i] << Segment(ForkLeftIn, alias.color, alias.lane,
+                                alias.style);
         }
       }
     }
@@ -869,37 +856,31 @@ private:
         QColor targetColor = mParents.at(index).taintedColor();
         QColor edgeColor = merge ? targetColor : sourceColor;
         quint64 edgeLane = merge ? mParents.at(index).lane : parent.lane;
-        Qt::PenStyle style =
-            parent.commit == commit && !isStash(commit) ? Qt::SolidLine
-                                                         : parent.style;
+        Qt::PenStyle style = parent.commit == commit && !isStash(commit)
+                                 ? Qt::SolidLine
+                                 : parent.style;
 
         if (index < i) {
           // out to the left
-          columns[index]
-              << Segment(merge ? MergeRightIn : RightIn, edgeColor, edgeLane,
-                         style);
+          columns[index] << Segment(merge ? MergeRightIn : RightIn, edgeColor,
+                                    edgeLane, style);
           for (int j = index + 1; j < i; ++j)
-            columns[j]
-                << Segment(merge ? MergeCross : Cross, edgeColor, edgeLane,
-                           style);
-          columns[i]
-              << Segment(merge ? MergeLeftOut : LeftOut, edgeColor, edgeLane,
-                         style);
+            columns[j] << Segment(merge ? MergeCross : Cross, edgeColor,
+                                  edgeLane, style);
+          columns[i] << Segment(merge ? MergeLeftOut : LeftOut, edgeColor,
+                                edgeLane, style);
 
         } else if (index > i) {
           // out to the right
-          columns[i]
-              << Segment(merge ? MergeRightOut : RightOut, edgeColor, edgeLane,
-                         style);
+          columns[i] << Segment(merge ? MergeRightOut : RightOut, edgeColor,
+                                edgeLane, style);
           for (int j = i + 1; j < index; ++j)
-            columns[j]
-                << Segment(merge ? MergeCross : Cross, edgeColor, edgeLane,
-                           style);
+            columns[j] << Segment(merge ? MergeCross : Cross, edgeColor,
+                                  edgeLane, style);
           if (index == columns.size())
             columns.append(Column());
-          columns[index]
-              << Segment(merge ? MergeLeftIn : LeftIn, edgeColor, edgeLane,
-                         style);
+          columns[index] << Segment(merge ? MergeLeftIn : LeftIn, edgeColor,
+                                    edgeLane, style);
 
         } else { // index == i
           // out the bottom
@@ -938,7 +919,7 @@ private:
     }
     if (colors.isEmpty())
       colors.append(head == QColor("#53afec") ? QColor("#da2ada")
-                                               : QColor("#53afec"));
+                                              : QColor("#53afec"));
     forever {
       foreach (const QColor &color, colors) {
         if (counts.value(color.name()) == count)
@@ -1052,10 +1033,9 @@ class CommitDelegate : public QStyledItemDelegate {
 
 public:
   CommitDelegate(const git::Repository &repo, CommitAvatarProvider *avatars,
-                  QHeaderView *header, QScrollBar *graphScrollBar,
-                  QObject *parent = nullptr)
+                 QHeaderView *header, QObject *parent = nullptr)
       : QStyledItemDelegate(parent), mRepo(repo), mAvatars(avatars),
-        mHeader(header), mGraphScrollBar(graphScrollBar) {
+        mHeader(header) {
     updateRefs();
 
     git::RepositoryNotifier *notifier = repo.notifier();
@@ -1128,9 +1108,9 @@ public:
 
     git::Commit commit =
         index.data(CommitList::Role::CommitRole).value<git::Commit>();
-    bool stashNode = index.data(CommitList::Role::GraphNodeRole)
-                         .value<CommitList::GraphNode>() ==
-                     CommitList::GraphNode::Stash;
+    bool stashNode =
+        index.data(CommitList::Role::GraphNodeRole)
+            .value<CommitList::GraphNode>() == CommitList::GraphNode::Stash;
     bool avatarsEnabled =
         Settings::instance()->value(Setting::Id::ShowAvatars).toBool() &&
         mAvatars && mAvatars->isAvailable();
@@ -1155,10 +1135,9 @@ public:
     if (!graphOnly && commit.isValid()) {
       date = commit.committer().date().toLocalTime();
       if (compact) {
-        timestamp =
-            QString("%1 @ %2")
-                .arg(QLocale().toString(date.date(), QLocale::ShortFormat),
-                     QLocale().toString(date.time(), QLocale::ShortFormat));
+        timestamp = QString("%1 @ %2").arg(
+            QLocale().toString(date.date(), QLocale::ShortFormat),
+            QLocale().toString(date.time(), QLocale::ShortFormat));
       } else {
         timestamp = (date.date() == QDate::currentDate())
                         ? QLocale().toString(date.time(), QLocale::ShortFormat)
@@ -1175,10 +1154,12 @@ public:
     QVariantList styleColumns =
         index.data(CommitList::Role::GraphStyleRole).toList();
     int laneWidth = qMax(opt.fontMetrics.ascent(), kGraphNodeSize + 4);
-    int graphOffset = compact && mGraphScrollBar ? mGraphScrollBar->value() : 0;
-    int firstLane = qMax(0, graphOffset / laneWidth - 1);
-    rect.translate(firstLane * laneWidth - graphOffset, 0);
-    for (int i = firstLane; i < columns.size(); ++i) {
+    int laneLimit = columns.size();
+    if (compact)
+      laneLimit =
+          qMin(laneLimit,
+               (compactColumns.graph.width() + laneWidth - 1) / laneWidth);
+    for (int i = 0; i < laneLimit; ++i) {
       int x = rect.x();
       int y = rect.y();
       int w = laneWidth;
@@ -1345,8 +1326,7 @@ public:
       rect.setX(x + w);
 
       // Finish early if the graph exceeds its available column.
-      if ((compact && rect.x() >= compactColumns.graph.right()) ||
-          (!compact && rect.x() - opt.rect.x() > opt.rect.width() / 3))
+      if ((!compact && rect.x() - opt.rect.x() > opt.rect.width() / 3))
         break;
     }
 
@@ -1377,8 +1357,9 @@ public:
       QFont italic = opt.font;
       italic.setItalic(true);
       if (compact) {
-        message = QFontMetrics(italic, opt.widget).elidedText(
-            message, Qt::ElideRight, compactColumns.summary.width());
+        message = QFontMetrics(italic, opt.widget)
+                      .elidedText(message, Qt::ElideRight,
+                                  compactColumns.summary.width());
       }
       painter->setFont(italic);
       painter->drawText(compact ? compactColumns.summary : opt.rect,
@@ -1613,10 +1594,9 @@ public:
     LayoutConstants constants = layoutConstants(compact);
 
     int lineHeight = constants.lineSpacing + constants.vMargin;
-    int width = compact && mHeader
-                    ? kCommitHeaderInset + mHeader->length() +
-                          kCommitHeaderOptionsWidth
-                    : 0;
+    int width = compact && mHeader ? kCommitHeaderInset + mHeader->length() +
+                                         kCommitHeaderOptionsWidth
+                                   : 0;
     return QSize(width, lineHeight * (compact ? 1 : 4));
   }
 
@@ -1696,8 +1676,7 @@ private:
   QRect compactColumn(const QRect &row, int column) const {
     if (!mHeader || mHeader->isSectionHidden(column))
       return QRect();
-    int x = row.x() + kCommitHeaderInset +
-            mHeader->sectionPosition(column);
+    int x = row.x() + kCommitHeaderInset + mHeader->sectionPosition(column);
     return QRect(x, row.y(), mHeader->sectionSize(column), row.height());
   }
 
@@ -1767,8 +1746,7 @@ private:
     return true;
   }
 
-  QColor generatedBranchColor(int index,
-                              const QList<QColor> &reserved) const {
+  QColor generatedBranchColor(int index, const QList<QColor> &reserved) const {
     for (int attempt = 0; attempt < 720; ++attempt) {
       const int hue = (index * 137 + attempt * 29) % 360;
       const int saturation = 160 + ((index + attempt) % 3) * 30;
@@ -1837,10 +1815,8 @@ private:
   git::Repository mRepo;
   CommitAvatarProvider *mAvatars;
   QHeaderView *mHeader;
-  QScrollBar *mGraphScrollBar;
   QMap<git::Id, QList<Badge::Label>> mRefs;
   QHash<QString, QColor> mBranchColors;
-
 };
 
 class SelectionModel : public QItemSelectionModel {
@@ -1901,17 +1877,15 @@ CommitList::CommitList(Index *index, CommitAvatarProvider *avatars,
   setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
 
   setModel(mModel);
-  setItemDelegate(
-      new CommitDelegate(repo, avatars, mHeader, mGraphScrollBar, this));
-  connect(&mSelectionDiff, &QFutureWatcher<git::Diff>::finished, this,
-          [this] {
-            if (mActiveSelectionDiffGeneration != mSelectionDiffGeneration)
-              return;
+  setItemDelegate(new CommitDelegate(repo, avatars, mHeader, this));
+  connect(&mSelectionDiff, &QFutureWatcher<git::Diff>::finished, this, [this] {
+    if (mActiveSelectionDiffGeneration != mSelectionDiffGeneration)
+      return;
 
-            if (mSelectionDiff.future().resultCount())
-              emit diffSelected(mSelectionDiff.result(), mSelectionDiffFile,
-                                mSelectionDiffSpontaneous);
-          });
+    if (mSelectionDiff.future().resultCount())
+      emit diffSelected(mSelectionDiff.result(), mSelectionDiffFile,
+                        mSelectionDiffSpontaneous);
+  });
   if (avatars) {
     connect(avatars, &CommitAvatarProvider::avatarReady, this,
             [this](const QString &oid) {
@@ -1950,22 +1924,17 @@ CommitList::CommitList(Index *index, CommitAvatarProvider *avatars,
   }
   for (QAbstractItemModel *model : {mModel, mList}) {
     connect(model, &QAbstractItemModel::rowsInserted, this,
-            [this, model](const QModelIndex &, int first, int last) {
-              if (this->model() == model)
-                updateGraphColumnWidth(first, last);
+            [this, model](const QModelIndex &, int, int) {
               scheduleHistoryPrefetch();
             });
     connect(model, &QAbstractItemModel::modelReset, this, [this, model] {
-      if (this->model() == model) {
-        updateGraphColumnWidth();
+      if (this->model() == model)
         scheduleHistoryPrefetch();
-      }
     });
   }
   connect(horizontalScrollBar(), &QScrollBar::valueChanged, this,
           [this](int value) {
             mHeader->setOffset(value);
-            updateGraphScrollBar();
             viewport()->update();
           });
 
@@ -2005,13 +1974,13 @@ CommitList::CommitList(Index *index, CommitAvatarProvider *avatars,
 
   git::RepositoryNotifier *notifier = repo.notifier();
   connect(notifier, &git::RepositoryNotifier::referenceUpdated,
-           [this](const git::Reference &ref, bool restoreSelection,
-                  bool refreshStatus) {
-             mRestoreSelection = restoreSelection;
-             if (restoreSelection)
-               preserveSelectionOnRefresh();
-             static_cast<CommitModel *>(mModel)->resetReference(ref,
-                                                                refreshStatus);
+          [this](const git::Reference &ref, bool restoreSelection,
+                 bool refreshStatus) {
+            mRestoreSelection = restoreSelection;
+            if (restoreSelection)
+              preserveSelectionOnRefresh();
+            static_cast<CommitModel *>(mModel)->resetReference(ref,
+                                                               refreshStatus);
           });
   connect(this, &CommitList::entered,
           [this](const QModelIndex &index) { update(index); });
@@ -2024,7 +1993,6 @@ CommitList::CommitList(Index *index, CommitAvatarProvider *avatars,
   selectCommitUpHotKey.use(shortcut);
   connect(shortcut, &QShortcut::activated,
           [this] { selectCommitRelative(-1); });
-
 }
 
 void CommitList::paintEvent(QPaintEvent *event) {
@@ -2065,12 +2033,6 @@ void CommitList::setupHeader() {
   QMenu *menu = new QMenu(mHeaderOptions);
   mHeaderOptions->setMenu(menu);
 
-  mGraphScrollBar = new QScrollBar(Qt::Horizontal, this);
-  mGraphScrollBar->setObjectName("CommitGraphScrollBar");
-  mGraphScrollBar->setAccessibleName(tr("Scroll commit graph branches"));
-  mGraphScrollBar->hide();
-  connect(mGraphScrollBar, &QScrollBar::valueChanged, this,
-          [this] { viewport()->update(graphViewportRect()); });
   for (int column = 0; column < ColumnCount; ++column) {
     QAction *action = menu->addAction(
         mHeaderModel->headerData(column, Qt::Horizontal).toString());
@@ -2122,13 +2084,11 @@ void CommitList::setupHeader() {
             if (mHeaderInteraction)
               saveHeaderState();
             doItemsLayout();
-            updateGraphScrollBar();
             viewport()->update();
           });
   connect(mHeader, &QHeaderView::sectionMoved, this, [this] {
     saveHeaderState();
     doItemsLayout();
-    updateGraphScrollBar();
     viewport()->update();
   });
 
@@ -2222,76 +2182,6 @@ int CommitList::minimumColumnWidth(int column) const {
   }
 }
 
-void CommitList::updateGraphColumnWidth(int first, int last) {
-  QAbstractItemModel *graphModel = model();
-  if (!graphModel)
-    return;
-
-  int laneWidth = qMax(QFontMetrics(compactFont(font()), this).ascent(),
-                       kGraphNodeSize + 4);
-  bool reset = first < 0 || last < first;
-  int minimum = reset ? kGraphMinimumWidth
-                      : qMax(kGraphMinimumWidth, mGraphContentWidth);
-  if (reset) {
-    first = 0;
-    last = graphModel->rowCount() - 1;
-  } else {
-    last = qMin(last, graphModel->rowCount() - 1);
-  }
-
-  for (int row = first; row <= last; ++row) {
-    QModelIndex index = graphModel->index(row, 0);
-    QVariant laneCount = index.data(GraphLaneCountRole);
-    int lanes = laneCount.isValid() ? laneCount.toInt()
-                                    : index.data(GraphRole).toList().size();
-    minimum = qMax(minimum, lanes * laneWidth);
-  }
-
-  mGraphContentWidth = minimum;
-  updateGraphScrollBar();
-  viewport()->update(graphViewportRect());
-}
-
-void CommitList::updateGraphScrollBar() {
-  if (!mGraphScrollBar || !mHeader)
-    return;
-
-  int laneWidth = qMax(QFontMetrics(compactFont(font()), this).ascent(),
-                       kGraphNodeSize + 4);
-  int width = mHeader->sectionSize(GraphColumn);
-  int maximum = qMax(0, mGraphContentWidth - width);
-  mGraphScrollBar->setSingleStep(laneWidth);
-  mGraphScrollBar->setPageStep(width);
-  mGraphScrollBar->setRange(0, maximum);
-
-  bool compact = !mHeader->isHidden();
-  bool visible = compact && !mHeader->isSectionHidden(GraphColumn);
-  if (!visible) {
-    mGraphScrollBar->hide();
-    return;
-  }
-
-  mGraphScrollBar->setEnabled(maximum > 0);
-  int extent = style()->pixelMetric(QStyle::PM_ScrollBarExtent, nullptr,
-                                    mGraphScrollBar);
-  int x = frameWidth() + kCommitHeaderInset +
-          mHeader->sectionPosition(GraphColumn) -
-          horizontalScrollBar()->value();
-  mGraphScrollBar->setGeometry(x, frameWidth() + kCommitHeaderHeight, width,
-                               extent);
-  mGraphScrollBar->show();
-  mGraphScrollBar->raise();
-}
-
-QRect CommitList::graphViewportRect() const {
-  if (!mHeader)
-    return QRect();
-
-  int x = kCommitHeaderInset + mHeader->sectionPosition(GraphColumn) -
-          horizontalScrollBar()->value();
-  return QRect(x, 0, mHeader->sectionSize(GraphColumn), viewport()->height());
-}
-
 void CommitList::scheduleHistoryPrefetch() {
   if (!mHistoryPrefetchTimer)
     return;
@@ -2309,9 +2199,8 @@ void CommitList::scheduleHistoryPrefetch() {
   int rowHeight = sizeHintForRow(firstRow);
   if (rowHeight <= 0)
     rowHeight = qMax(1, fontMetrics().height());
-  int visibleRows = last.isValid()
-                        ? qMax(1, last.row() - firstRow + 1)
-                        : qMax(1, viewport()->height() / rowHeight);
+  int visibleRows = last.isValid() ? qMax(1, last.row() - firstRow + 1)
+                                   : qMax(1, viewport()->height() / rowHeight);
   int lastRow = last.isValid() ? last.row() : firstRow + visibleRows - 1;
   int lookAhead = qBound(64, visibleRows * 4, 256);
   mHistoryPrefetchTarget = lastRow + lookAhead;
@@ -2412,8 +2301,7 @@ void CommitList::resizeHeaderToFit(int protectedColumn) {
   } else {
     int remaining = -delta;
     for (int column : columns) {
-      int available =
-          mHeader->sectionSize(column) - minimumColumnWidth(column);
+      int available = mHeader->sectionSize(column) - minimumColumnWidth(column);
       int shrink = qMin(remaining, qMax(0, available));
       if (shrink > 0)
         mHeader->resizeSection(column, mHeader->sectionSize(column) - shrink);
@@ -2434,23 +2322,22 @@ void CommitList::updateHeader(bool saveState) {
   bool compact = Settings::instance()
                      ->value(Setting::Id::ShowCommitsInCompactMode)
                      .toBool();
-  int graphScrollHeight =
-      style()->pixelMetric(QStyle::PM_ScrollBarExtent, nullptr,
-                           mGraphScrollBar);
-  setViewportMargins(
-      0, compact ? kCommitHeaderHeight + graphScrollHeight : 0, 0, 0);
+  setViewportMargins(0, compact ? kCommitHeaderHeight : 0, 0, 0);
   mHeader->setVisible(compact);
   mHeaderOptions->setVisible(compact);
   if (compact) {
-    mHeader->setSectionHidden(
-        AuthorColumn,
-        !Settings::instance()->value(Setting::Id::ShowCommitsAuthor, true).toBool());
-    mHeader->setSectionHidden(
-        DateColumn,
-        !Settings::instance()->value(Setting::Id::ShowCommitsDate, true).toBool());
-    mHeader->setSectionHidden(
-        IdColumn,
-        !Settings::instance()->value(Setting::Id::ShowCommitsId, true).toBool());
+    mHeader->setSectionHidden(AuthorColumn,
+                              !Settings::instance()
+                                   ->value(Setting::Id::ShowCommitsAuthor, true)
+                                   .toBool());
+    mHeader->setSectionHidden(DateColumn,
+                              !Settings::instance()
+                                   ->value(Setting::Id::ShowCommitsDate, true)
+                                   .toBool());
+    mHeader->setSectionHidden(IdColumn,
+                              !Settings::instance()
+                                   ->value(Setting::Id::ShowCommitsId, true)
+                                   .toBool());
   }
   resizeEvent(nullptr);
   resizeHeaderToFit();
@@ -2690,8 +2577,6 @@ void CommitList::setModel(QAbstractItemModel *model) {
   delete selectionModel();
 
   QListView::setModel(model);
-  updateGraphColumnWidth();
-
   // Destroy the selection model created by Qt.
   delete selectionModel();
 
@@ -3020,18 +2905,16 @@ void CommitList::resizeEvent(QResizeEvent *event) {
 
   int frame = frameWidth();
   int available = qMax(1, viewport()->width() - kCommitHeaderInset -
-                               kCommitHeaderOptionsWidth);
+                              kCommitHeaderOptionsWidth);
   int headerX = frame + kCommitHeaderInset;
   mHeader->setGeometry(headerX, frame, available, kCommitHeaderHeight);
   mHeader->setOffset(horizontalScrollBar()->value());
   mHeaderOptions->setGeometry(headerX + available, frame,
-                              kCommitHeaderOptionsWidth,
-                              kCommitHeaderHeight);
+                              kCommitHeaderOptionsWidth, kCommitHeaderHeight);
 
   if (!mUpdatingHeader) {
     resizeHeaderToFit();
   }
-  updateGraphScrollBar();
   scheduleHistoryPrefetch();
 }
 
@@ -3099,9 +2982,9 @@ void CommitList::restoreSelection() {
       mPreserveSelectionDetails && mSelectedRange != "status";
   bool restoreSelection = mRestoreSelection || mPreserveSelectionDetails;
   mSuppressSelectionNotification = preserveDetails;
-  bool selectionFailed =
-      restoreSelection && !mSelectedRange.isEmpty() &&
-      !selectRange(mSelectedRange) && selectedRange() != mSelectedRange;
+  bool selectionFailed = restoreSelection && !mSelectedRange.isEmpty() &&
+                         !selectRange(mSelectedRange) &&
+                         selectedRange() != mSelectedRange;
   if (!restoreSelection || selectionFailed) {
     DebugRefresh("Failed to restore");
   }
@@ -3138,8 +3021,8 @@ void CommitList::restoreViewport() {
     if (index.isValid() && !index.data(CommitRole).isValid())
       anchor = index;
   } else if (!mViewportCommit.isEmpty()) {
-    git::Commit commit = RepoView::parentView(this)->repo().lookupCommit(
-        mViewportCommit);
+    git::Commit commit =
+        RepoView::parentView(this)->repo().lookupCommit(mViewportCommit);
     if (commit.isValid())
       anchor = findCommit(commit);
   }
@@ -3259,9 +3142,11 @@ void CommitList::notifySelectionChanged() {
     mActiveSelectionDiffGeneration = mSelectionDiffGeneration;
     emit statusSelected(static_cast<CommitModel *>(mModel)->statusSnapshot(),
                         mFile, mSpontaneous);
-    PerformanceTrace::event("diff", "status diff requested", repo.dir(false).path());
+    PerformanceTrace::event("diff", "status diff requested",
+                            repo.dir(false).path());
     mSelectionDiff.setFuture(QtConcurrent::run([repo, index, ignoreWhitespace] {
-      PerformanceTrace::Span span("diff", "full status diff", repo.dir(false).path());
+      PerformanceTrace::Span span("diff", "full status diff",
+                                  repo.dir(false).path());
       git::Result result(0);
       return repo.status(index, nullptr, ignoreWhitespace, &result);
     }));
@@ -3276,8 +3161,8 @@ void CommitList::notifySelectionChanged() {
   mSelectionDiffFile = mFile;
   mSelectionDiffSpontaneous = mSpontaneous;
   mActiveSelectionDiffGeneration = mSelectionDiffGeneration;
-  mSelectionDiff.setFuture(QtConcurrent::run(
-      [repo, first, last, ignoreWhitespace] {
+  mSelectionDiff.setFuture(
+      QtConcurrent::run([repo, first, last, ignoreWhitespace] {
         Q_UNUSED(repo)
         git::Diff diff = first.diff(last, -1, ignoreWhitespace);
         diff.findSimilar();

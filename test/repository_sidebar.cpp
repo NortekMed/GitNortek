@@ -162,7 +162,8 @@ QStringList contextSubmenuItems(CommitList *view, const QModelIndex &index,
 QModelIndex commitIndex(QAbstractItemModel *model, const git::Id &id) {
   for (int row = 0; row < model->rowCount(); ++row) {
     QModelIndex index = model->index(row, 0);
-    git::Commit commit = index.data(CommitList::CommitRole).value<git::Commit>();
+    git::Commit commit =
+        index.data(CommitList::CommitRole).value<git::Commit>();
     if (commit.isValid() && commit.id() == id)
       return index;
   }
@@ -199,10 +200,9 @@ bool referenceBadgesContainColor(CommitList *view, QHeaderView *header,
   QCoreApplication::processEvents();
   QImage image = view->viewport()->grab().toImage();
   QRect row = view->visualRect(index);
-  QRect refs(row.x() + 8 +
-                 header->sectionPosition(CommitList::ReferencesColumn),
-             row.y(), header->sectionSize(CommitList::ReferencesColumn),
-             row.height());
+  QRect refs(
+      row.x() + 8 + header->sectionPosition(CommitList::ReferencesColumn),
+      row.y(), header->sectionSize(CommitList::ReferencesColumn), row.height());
   refs = refs.intersected(image.rect());
   for (int y = refs.top(); y <= refs.bottom(); ++y) {
     for (int x = refs.left(); x <= refs.right(); ++x) {
@@ -353,17 +353,15 @@ void TestRepositorySideBar::navigatorModel() {
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
   QVERIFY(mRepo->addRemote("origin", mRepo->workdir().path()).isValid());
-  git.start(GIT_EXECUTABLE,
-            {"update-ref", "refs/remotes/origin/main", "HEAD"});
+  git.start(GIT_EXECUTABLE, {"update-ref", "refs/remotes/origin/main", "HEAD"});
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
   git.start(GIT_EXECUTABLE,
             {"update-ref", "refs/remotes/origin/NOTHEAD", "HEAD"});
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
-  git.start(GIT_EXECUTABLE,
-            {"symbolic-ref", "refs/remotes/origin/HEAD",
-             "refs/remotes/origin/main"});
+  git.start(GIT_EXECUTABLE, {"symbolic-ref", "refs/remotes/origin/HEAD",
+                             "refs/remotes/origin/main"});
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
 
@@ -391,11 +389,9 @@ void TestRepositorySideBar::navigatorModel() {
 
   QCOMPARE(model.rowCount(),
            static_cast<int>(RepositoryNavigatorModel::Section::Count));
-  const QStringList sections = {"Local",         "Remote", "Worktrees",
-                                "Stashes",       "Cloud Patches",
-                                "Pull Requests", "GitHub Issues",
-                                "Teams",         "Tags",
-                                "Submodules"};
+  const QStringList sections = {
+      "Local",         "Remote",        "Worktrees", "Stashes", "Cloud Patches",
+      "Pull Requests", "GitHub Issues", "Teams",     "Tags",    "Submodules"};
   for (int row = 0; row < sections.size(); ++row)
     QCOMPARE(model.index(row, 0).data().toString(), sections.at(row));
 
@@ -486,8 +482,8 @@ void TestRepositorySideBar::navigatorModel() {
 
   model.clear();
   QCOMPARE(model.rowCount(), sections.size());
-  QCOMPARE(model.rowCount(model.sectionIndex(
-               RepositoryNavigatorModel::Section::Local)),
+  QCOMPARE(model.rowCount(
+               model.sectionIndex(RepositoryNavigatorModel::Section::Local)),
            0);
 
   Test::ScratchRepository emptyRepo;
@@ -503,17 +499,17 @@ void TestRepositorySideBar::navigatorModel() {
     QCOMPARE(emptyModel.rowCount(index), 0);
     QVERIFY(!index.data(RepositoryNavigatorModel::AvailableRole).toBool());
   }
-  QModelIndex emptyWorktrees = emptyModel.sectionIndex(
-      RepositoryNavigatorModel::Section::Worktrees);
+  QModelIndex emptyWorktrees =
+      emptyModel.sectionIndex(RepositoryNavigatorModel::Section::Worktrees);
   QCOMPARE(emptyModel.rowCount(emptyWorktrees), 1);
-  QVERIFY(emptyWorktrees.data(RepositoryNavigatorModel::AvailableRole).toBool());
+  QVERIFY(
+      emptyWorktrees.data(RepositoryNavigatorModel::AvailableRole).toBool());
 }
 
 void TestRepositorySideBar::navigatorView() {
-  const QStringList collapsibleSections = {"Local",        "Remote",
-                                           "Worktrees",    "Stashes",
-                                           "GitHubIssues", "Tags",
-                                           "Submodules"};
+  const QStringList collapsibleSections = {
+      "Local",        "Remote", "Worktrees", "Stashes",
+      "GitHubIssues", "Tags",   "Submodules"};
   QStringList settingKeys;
   for (const QString &section : collapsibleSections)
     settingKeys.append("sidebar/repositoryNavigator/expanded/" + section);
@@ -526,8 +522,8 @@ void TestRepositorySideBar::navigatorView() {
       settingValues.insert(key, settings.value(key));
     }
   }
-  auto restoreExpansion = qScopeGuard(
-      [existingKeys, settingKeys, settingValues] {
+  auto restoreExpansion =
+      qScopeGuard([existingKeys, settingKeys, settingValues] {
         QSettings settings;
         for (const QString &key : settingKeys) {
           if (existingKeys.contains(key))
@@ -545,8 +541,8 @@ void TestRepositorySideBar::navigatorView() {
   QVBoxLayout *hostLayout = new QVBoxLayout(&host);
   hostLayout->setContentsMargins(0, 0, 0, 0);
   hostLayout->addWidget(&navigator);
-  QTreeView *view = navigator.sectionView(
-      RepositoryNavigatorModel::Section::Local);
+  QTreeView *view =
+      navigator.sectionView(RepositoryNavigatorModel::Section::Local);
   QVERIFY(view);
   QCOMPARE(view->objectName(), QString("RepositoryNavigationLocalView"));
   QVERIFY(view->focusPolicy() != Qt::NoFocus);
@@ -554,8 +550,7 @@ void TestRepositorySideBar::navigatorView() {
   QFont bodyFont = view->font();
   bodyFont.setPointSize(FontUtils::pointSize(bodyFont) + 2);
   navigator.setBodyFont(bodyFont);
-  QCOMPARE(FontUtils::pointSize(view->font()),
-           FontUtils::pointSize(bodyFont));
+  QCOMPARE(FontUtils::pointSize(view->font()), FontUtils::pointSize(bodyFont));
   RepositoryNavigatorModel *model = navigator.model();
   QModelIndex local =
       model->sectionIndex(RepositoryNavigatorModel::Section::Local);
@@ -575,12 +570,11 @@ void TestRepositorySideBar::navigatorView() {
     QVERIFY(sectionView->verticalScrollBar() != view->verticalScrollBar() ||
             section == RepositoryNavigatorModel::Section::Local);
   }
-  QVERIFY(!navigator.sectionView(
-      RepositoryNavigatorModel::Section::CloudPatches));
-  for (const QString &section :
-       QStringList({"Local", "Remote", "Worktrees", "Stashes",
-                    "CloudPatches", "PullRequests", "GitHubIssues", "Teams",
-                    "Tags", "Submodules"})) {
+  QVERIFY(
+      !navigator.sectionView(RepositoryNavigatorModel::Section::CloudPatches));
+  for (const QString &section : QStringList(
+           {"Local", "Remote", "Worktrees", "Stashes", "CloudPatches",
+            "PullRequests", "GitHubIssues", "Teams", "Tags", "Submodules"})) {
     QVERIFY(navigator.findChild<QWidget *>("RepositoryNavigation" + section +
                                            "Icon"));
   }
@@ -593,9 +587,8 @@ void TestRepositorySideBar::navigatorView() {
   QWidget *actionBar = navigator.findChild<QWidget *>(
       "RepositoryNavigationActionBar", Qt::FindDirectChildrenOnly);
   QVERIFY(actionBar);
-  StatePushButton *expandCollapseAll =
-      actionBar->findChild<StatePushButton *>(
-          "RepositoryNavigationExpandCollapseAll");
+  StatePushButton *expandCollapseAll = actionBar->findChild<StatePushButton *>(
+      "RepositoryNavigationExpandCollapseAll");
   QVERIFY(expandCollapseAll);
   QCOMPARE(navigator.layout()->itemAt(0)->widget(), actionBar);
   QCOMPARE(navigator.layout()->itemAt(1)->widget(), splitter);
@@ -611,8 +604,8 @@ void TestRepositorySideBar::navigatorView() {
       navigator.findChild<QToolButton *>("RepositoryNavigationLocalToggle");
   QVERIFY(localToggle);
   QCOMPARE(localToggle->accessibleName(), QString("Toggle Local"));
-  QToolButton *worktreeAdd = navigator.findChild<QToolButton *>(
-      "RepositoryNavigationWorktreesAdd");
+  QToolButton *worktreeAdd =
+      navigator.findChild<QToolButton *>("RepositoryNavigationWorktreesAdd");
   QVERIFY(worktreeAdd);
   QVERIFY(!worktreeAdd->isEnabled());
   QToolButton *issuesToggle = navigator.findChild<QToolButton *>(
@@ -620,12 +613,12 @@ void TestRepositorySideBar::navigatorView() {
   QVERIFY(issuesToggle);
   QVERIFY(!issuesToggle->isEnabled());
   QVERIFY(!issuesToggle->isChecked());
-  QToolButton *stashesToggle = navigator.findChild<QToolButton *>(
-      "RepositoryNavigationStashesToggle");
-  QWidget *stashesHeader = navigator.findChild<QWidget *>(
-      "RepositoryNavigationStashesHeader");
-  QWidget *stashesPanel = navigator.findChild<QWidget *>(
-      "RepositoryNavigationStashesPanel");
+  QToolButton *stashesToggle =
+      navigator.findChild<QToolButton *>("RepositoryNavigationStashesToggle");
+  QWidget *stashesHeader =
+      navigator.findChild<QWidget *>("RepositoryNavigationStashesHeader");
+  QWidget *stashesPanel =
+      navigator.findChild<QWidget *>("RepositoryNavigationStashesPanel");
   QVERIFY(stashesToggle);
   QVERIFY(stashesHeader);
   QVERIFY(stashesPanel);
@@ -649,10 +642,10 @@ void TestRepositorySideBar::navigatorView() {
                     "GitHubIssues", "Teams", "Tags", "Submodules"})) {
     QToolButton *toggle = navigator.findChild<QToolButton *>(
         "RepositoryNavigation" + section + "Toggle");
-    QWidget *header = navigator.findChild<QWidget *>(
-        "RepositoryNavigation" + section + "Header");
-    QWidget *panel = navigator.findChild<QWidget *>(
-        "RepositoryNavigation" + section + "Panel");
+    QWidget *header = navigator.findChild<QWidget *>("RepositoryNavigation" +
+                                                     section + "Header");
+    QWidget *panel = navigator.findChild<QWidget *>("RepositoryNavigation" +
+                                                    section + "Panel");
     QVERIFY(toggle);
     QVERIFY(header);
     QVERIFY(panel);
@@ -686,8 +679,8 @@ void TestRepositorySideBar::navigatorView() {
 
   QWidget *localPanel =
       navigator.findChild<QWidget *>("RepositoryNavigationLocalPanel");
-  QWidget *localHeader = navigator.findChild<QWidget *>(
-      "RepositoryNavigationLocalHeader");
+  QWidget *localHeader =
+      navigator.findChild<QWidget *>("RepositoryNavigationLocalHeader");
   QWidget *lastPanel =
       navigator.findChild<QWidget *>("RepositoryNavigationSubmodulesPanel");
   QVERIFY(localPanel);
@@ -711,13 +704,13 @@ void TestRepositorySideBar::navigatorView() {
   QModelIndex fifthBranch = navigator.model()->index(4, 0, localRoot);
   QTRY_VERIFY(localView->visualRect(fifthBranch).bottom() <=
               localView->viewport()->rect().bottom());
-  QWidget *localSpacer = navigator.findChild<QWidget *>(
-      "RepositoryNavigationLocalSpacer");
+  QWidget *localSpacer =
+      navigator.findChild<QWidget *>("RepositoryNavigationLocalSpacer");
   QVERIFY(localSpacer);
   QCOMPARE(localSpacer->height(), 24);
-  QTRY_COMPARE(localPanel->height(),
-               localHeader->height() + localView->height() +
-                   localSpacer->height());
+  QTRY_COMPARE(localPanel->height(), localHeader->height() +
+                                         localView->height() +
+                                         localSpacer->height());
 
   QImage headerImage(localHeader->size(), QImage::Format_ARGB32_Premultiplied);
   headerImage.fill(Qt::transparent);
@@ -727,8 +720,8 @@ void TestRepositorySideBar::navigatorView() {
                .color(QPalette::Active, QPalette::Text)
                .darker(200));
 
-  QLabel *localTitle = navigator.findChild<QLabel *>(
-      "RepositoryNavigationLocalTitle");
+  QLabel *localTitle =
+      navigator.findChild<QLabel *>("RepositoryNavigationLocalTitle");
   QVERIFY(localTitle);
   QCOMPARE(localTitle->foregroundRole(), QPalette::Text);
   QCOMPARE(localTitle->palette().color(QPalette::Inactive, QPalette::Text),
@@ -736,8 +729,7 @@ void TestRepositorySideBar::navigatorView() {
 
   QSplitterHandle *menuDivider = splitter->handle(1);
   QVERIFY(menuDivider);
-  QImage dividerImage(menuDivider->size(),
-                      QImage::Format_ARGB32_Premultiplied);
+  QImage dividerImage(menuDivider->size(), QImage::Format_ARGB32_Premultiplied);
   dividerImage.fill(Qt::transparent);
   menuDivider->render(&dividerImage);
   QCOMPARE(dividerImage.pixelColor(menuDivider->width() / 2,
@@ -756,14 +748,13 @@ void TestRepositorySideBar::navigatorView() {
   QCOMPARE(navigator.model()->rowCount(localRoot), 6);
   QTRY_COMPARE(localView->height(), fiveRowHeight);
   QTRY_VERIFY(localView->verticalScrollBar()->maximum() > 0);
-  for (const QString &section :
-       QStringList({"Remote", "Worktrees", "Stashes", "CloudPatches",
-                    "PullRequests", "GitHubIssues", "Teams", "Tags",
-                    "Submodules"})) {
-    QWidget *panel = navigator.findChild<QWidget *>(
-        "RepositoryNavigation" + section + "Panel");
-    QWidget *header = navigator.findChild<QWidget *>(
-        "RepositoryNavigation" + section + "Header");
+  for (const QString &section : QStringList(
+           {"Remote", "Worktrees", "Stashes", "CloudPatches", "PullRequests",
+            "GitHubIssues", "Teams", "Tags", "Submodules"})) {
+    QWidget *panel = navigator.findChild<QWidget *>("RepositoryNavigation" +
+                                                    section + "Panel");
+    QWidget *header = navigator.findChild<QWidget *>("RepositoryNavigation" +
+                                                     section + "Header");
     QVERIFY(panel);
     QVERIFY(header);
     QCOMPARE(panel->height(), header->height());
@@ -792,8 +783,8 @@ void TestRepositorySideBar::navigatorView() {
   QVERIFY(worktreesView);
   const int desiredHeight = splitter->maximumHeight();
   host.resize(320, actionBar->sizeHint().height() + desiredHeight - 36);
-  QToolButton *worktreesToggle = navigator.findChild<QToolButton *>(
-      "RepositoryNavigationWorktreesToggle");
+  QToolButton *worktreesToggle =
+      navigator.findChild<QToolButton *>("RepositoryNavigationWorktreesToggle");
   QVERIFY(worktreesToggle);
   worktreesToggle->setChecked(false);
   worktreesToggle->setChecked(true);
@@ -830,26 +821,24 @@ void TestRepositorySideBar::navigatorView() {
   QVERIFY(!stashesToggle->isChecked());
   QCOMPARE(stashesToggle->arrowType(), Qt::RightArrow);
   QCOMPARE(stashesPanel->height(), stashesHeader->height());
-  QModelIndex stashes = model->sectionIndex(
-      RepositoryNavigatorModel::Section::Stashes);
+  QModelIndex stashes =
+      model->sectionIndex(RepositoryNavigatorModel::Section::Stashes);
   QVERIFY(!stashes.data(RepositoryNavigatorModel::AvailableRole).toBool());
 
   navigator.setRepository(mRepo);
   QVERIFY(!localToggle->isChecked());
   QVERIFY(worktreeAdd->isEnabled());
 
-  QSignalSpy openSpy(&navigator,
-                     &RepositoryNavigator::openRepositoryRequested);
+  QSignalSpy openSpy(&navigator, &RepositoryNavigator::openRepositoryRequested);
   QSignalSpy selectSpy(&navigator,
                        &RepositoryNavigator::selectRepositoryRequested);
-  QTreeView *worktreeView = navigator.sectionView(
-      RepositoryNavigatorModel::Section::Worktrees);
+  QTreeView *worktreeView =
+      navigator.sectionView(RepositoryNavigatorModel::Section::Worktrees);
   QVERIFY(worktreeView);
   QCOMPARE(worktreeView->verticalScrollBarPolicy(), Qt::ScrollBarAsNeeded);
   QModelIndex home = model->index(0, 0, worktreeView->rootIndex());
-  QVERIFY(QMetaObject::invokeMethod(worktreeView, "clicked",
-                                    Qt::DirectConnection,
-                                    Q_ARG(QModelIndex, home)));
+  QVERIFY(QMetaObject::invokeMethod(
+      worktreeView, "clicked", Qt::DirectConnection, Q_ARG(QModelIndex, home)));
   QCOMPARE(selectSpy.count(), 1);
   QCOMPARE(selectSpy.takeFirst().at(0).toString(), mRepo->workdir().path());
   QCOMPARE(openSpy.count(), 0);
@@ -872,8 +861,7 @@ void TestRepositorySideBar::submoduleExpansionSizing() {
   for (int index = 0; index < 6; ++index) {
     QCOMPARE(runGit(parent,
                     {"-c", "protocol.file.allow=always", "submodule", "add",
-                     child->workdir().path(),
-                     QString("child-%1").arg(index)}),
+                     child->workdir().path(), QString("child-%1").arg(index)}),
              0);
   }
   QCOMPARE(runGit(parent, {"commit", "-am", "add submodules"}), 0);
@@ -897,8 +885,8 @@ void TestRepositorySideBar::submoduleExpansionSizing() {
 
   QToolButton *submodulesToggle = navigator.findChild<QToolButton *>(
       "RepositoryNavigationSubmodulesToggle");
-  QTreeView *submodulesView = navigator.sectionView(
-      RepositoryNavigatorModel::Section::Submodules);
+  QTreeView *submodulesView =
+      navigator.sectionView(RepositoryNavigatorModel::Section::Submodules);
   QSplitter *splitter =
       navigator.findChild<QSplitter *>("RepositorySectionSplitter");
   QWidget *actionBar = navigator.findChild<QWidget *>(
@@ -920,8 +908,8 @@ void TestRepositorySideBar::submoduleExpansionSizing() {
   const int rowHeight = submodulesView->sizeHintForRow(0);
   QVERIFY(fullHeight >= 6 * rowHeight);
 
-  host.resize(320, actionBar->sizeHint().height() +
-                       splitter->maximumHeight() - 2 * rowHeight);
+  host.resize(320, actionBar->sizeHint().height() + splitter->maximumHeight() -
+                       2 * rowHeight);
   QTRY_VERIFY(submodulesView->height() < fullHeight);
   QTRY_VERIFY(submodulesView->verticalScrollBar()->maximum() > 0);
 
@@ -932,8 +920,8 @@ void TestRepositorySideBar::submoduleExpansionSizing() {
 
 void TestRepositorySideBar::githubIssuesModel() {
   RepositoryNavigatorModel model;
-  QModelIndex section = model.sectionIndex(
-      RepositoryNavigatorModel::Section::GitHubIssues);
+  QModelIndex section =
+      model.sectionIndex(RepositoryNavigatorModel::Section::GitHubIssues);
   QVERIFY(!section.data(RepositoryNavigatorModel::AvailableRole).toBool());
   QCOMPARE(section.data(RepositoryNavigatorModel::LoadStateRole)
                .value<RepositoryNavigatorModel::LoadState>(),
@@ -1003,15 +991,15 @@ void TestRepositorySideBar::githubIssuesRemoteFilter() {
   QList<Request> requests;
   qint64 now = 1000;
   RepositoryNavigator navigator(
-      nullptr, [&requests](GitHub *, const QString &owner,
-                           const QString &repository,
-                           const GitHub::IssuesCallback &callback) {
+      nullptr,
+      [&requests](GitHub *, const QString &owner, const QString &repository,
+                  const GitHub::IssuesCallback &callback) {
         requests.append({owner, repository, callback});
       },
       [&now] { return now; });
   QComboBox *filter = navigator.issuesRemoteFilter();
-  QTreeView *issuesView = navigator.sectionView(
-      RepositoryNavigatorModel::Section::GitHubIssues);
+  QTreeView *issuesView =
+      navigator.sectionView(RepositoryNavigatorModel::Section::GitHubIssues);
   QVERIFY(filter);
   QVERIFY(issuesView);
   QVERIFY(!navigator.findChild<QToolButton *>("GitHubIssuesRefresh"));
@@ -1020,8 +1008,8 @@ void TestRepositorySideBar::githubIssuesRemoteFilter() {
   QVERIFY(!filter->accessibleName().isEmpty());
 
   Test::ScratchRepository repo;
-  QVERIFY(repo->addRemote("origin", "git@github.com:acme/widget.git")
-              .isValid());
+  QVERIFY(
+      repo->addRemote("origin", "git@github.com:acme/widget.git").isValid());
   navigator.setRepository(repo);
   QCOMPARE(filter->count(), 1);
   QToolButton *issuesToggle = navigator.findChild<QToolButton *>(
@@ -1123,9 +1111,9 @@ void TestRepositorySideBar::githubIssuesRemoteFilter() {
 
   GitHub::Issues manyIssues;
   for (int i = 1; i <= 50; ++i) {
-    manyIssues.append({i, QString("Issue %1").arg(i), "author",
-                       QUrl(QString("https://github.com/core/widget/issues/%1")
-                                .arg(i))});
+    manyIssues.append(
+        {i, QString("Issue %1").arg(i), "author",
+         QUrl(QString("https://github.com/core/widget/issues/%1").arg(i))});
   }
   navigator.model()->setGitHubIssues(manyIssues);
   navigator.resize(320, 700);
@@ -1133,9 +1121,8 @@ void TestRepositorySideBar::githubIssuesRemoteFilter() {
   QVERIFY(qWaitForWindowExposed(&navigator));
   issuesToggle->setChecked(true);
   QTRY_VERIFY(issuesView->isVisible());
-  QTRY_COMPARE(issuesView->height(),
-               5 * issuesView->sizeHintForRow(1) +
-                   2 * issuesView->frameWidth());
+  QTRY_COMPARE(issuesView->height(), 5 * issuesView->sizeHintForRow(1) +
+                                         2 * issuesView->frameWidth());
   QTRY_VERIFY(issuesView->verticalScrollBar()->maximum() > 0);
   section = navigator.model()->sectionIndex(
       RepositoryNavigatorModel::Section::GitHubIssues);
@@ -1190,10 +1177,10 @@ void TestRepositorySideBar::activeRepositoryBinding() {
   QCOMPARE(generalRefresh.count(), 1);
 
   RepositoryNavigatorModel *model = navigator->model();
-  QTreeView *localView = navigator->sectionView(
-      RepositoryNavigatorModel::Section::Local);
-  QTreeView *remoteView = navigator->sectionView(
-      RepositoryNavigatorModel::Section::Remote);
+  QTreeView *localView =
+      navigator->sectionView(RepositoryNavigatorModel::Section::Local);
+  QTreeView *remoteView =
+      navigator->sectionView(RepositoryNavigatorModel::Section::Remote);
   QVERIFY(localView);
   QVERIFY(remoteView);
   QModelIndex local =
@@ -1224,8 +1211,7 @@ void TestRepositorySideBar::activeRepositoryBinding() {
   QVERIFY(currentItems.at(4).second);
   QCOMPARE(currentItems.at(5).second, false);
 
-  QList<QPair<QString, bool>> otherItems =
-      contextMenuItems(localView, other);
+  QList<QPair<QString, bool>> otherItems = contextMenuItems(localView, other);
   QString otherName = other.data().toString();
   QCOMPARE(menuTexts(otherItems),
            QStringList({"Checkout", "Rename " + otherName, "Delete", "Merge...",
@@ -1240,10 +1226,10 @@ void TestRepositorySideBar::activeRepositoryBinding() {
   QString remoteName = remote.data().toString();
   QList<QPair<QString, bool>> remoteItems =
       contextMenuItems(remoteView, remote);
-  QCOMPARE(menuTexts(remoteItems),
-           QStringList({"Checkout", "Rename " + remoteName,
-                        "Delete " + remoteName, "New Local Branch", "Merge...",
-                        "Rebase...", "Squash..."}));
+  QCOMPARE(
+      menuTexts(remoteItems),
+      QStringList({"Checkout", "Rename " + remoteName, "Delete " + remoteName,
+                   "New Local Branch", "Merge...", "Rebase...", "Squash..."}));
   for (const auto &item : remoteItems)
     QVERIFY(item.second);
 
@@ -1276,11 +1262,9 @@ void TestRepositorySideBar::activeRepositoryBinding() {
   QVERIFY(!remoteView->currentIndex().isValid());
   model->setGitHubIssuesAvailable(true);
   model->beginGitHubIssuesLoad(false);
-  model->setGitHubIssues(
-      {{1, "Selection test", "tester",
-        QUrl("https://github.com/acme/widget/issues/1")}});
-  QCOMPARE(localView
-               ->currentIndex()
+  model->setGitHubIssues({{1, "Selection test", "tester",
+                           QUrl("https://github.com/acme/widget/issues/1")}});
+  QCOMPARE(localView->currentIndex()
                .data(RepositoryNavigatorModel::ReferenceRole)
                .value<git::Reference>()
                .qualifiedName(),
@@ -1387,8 +1371,7 @@ void TestRepositorySideBar::checkoutKeepsNonConflictingChanges() {
 
   MainWindow window(repo);
   RepoView *view = window.currentView();
-  git::Reference target =
-      repo->lookupRef("refs/heads/non-conflicting-target");
+  git::Reference target = repo->lookupRef("refs/heads/non-conflicting-target");
   QVERIFY(target.isValid());
   view->checkoutFromNavigator(target);
 
@@ -1465,8 +1448,7 @@ void TestRepositorySideBar::branchGraphColors() {
   Test::ScratchRepository repo;
   QProcess git;
   git.setWorkingDirectory(repo->workdir().path());
-  git.start(GIT_EXECUTABLE,
-            {"commit", "--allow-empty", "-m", "color base"});
+  git.start(GIT_EXECUTABLE, {"commit", "--allow-empty", "-m", "color base"});
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
   git::Id baseCommit = repo->head().target().id();
@@ -1475,15 +1457,13 @@ void TestRepositorySideBar::branchGraphColors() {
   git.start(GIT_EXECUTABLE, {"checkout", "-b", "color-side"});
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
-  git.start(GIT_EXECUTABLE,
-            {"commit", "--allow-empty", "-m", "color side"});
+  git.start(GIT_EXECUTABLE, {"commit", "--allow-empty", "-m", "color side"});
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
   git.start(GIT_EXECUTABLE, {"checkout", mainBranch});
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
-  git.start(GIT_EXECUTABLE,
-            {"commit", "--allow-empty", "-m", "color main"});
+  git.start(GIT_EXECUTABLE, {"commit", "--allow-empty", "-m", "color main"});
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
   git.start(GIT_EXECUTABLE, {"branch", "sender-alive"});
@@ -1495,12 +1475,10 @@ void TestRepositorySideBar::branchGraphColors() {
   QCOMPARE(git.exitCode(), 0);
   for (int branch = 0; branch < 10; ++branch) {
     const QString name = QString("badge-extra-%1").arg(branch);
-    git.start(GIT_EXECUTABLE,
-              {"checkout", "-b", name, baseCommit.toString()});
+    git.start(GIT_EXECUTABLE, {"checkout", "-b", name, baseCommit.toString()});
     QVERIFY(git.waitForFinished());
     QCOMPARE(git.exitCode(), 0);
-    git.start(GIT_EXECUTABLE,
-              {"commit", "--allow-empty", "-m", name});
+    git.start(GIT_EXECUTABLE, {"commit", "--allow-empty", "-m", name});
     QVERIFY(git.waitForFinished());
     QCOMPARE(git.exitCode(), 0);
   }
@@ -1534,8 +1512,7 @@ void TestRepositorySideBar::branchGraphColors() {
   RepoView *view = window.currentView();
   CommitList *commitList = view->findChild<CommitList *>();
   QVERIFY(commitList);
-  QHeaderView *header =
-      commitList->findChild<QHeaderView *>("CommitHeader");
+  QHeaderView *header = commitList->findChild<QHeaderView *>("CommitHeader");
   QVERIFY(header);
   bool referencesHidden = header->isSectionHidden(CommitList::ReferencesColumn);
   auto restoreReferences = qScopeGuard([header, referencesHidden] {
@@ -1549,8 +1526,7 @@ void TestRepositorySideBar::branchGraphColors() {
   git::Reference main = repo->lookupRef("refs/heads/" + mainBranch);
   git::Reference side = repo->lookupRef("refs/heads/color-side");
   git::Reference sender = repo->lookupRef("refs/heads/sender-alive");
-  git::Reference remote =
-      repo->lookupRef("refs/remotes/origin/color-side");
+  git::Reference remote = repo->lookupRef("refs/remotes/origin/color-side");
   QVERIFY(main.isValid());
   QVERIFY(side.isValid());
   QVERIFY(sender.isValid());
@@ -1581,21 +1557,21 @@ void TestRepositorySideBar::branchGraphColors() {
            mainBase);
   QCOMPARE(branchBadgeColor(commitList, header, mainIndex), headColor);
   const QColor sideBadge = branchBadgeColor(commitList, header, sideIndex);
-  const QColor senderBadge =
-      branchBadgeColor(commitList, header, senderIndex);
+  const QColor senderBadge = branchBadgeColor(commitList, header, senderIndex);
   QVERIFY(sideBadge.isValid());
   QVERIFY(senderBadge.isValid());
   QVERIFY(sideBadge != headColor);
   QVERIFY(senderBadge != headColor);
   QVERIFY(sideBadge != senderBadge);
-  QVERIFY(referenceBadgesContainColor(commitList, header, sideIndex, sideBadge));
+  QVERIFY(
+      referenceBadgesContainColor(commitList, header, sideIndex, sideBadge));
   QVERIFY(
       referenceBadgesContainColor(commitList, header, sideIndex, remoteBadge));
 
   QSet<QRgb> branchBadgeColors;
   for (int branch = 0; branch < 10; ++branch) {
-    git::Reference extra = repo->lookupRef(
-        QString("refs/heads/badge-extra-%1").arg(branch));
+    git::Reference extra =
+        repo->lookupRef(QString("refs/heads/badge-extra-%1").arg(branch));
     QVERIFY(extra.isValid());
     QModelIndex extraIndex = commitIndex(model, extra.target().id());
     QVERIFY(extraIndex.isValid());
@@ -1650,7 +1626,8 @@ void TestRepositorySideBar::branchGraphColors() {
   mainIndex = commitIndex(model, main.target().id());
   sideIndex = commitIndex(model, side.target().id());
   senderIndex = commitIndex(model, sender.target().id());
-  QTRY_COMPARE(graphNodeColor(sideIndex, CommitList::GraphColorRole), headColor);
+  QTRY_COMPARE(graphNodeColor(sideIndex, CommitList::GraphColorRole),
+               headColor);
   QCOMPARE(graphNodeColor(mainIndex, CommitList::GraphColorRole), mainBase);
   QVERIFY(
       referenceBadgesContainColor(commitList, header, sideIndex, headColor));
@@ -1713,8 +1690,7 @@ void TestRepositorySideBar::stashInteraction() {
   git.start(GIT_EXECUTABLE, {"commit", "-m", "stash base"});
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
-  git.start(GIT_EXECUTABLE,
-            {"commit", "--allow-empty", "-m", "stash tip"});
+  git.start(GIT_EXECUTABLE, {"commit", "--allow-empty", "-m", "stash tip"});
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
 
@@ -1722,8 +1698,7 @@ void TestRepositorySideBar::stashInteraction() {
   git.start(GIT_EXECUTABLE, {"checkout", "-b", "graph-side", "HEAD~1"});
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
-  git.start(GIT_EXECUTABLE,
-            {"commit", "--allow-empty", "-m", "graph side"});
+  git.start(GIT_EXECUTABLE, {"commit", "--allow-empty", "-m", "graph side"});
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
   git.start(GIT_EXECUTABLE, {"checkout", mainBranch});
@@ -1781,8 +1756,7 @@ void TestRepositorySideBar::stashInteraction() {
   QCoreApplication::processEvents();
   QCOMPARE(commitList->sizeHintForRow(0), 28);
 
-  QHeaderView *header =
-      commitList->findChild<QHeaderView *>("CommitHeader");
+  QHeaderView *header = commitList->findChild<QHeaderView *>("CommitHeader");
   QVERIFY(header);
   QVERIFY(header->isVisible());
   QVERIFY(header->sectionsMovable());
@@ -1829,11 +1803,10 @@ void TestRepositorySideBar::stashInteraction() {
     int firstWidth = compactMetrics.horizontalAdvance(first);
     maxCharacter = qMax(maxCharacter, firstWidth);
     for (QChar second : shaCharacters) {
-      int pairWidth =
-          compactMetrics.horizontalAdvance(QString(first) + second);
+      int pairWidth = compactMetrics.horizontalAdvance(QString(first) + second);
       int secondWidth = compactMetrics.horizontalAdvance(second);
-      maxPairAdjustment = qMax(
-          maxPairAdjustment, pairWidth - firstWidth - secondWidth);
+      maxPairAdjustment =
+          qMax(maxPairAdjustment, pairWidth - firstWidth - secondWidth);
     }
   }
   int shaMinimum = 7 * maxCharacter + 6 * maxPairAdjustment + 16;
@@ -1850,9 +1823,8 @@ void TestRepositorySideBar::stashInteraction() {
   QCOMPARE(header->length(), header->width());
 
   QToolButton *columnOptions = nullptr;
-  for (QToolButton *button :
-       commitList->findChildren<QToolButton *>(QString(),
-                                                Qt::FindDirectChildrenOnly)) {
+  for (QToolButton *button : commitList->findChildren<QToolButton *>(
+           QString(), Qt::FindDirectChildrenOnly)) {
     if (button->menu()) {
       columnOptions = button;
       break;
@@ -1912,7 +1884,8 @@ void TestRepositorySideBar::stashInteraction() {
   int mergeTargetColumn = -1;
   for (int row = 0; row < graphModel->rowCount(); ++row) {
     QModelIndex index = graphModel->index(row, 0);
-    git::Commit commit = index.data(CommitList::CommitRole).value<git::Commit>();
+    git::Commit commit =
+        index.data(CommitList::CommitRole).value<git::Commit>();
     bool targetMerge = commit.isValid() && commit.summary() == "graph merge";
     bool targetDivergence =
         commit.isValid() && commit.summary() == "graph side";
@@ -1921,10 +1894,8 @@ void TestRepositorySideBar::stashInteraction() {
     QColor stashNodeColor;
     QList<QColor> stashEdgeColors;
     QVariantList columns = index.data(CommitList::GraphRole).toList();
-    QVariantList colorColumns =
-        index.data(CommitList::GraphColorRole).toList();
-    QVariantList styleColumns =
-        index.data(CommitList::GraphStyleRole).toList();
+    QVariantList colorColumns = index.data(CommitList::GraphColorRole).toList();
+    QVariantList styleColumns = index.data(CommitList::GraphStyleRole).toList();
     int dotColumn = -1;
     for (int column = 0; column < columns.size(); ++column) {
       if (columns.at(column).toList().contains(dotSegment)) {
@@ -2071,21 +2042,7 @@ void TestRepositorySideBar::stashInteraction() {
   QVERIFY(!forkColors.isEmpty());
   QVERIFY(forkColors.count(divergenceColor) >= 2);
 
-  int graphContentWidth = 50;
-  for (int row = 0; row < graphModel->rowCount(); ++row) {
-    int lanes = graphModel->index(row, 0)
-                    .data(CommitList::GraphRole)
-                    .toList()
-                    .size();
-    graphContentWidth = qMax(graphContentWidth, lanes * laneWidth);
-  }
-  QScrollBar *graphScrollBar =
-      commitList->findChild<QScrollBar *>("CommitGraphScrollBar");
-  QVERIFY(graphScrollBar);
-  QCOMPARE(graphScrollBar->accessibleName(),
-           QString("Scroll commit graph branches"));
-  QCOMPARE(graphScrollBar->maximum(),
-           qMax(0, graphContentWidth - header->sectionSize(1)));
+  QVERIFY(!commitList->findChild<QScrollBar *>("CommitGraphScrollBar"));
 
   QStandardItemModel wideGraph(1, 1);
   QVariantList wideColumns;
@@ -2096,7 +2053,6 @@ void TestRepositorySideBar::stashInteraction() {
   int dateWidthBeforeGraphGrowth = header->sectionSize(4);
   int idWidthBeforeGraphGrowth = header->sectionSize(5);
   int graphWidthBeforeGraphGrowth = header->sectionSize(1);
-  int graphScrollMaximumBeforeGraphGrowth = graphScrollBar->maximum();
   int viewScrollMaximumBeforeGraphGrowth =
       commitList->horizontalScrollBar()->maximum();
   QModelIndex wideIndex = wideGraph.index(0, 0);
@@ -2112,35 +2068,14 @@ void TestRepositorySideBar::stashInteraction() {
   QCOMPARE(header->sectionSize(5), idWidthBeforeGraphGrowth);
   QCOMPARE(commitList->horizontalScrollBar()->maximum(),
            viewScrollMaximumBeforeGraphGrowth);
-  QCOMPARE(graphScrollBar->maximum(),
-           60 * laneWidth - graphWidthBeforeGraphGrowth);
-  QCOMPARE(graphScrollBar->pageStep(), graphWidthBeforeGraphGrowth);
-  QCOMPARE(graphScrollBar->singleStep(), laneWidth);
-  QVERIFY(graphScrollBar->isVisible());
-  QCOMPARE(graphScrollBar->parentWidget(), commitList);
-  QVERIFY(graphScrollBar->geometry().bottom() <
-          commitList->viewport()->geometry().top());
-  graphScrollBar->setValue(graphScrollBar->maximum());
-  QCOMPARE(graphScrollBar->value(), graphScrollBar->maximum());
-  QCOMPARE(header->offset(), commitList->horizontalScrollBar()->value());
-
-  QStandardItemModel narrowGraph(1, 1);
-  QVariantList narrowColumns = {QVariant(QVariantList())};
-  QModelIndex narrowIndex = narrowGraph.index(0, 0);
-  narrowGraph.setData(narrowIndex, narrowColumns, CommitList::GraphRole);
-  narrowGraph.setData(narrowIndex, narrowColumns, CommitList::GraphColorRole);
-  narrowGraph.setData(narrowIndex, narrowColumns, CommitList::GraphStyleRole);
-  commitList->setModel(&narrowGraph);
-  QCoreApplication::processEvents();
-  QVERIFY(graphScrollBar->isVisible());
-  QVERIFY(!graphScrollBar->isEnabled());
-  QCOMPARE(graphScrollBar->maximum(), 0);
+  QVERIFY(!commitList->findChild<QScrollBar *>("CommitGraphScrollBar"));
 
   commitList->setModel(graphModel);
   QCoreApplication::processEvents();
-  QCOMPARE(graphScrollBar->maximum(), graphScrollMaximumBeforeGraphGrowth);
+  QCOMPARE(header->sectionSize(1), graphWidthBeforeGraphGrowth);
 
-  Settings::instance()->setValue(Setting::Id::ShowCommitsInCompactMode, compact);
+  Settings::instance()->setValue(Setting::Id::ShowCommitsInCompactMode,
+                                 compact);
   commitList->resetSettings();
 
   auto graphStashes = [graphModel] {
@@ -2167,11 +2102,12 @@ void TestRepositorySideBar::stashInteraction() {
 
   for (const QModelIndex &index : graphStashes()) {
     int stashIndex = index.data(CommitList::StashIndexRole).toInt();
-    git::Commit commit = index.data(CommitList::CommitRole).value<git::Commit>();
+    git::Commit commit =
+        index.data(CommitList::CommitRole).value<git::Commit>();
     QCOMPARE(commit.id(), expectedStashes.at(stashIndex).id());
-    QCOMPARE(index.data(CommitList::GraphNodeRole)
-                 .value<CommitList::GraphNode>(),
-             CommitList::GraphNode::Stash);
+    QCOMPARE(
+        index.data(CommitList::GraphNodeRole).value<CommitList::GraphNode>(),
+        CommitList::GraphNode::Stash);
 
     bool dotted = false;
     const QVariantList columns =
@@ -2194,7 +2130,8 @@ void TestRepositorySideBar::stashInteraction() {
   QModelIndex baseIndex;
   for (int row = 0; row < graphModel->rowCount(); ++row) {
     QModelIndex index = graphModel->index(row, 0);
-    git::Commit commit = index.data(CommitList::CommitRole).value<git::Commit>();
+    git::Commit commit =
+        index.data(CommitList::CommitRole).value<git::Commit>();
     if (commit.isValid() && commit.id() == stashBase) {
       baseIndex = index;
       break;
@@ -2257,8 +2194,8 @@ void TestRepositorySideBar::stashInteraction() {
       stash.data(RepositoryNavigatorModel::CommitRole).value<git::Commit>();
   QVERIFY(expected.isValid());
 
-  QTreeView *stashesView = navigator->sectionView(
-      RepositoryNavigatorModel::Section::Stashes);
+  QTreeView *stashesView =
+      navigator->sectionView(RepositoryNavigatorModel::Section::Stashes);
   QVERIFY(stashesView);
   QVERIFY(QMetaObject::invokeMethod(stashesView, "clicked",
                                     Q_ARG(QModelIndex, stash)));
@@ -2283,8 +2220,8 @@ void TestRepositorySideBar::historyPrefetch() {
       static_cast<int>(CommitList::RefsFilter::SelectedRef));
 
   Settings *settings = Settings::instance();
-  QVariant automaticChecks = settings->value(
-      Setting::Id::CheckSubmodulesForUpdatesAutomatically);
+  QVariant automaticChecks =
+      settings->value(Setting::Id::CheckSubmodulesForUpdatesAutomatically);
   auto restoreSettings = qScopeGuard([settings, automaticChecks] {
     settings->setValue(Setting::Id::CheckSubmodulesForUpdatesAutomatically,
                        automaticChecks);
@@ -2328,10 +2265,9 @@ void TestRepositorySideBar::historyPrefetch() {
 
 void TestRepositorySideBar::submoduleInteraction() {
   Settings *settings = Settings::instance();
-  QVariant openInTabs =
-      settings->value(Setting::Id::OpenSubmodulesInTabs);
-  QVariant automaticChecks = settings->value(
-      Setting::Id::CheckSubmodulesForUpdatesAutomatically);
+  QVariant openInTabs = settings->value(Setting::Id::OpenSubmodulesInTabs);
+  QVariant automaticChecks =
+      settings->value(Setting::Id::CheckSubmodulesForUpdatesAutomatically);
   auto restoreSettings = qScopeGuard([settings, openInTabs, automaticChecks] {
     settings->setValue(Setting::Id::OpenSubmodulesInTabs, openInTabs);
     settings->setValue(Setting::Id::CheckSubmodulesForUpdatesAutomatically,
@@ -2358,9 +2294,8 @@ void TestRepositorySideBar::submoduleInteraction() {
 
   Test::ScratchRepository parent;
   git.setWorkingDirectory(parent->workdir().path());
-  git.start(GIT_EXECUTABLE,
-            {"-c", "protocol.file.allow=always", "submodule", "add",
-             child->workdir().path(), "child"});
+  git.start(GIT_EXECUTABLE, {"-c", "protocol.file.allow=always", "submodule",
+                             "add", child->workdir().path(), "child"});
   QVERIFY(git.waitForFinished());
   QCOMPARE(git.exitCode(), 0);
   QString childBranch = child->head().name();
@@ -2393,8 +2328,8 @@ void TestRepositorySideBar::submoduleInteraction() {
 
   QModelIndex submodules = navigator->model()->sectionIndex(
       RepositoryNavigatorModel::Section::Submodules);
-  QTreeView *submodulesView = navigator->sectionView(
-      RepositoryNavigatorModel::Section::Submodules);
+  QTreeView *submodulesView =
+      navigator->sectionView(RepositoryNavigatorModel::Section::Submodules);
   QVERIFY(submodulesView);
   QCOMPARE(navigator->model()->rowCount(submodules), 1);
   QModelIndex submodule = navigator->model()->index(0, 0, submodules);
@@ -2427,8 +2362,8 @@ void TestRepositorySideBar::submoduleInteraction() {
   QList<QPair<QString, bool>> cleanMenu =
       contextMenuItems(submodulesView, submodule);
   QCOMPARE(menuTexts(cleanMenu),
-           QStringList({"Open", "Commit Changes", "Check for Updates",
-                        "Update", "Modify...", "Delete Submodule..."}));
+           QStringList({"Open", "Commit Changes", "Check for Updates", "Update",
+                        "Modify...", "Delete Submodule..."}));
   QVERIFY(!cleanMenu.at(1).second);
   QVERIFY(cleanMenu.at(2).second);
 
@@ -2562,8 +2497,8 @@ void TestRepositorySideBar::submoduleInteraction() {
                .pixmap(16, 16)
                .toImage(),
            QIcon(":/submodules.png").pixmap(16, 16).toImage());
-  QSignalSpy pushedStatusChanged(
-      parentView, &RepoView::submoduleUpdateStatusesChanged);
+  QSignalSpy pushedStatusChanged(parentView,
+                                 &RepoView::submoduleUpdateStatusesChanged);
 
   git.setWorkingDirectory(child->workdir().path());
   git.start(GIT_EXECUTABLE,
@@ -2671,8 +2606,8 @@ void TestRepositorySideBar::submoduleInteraction() {
   QList<QPair<QString, bool>> menu =
       contextMenuItems(submodulesView, submodule);
   QCOMPARE(menuTexts(menu),
-           QStringList({"Open", "Commit Changes", "Check for Updates",
-                        "Update", "Modify...", "Delete Submodule..."}));
+           QStringList({"Open", "Commit Changes", "Check for Updates", "Update",
+                        "Modify...", "Delete Submodule..."}));
   for (int i = 0; i < menu.size(); ++i)
     QCOMPARE(menu.at(i).second, i != 2);
 
@@ -2715,8 +2650,7 @@ void TestRepositorySideBar::submoduleInteraction() {
   dirty.close();
   parentView->promptToDeleteSubmodule(selected);
   QTRY_VERIFY(QApplication::activeModalWidget());
-  confirmation =
-      qobject_cast<QMessageBox *>(QApplication::activeModalWidget());
+  confirmation = qobject_cast<QMessageBox *>(QApplication::activeModalWidget());
   QVERIFY(confirmation);
   QVERIFY(confirmation->informativeText().contains("uncommitted changes"));
   confirmation->button(QMessageBox::Cancel)->click();
@@ -2749,8 +2683,8 @@ void TestRepositorySideBar::submoduleInteraction() {
   menu = contextMenuItems(submodulesView, submodule);
   QCOMPARE(menuTexts(menu),
            QStringList({"Initialize", "Initialize All Uninitialized", "Open",
-                         "Commit Changes", "Check for Updates",
-                         "Modify...", "Delete Submodule..."}));
+                        "Commit Changes", "Check for Updates", "Modify...",
+                        "Delete Submodule..."}));
 }
 
 void TestRepositorySideBar::submoduleInitialization() {
@@ -2760,13 +2694,11 @@ void TestRepositorySideBar::submoduleInitialization() {
   QCOMPARE(runGit(child, {"commit", "-m", "child"}), 0);
 
   Test::ScratchRepository parent;
-  QCOMPARE(runGit(parent,
-                  {"-c", "protocol.file.allow=always", "submodule", "add",
-                   child->workdir().path(), "child-one"}),
+  QCOMPARE(runGit(parent, {"-c", "protocol.file.allow=always", "submodule",
+                           "add", child->workdir().path(), "child-one"}),
            0);
-  QCOMPARE(runGit(parent,
-                  {"-c", "protocol.file.allow=always", "submodule", "add",
-                   child->workdir().path(), "child-two"}),
+  QCOMPARE(runGit(parent, {"-c", "protocol.file.allow=always", "submodule",
+                           "add", child->workdir().path(), "child-two"}),
            0);
   QCOMPARE(runGit(parent, {"commit", "-am", "add submodules"}), 0);
   git::Branch linkedBranch =
@@ -2789,8 +2721,8 @@ void TestRepositorySideBar::submoduleInitialization() {
   git::Submodule invalidSubmodule;
   QVERIFY(!invalidSubmodule.isInitialized());
   QVERIFY(!parentView->canCommitSubmoduleChanges(invalidSubmodule));
-  QTreeView *submodulesView = navigator->sectionView(
-      RepositoryNavigatorModel::Section::Submodules);
+  QTreeView *submodulesView =
+      navigator->sectionView(RepositoryNavigatorModel::Section::Submodules);
   QVERIFY(submodulesView);
 
   auto submoduleIndex = [navigator](const QString &path) {
@@ -2845,16 +2777,14 @@ void TestRepositorySideBar::worktreeSubmoduleInitialization() {
   QCOMPARE(runGit(grandchild, {"commit", "-m", "grandchild"}), 0);
 
   Test::ScratchRepository child;
-  QCOMPARE(runGit(child,
-                  {"-c", "protocol.file.allow=always", "submodule", "add",
-                   grandchild->workdir().path(), "grandchild"}),
+  QCOMPARE(runGit(child, {"-c", "protocol.file.allow=always", "submodule",
+                          "add", grandchild->workdir().path(), "grandchild"}),
            0);
   QCOMPARE(runGit(child, {"commit", "-am", "add grandchild"}), 0);
 
   Test::ScratchRepository parent;
-  QCOMPARE(runGit(parent,
-                  {"-c", "protocol.file.allow=always", "submodule", "add",
-                   child->workdir().path(), "child"}),
+  QCOMPARE(runGit(parent, {"-c", "protocol.file.allow=always", "submodule",
+                           "add", child->workdir().path(), "child"}),
            0);
   QCOMPARE(runGit(parent, {"commit", "-am", "add child"}), 0);
   git::Branch feature =
@@ -2868,9 +2798,9 @@ void TestRepositorySideBar::worktreeSubmoduleInitialization() {
       parent->workdir().path() + ".worktrees/uninitialized";
   QVERIFY(QDir().mkpath(QFileInfo(uninitializedPath).dir().path()));
   git::Result result;
-  git::Repository uninitializedWorktree = parent->createWorktree(
-      "uninitialized", uninitializedPath, uninitializedBranch, QString(),
-      &result);
+  git::Repository uninitializedWorktree =
+      parent->createWorktree("uninitialized", uninitializedPath,
+                             uninitializedBranch, QString(), &result);
   QVERIFY2(result, qPrintable(result.errorString()));
   QVERIFY(uninitializedWorktree.isValid());
   QVERIFY(!uninitializedWorktree.lookupSubmodule("child").isInitialized());
@@ -2899,21 +2829,19 @@ void TestRepositorySideBar::worktreeSubmoduleInitialization() {
   RepositoryNavigator *navigator =
       window.findChild<RepositoryNavigator *>("RepositoryNavigator");
   QVERIFY(navigator);
-  QToolButton *add = navigator->findChild<QToolButton *>(
-      "RepositoryNavigationWorktreesAdd");
+  QToolButton *add =
+      navigator->findChild<QToolButton *>("RepositoryNavigationWorktreesAdd");
   QVERIFY(add);
-  QSignalSpy openSpy(navigator,
-                     &RepositoryNavigator::openRepositoryRequested);
+  QSignalSpy openSpy(navigator, &RepositoryNavigator::openRepositoryRequested);
 
   add->click();
   WorktreeDialog *dialog = navigator->findChild<WorktreeDialog *>();
   QTRY_VERIFY(dialog);
   ReferenceList *branches =
       dialog->findChild<ReferenceList *>("WorktreeBranch");
-  QCheckBox *initializeSubmodules = dialog->findChild<QCheckBox *>(
-      "WorktreeInitializeSubmodules");
-  QPushButton *create =
-      dialog->findChild<QPushButton *>("WorktreeCreate");
+  QCheckBox *initializeSubmodules =
+      dialog->findChild<QCheckBox *>("WorktreeInitializeSubmodules");
+  QPushButton *create = dialog->findChild<QPushButton *>("WorktreeCreate");
   QVERIFY(branches);
   QVERIFY(initializeSubmodules);
   QVERIFY(create);
@@ -2927,8 +2855,8 @@ void TestRepositorySideBar::worktreeSubmoduleInitialization() {
   QTRY_COMPARE(window.count(), 2);
   const QString worktreePath = openSpy.first().at(0).toString();
   QTRY_VERIFY(QFileInfo::exists(QDir(worktreePath).filePath("child/.git")));
-  QTRY_VERIFY(QFileInfo::exists(
-      QDir(worktreePath).filePath("child/grandchild/.git")));
+  QTRY_VERIFY(
+      QFileInfo::exists(QDir(worktreePath).filePath("child/grandchild/.git")));
 }
 
 void TestRepositorySideBar::worktreeDeletion() {
@@ -2942,8 +2870,8 @@ void TestRepositorySideBar::worktreeDeletion() {
   QVERIFY(QDir().mkpath(root));
   const QString linkedPath = QDir(root).filePath("feature");
   git::Result result;
-  git::Repository linked = parent->createWorktree(
-      "feature", linkedPath, feature, QString(), &result);
+  git::Repository linked = parent->createWorktree("feature", linkedPath,
+                                                  feature, QString(), &result);
   QVERIFY2(result, qPrintable(result.errorString()));
   QVERIFY(linked.isValid());
 
@@ -2951,8 +2879,8 @@ void TestRepositorySideBar::worktreeDeletion() {
   RepositoryNavigator *navigator =
       window.findChild<RepositoryNavigator *>("RepositoryNavigator");
   QVERIFY(navigator);
-  QTreeView *worktreesView = navigator->sectionView(
-      RepositoryNavigatorModel::Section::Worktrees);
+  QTreeView *worktreesView =
+      navigator->sectionView(RepositoryNavigatorModel::Section::Worktrees);
   QVERIFY(worktreesView);
 
   auto worktreeIndex = [navigator](const QString &name) {
@@ -3003,11 +2931,10 @@ void TestRepositorySideBar::worktreeDeletion() {
   QVERIFY(triggerContextMenuItem(worktreesView, featureIndex,
                                  "Delete Worktree..."));
   QTRY_VERIFY(QApplication::activeModalWidget());
-  confirmation =
-      qobject_cast<QMessageBox *>(QApplication::activeModalWidget());
+  confirmation = qobject_cast<QMessageBox *>(QApplication::activeModalWidget());
   QVERIFY(confirmation);
-  QCheckBox *acknowledge = confirmation->findChild<QCheckBox *>(
-      "WorktreeDataLossAcknowledgment");
+  QCheckBox *acknowledge =
+      confirmation->findChild<QCheckBox *>("WorktreeDataLossAcknowledgment");
   QVERIFY(acknowledge);
   QVERIFY(confirmation->informativeText().contains("uncommitted or untracked"));
 
@@ -3048,16 +2975,15 @@ void TestRepositorySideBar::worktreeTabs() {
   QVERIFY(reserved.isValid());
 
   WorktreeDialog dialog(repo);
-  QCheckBox *initializeSubmodules = dialog.findChild<QCheckBox *>(
-      "WorktreeInitializeSubmodules");
+  QCheckBox *initializeSubmodules =
+      dialog.findChild<QCheckBox *>("WorktreeInitializeSubmodules");
   QVERIFY(initializeSubmodules);
   QVERIFY(initializeSubmodules->isChecked());
   QVERIFY(dialog.initializeSubmodules());
   initializeSubmodules->setChecked(false);
   QVERIFY(!dialog.initializeSubmodules());
   initializeSubmodules->setChecked(true);
-  ReferenceList *branches =
-      dialog.findChild<ReferenceList *>("WorktreeBranch");
+  ReferenceList *branches = dialog.findChild<ReferenceList *>("WorktreeBranch");
   QVERIFY(branches);
   branches->select(reserved);
   QCOMPARE(dialog.worktreeName(), QString("CON-"));
@@ -3097,14 +3023,14 @@ void TestRepositorySideBar::worktreeTabs() {
   RepositoryNavigatorModel *navigatorModel = navigator->model();
   QModelIndex navigatorWorktrees = navigatorModel->sectionIndex(
       RepositoryNavigatorModel::Section::Worktrees);
-  QTreeView *worktreeView = navigator->sectionView(
-      RepositoryNavigatorModel::Section::Worktrees);
+  QTreeView *worktreeView =
+      navigator->sectionView(RepositoryNavigatorModel::Section::Worktrees);
   QTreeView *localView =
       navigator->sectionView(RepositoryNavigatorModel::Section::Local);
   QVERIFY(worktreeView);
   QVERIFY(localView);
-  QToolButton *localToggle = navigator->findChild<QToolButton *>(
-      "RepositoryNavigationLocalToggle");
+  QToolButton *localToggle =
+      navigator->findChild<QToolButton *>("RepositoryNavigationLocalToggle");
   QVERIFY(localToggle);
   QVERIFY(localToggle->isChecked());
   QVERIFY(localView->isVisible());
@@ -3136,7 +3062,8 @@ void TestRepositorySideBar::worktreeTabs() {
   QTest::mouseClick(worktreeView->viewport(), Qt::LeftButton, Qt::NoModifier,
                     worktreeView->visualRect(navigatorTree).center());
   QCOMPARE(window.count(), 1);
-  QCOMPARE(window.currentView()->repo().workdir().path(), repo.workdir().path());
+  QCOMPARE(window.currentView()->repo().workdir().path(),
+           repo.workdir().path());
   QCOMPARE(worktreeView->currentIndex()
                .data(RepositoryNavigatorModel::PathRole)
                .toString(),
