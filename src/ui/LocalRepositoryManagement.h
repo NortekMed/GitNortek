@@ -27,6 +27,7 @@ class QSplitter;
 class QSortFilterProxyModel;
 class QTextBrowser;
 class QTimer;
+class QThreadPool;
 class QTreeView;
 class QWidget;
 
@@ -54,12 +55,15 @@ protected:
   bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
-  enum OriginCheckEventType { FetchStarted, FetchFinished };
+  struct OriginCheckRequest {
+    QString path;
+    qsizetype callbackIndex = -1;
+  };
 
   struct OriginCheckEvent {
     QString path;
     qsizetype callbackIndex = -1;
-    OriginCheckEventType type = FetchStarted;
+    bool attempted = false;
     bool successful = false;
   };
 
@@ -85,6 +89,8 @@ private:
   void toggleWorkspaceExpansion();
   void updateExpansionButton();
   void checkOrigins(bool force);
+  void checkOrigin(const QString &path);
+  void startOriginCheck(const QStringList &paths, bool force);
   void handleOriginCheckEvent(int index);
   void finishOriginCheck();
   void updateOriginCheckButton();
@@ -101,6 +107,7 @@ private:
   QWidget *mDetailsPane;
   QLabel *mDetailsTitle;
   QTextBrowser *mReadme;
+  QThreadPool *mOriginCheckPool = nullptr;
   QPointer<QFutureWatcher<OriginCheckEvent>> mOriginCheckWatcher;
   QTimer *mOriginCooldownTimer;
   QTimer *mOriginAnimationTimer;

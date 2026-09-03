@@ -32,6 +32,7 @@
 #include <QSplitter>
 #include <QTextBrowser>
 #include <QTimer>
+#include <QThreadPool>
 #include <QToolTip>
 #include <QTreeView>
 
@@ -100,6 +101,9 @@ private slots:
   void directorySelectionDialog();
   void readmeDetails();
   void managementInteraction();
+  void managementRefreshesStaleOriginsWhileOpen();
+  void managementChecksIndividualOriginFromContextMenu();
+  void managementStartsOriginBatchForAllEligibleRepositories();
   void managementPreservesWorkspaceExpansion();
   void openWorkspaceConfirmation();
   void repositoryStatus();
@@ -725,6 +729,284 @@ void TestLocalWorkspaces::managementInteraction() {
               .toBool());
   QTRY_COMPARE(staleStarted.count(), 1);
   QTRY_COMPARE(staleFinished.count(), 1);
+}
+
+void TestLocalWorkspaces::managementRefreshesStaleOriginsWhileOpen() {
+  clearWorkspaces();
+  Test::ScratchRepository repository;
+  const git::Repository repo = repository;
+  const QString root = repo.dir(false).path();
+  QVERIFY(writeFile(QDir(root).filePath("tracked.txt"), "tracked\n"));
+  QVERIFY(runGit(root, {"add", "tracked.txt"}));
+  QVERIFY(runGit(root, {"commit", "-m", "tracked"}));
+  const QString branch = repo.head().name();
+  const QString upstream = QString("origin/%1").arg(branch);
+  QVERIFY(runGit(root, {"remote", "add", "origin", root}));
+  QVERIFY(runGit(root,
+                 {"update-ref", QString("refs/remotes/%1").arg(upstream),
+                  "HEAD"}));
+  QVERIFY(runGit(root, {"branch", "--set-upstream-to", upstream, branch}));
+
+  LocalWorkspace workspace;
+  workspace.name = "Automatic origin refresh";
+  workspace.repositories.append(root);
+  QString error;
+  QVERIFY2(LocalWorkspaces::instance()->add(workspace, &error),
+           qPrintable(error));
+
+  QSettings settings;
+  settings.setValue(originCacheKey(root), QDateTime::currentDateTimeUtc());
+  settings.setValue("localRepositoryManagement/originLastAttempt",
+                    QDateTime::currentDateTimeUtc().addSecs(-121));
+
+  LocalRepositoryManagement management;
+  QTreeView *tree = management.findChild<QTreeView *>(
+      "LocalRepositoryManagementTree");
+  QTimer *refresh = management.findChild<QTimer *>(
+      "LocalRepositoryManagementRefreshTimer");
+  QVERIFY(tree);
+  QVERIFY(refresh);
+  refresh->stop();
+  const QModelIndex workspaceIndex = tree->model()->index(0, 0);
+  const QModelIndex remote = tree->model()->index(
+      0, LocalWorkspaceModel::RemoteColumn, workspaceIndex);
+  QSignalSpy started(&management,
+                     &LocalRepositoryManagement::originCheckStarted);
+  QSignalSpy finished(&management,
+                      &LocalRepositoryManagement::originCheckFinished);
+
+  management.checkOriginsIfStale();
+  QVERIFY(remote.data(LocalWorkspaceModel::OriginInitialPendingRole).toBool());
+  management.show();
+  QTRY_VERIFY(!remote.data(LocalWorkspaceModel::OriginInitialPendingRole)
+                   .toBool());
+  QVERIFY(remote.data(LocalWorkspaceModel::OriginCheckFreshRole).toBool());
+  QCOMPARE(started.count(), 0);
+
+  settings.setValue(originCacheKey(root),
+                    QDateTime::currentDateTimeUtc().addSecs(-301));
+  settings.setValue("localRepositoryManagement/originLastAttempt",
+                    QDateTime::currentDateTimeUtc().addSecs(-121));
+  QVERIFY(QMetaObject::invokeMethod(refresh, "timeout", Qt::DirectConnection));
+  QTRY_COMPARE(started.count(), 1);
+  QTRY_COMPARE(finished.count(), 1);
+  QCOMPARE(finished.first().at(0).toInt(), 1);
+  QCOMPARE(finished.first().at(1).toInt(), 0);
+  QVERIFY(remote.data(LocalWorkspaceModel::OriginCheckFreshRole).toBool());
+
+  QVERIFY(QMetaObject::invokeMethod(refresh, "timeout", Qt::DirectConnection));
+  QTest::qWait(50);
+  QCOMPARE(started.count(), 1);
+
+  management.hide();
+  settings.setValue(originCacheKey(root),
+                    QDateTime::currentDateTimeUtc().addSecs(-301));
+  settings.setValue("localRepositoryManagement/originLastAttempt",
+                    QDateTime::currentDateTimeUtc().addSecs(-121));
+  QVERIFY(QMetaObject::invokeMethod(refresh, "timeout", Qt::DirectConnection));
+  QTest::qWait(50);
+  QCOMPARE(started.count(), 1);
+}
+
+void TestLocalWorkspaces::managementChecksIndividualOriginFromContextMenu() {
+  clearWorkspaces();
+  Test::ScratchRepository repository;
+  const git::Repository repo = repository;
+  const QString root = repo.dir(false).path();
+  QVERIFY(writeFile(QDir(root).filePath("tracked.txt"), "tracked\n"));
+  QVERIFY(runGit(root, {"add", "tracked.txt"}));
+  QVERIFY(runGit(root, {"commit", "-m", "tracked"}));
+  const QString branch = repo.head().name();
+  const QString upstream = QString("origin/%1").arg(branch);
+  QVERIFY(runGit(root, {"remote", "add", "origin", root}));
+  QVERIFY(runGit(root,
+                 {"update-ref", QString("refs/remotes/%1").arg(upstream),
+                  "HEAD"}));
+  QVERIFY(runGit(root, {"branch", "--set-upstream-to", upstream, branch}));
+
+  LocalWorkspace workspace;
+  workspace.name = "Individual origin refresh";
+  workspace.repositories.append(root);
+  QString error;
+  QVERIFY2(LocalWorkspaces::instance()->add(workspace, &error),
+           qPrintable(error));
+
+  QSettings settings;
+  const QDateTime cooldownStart = QDateTime::currentDateTimeUtc();
+  settings.setValue("localRepositoryManagement/originLastAttempt",
+                    cooldownStart);
+
+  LocalRepositoryManagement management;
+  management.resize(1000, 600);
+  management.show();
+  QTreeView *tree = management.findChild<QTreeView *>(
+      "LocalRepositoryManagementTree");
+  QVERIFY(tree);
+  const QModelIndex workspaceIndex = tree->model()->index(0, 0);
+  tree->setExpanded(workspaceIndex, true);
+  const QModelIndex remote = tree->model()->index(
+      0, LocalWorkspaceModel::RemoteColumn, workspaceIndex);
+  QTRY_VERIFY(!tree->visualRect(remote).isEmpty());
+  QTRY_VERIFY(remote.data(LocalWorkspaceModel::OriginCheckEligibleRole)
+                  .toBool());
+
+  bool workspaceCheckFound = false;
+  const QPoint workspacePosition = tree->visualRect(workspaceIndex).center();
+  QTimer::singleShot(0, [&] {
+    QMenu *menu = qobject_cast<QMenu *>(QApplication::activePopupWidget());
+    QVERIFY(menu);
+    for (QAction *action : menu->actions())
+      workspaceCheckFound = workspaceCheckFound || action->text() == "Check origin";
+    menu->close();
+  });
+  QMetaObject::invokeMethod(tree, "customContextMenuRequested",
+                            Qt::DirectConnection,
+                            Q_ARG(QPoint, workspacePosition));
+  QVERIFY(!workspaceCheckFound);
+
+  QSignalSpy started(&management,
+                     &LocalRepositoryManagement::originCheckStarted);
+  QSignalSpy finished(&management,
+                      &LocalRepositoryManagement::originCheckFinished);
+  auto triggerCheck = [&] {
+    bool found = false;
+    bool enabled = false;
+    const QPoint position = tree->visualRect(remote).center();
+    QTimer::singleShot(0, [&] {
+      QMenu *menu = qobject_cast<QMenu *>(QApplication::activePopupWidget());
+      QVERIFY(menu);
+      for (QAction *action : menu->actions()) {
+        if (action->text() != "Check origin")
+          continue;
+        found = true;
+        enabled = action->isEnabled();
+        if (enabled)
+          action->trigger();
+        break;
+      }
+      menu->close();
+    });
+    QMetaObject::invokeMethod(tree, "customContextMenuRequested",
+                              Qt::DirectConnection, Q_ARG(QPoint, position));
+    QVERIFY(found);
+    QVERIFY(enabled);
+  };
+
+  triggerCheck();
+  QTRY_COMPARE(started.count(), 1);
+  QTRY_COMPARE(finished.count(), 1);
+  QCOMPARE(finished.first().at(0).toInt(), 1);
+  QCOMPARE(finished.first().at(1).toInt(), 0);
+  QCOMPARE(settings.value("localRepositoryManagement/originLastAttempt")
+               .toDateTime(),
+           cooldownStart);
+  QVERIFY(remote.data(LocalWorkspaceModel::OriginCheckFreshRole).toBool());
+
+  triggerCheck();
+  QTRY_COMPARE(started.count(), 2);
+  QTRY_COMPARE(finished.count(), 2);
+  QCOMPARE(settings.value("localRepositoryManagement/originLastAttempt")
+               .toDateTime(),
+           cooldownStart);
+}
+
+void TestLocalWorkspaces::managementStartsOriginBatchForAllEligibleRepositories() {
+  clearWorkspaces();
+  Test::ScratchRepository first;
+  Test::ScratchRepository second;
+  const QList<git::Repository> repositories = {first, second};
+  QStringList paths;
+  for (const git::Repository &repository : repositories) {
+    const QString path = repository.dir(false).path();
+    QVERIFY(writeFile(QDir(path).filePath("tracked.txt"), "tracked\n"));
+    QVERIFY(runGit(path, {"add", "tracked.txt"}));
+    QVERIFY(runGit(path, {"commit", "-m", "tracked"}));
+    const QString branch = repository.head().name();
+    const QString upstream = QString("origin/%1").arg(branch);
+    QVERIFY(runGit(path, {"remote", "add", "origin", path}));
+    QVERIFY(runGit(path,
+                   {"update-ref", QString("refs/remotes/%1").arg(upstream),
+                    "HEAD"}));
+    QVERIFY(runGit(path, {"branch", "--set-upstream-to", upstream, branch}));
+    paths.append(path);
+  }
+
+  LocalWorkspace workspace;
+  workspace.name = "Concurrent origin batch";
+  workspace.repositories = paths;
+  QString error;
+  QVERIFY2(LocalWorkspaces::instance()->add(workspace, &error),
+           qPrintable(error));
+
+  QSettings settings;
+  settings.setValue("localRepositoryManagement/originLastAttempt",
+                    QDateTime::currentDateTimeUtc().addSecs(-121));
+
+  LocalRepositoryManagement management;
+  management.resize(1000, 600);
+  management.show();
+  QTreeView *tree = management.findChild<QTreeView *>(
+      "LocalRepositoryManagementTree");
+  QPushButton *check = management.findChild<QPushButton *>(
+      "LocalRepositoryManagementCheckOrigin");
+  QTimer *animation = management.findChild<QTimer *>(
+      "LocalRepositoryManagementOriginAnimation");
+  QThreadPool *pool = management.findChild<QThreadPool *>(
+      "LocalRepositoryManagementOriginCheckPool");
+  QVERIFY(tree);
+  QVERIFY(check);
+  QVERIFY(animation);
+  QVERIFY(pool);
+  QCOMPARE(pool->maxThreadCount(), 4);
+  const QModelIndex workspaceIndex = tree->model()->index(0, 0);
+  tree->setExpanded(workspaceIndex, true);
+  QList<QModelIndex> remoteIndexes;
+  for (int row = 0; row < paths.size(); ++row) {
+    const QModelIndex remote = tree->model()->index(
+        row, LocalWorkspaceModel::RemoteColumn, workspaceIndex);
+    remoteIndexes.append(remote);
+    QTRY_VERIFY(remote.data(LocalWorkspaceModel::OriginCheckEligibleRole)
+                    .toBool());
+  }
+
+  QSignalSpy started(&management,
+                     &LocalRepositoryManagement::originCheckStarted);
+  QSignalSpy finished(&management,
+                      &LocalRepositoryManagement::originCheckFinished);
+  QSignalSpy fetchStarted(&management,
+                          &LocalRepositoryManagement::originFetchStarted);
+  QSignalSpy fetchFinished(&management,
+                           &LocalRepositoryManagement::originFetchFinished);
+  bool allActiveAtStart = false;
+  bool checkingAtStart = false;
+  bool animationAtStart = false;
+  connect(&management, &LocalRepositoryManagement::originCheckStarted, [&] {
+    allActiveAtStart = true;
+    for (const QModelIndex &remote : remoteIndexes) {
+      allActiveAtStart =
+          allActiveAtStart &&
+          remote.data(LocalWorkspaceModel::OriginFetchActiveRole).toBool();
+    }
+    checkingAtStart = !check->isEnabled() && check->text() == "Checking...";
+    animationAtStart = animation->isActive();
+  });
+
+  QTest::mouseClick(check, Qt::LeftButton);
+  QTRY_COMPARE(started.count(), 1);
+  QCOMPARE(started.first().at(0).toInt(), paths.size());
+  QVERIFY(allActiveAtStart);
+  QVERIFY(checkingAtStart);
+  QVERIFY(animationAtStart);
+  QCOMPARE(fetchStarted.count(), paths.size());
+  QTRY_COMPARE(finished.count(), 1);
+  QCOMPARE(finished.first().at(0).toInt(), paths.size());
+  QCOMPARE(finished.first().at(1).toInt(), 0);
+  QCOMPARE(fetchFinished.count(), paths.size());
+  for (const QModelIndex &remote : remoteIndexes) {
+    QVERIFY(remote.data(LocalWorkspaceModel::OriginCheckFreshRole).toBool());
+    QVERIFY(!remote.data(LocalWorkspaceModel::OriginFetchActiveRole).toBool());
+  }
+  QVERIFY(!animation->isActive());
 }
 
 void TestLocalWorkspaces::managementPreservesWorkspaceExpansion() {

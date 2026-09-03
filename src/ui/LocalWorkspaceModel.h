@@ -72,6 +72,7 @@ public:
   Qt::ItemFlags flags(const QModelIndex &index) const override;
   QHash<int, QByteArray> roleNames() const override;
   QStringList repositoryPaths() const;
+  bool isOriginCheckEligible(const QString &path) const;
   bool isOriginCheckFresh(const QString &path) const;
   void setOriginFetchActive(const QString &path, bool active);
   void setOriginCheckFresh(const QString &path, bool fresh);

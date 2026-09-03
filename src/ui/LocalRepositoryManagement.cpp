@@ -47,6 +47,7 @@
 #include <QTimer>
 #include <QToolButton>
 #include <QToolTip>
+#include <QThreadPool>
 #include <QTreeView>
 #include <QUrl>
 #include <QVBoxLayout>
@@ -502,6 +503,10 @@ LocalRepositoryManagement::LocalRepositoryManagement(QWidget *parent)
       mOriginAnimationTimer(new QTimer(this)),
       mWorkspaceClickTimer(new QTimer(this)) {
   setObjectName(QStringLiteral("LocalRepositoryManagement"));
+  mOriginCheckPool = new QThreadPool(this);
+  mOriginCheckPool->setObjectName(
+      QStringLiteral("LocalRepositoryManagementOriginCheckPool"));
+  mOriginCheckPool->setMaxThreadCount(4);
 
   QLabel *title = new QLabel(tr("Local Repository Management"), this);
   title->setObjectName(QStringLiteral("LocalRepositoryManagementTitle"));
@@ -703,11 +708,16 @@ LocalRepositoryManagement::LocalRepositoryManagement(QWidget *parent)
   connect(mWorkspaceClickTimer, &QTimer::timeout, this,
           [this] { clearPendingWorkspaceClick(); });
   QTimer *branchRefresh = new QTimer(this);
+  branchRefresh->setObjectName(
+      QStringLiteral("LocalRepositoryManagementRefreshTimer"));
   branchRefresh->setInterval(2000);
-  connect(branchRefresh, &QTimer::timeout, mModel,
-          &LocalWorkspaceModel::refreshRepositories);
-  connect(branchRefresh, &QTimer::timeout, this,
-          &LocalRepositoryManagement::updateOriginCheckStates);
+  connect(branchRefresh, &QTimer::timeout, this, [this] {
+    mModel->refreshRepositories();
+    if (isVisible() && !mFirstOriginOpen && !mResolveOriginAfterPaint)
+      checkOrigins(false);
+    else
+      updateOriginCheckStates();
+  });
   branchRefresh->start();
   mOriginCooldownTimer->setInterval(1000);
   connect(mOriginCooldownTimer, &QTimer::timeout, this,
@@ -773,20 +783,41 @@ void LocalRepositoryManagement::checkOrigins(bool force) {
 
   mOriginCooldownDeadline = now.addSecs(kOriginCooldownSeconds);
   QSettings().setValue(QLatin1String(kOriginLastAttemptKey), now);
+  startOriginCheck(paths, force);
+}
+
+void LocalRepositoryManagement::checkOrigin(const QString &path) {
+  updateOriginCheckStates();
+  if ((mOriginCheckWatcher && mOriginCheckWatcher->isRunning()) ||
+      !mModel->repositoryPaths().contains(path) ||
+      !mModel->isOriginCheckEligible(path))
+    return;
+
+  startOriginCheck({path}, true);
+}
+
+void LocalRepositoryManagement::startOriginCheck(const QStringList &paths,
+                                                 bool force) {
   auto *watcher = new QFutureWatcher<OriginCheckEvent>;
   mOriginCheckWatcher = watcher;
+  QList<OriginCheckRequest> requests;
+  requests.reserve(paths.size());
   mOriginCallbacks.reserve(paths.size());
+  mOriginAnimationTimer->start();
   for (qsizetype i = 0; i < paths.size(); ++i) {
+    const QString &path = paths.at(i);
     mOriginCallbacks.append(new RemoteCallbacks(
         RemoteCallbacks::Receive, nullptr, QString(), QStringLiteral("origin"),
         watcher, git::Repository(), force, this));
+    requests.append({path, i});
+    mActiveOriginFetches.insert(path);
+    if (!mModel->isOriginCheckFresh(path))
+      mUntrustedOriginFetches.insert(path);
+    mModel->setOriginFetchActive(path, true);
+    emit originFetchStarted(path);
   }
 
   const QList<RemoteCallbacks *> callbacks = mOriginCallbacks;
-  QList<bool> untrusted;
-  untrusted.reserve(paths.size());
-  for (const QString &path : paths)
-    untrusted.append(!mModel->isOriginCheckFresh(path));
   connect(watcher, &QFutureWatcher<OriginCheckEvent>::resultReadyAt, this,
           &LocalRepositoryManagement::handleOriginCheckEvent);
   connect(qApp, &QCoreApplication::aboutToQuit, watcher, [callbacks] {
@@ -794,81 +825,55 @@ void LocalRepositoryManagement::checkOrigins(bool force) {
       callback->setCanceled(true);
   });
   connect(watcher, &QFutureWatcher<OriginCheckEvent>::finished, watcher,
-          [watcher, callbacks, untrusted] {
-            const QList<OriginCheckEvent> events = watcher->future().results();
-            QSettings settings;
-            const QDateTime now = QDateTime::currentDateTimeUtc();
-            for (const OriginCheckEvent &event : events) {
-              if (event.type != FetchFinished)
-                continue;
-              if (event.successful) {
-                settings.setValue(originCacheKey(event.path), now);
-                settings.remove(originFailureKey(event.path));
-                callbacks.at(event.callbackIndex)->storeDeferredCredentials();
-              } else if (untrusted.at(event.callbackIndex)) {
-                settings.setValue(originFailureKey(event.path), now);
-              }
-            }
-            watcher->deleteLater();
-          });
+          &QObject::deleteLater);
   connect(watcher, &QFutureWatcher<OriginCheckEvent>::finished, this,
           &LocalRepositoryManagement::finishOriginCheck);
 
+  mOriginCheck->setText(tr("Checking..."));
+  mOriginCheck->setEnabled(false);
+  mOriginCooldownTimer->start();
   emit originCheckStarted(paths.size());
-  updateOriginCheckButton();
-  watcher->setFuture(QtConcurrent::run(
-      [paths, callbacks](QPromise<OriginCheckEvent> &promise) {
-        for (qsizetype i = 0; i < paths.size(); ++i) {
-          const QString path = paths.at(i);
-          const git::Repository repository =
-              git::Repository::open(path, true);
-          if (!repository.isValid())
-            continue;
+  watcher->setFuture(QtConcurrent::mapped(
+      mOriginCheckPool, requests, [callbacks](const OriginCheckRequest &request) {
+        OriginCheckEvent event = {request.path, request.callbackIndex};
+        const git::Repository repository =
+            git::Repository::open(request.path, true);
+        if (!repository.isValid())
+          return event;
 
-          const git::Reference head = repository.head();
-          if (!head.isValid() || !head.isLocalBranch())
-            continue;
-          const git::Branch upstream = git::Branch(head).upstream();
-          if (!upstream.isValid() ||
-              upstream.name().section('/', 0, 0) !=
-                  QStringLiteral("origin"))
-            continue;
+        const git::Reference head = repository.head();
+        if (!head.isValid() || !head.isLocalBranch())
+          return event;
+        const git::Branch upstream = git::Branch(head).upstream();
+        if (!upstream.isValid() ||
+            upstream.name().section('/', 0, 0) != QStringLiteral("origin"))
+          return event;
 
-          git::Remote origin =
-              repository.lookupRemote(QStringLiteral("origin"));
-          if (!origin.isValid() || callbacks.at(i)->isCanceled())
-            continue;
-          callbacks.at(i)->setRepositoryForOperation(repository);
-          promise.addResult({path, i, FetchStarted, false});
-          const bool successful =
-              bool(origin.fetch(callbacks.at(i), false, false));
-          callbacks.at(i)->setRepositoryForOperation(git::Repository());
-          promise.addResult({path, i, FetchFinished, successful});
-        }
+        git::Remote origin = repository.lookupRemote(QStringLiteral("origin"));
+        RemoteCallbacks *callbacksForRequest =
+            callbacks.at(request.callbackIndex);
+        if (!origin.isValid() || callbacksForRequest->isCanceled())
+          return event;
+        callbacksForRequest->setRepositoryForOperation(repository);
+        event.attempted = true;
+        event.successful = bool(origin.fetch(callbacksForRequest, false, false));
+        callbacksForRequest->setRepositoryForOperation(git::Repository());
+        return event;
       }));
 }
 
 void LocalRepositoryManagement::handleOriginCheckEvent(int index) {
   const OriginCheckEvent event = mOriginCheckWatcher->resultAt(index);
-  if (event.type == FetchStarted) {
-    mActiveOriginFetches.insert(event.path);
-    if (!mModel->isOriginCheckFresh(event.path))
-      mUntrustedOriginFetches.insert(event.path);
-    mModel->setOriginFetchActive(event.path, true);
-    mOriginAnimationTimer->start();
-    emit originFetchStarted(event.path);
-    return;
-  }
-
   mActiveOriginFetches.remove(event.path);
-  if (event.successful) {
+  if (event.attempted && event.successful) {
     QSettings settings;
     settings.setValue(originCacheKey(event.path),
-                      QDateTime::currentDateTimeUtc());
+                       QDateTime::currentDateTimeUtc());
     settings.remove(originFailureKey(event.path));
     mModel->setOriginCheckFailed(event.path, false);
     mModel->setOriginCheckFresh(event.path, true);
-  } else if (mUntrustedOriginFetches.contains(event.path)) {
+    mOriginCallbacks.at(event.callbackIndex)->storeDeferredCredentials();
+  } else if (event.attempted && mUntrustedOriginFetches.contains(event.path)) {
     QSettings().setValue(originFailureKey(event.path),
                          QDateTime::currentDateTimeUtc());
     mModel->setOriginCheckFresh(event.path, false);
@@ -879,7 +884,8 @@ void LocalRepositoryManagement::handleOriginCheckEvent(int index) {
   mModel->refreshRepositories();
   if (mActiveOriginFetches.isEmpty())
     mOriginAnimationTimer->stop();
-  emit originFetchFinished(event.path, event.successful);
+  if (event.attempted)
+    emit originFetchFinished(event.path, event.successful);
 }
 
 void LocalRepositoryManagement::finishOriginCheck() {
@@ -888,7 +894,7 @@ void LocalRepositoryManagement::finishOriginCheck() {
   int successful = 0;
   int failed = 0;
   for (const OriginCheckEvent &event : events) {
-    if (event.type != FetchFinished)
+    if (!event.attempted)
       continue;
     if (event.successful)
       ++successful;
@@ -1100,12 +1106,18 @@ void LocalRepositoryManagement::showContextMenu(const QPoint &position) {
 
   if (repository) {
     QAction *open = menu.addAction(tr("Open Repository"));
+    QAction *checkOrigin = menu.addAction(tr("Check origin"));
+    checkOrigin->setEnabled(
+        index.data(LocalWorkspaceModel::OriginCheckEligibleRole).toBool() &&
+        (!mOriginCheckWatcher || !mOriginCheckWatcher->isRunning()));
     menu.addSeparator();
     QAction *remove = menu.addAction(tr("Remove Repository"));
     remove->setEnabled(
         !index.data(LocalWorkspaceModel::SynchronizedRole).toBool());
     connect(open, &QAction::triggered, this,
             [this, path] { emit openRepositoryRequested(path); });
+    connect(checkOrigin, &QAction::triggered, this,
+            [this, path] { this->checkOrigin(path); });
     connect(remove, &QAction::triggered, this,
             [this, id, path] { removeRepository(id, path); });
   } else {

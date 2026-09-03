@@ -24,6 +24,9 @@ Bug Fix and Feature release
 * Mark the checked-out local branch with a green checkbox and color ahead and behind indicators
 * Align Compact Mode into configurable columns with content-aware widths, bottom-connected stash ancestry, and side-connected merge and divergence curves
 * Consolidate commit-list appearance settings into the column header menu and keep the configurable column layout enabled
+* Refresh stale origin status automatically while Local Repository Management remains open
+* Check an individual repository's origin from its Local Repository Management context menu without applying the bulk-check cooldown
+* Check repository origins concurrently in batches of up to four and show progress for every launched check immediately
 * Display stashes as square nodes with dotted topology and stash actions in the combined commit graph
 * Display GitHub or Gravatar author avatars inside larger commit graph nodes and commit details when avatars are enabled
 * Commit checked-out submodule revisions directly from the repository navigator

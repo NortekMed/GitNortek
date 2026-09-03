@@ -374,6 +374,10 @@ bool LocalWorkspaceModel::isOriginCheckFresh(const QString &path) const {
   return mFreshOriginChecks.contains(path);
 }
 
+bool LocalWorkspaceModel::isOriginCheckEligible(const QString &path) const {
+  return mRepositoryStates.value(path).originCheckEligible;
+}
+
 void LocalWorkspaceModel::setOriginFetchActive(const QString &path,
                                                bool active) {
   if (active == mActiveOriginFetches.contains(path))

@@ -264,6 +264,8 @@ void TestMainWindow::fastIssueAccess() {
 }
 
 void TestMainWindow::localRepositoryManagement() {
+  mWindow->show();
+  QVERIFY(qWaitForWindowExposed(mWindow));
   QToolButton *button =
       mWindow->toolBar()->findChild<QToolButton *>("localRepositoryManagement");
   QVERIFY(button);
