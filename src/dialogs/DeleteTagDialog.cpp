@@ -14,6 +14,7 @@
 #include "log/LogEntry.h"
 #include "ui/RemoteCallbacks.h"
 #include "ui/RepoView.h"
+#include "util/WaitCursor.h"
 #include <QCheckBox>
 #include <QFutureWatcher>
 #include <QPushButton>
@@ -55,6 +56,7 @@ DeleteTagDialog::DeleteTagDialog(const git::TagRef &tag, QWidget *parent)
       QStringList refspecs(QString(":refs/tags/%1").arg(name));
       git::Result (git::Remote::*push)(
           git::Remote::Callbacks *, const QStringList &) = &git::Remote::push;
+      WaitCursor::track(watcher);
       watcher->setFuture(QtConcurrent::run(push, remote, callbacks, refspecs));
 
       connect(watcher, &QFutureWatcher<git::Result>::finished, watcher,

@@ -51,6 +51,7 @@
 #include <memory>
 #include "util/Debug.h"
 #include "util/PerformanceTrace.h"
+#include "util/WaitCursor.h"
 
 namespace {
 
@@ -70,30 +71,30 @@ const QString kWindowsGroup = "windows";
 class RepositoryOpenIndicator {
 public:
   static std::shared_ptr<RepositoryOpenIndicator> show() {
+    auto indicator = std::shared_ptr<RepositoryOpenIndicator>(
+        new RepositoryOpenIndicator);
     if (sCount++ == 0) {
       sSplash =
           new QSplashScreen(QPixmap(":/GitNortek.iconset/icon_128x128.png"));
       sSplash->showMessage(QObject::tr("Opening repository..."),
                            Qt::AlignBottom | Qt::AlignHCenter, Qt::white);
-      QApplication::setOverrideCursor(Qt::WaitCursor);
       sSplash->show();
       QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
     }
 
-    return std::shared_ptr<RepositoryOpenIndicator>(
-        new RepositoryOpenIndicator);
+    return indicator;
   }
 
   ~RepositoryOpenIndicator() {
     if (--sCount != 0)
       return;
 
-    QApplication::restoreOverrideCursor();
     delete sSplash;
     sSplash = nullptr;
   }
 
 private:
+  WaitCursor::Token mCursor = WaitCursor::acquire();
   inline static int sCount = 0;
   inline static QSplashScreen *sSplash = nullptr;
 };

@@ -127,6 +127,7 @@ test(NAME commitEditor)
 test(NAME FastIssueDialog)
 test(NAME GitHub)
 test(NAME worktree)
+test(NAME WaitCursor)
 
 if(DEFINED GITTYUP_CI_TESTS AND NOT DEFINED GITNORTEK_CI_TESTS)
   message(DEPRECATION

@@ -54,6 +54,7 @@
 #include "git/Signature.h"
 #include "git2/merge.h"
 #include "util/PerformanceTrace.h"
+#include "util/WaitCursor.h"
 #include "host/Accounts.h"
 #include "index/Index.h"
 #include "log/LogEntry.h"
@@ -1341,6 +1342,7 @@ QFuture<git::Result> RepoView::fetch(const git::Remote &rmt, bool tags,
           &RepoView::notifyReferenceUpdated);
 
   entry->setBusy(true);
+  WaitCursor::track(mWatcher);
   mWatcher->setFuture(
       QtConcurrent::run([this, remote, tags, submodules, prune] {
         git::Result result = git::Remote(remote).fetch(mCallbacks, tags, prune);
@@ -1432,6 +1434,7 @@ void RepoView::pull(MergeFlags flags, const git::Remote &rmt, bool tags,
                   callback);
           });
 
+  WaitCursor::track(watcher);
   watcher->setFuture(fetch(remote, tags, true, entry, submodules, prune));
   if (watcher->isCanceled()) {
     delete watcher;
@@ -2151,6 +2154,7 @@ void RepoView::push(const git::Remote &rmt, const git::Reference &src,
             dialog->open();
           });
       git::Repository repo = mRepo;
+      WaitCursor::track(watcher);
       watcher->setFuture(
           QtConcurrent::run([repo, parents, submodules, callbacks] {
             QList<git::SubmoduleAvailability::Issue> issues;
@@ -2252,6 +2256,7 @@ void RepoView::pushRemote(const git::Remote &remote, const git::Reference &src,
           &RepoView::notifyReferenceUpdated);
 
   entry->setBusy(true);
+  WaitCursor::track(mWatcher);
   git::Result (git::Remote::*push)(git::Remote::Callbacks *,
                                    const git::Reference &, const QString &,
                                    bool, bool) = &git::Remote::push;
@@ -2994,6 +2999,7 @@ void RepoView::resetSubmodulesAsync(const QList<SubmoduleInfo> &submodules,
                                    QString(), mWatcher, repo);
 
   entry->setBusy(true);
+  WaitCursor::track(mWatcher);
   mWatcher->setFuture(QtConcurrent::run(&git::Submodule::update, submodule,
                                         mCallbacks, false, true));
 }
@@ -3158,6 +3164,7 @@ void RepoView::updateSubmodulesAsync(const QList<SubmoduleInfo> &submodules,
                                    QString(), mWatcher, repo);
 
   entry->setBusy(true);
+  WaitCursor::track(mWatcher);
   mWatcher->setFuture(QtConcurrent::run(&git::Submodule::update, submodule,
                                         mCallbacks, init, checkout_force));
 }
@@ -3346,6 +3353,7 @@ void RepoView::checkSubmoduleUpdates(
         }
       });
 
+  WaitCursor::track(watcher);
   watcher->setFuture(QtConcurrent::run([submodules, callbacks] {
     QList<git::Submodule::UpdateStatus> results;
     for (const git::Submodule &submodule : submodules) {
@@ -3477,6 +3485,7 @@ void RepoView::addSubmodule(const QString &url, const QString &path,
                                    QString(), mWatcher, mRepo);
 
   entry->setBusy(true);
+  WaitCursor::track(mWatcher);
   mWatcher->setFuture(QtConcurrent::run(&git::Submodule::add, mRepo, url, path,
                                         branch, mCallbacks));
 }

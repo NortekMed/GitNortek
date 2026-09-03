@@ -16,6 +16,7 @@
 #include "log/LogView.h"
 #include "ui/ExpandButton.h"
 #include "ui/RemoteCallbacks.h"
+#include "util/WaitCursor.h"
 #include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
@@ -300,6 +301,7 @@ public:
                                      "origin", mWatcher);
 
     entry->setBusy(true);
+    WaitCursor::track(mWatcher);
     mWatcher->setFuture(
         QtConcurrent::run(&git::Remote::clone, mCallbacks, url, path, bare));
   }
