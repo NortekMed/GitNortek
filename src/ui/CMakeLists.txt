@@ -42,6 +42,7 @@ add_library(
   ReferenceView.cpp
   ReferenceModel.cpp
   ReferenceWidget.cpp
+  RepositoryOpenProgress.cpp
   RepositoryTabStrip.cpp
   RepositoryNavigator.cpp
   RepositoryNavigatorModel.cpp

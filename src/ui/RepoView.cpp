@@ -21,6 +21,7 @@
 #include "PathspecWidget.h"
 #include "qtsupport.h"
 #include "ReferenceWidget.h"
+#include "RepositoryOpenProgress.h"
 #include "RepositoryNavigator.h"
 #include "RemoteCallbacks.h"
 #include "SearchField.h"
@@ -344,9 +345,16 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
           &RepoView::referenceSelected);
   connect(mRefs, &ReferenceWidget::referenceSelected, mCommits,
           &CommitList::selectReference);
-  connect(mCommits, &CommitList::firstPainted, this,
-          &RepoView::commitListFirstPainted);
   connect(mCommits, &CommitList::statusChanged, this, &RepoView::statusChanged);
+  connect(this, &RepoView::statusChanged, this, [this] {
+    if (mInitialLoadFinished)
+      return;
+
+    mInitialLoadFinished = true;
+    if (mOpenProgress)
+      mOpenProgress->finish();
+    emit initialLoadFinished();
+  });
   connect(mCommits, &CommitList::statusSelected, this,
           &RepoView::statusSelected);
   connect(mCommits, &CommitList::selectedRangeChanged, this,
@@ -4079,6 +4087,12 @@ void RepoView::finishClosing() {
   }
 
   deleteLater();
+}
+
+void RepoView::startInitialLoadProgress() {
+  if (!mOpenProgress)
+    mOpenProgress = new RepositoryOpenProgress(this);
+  mOpenProgress->start();
 }
 
 void RepoView::paintEvent(QPaintEvent *event) {

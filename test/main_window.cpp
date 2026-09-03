@@ -32,6 +32,7 @@
 #include "ui/TabWidget.h"
 #include "ui/ToolBar.h"
 #include <QFile>
+#include <QGuiApplication>
 #include <QLineEdit>
 #include <QMenu>
 #include <QMessageBox>
@@ -52,7 +53,8 @@ class TestMainWindow : public QObject {
 
 private slots:
   void initTestCase();
-  void commitListFirstPainted();
+  void initialLoadFinished();
+  void notifierConnectionsRespectReceiverLifetime();
   void show();
   void singleRepositoryTabVisible();
   void adaptiveRepositoryTabs();
@@ -124,13 +126,24 @@ void TestMainWindow::initTestCase() {
   mWindow = new MainWindow(mRepo);
 }
 
-void TestMainWindow::commitListFirstPainted() {
+void TestMainWindow::initialLoadFinished() {
   MainWindow window(mSecondRepo);
-  QSignalSpy painted(window.currentView(), &RepoView::commitListFirstPainted);
+  QSignalSpy finished(window.currentView(), &RepoView::initialLoadFinished);
   window.show();
 
   QVERIFY(qWaitForWindowExposed(&window));
-  QTRY_COMPARE(painted.count(), 1);
+  QTRY_COMPARE(finished.count(), 1);
+}
+
+void TestMainWindow::notifierConnectionsRespectReceiverLifetime() {
+  QPointer<RepoView> view;
+  {
+    MainWindow window(mSecondRepo);
+    view = window.currentView();
+  }
+  QVERIFY(view.isNull());
+
+  emit mSecondRepo->notifier()->referenceUpdated(mSecondRepo->head());
 }
 
 void TestMainWindow::show() {
@@ -338,7 +351,7 @@ void TestMainWindow::initialRefreshOnce() {
   QSignalSpy refreshed(repo->notifier(),
                        &git::RepositoryNotifier::referenceUpdated);
   MainWindow window(repo, nullptr, Qt::WindowFlags(), false);
-  QCOMPARE(refreshed.count(), 1);
+  QTRY_COMPARE(refreshed.count(), 1);
 }
 
 void TestMainWindow::navigatorRefreshCoalesced() {
@@ -888,6 +901,7 @@ void TestMainWindow::invalidRecentRepository() {
       QMessageBox *dialog =
           qobject_cast<QMessageBox *>(QApplication::activeModalWidget());
       QVERIFY(dialog);
+      QVERIFY(!QGuiApplication::overrideCursor());
       foreach (QPushButton *button, dialog->findChildren<QPushButton *>()) {
         if (button->text() == text) {
           button->click();

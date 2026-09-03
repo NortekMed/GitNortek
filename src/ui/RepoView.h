@@ -46,6 +46,7 @@ class QStackedWidget;
 class QToolButton;
 class PathspecWidget;
 class ReferenceWidget;
+class RepositoryOpenProgress;
 class RemoteCallbacks;
 class ToolBar;
 struct ContributorInfo;
@@ -137,6 +138,7 @@ public:
   void cancelRemoteTransfer();
   void cancelBackgroundTasks();
   bool isClosing() const { return mClosing; }
+  void startInitialLoadProgress();
 
   // links
   void visitLink(const QString &link);
@@ -404,7 +406,7 @@ private slots:
   void rebaseConflict(const git::Rebase rebase);
 
 signals:
-  void commitListFirstPainted();
+  void initialLoadFinished();
   void statusChanged(bool dirty);
   void referenceChanged(const git::Reference &ref);
   void referenceSelected(const git::Reference &ref);
@@ -512,6 +514,8 @@ private:
 
   bool mShown = false;
   bool mFirstPaintTraced = false;
+  bool mInitialLoadFinished = false;
+  RepositoryOpenProgress *mOpenProgress = nullptr;
   bool mClosing = false;
   QTimer mCloseCleanupTimer;
 

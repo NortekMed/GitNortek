@@ -1965,7 +1965,7 @@ CommitList::CommitList(Index *index, CommitAvatarProvider *avatars,
   connect(model, &CommitModel::statusFailed, this, &CommitList::statusError);
 
   git::RepositoryNotifier *notifier = repo.notifier();
-  connect(notifier, &git::RepositoryNotifier::referenceUpdated,
+  connect(notifier, &git::RepositoryNotifier::referenceUpdated, this,
           [this](const git::Reference &ref, bool restoreSelection,
                  bool refreshStatus) {
             mRestoreSelection = restoreSelection;
@@ -1985,14 +1985,6 @@ CommitList::CommitList(Index *index, CommitAvatarProvider *avatars,
   selectCommitUpHotKey.use(shortcut);
   connect(shortcut, &QShortcut::activated,
           [this] { selectCommitRelative(-1); });
-}
-
-void CommitList::paintEvent(QPaintEvent *event) {
-  QListView::paintEvent(event);
-  if (!mFirstPainted) {
-    mFirstPainted = true;
-    emit firstPainted();
-  }
 }
 
 void CommitList::setupHeader() {

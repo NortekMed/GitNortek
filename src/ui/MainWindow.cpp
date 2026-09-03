@@ -26,8 +26,6 @@
 #include "qmap.h"
 #include <QApplication>
 #include <QCloseEvent>
-#include <QCoreApplication>
-#include <QEventLoop>
 #include <QGuiApplication>
 #include <QScreen>
 #include <QCryptographicHash>
@@ -41,7 +39,6 @@
 #include <QPushButton>
 #include <QSettings>
 #include <QSignalBlocker>
-#include <QSplashScreen>
 #include <QSplitter>
 #include <QStackedWidget>
 #include <QTimeLine>
@@ -67,37 +64,6 @@ const QString kActiveKey = "active";
 const QString kSidebarWidthKey = "sidebar/repositoryNavigator/width";
 const QString kGeometryKey = "geometry";
 const QString kWindowsGroup = "windows";
-
-class RepositoryOpenIndicator {
-public:
-  static std::shared_ptr<RepositoryOpenIndicator> show() {
-    auto indicator = std::shared_ptr<RepositoryOpenIndicator>(
-        new RepositoryOpenIndicator);
-    if (sCount++ == 0) {
-      sSplash =
-          new QSplashScreen(QPixmap(":/GitNortek.iconset/icon_128x128.png"));
-      sSplash->showMessage(QObject::tr("Opening repository..."),
-                           Qt::AlignBottom | Qt::AlignHCenter, Qt::white);
-      sSplash->show();
-      QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-    }
-
-    return indicator;
-  }
-
-  ~RepositoryOpenIndicator() {
-    if (--sCount != 0)
-      return;
-
-    delete sSplash;
-    sSplash = nullptr;
-  }
-
-private:
-  WaitCursor::Token mCursor = WaitCursor::acquire();
-  inline static int sCount = 0;
-  inline static QSplashScreen *sSplash = nullptr;
-};
 
 QString canonicalPath(const QString &path) {
   QFileInfo info(path);
@@ -371,11 +337,12 @@ RepoView *MainWindow::addTab(const QString &path, OpenSource source,
     }
   }
 
-  std::shared_ptr<RepositoryOpenIndicator> indicator;
+  WaitCursor::Token cursor;
   if (!mRestoringTabs)
-    indicator = RepositoryOpenIndicator::show();
+    cursor = WaitCursor::acquire();
   git::Repository repo = git::Repository::open(path, true);
   if (!repo.isValid()) {
+    cursor.reset();
     if (source == OpenSource::RecentRepository)
       warnInvalidRecentRepo(path);
     else
@@ -428,17 +395,7 @@ RepoView *MainWindow::addTab(const git::Repository &repo,
     }
   }
 
-  std::shared_ptr<RepositoryOpenIndicator> indicator;
-  if (!mRestoringTabs)
-    indicator = RepositoryOpenIndicator::show();
-
   RepoView *view = new RepoView(repo, this);
-  if (indicator) {
-    auto pending = std::make_shared<std::shared_ptr<RepositoryOpenIndicator>>(
-        std::move(indicator));
-    connect(view, &RepoView::commitListFirstPainted, view,
-            [pending] { pending->reset(); });
-  }
   view->setTabContext(tabContext);
   view->setSubmoduleTab(submoduleTab);
   view->detailSplitterMaximize(mMenuBar->isMaximized());
@@ -452,6 +409,8 @@ RepoView *MainWindow::addTab(const git::Repository &repo,
   mAddingTab = true;
   QIcon icon = repositoryIcon(repo, submoduleTab);
   const int index = tabs->addTab(view, icon, dir.dirName());
+  if (!mRestoringTabs)
+    view->startInitialLoadProgress();
   if (!mRestoringTabs)
     tabs->setCurrentIndex(index);
   mAddingTab = false;
@@ -656,13 +615,14 @@ MainWindow *MainWindow::open(const QString &path, bool warnOnInvalid,
   if (path.isEmpty())
     return nullptr;
 
-  auto indicator = RepositoryOpenIndicator::show();
+  WaitCursor::Token cursor = WaitCursor::acquire();
   git::Repository repo;
   {
     PerformanceTrace::Span repoSpan("startup", "Repository::open", path);
     repo = git::Repository::open(path, true);
   }
   if (!repo.isValid()) {
+    cursor.reset();
     if (warnOnInvalid) {
       if (source == OpenSource::RecentRepository)
         warnInvalidRecentRepo(path);

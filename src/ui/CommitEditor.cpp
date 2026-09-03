@@ -524,7 +524,7 @@ CommitEditor::CommitEditor(const git::Repository &repo, QWidget *parent)
   });
 
   // Update buttons on index change.
-  connect(repo.notifier(), &git::RepositoryNotifier::indexChanged,
+  connect(repo.notifier(), &git::RepositoryNotifier::indexChanged, this,
           [this](const QStringList &paths, bool yieldFocus) {
             updateButtons(yieldFocus);
           });
