@@ -54,6 +54,7 @@ class TestMainWindow : public QObject {
 private slots:
   void initTestCase();
   void initialLoadFinished();
+  void initialLoadErrorFinished();
   void notifierConnectionsRespectReceiverLifetime();
   void show();
   void singleRepositoryTabVisible();
@@ -133,6 +134,20 @@ void TestMainWindow::initialLoadFinished() {
 
   QVERIFY(qWaitForWindowExposed(&window));
   QTRY_COMPARE(finished.count(), 1);
+}
+
+void TestMainWindow::initialLoadErrorFinished() {
+  MainWindow window(mSecondRepo);
+  RepoView *view = window.currentView();
+  QSignalSpy finished(view, &RepoView::initialLoadFinished);
+  CommitList *commits = view->findChild<CommitList *>();
+  QVERIFY(commits);
+
+  emit commits->statusError(QString());
+  QCOMPARE(finished.count(), 1);
+
+  emit view->statusChanged(false);
+  QCOMPARE(finished.count(), 1);
 }
 
 void TestMainWindow::notifierConnectionsRespectReceiverLifetime() {

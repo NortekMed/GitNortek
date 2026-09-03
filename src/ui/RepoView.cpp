@@ -365,6 +365,12 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
           });
   connect(mCommits, &CommitList::statusError, this,
           [this](const QString &error) {
+            if (!mInitialLoadFinished) {
+              mInitialLoadFinished = true;
+              if (mOpenProgress)
+                mOpenProgress->finish();
+              emit initialLoadFinished();
+            }
             LogEntry *entry = addLogEntry(QString(), tr("Status"));
             entry->addEntry(LogEntry::Error, error.toHtmlEscaped());
             setLogVisible(true);
