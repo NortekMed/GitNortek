@@ -66,6 +66,7 @@
 #include <QCloseEvent>
 #include <QCoreApplication>
 #include <QDesktopServices>
+#include <QDir>
 #include <QFileInfo>
 #include <QFrame>
 #include <QHBoxLayout>
@@ -3867,15 +3868,17 @@ void RepoView::openTerminal(const QString &workingDirectory, QWidget *parent) {
 
   ZeroMemory(&startupInfo, sizeof(STARTUPINFOW));
   ZeroMemory(&processInfo, sizeof(PROCESS_INFORMATION));
+  startupInfo.cb = sizeof(STARTUPINFOW);
 
   bool success = CreateProcessW(
       nullptr, cmdBuffer.get(), nullptr, nullptr, FALSE, CREATE_NEW_CONSOLE,
-      nullptr,
-       (LPCWSTR)QDir::toNativeSeparators(workingDirectory).utf16(),
+      nullptr, (LPCWSTR)QDir::toNativeSeparators(workingDirectory).utf16(),
       &startupInfo, &processInfo);
 
-  if (!success)
+  if (!success) {
+    Debug("CreateProcessW failed: " << GetLastError());
     return;
+  }
 
   CloseHandle(processInfo.hProcess);
   CloseHandle(processInfo.hThread);

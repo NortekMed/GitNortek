@@ -47,6 +47,7 @@
 #include <functional>
 #include <memory>
 #include "util/Debug.h"
+#include "util/Path.h"
 #include "util/PerformanceTrace.h"
 #include "util/WaitCursor.h"
 
@@ -321,7 +322,7 @@ RepoView *MainWindow::addTab(const QString &path, OpenSource source,
   const QString requestedPath = canonicalPath(path);
   for (int i = 0; i < tabs->count(); i++) {
     RepoView *view = static_cast<RepoView *>(tabs->widget(i));
-    if (requestedPath == repositoryPath(view->repo())) {
+    if (util::pathsEqual(requestedPath, repositoryPath(view->repo()))) {
       if (submoduleTab) {
         view->setSubmoduleTab(true);
         tabs->setTabIcon(i, repositoryIcon(view->repo(), true));
@@ -358,7 +359,7 @@ bool MainWindow::selectTab(const QString &path) {
   TabWidget *tabs = tabWidget();
   for (int i = 0; i < tabs->count(); ++i) {
     RepoView *view = static_cast<RepoView *>(tabs->widget(i));
-    if (requestedPath == repositoryPath(view->repo())) {
+    if (util::pathsEqual(requestedPath, repositoryPath(view->repo()))) {
       if (!mRestoringTabs)
         tabs->setCurrentIndex(i);
       setLocalRepositoryManagementVisible(false);
@@ -380,7 +381,7 @@ RepoView *MainWindow::addTab(const git::Repository &repo,
   TabWidget *tabs = tabWidget();
   for (int i = 0; i < tabs->count(); i++) {
     RepoView *view = static_cast<RepoView *>(tabs->widget(i));
-    if (dir.path() == repositoryPath(view->repo())) {
+    if (util::pathsEqual(dir.path(), repositoryPath(view->repo()))) {
       if (submoduleTab) {
         view->setSubmoduleTab(true);
         tabs->setTabIcon(i, repositoryIcon(view->repo(), true));

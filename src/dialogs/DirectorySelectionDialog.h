@@ -10,6 +10,7 @@
 #include <QStringList>
 
 class QFileSystemModel;
+class QLineEdit;
 class QPushButton;
 class QTreeView;
 
@@ -26,7 +27,11 @@ public:
                                             const QString &title);
 
 private:
+  void navigateToLocation();
+  void updateSelectButton();
+
   QFileSystemModel *mModel;
+  QLineEdit *mLocation;
   QTreeView *mTree;
   QPushButton *mSelect;
 };

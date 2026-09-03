@@ -5,6 +5,7 @@
 
 #include "LocalWorkspaces.h"
 #include "git/Repository.h"
+#include "util/Path.h"
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
@@ -24,20 +25,8 @@ void setError(QString *error, const QString &message) {
     *error = message;
 }
 
-bool pathsMatch(const QString &lhs, const QString &rhs) {
-#ifdef Q_OS_WIN
-  return lhs.compare(rhs, Qt::CaseInsensitive) == 0;
-#else
-  return lhs == rhs;
-#endif
-}
-
 bool containsPath(const QStringList &paths, const QString &path) {
-  for (const QString &candidate : paths) {
-    if (pathsMatch(candidate, path))
-      return true;
-  }
-  return false;
+  return util::containsPath(paths, path);
 }
 
 bool repositoryRoot(const QString &path, QString *root) {
@@ -98,7 +87,7 @@ bool scanSynchronizedDirectory(const QString &path, QStringList *repositories,
     QString childPath = child.canonicalFilePath();
     if (childPath.isEmpty())
       childPath = child.absoluteFilePath();
-    if (pathsMatch(QDir::cleanPath(childPath), root))
+    if (util::pathsEqual(QDir::cleanPath(childPath), root))
       repositories->append(root);
   }
   return true;
@@ -367,11 +356,12 @@ bool LocalWorkspaces::removeRepository(const QString &id, const QString &path,
   }
 
   for (int i = 0; i < workspace->repositories.size(); ++i) {
-    if (pathsMatch(workspace->repositories.at(i), comparedPath)) {
+    if (util::pathsEqual(workspace->repositories.at(i), comparedPath)) {
       workspace->repositories.removeAt(i);
       for (int manual = workspace->manualRepositories.size() - 1; manual >= 0;
            --manual) {
-        if (pathsMatch(workspace->manualRepositories.at(manual), comparedPath))
+        if (util::pathsEqual(workspace->manualRepositories.at(manual),
+                             comparedPath))
           workspace->manualRepositories.removeAt(manual);
       }
       changed();

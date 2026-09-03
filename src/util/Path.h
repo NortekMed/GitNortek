@@ -11,9 +11,13 @@
 #define UTIL_PATH_H
 
 #include <QString>
+#include <QStringList>
 
 namespace util {
 QString canonicalizePath(QString path);
+QString pathCompareKey(const QString &path);
+bool pathsEqual(const QString &lhs, const QString &rhs);
+bool containsPath(const QStringList &paths, const QString &path);
 }
 
 #endif

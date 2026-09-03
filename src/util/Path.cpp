@@ -1,5 +1,7 @@
 #include "Path.h"
 
+#include <QDir>
+
 #ifdef Q_OS_WIN
 #include <memory>
 #include <windows.h>
@@ -21,5 +23,25 @@ QString canonicalizePath(QString path) {
   }
 #endif
   return path;
+}
+
+QString pathCompareKey(const QString &path) {
+  QString key = path;
+#ifdef Q_OS_WIN
+  key = QDir::fromNativeSeparators(key).toCaseFolded();
+#endif
+  return key;
+}
+
+bool pathsEqual(const QString &lhs, const QString &rhs) {
+  return pathCompareKey(lhs) == pathCompareKey(rhs);
+}
+
+bool containsPath(const QStringList &paths, const QString &path) {
+  for (const QString &candidate : paths) {
+    if (pathsEqual(candidate, path))
+      return true;
+  }
+  return false;
 }
 } // namespace util

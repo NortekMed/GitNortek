@@ -4,13 +4,18 @@
 //
 
 #include "DirectorySelectionDialog.h"
+#include "util/Path.h"
 
 #include <QDialogButtonBox>
 #include <QDir>
+#include <QFileInfo>
 #include <QFileSystemModel>
 #include <QHeaderView>
+#include <QHBoxLayout>
 #include <QItemSelectionModel>
 #include <QLabel>
+#include <QLineEdit>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QTreeView>
 #include <QVBoxLayout>
@@ -18,6 +23,7 @@
 DirectorySelectionDialog::DirectorySelectionDialog(const QString &title,
                                                    QWidget *parent)
     : QDialog(parent), mModel(new QFileSystemModel(this)),
+      mLocation(new QLineEdit(this)),
       mTree(new QTreeView(this)) {
   setWindowTitle(title);
   resize(760, 520);
@@ -45,6 +51,18 @@ DirectorySelectionDialog::DirectorySelectionDialog(const QString &title,
   if (home.isValid())
     mTree->scrollTo(home, QAbstractItemView::PositionAtCenter);
 
+  mLocation->setObjectName(QStringLiteral("DirectorySelectionLocation"));
+  mLocation->setAccessibleName(tr("Directory location"));
+  mLocation->setPlaceholderText(tr("Enter a directory path"));
+  mLocation->setText(QDir::toNativeSeparators(QDir::homePath()));
+  QPushButton *go = new QPushButton(tr("Go"), this);
+  go->setObjectName(QStringLiteral("DirectorySelectionGo"));
+
+  QHBoxLayout *locationLayout = new QHBoxLayout;
+  locationLayout->addWidget(new QLabel(tr("Location:"), this));
+  locationLayout->addWidget(mLocation, 1);
+  locationLayout->addWidget(go);
+
   QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Cancel,
                                                    Qt::Horizontal, this);
   mSelect = buttons->addButton(tr("Select"), QDialogButtonBox::AcceptRole);
@@ -56,11 +74,23 @@ DirectorySelectionDialog::DirectorySelectionDialog(const QString &title,
       new QLabel(tr("Select one or more folders. Use Ctrl/Command or Shift to "
                     "select multiple folders."),
                  this));
+  layout->addLayout(locationLayout);
   layout->addWidget(mTree, 1);
   layout->addWidget(buttons);
 
   connect(mTree->selectionModel(), &QItemSelectionModel::selectionChanged, this,
-          [this] { mSelect->setEnabled(!selectedDirectories().isEmpty()); });
+          [this] {
+            const QStringList selected = selectedDirectories();
+            if (!selected.isEmpty())
+              mLocation->setText(QDir::toNativeSeparators(selected.first()));
+            updateSelectButton();
+          });
+  connect(mLocation, &QLineEdit::textChanged, this,
+          &DirectorySelectionDialog::updateSelectButton);
+  connect(mLocation, &QLineEdit::returnPressed, this,
+          &DirectorySelectionDialog::navigateToLocation);
+  connect(go, &QPushButton::clicked, this,
+          &DirectorySelectionDialog::navigateToLocation);
   connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
   connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
@@ -70,10 +100,46 @@ QStringList DirectorySelectionDialog::selectedDirectories() const {
   const QModelIndexList rows = mTree->selectionModel()->selectedRows(0);
   for (const QModelIndex &index : rows) {
     const QString path = QDir::cleanPath(mModel->filePath(index));
-    if (!path.isEmpty() && !paths.contains(path))
+    if (!path.isEmpty() && !util::containsPath(paths, path))
       paths.append(path);
   }
+  if (paths.isEmpty()) {
+    const QFileInfo info(QDir::fromNativeSeparators(mLocation->text()));
+    if (info.exists() && info.isDir()) {
+      const QString path = QDir::cleanPath(info.absoluteFilePath());
+      if (!util::containsPath(paths, path))
+        paths.append(path);
+    }
+  }
   return paths;
+}
+
+void DirectorySelectionDialog::navigateToLocation() {
+  const QString path = QDir::cleanPath(
+      QDir::fromNativeSeparators(mLocation->text().trimmed()));
+  const QFileInfo info(path);
+  if (!info.exists() || !info.isDir()) {
+    QMessageBox::warning(this, tr("Invalid Directory"),
+                         tr("The entered path is not an existing directory:\n%1")
+                             .arg(mLocation->text()));
+    updateSelectButton();
+    return;
+  }
+
+  const QModelIndex index = mModel->index(info.absoluteFilePath());
+  if (index.isValid()) {
+    for (QModelIndex parentIndex = index.parent(); parentIndex.isValid();
+         parentIndex = parentIndex.parent())
+      mTree->expand(parentIndex);
+    mTree->scrollTo(index, QAbstractItemView::PositionAtCenter);
+    mTree->selectionModel()->select(
+        index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+  }
+  updateSelectButton();
+}
+
+void DirectorySelectionDialog::updateSelectButton() {
+  mSelect->setEnabled(!selectedDirectories().isEmpty());
 }
 
 QStringList DirectorySelectionDialog::getExistingDirectories(

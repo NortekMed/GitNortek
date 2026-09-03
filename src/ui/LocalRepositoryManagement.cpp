@@ -14,6 +14,7 @@
 #include "git/Branch.h"
 #include "git/Remote.h"
 #include "git/Repository.h"
+#include "util/Path.h"
 
 #include <QAction>
 #include <QApplication>
@@ -789,7 +790,7 @@ void LocalRepositoryManagement::checkOrigins(bool force) {
 void LocalRepositoryManagement::checkOrigin(const QString &path) {
   updateOriginCheckStates();
   if ((mOriginCheckWatcher && mOriginCheckWatcher->isRunning()) ||
-      !mModel->repositoryPaths().contains(path) ||
+      !util::containsPath(mModel->repositoryPaths(), path) ||
       !mModel->isOriginCheckEligible(path))
     return;
 

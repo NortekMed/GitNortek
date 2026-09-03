@@ -14,6 +14,7 @@
 #include "git/Remote.h"
 #include "git/Repository.h"
 #include "git/Result.h"
+#include "util/Path.h"
 
 #include <QFileInfo>
 #include <QIcon>
@@ -27,6 +28,8 @@ QString commitCount(int count) {
   return count == 1 ? LocalWorkspaceModel::tr("1 commit")
                     : LocalWorkspaceModel::tr("%1 commits").arg(count);
 }
+
+QString stateKey(const QString &path) { return util::pathCompareKey(path); }
 
 } // namespace
 
@@ -149,8 +152,8 @@ QVariant LocalWorkspaceModel::data(const QModelIndex &index, int role) const {
     return {};
   const QString path = workspace->repositories.at(index.row());
   const bool synchronized =
-      workspace->synchronizedRepositories.contains(path);
-  const RepositoryState state = mRepositoryStates.value(path);
+      util::containsPath(workspace->synchronizedRepositories, path);
+  const RepositoryState state = mRepositoryStates.value(stateKey(path));
 
   switch (role) {
   case PathRole:
@@ -186,15 +189,15 @@ QVariant LocalWorkspaceModel::data(const QModelIndex &index, int role) const {
   case StatusErrorRole:
     return state.statusError;
   case OriginFetchActiveRole:
-    return mActiveOriginFetches.contains(path);
+    return mActiveOriginFetches.contains(stateKey(path));
   case OriginCheckEligibleRole:
     return state.originCheckEligible;
   case OriginCheckFreshRole:
-    return mFreshOriginChecks.contains(path);
+    return mFreshOriginChecks.contains(stateKey(path));
   case OriginCheckFailedRole:
-    return mFailedOriginChecks.contains(path);
+    return mFailedOriginChecks.contains(stateKey(path));
   case OriginInitialPendingRole:
-    return mInitialPendingOrigins.contains(path);
+    return mInitialPendingOrigins.contains(stateKey(path));
   case Qt::ForegroundRole:
     if (!state.available)
       return QColor(Qt::gray);
@@ -227,11 +230,11 @@ QVariant LocalWorkspaceModel::data(const QModelIndex &index, int role) const {
     if (role == Qt::TextAlignmentRole)
       return int(Qt::AlignLeft | Qt::AlignVCenter);
     if (role == Qt::ToolTipRole) {
-      if (mActiveOriginFetches.contains(path))
+      if (mActiveOriginFetches.contains(stateKey(path)))
         return tr("Synchronization is running.");
-      if (mInitialPendingOrigins.contains(path))
+      if (mInitialPendingOrigins.contains(stateKey(path)))
         return tr("Waiting for origin check.");
-      if (mFailedOriginChecks.contains(path))
+      if (mFailedOriginChecks.contains(stateKey(path)))
         return tr("The last origin check failed.");
       if (!state.available)
         return tr("Repository unavailable.");
@@ -239,7 +242,7 @@ QVariant LocalWorkspaceModel::data(const QModelIndex &index, int role) const {
         return tr("No upstream branch is configured.");
       if (!state.originCheckEligible)
         return tr("The configured upstream cannot be checked through origin.");
-      if (!mFreshOriginChecks.contains(path))
+      if (!mFreshOriginChecks.contains(stateKey(path)))
         return tr("Waiting for origin check.");
       if (!state.ahead && !state.behind)
         return tr("The local branch matches %1.").arg(state.upstream);
@@ -363,7 +366,7 @@ QStringList LocalWorkspaceModel::repositoryPaths() const {
   QStringList paths;
   for (const LocalWorkspace &workspace : mSnapshot) {
     for (const QString &path : workspace.repositories) {
-      if (!paths.contains(path))
+      if (!util::containsPath(paths, path))
         paths.append(path);
     }
   }
@@ -371,28 +374,29 @@ QStringList LocalWorkspaceModel::repositoryPaths() const {
 }
 
 bool LocalWorkspaceModel::isOriginCheckFresh(const QString &path) const {
-  return mFreshOriginChecks.contains(path);
+  return mFreshOriginChecks.contains(stateKey(path));
 }
 
 bool LocalWorkspaceModel::isOriginCheckEligible(const QString &path) const {
-  return mRepositoryStates.value(path).originCheckEligible;
+  return mRepositoryStates.value(stateKey(path)).originCheckEligible;
 }
 
 void LocalWorkspaceModel::setOriginFetchActive(const QString &path,
                                                bool active) {
-  if (active == mActiveOriginFetches.contains(path))
+  const QString key = stateKey(path);
+  if (active == mActiveOriginFetches.contains(key))
     return;
   if (active)
-    mActiveOriginFetches.insert(path);
+    mActiveOriginFetches.insert(key);
   else
-    mActiveOriginFetches.remove(path);
+    mActiveOriginFetches.remove(key);
 
   for (int workspaceRow = 0; workspaceRow < mSnapshot.size(); ++workspaceRow) {
     const QModelIndex workspaceIndex = index(workspaceRow, 0);
     const QStringList &repositories = mSnapshot.at(workspaceRow).repositories;
     for (int repositoryRow = 0; repositoryRow < repositories.size();
          ++repositoryRow) {
-      if (repositories.at(repositoryRow) != path)
+      if (!util::pathsEqual(repositories.at(repositoryRow), path))
         continue;
       const QModelIndex remote =
           index(repositoryRow, RemoteColumn, workspaceIndex);
@@ -420,19 +424,20 @@ void LocalWorkspaceModel::setOriginInitialPending(const QString &path,
 void LocalWorkspaceModel::setPathState(QSet<QString> &paths,
                                        const QString &path, bool enabled,
                                        int role) {
-  if (enabled == paths.contains(path))
+  const QString key = stateKey(path);
+  if (enabled == paths.contains(key))
     return;
   if (enabled)
-    paths.insert(path);
+    paths.insert(key);
   else
-    paths.remove(path);
+    paths.remove(key);
 
   for (int workspaceRow = 0; workspaceRow < mSnapshot.size(); ++workspaceRow) {
     const QModelIndex workspaceIndex = index(workspaceRow, 0);
     const QStringList &repositories = mSnapshot.at(workspaceRow).repositories;
     for (int repositoryRow = 0; repositoryRow < repositories.size();
          ++repositoryRow) {
-      if (repositories.at(repositoryRow) != path)
+      if (!util::pathsEqual(repositories.at(repositoryRow), path))
         continue;
       const QModelIndex remote =
           index(repositoryRow, RemoteColumn, workspaceIndex);
@@ -448,12 +453,13 @@ void LocalWorkspaceModel::refreshRepositories() {
   }
 
   QStringList paths;
-  QSet<QString> uniquePaths;
+  QSet<QString> uniqueKeys;
   for (const LocalWorkspace &workspace : std::as_const(mSnapshot)) {
     for (const QString &path : workspace.repositories) {
-      if (uniquePaths.contains(path))
+      const QString key = stateKey(path);
+      if (uniqueKeys.contains(key))
         continue;
-      uniquePaths.insert(path);
+      uniqueKeys.insert(key);
       paths.append(path);
     }
   }
@@ -465,7 +471,7 @@ void LocalWorkspaceModel::refreshRepositories() {
       const git::Repository repository = git::Repository::open(path, true);
       state.available = repository.isValid();
       if (!state.available) {
-        states.insert(path, state);
+        states.insert(stateKey(path), state);
         continue;
       }
 
@@ -512,7 +518,7 @@ void LocalWorkspaceModel::refreshRepositories() {
             ++state.modified;
         }
       }
-      states.insert(path, state);
+      states.insert(stateKey(path), state);
     }
     return states;
   }));
@@ -552,7 +558,7 @@ void LocalWorkspaceModel::applyRepositoryStates(
     for (int repositoryRow = 0; repositoryRow < repositories; ++repositoryRow) {
       const QString path =
           mSnapshot.at(workspaceRow).repositories.at(repositoryRow);
-      if (!changed.contains(path))
+      if (!changed.contains(stateKey(path)))
         continue;
       emit dataChanged(index(repositoryRow, RepositoryColumn, workspaceIndex),
                        index(repositoryRow, RemoveColumn, workspaceIndex));
@@ -581,8 +587,8 @@ void LocalWorkspaceModel::reload() {
     const LocalWorkspace workspace = *mWorkspaces->workspace(i);
     mSnapshot.append(workspace);
     for (const QString &path : workspace.repositories) {
-      currentPaths.insert(path);
-      mRepositoryStates.insert(path, repositoryState(path));
+      currentPaths.insert(stateKey(path));
+      mRepositoryStates.insert(stateKey(path), repositoryState(path));
     }
   }
   mActiveOriginFetches.intersect(currentPaths);

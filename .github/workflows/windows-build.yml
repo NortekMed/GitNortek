@@ -1,0 +1,84 @@
+---
+name: GitNortek Windows Build
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    name: MSVC Windows
+    runs-on: windows-2022
+    steps:
+    - name: Set git name and email
+      run: |
+        git config --global user.name "Your Name"
+        git config --global user.email "youremail@yourdomain.com"
+
+    - name: Checkout repository
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      with:
+        submodules: recursive
+
+    - name: Install Perl
+      uses: shogo82148/actions-setup-perl@53e33bb27be492a926eee378e8a5f7ff6618b061 # v1
+      with:
+        perl-version: '5.30'
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@d325aaf2a8baeeda41ad0b5d39f84a6af9bcf005 # v4.3.0
+      timeout-minutes: 10
+      with:
+        version: 6.7.3
+        target: desktop
+        host: windows
+        arch: win64_msvc2019_64
+        install-deps: true
+        modules: qtwebengine
+
+    - name: Install Ninja
+      uses: seanmiddleditch/gha-setup-ninja@3b1f8f94a2f8254bd26914c4ab9474d4f0015f67 # v6
+      with:
+        version: 1.11.1
+        platform: win
+        destination: ninja
+
+    - name: Setup MSVC environment
+      uses: seanmiddleditch/gha-setup-vsdevenv@cf96bf5b227cac6af28c04c4a4e69286ea444163 # v5
+      with:
+        arch: x64
+
+    - name: Install NASM
+      uses: ilammy/setup-nasm@9a15c8cb72fe84e3e00527b3014de04693cf60cf # v1.2.0
+
+    - name: Build OpenSSL
+      run: |
+        cd dep/openssl/openssl
+        perl Configure VC-WIN64A
+        nmake
+
+    - name: Configure
+      env:
+        CMAKE_RC_FLAGS: /C 1252
+      run: >
+        cmake -G Ninja -DCMAKE_BUILD_TYPE=Release
+        -DUSE_SYSTEM_QT=OFF
+        -DUSE_SYSTEM_LIBSSH2=OFF
+        -DUSE_BUNDLED_ZLIB=1
+        -DUSE_SSH:STRING=localbuild
+        -DUSE_SYSTEM_OPENSSL=OFF
+        -DGITNORTEK_CI_TESTS=ON
+        -DCMAKE_C_COMPILER=cl
+        -DCMAKE_CXX_COMPILER=cl
+        -S . -B build/release
+
+    - name: Build application and tests
+      run: ninja -C build/release gitnortek check_build
+
+    - name: Run focused GUI tests
+      run: ctest --test-dir build/release -R "^(main_window|local_workspaces)$" --output-on-failure

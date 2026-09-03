@@ -6,6 +6,7 @@
 #include "LocalWorkspaceDialog.h"
 #include "DirectorySelectionDialog.h"
 #include "git/Repository.h"
+#include "util/Path.h"
 #include <QCheckBox>
 #include <QColorDialog>
 #include <QComboBox>
@@ -25,20 +26,8 @@
 
 namespace {
 
-bool pathsMatch(const QString &left, const QString &right) {
-#ifdef Q_OS_WIN
-  return left.compare(right, Qt::CaseInsensitive) == 0;
-#else
-  return left == right;
-#endif
-}
-
 bool containsPath(const QStringList &paths, const QString &path) {
-  for (const QString &candidate : paths) {
-    if (pathsMatch(candidate, path))
-      return true;
-  }
-  return false;
+  return util::containsPath(paths, path);
 }
 
 } // namespace
@@ -218,7 +207,7 @@ void LocalWorkspaceDialog::browseRepository() {
     const QString root = repository.dir(false).path();
     bool duplicate = false;
     for (int i = 0; i < mRepositories->count(); ++i) {
-      if (pathsMatch(mRepositories->item(i)->text(), root)) {
+      if (util::pathsEqual(mRepositories->item(i)->text(), root)) {
         duplicate = true;
         break;
       }

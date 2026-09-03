@@ -392,6 +392,24 @@ void TestLocalWorkspaces::directorySelectionDialog() {
                           directory.filePath("second")};
   expected.sort();
   QCOMPARE(selected, expected);
+
+  QLineEdit *location = dialog.findChild<QLineEdit *>(
+      "DirectorySelectionLocation");
+  QPushButton *go = dialog.findChild<QPushButton *>("DirectorySelectionGo");
+  QPushButton *select = dialog.findChild<QPushButton *>(
+      "DirectorySelectionAccept");
+  QVERIFY(location);
+  QVERIFY(go);
+  QVERIFY(select);
+  tree->selectionModel()->clearSelection();
+  location->setText(QDir::toNativeSeparators(directory.filePath("first")));
+  QTRY_VERIFY(select->isEnabled());
+  QCOMPARE(dialog.selectedDirectories(),
+           QStringList({directory.filePath("first")}));
+  location->setText(QDir::toNativeSeparators(directory.filePath("second")));
+  QTest::mouseClick(go, Qt::LeftButton);
+  QTRY_COMPARE(dialog.selectedDirectories(),
+               QStringList({directory.filePath("second")}));
 }
 
 void TestLocalWorkspaces::readmeDetails() {
