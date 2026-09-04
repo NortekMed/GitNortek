@@ -28,9 +28,17 @@ namespace git {
 
 class Id;
 class Reference;
+class Commit;
 
 class Remote {
 public:
+  enum class TagStatus {
+    Unknown,
+    Present,
+    Conflict,
+    Pushable,
+    TargetLocalOnly
+  };
   struct PushUpdate {
     QByteArray srcName;
     QByteArray dstName;
@@ -147,6 +155,9 @@ public:
   Result push(Callbacks *callbacks, const Reference &src,
               const QString &dst = QString(), bool force = false,
               bool tags = false);
+
+  // Inspect the remote advertisement without creating local tracking refs.
+  TagStatus tagStatus(const Reference &tag) const;
 
   static Result clone(Callbacks *callbacks, const QString &url,
                       const QString &path, bool bare = false);

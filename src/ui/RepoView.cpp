@@ -45,6 +45,7 @@
 #include "dialogs/TagDialog.h"
 #include "editor/TextEditor.h"
 #include "git/Config.h"
+#include "git/Id.h"
 #include "git/Index.h"
 #include "git/Rebase.h"
 #include "git/RevWalk.h"
@@ -347,15 +348,7 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
   connect(mRefs, &ReferenceWidget::referenceSelected, mCommits,
           &CommitList::selectReference);
   connect(mCommits, &CommitList::statusChanged, this, &RepoView::statusChanged);
-  connect(this, &RepoView::statusChanged, this, [this] {
-    if (mInitialLoadFinished)
-      return;
-
-    mInitialLoadFinished = true;
-    if (mOpenProgress)
-      mOpenProgress->finish();
-    emit initialLoadFinished();
-  });
+  connect(this, &RepoView::statusChanged, this, &RepoView::finishInitialLoad);
   connect(mCommits, &CommitList::statusSelected, this,
           &RepoView::statusSelected);
   connect(mCommits, &CommitList::selectedRangeChanged, this,
@@ -365,14 +358,9 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
               mPendingCheckoutRef.clear();
           });
   connect(mCommits, &CommitList::statusError, this,
-          [this](const QString &error) {
-            if (!mInitialLoadFinished) {
-              mInitialLoadFinished = true;
-              if (mOpenProgress)
-                mOpenProgress->finish();
-              emit initialLoadFinished();
-            }
-            LogEntry *entry = addLogEntry(QString(), tr("Status"));
+           [this](const QString &error) {
+             finishInitialLoad();
+             LogEntry *entry = addLogEntry(QString(), tr("Status"));
             entry->addEntry(LogEntry::Error, error.toHtmlEscaped());
             setLogVisible(true);
           });
@@ -1980,6 +1968,15 @@ void RepoView::push(const git::Remote &rmt, const git::Reference &src,
   git::Remote remote = rmt.isValid() ? rmt : mRepo.defaultRemote();
   QString name = remote.isValid() ? remote.name() : tr("<i>no remote</i>");
 
+  if (ref.isTag() && remote.isValid() &&
+      remote.name() == QStringLiteral("origin")) {
+    const QString key = originTagKey(ref);
+    if (mValidatedOriginTagPushes.remove(key) == 0) {
+      pushTagToOrigin(ref);
+      return;
+    }
+  }
+
   git::Branch branch = ref;
   git::Branch upstream = branch ? branch.upstream() : git::Branch();
   git::Remote upstreamRemote = upstream ? upstream.remote() : git::Remote();
@@ -2195,6 +2192,77 @@ void RepoView::push(const git::Remote &rmt, const git::Reference &src,
              remoteBranchName);
 }
 
+QString RepoView::originTagKey(const git::Reference &tag) const {
+  return tag.qualifiedName() + QLatin1Char('@') + tag.target().id().toString();
+}
+
+RepoView::OriginTagCheck *
+RepoView::startOriginTagCheck(const git::Reference &tag, bool interactive) {
+  const QString key = originTagKey(tag);
+  OriginTagCheck &check = mOriginTagChecks[key];
+  if (check.watcher) {
+    if (interactive)
+      WaitCursor::track(check.watcher);
+    return &check;
+  }
+
+  git::Remote origin = mRepo.lookupRemote(QStringLiteral("origin"));
+  if (!origin.isValid())
+    return &check;
+
+  check.status = git::Remote::TagStatus::Unknown;
+  ++check.generation;
+  const quint64 generation = check.generation;
+  auto *watcher = new QFutureWatcher<git::Remote::TagStatus>(this);
+  check.watcher = watcher;
+  connect(watcher, &QFutureWatcher<git::Remote::TagStatus>::finished, this,
+          [this, key, generation, watcher] {
+            auto it = mOriginTagChecks.find(key);
+            if (it != mOriginTagChecks.end() && it->generation == generation &&
+                it->watcher == watcher) {
+              it->status = watcher->result();
+              it->watcher = nullptr;
+            }
+            watcher->deleteLater();
+          });
+  if (interactive)
+    WaitCursor::track(watcher);
+  watcher->setFuture(
+      QtConcurrent::run([origin, tag] { return origin.tagStatus(tag); }));
+  return &check;
+}
+
+void RepoView::pushTagToOrigin(const git::Reference &tag) {
+  OriginTagCheck *check = startOriginTagCheck(tag, true);
+  const QString key = originTagKey(tag);
+  if (check->watcher) {
+    connect(check->watcher, &QFutureWatcher<git::Remote::TagStatus>::finished,
+            this, [this, tag] { pushTagToOrigin(tag); });
+    return;
+  }
+
+  if (check->status == git::Remote::TagStatus::Pushable) {
+    mValidatedOriginTagPushes.insert(key);
+    push(mRepo.lookupRemote(QStringLiteral("origin")), tag);
+    return;
+  }
+
+  LogEntry *entry = addLogEntry(tag.name(), tr("Push Tag to origin"));
+  if (check->status == git::Remote::TagStatus::Present) {
+    entry->addEntry(tr("The tag is already present on origin."));
+  } else if (check->status == git::Remote::TagStatus::Conflict) {
+    entry->addEntry(LogEntry::Error,
+                    tr("Origin has a different tag with this name."));
+  } else if (check->status == git::Remote::TagStatus::TargetLocalOnly) {
+    entry->addEntry(LogEntry::Error,
+                    tr("The tag's target commit is not reachable from origin."
+                       " Push the commit to origin before pushing this tag."));
+  } else {
+    entry->addEntry(LogEntry::Error,
+                    tr("Unable to validate the tag against origin."));
+  }
+}
+
 void RepoView::pushRemote(const git::Remote &remote, const git::Reference &src,
                           const git::Reference &ref, const QString &dst,
                           bool setUpstream, bool force, bool tags,
@@ -2257,6 +2325,8 @@ void RepoView::pushRemote(const git::Remote &remote, const git::Reference &src,
             }
           }
           emit pushSucceeded(mRepo.workdir().canonicalPath());
+          if (remote.name() == QStringLiteral("origin") && ref.isTag())
+            mOriginTagChecks.remove(originTagKey(ref));
         }
 
         mWatcher->deleteLater();
@@ -2664,13 +2734,8 @@ void RepoView::populateReferenceContextMenu(QMenu *menu,
     remove->setEnabled(ref.isTag() || !git::Branch(ref).isCheckedOut());
   }
 
-  if (ref.isTag()) {
-    git::Remote remote = ref.repo().defaultRemote();
-    if (remote.isValid()) {
-      menu->addAction(tr("Push Tag to %1").arg(remote.name()), this,
-                      [this, ref, remote] { push(remote, ref); });
-    }
-  }
+  if (ref.isTag())
+    addPushTagToOriginAction(menu, ref);
 
   if (ref.isRemoteBranch()) {
     menu->addAction(tr("Rename %1").arg(ref.name()), this, [this, ref] {
@@ -2699,6 +2764,48 @@ void RepoView::populateReferenceContextMenu(QMenu *menu,
   addMergeAction(tr("Merge..."), Merge);
   addMergeAction(tr("Rebase..."), Rebase);
   addMergeAction(tr("Squash..."), Squash);
+}
+
+void RepoView::addPushTagToOriginAction(QMenu *menu,
+                                        const git::Reference &tag) {
+  if (!menu || !tag.isValid() || !tag.isTag())
+    return;
+
+  git::Remote origin = tag.repo().lookupRemote(QStringLiteral("origin"));
+  if (!origin.isValid())
+    return;
+
+  const QString key = originTagKey(tag);
+  OriginTagCheck *check = startOriginTagCheck(tag, false);
+  QAction *pushTag = menu->addAction(
+      tr("Push Tag %1 to origin").arg(tag.name()), this,
+      [this, tag] { pushTagToOrigin(tag); });
+  auto updatePushTag = [this, pushTag, key] {
+        const auto it = mOriginTagChecks.constFind(key);
+        const git::Remote::TagStatus status =
+            it == mOriginTagChecks.cend() ? git::Remote::TagStatus::Unknown
+                                          : it->status;
+        const bool pending = it != mOriginTagChecks.cend() && it->watcher;
+        pushTag->setEnabled(status == git::Remote::TagStatus::Pushable);
+        if (pending)
+          pushTag->setToolTip(
+              tr("Checking whether this tag is present on origin."));
+        else if (status == git::Remote::TagStatus::Present)
+          pushTag->setToolTip(tr("This tag is already present on origin."));
+        else if (status == git::Remote::TagStatus::Conflict)
+          pushTag->setToolTip(
+              tr("Origin has a different tag with this name."));
+        else if (status == git::Remote::TagStatus::TargetLocalOnly)
+          pushTag->setToolTip(
+              tr("The tag's target commit is not reachable from origin."));
+        else
+          pushTag->setToolTip(
+              tr("Unable to validate this tag against origin."));
+  };
+  updatePushTag();
+  if (check->watcher)
+    connect(check->watcher, &QFutureWatcher<git::Remote::TagStatus>::finished,
+            this, updatePushTag);
 }
 
 void RepoView::promptToStash() {
@@ -4102,6 +4209,18 @@ void RepoView::startInitialLoadProgress() {
   if (!mOpenProgress)
     mOpenProgress = new RepositoryOpenProgress(this);
   mOpenProgress->start();
+  if (mInitialLoadFinished)
+    mOpenProgress->finish();
+}
+
+void RepoView::finishInitialLoad() {
+  if (mInitialLoadFinished)
+    return;
+
+  mInitialLoadFinished = true;
+  if (mOpenProgress)
+    mOpenProgress->finish();
+  emit initialLoadFinished();
 }
 
 void RepoView::paintEvent(QPaintEvent *event) {

@@ -9,12 +9,15 @@
 
 #include "Remote.h"
 #include "Branch.h"
+#include "Commit.h"
 #include "Config.h"
 #include "Id.h"
 #include "qtsupport.h"
 #include "TagRef.h"
+#include "Tag.h"
 #include "git2/buffer.h"
 #include "git2/clone.h"
+#include "git2/graph.h"
 #include "git2/remote.h"
 #include "git2/signature.h"
 #include "git2/sys/errors.h"
@@ -620,6 +623,8 @@ Result Remote::push(Callbacks *callbacks, const Reference &src,
   QString refspec = prefix + src.qualifiedName();
   if (!dst.isEmpty()) {
     refspec += ":" + dst;
+  } else if (src.isTag()) {
+    refspec += ":" + src.qualifiedName();
   } else {
     QString key = QString("branch.%1.merge").arg(src.name());
     QString upstream = repo.gitConfig().value<QString>(key);
@@ -635,6 +640,72 @@ Result Remote::push(Callbacks *callbacks, const Reference &src,
   }
 
   return push(callbacks, refspecs);
+}
+
+Remote::TagStatus Remote::tagStatus(const Reference &tag) const {
+  if (!isValid() || !tag.isTag())
+    return TagStatus::Unknown;
+
+  git_repository *repo = git_remote_owner(d.data());
+  git_remote *remote = nullptr;
+  if (git_remote_create_anonymous(&remote, repo, url().toUtf8()))
+    return TagStatus::Unknown;
+
+  Callbacks callbacks(url(), Repository(repo));
+  git_remote_callbacks opts = GIT_REMOTE_CALLBACKS_INIT;
+  opts.sideband_progress = &Callbacks::sideband;
+  opts.credentials = &Callbacks::credentials;
+  opts.certificate_check = &Callbacks::certificate;
+  opts.remote_ready = &Callbacks::remoteReady;
+  opts.payload = &callbacks;
+  git_proxy_options proxyOpts = GIT_PROXY_OPTIONS_INIT;
+  QByteArray proxy = proxyUrl(url(), proxyOpts.type);
+  proxyOpts.url = proxy;
+
+  const git_remote_head **heads = nullptr;
+  size_t count = 0;
+  int error = git_remote_connect(remote, GIT_DIRECTION_FETCH, &opts, &proxyOpts,
+                                 nullptr);
+  if (!error)
+    error = git_remote_ls(&heads, &count, remote);
+  if (error) {
+    git_remote_disconnect(remote, &opts);
+    git_remote_free(remote);
+    return TagStatus::Unknown;
+  }
+
+  const QByteArray tagName = tag.qualifiedName().toUtf8();
+  const TagRef tagRef(tag);
+  Id localTagId;
+  if (Tag annotated = tagRef.tag(); annotated.isValid())
+    localTagId = annotated.id();
+  else
+    localTagId = tag.target().id();
+  const QByteArray targetName = tag.target().id().toString().toUtf8();
+  git_oid target;
+  if (git_oid_fromstrn(&target, targetName, targetName.size())) {
+    git_remote_disconnect(remote, &opts);
+    git_remote_free(remote);
+    return TagStatus::Unknown;
+  }
+  bool reachable = false;
+  for (size_t i = 0; i < count; ++i) {
+    const git_remote_head *head = heads[i];
+    if (!qstrcmp(head->name, tagName.constData())) {
+      git_remote_disconnect(remote, &opts);
+      git_remote_free(remote);
+      return localTagId == Id(&head->oid) ? TagStatus::Present
+                                           : TagStatus::Conflict;
+    }
+    if (!qstrncmp(head->name, "refs/heads/", 11) &&
+        (!git_oid_cmp(&target, &head->oid) ||
+         git_graph_descendant_of(repo, &head->oid, &target) == 1))
+      reachable = true;
+  }
+
+  git_remote_disconnect(remote, &opts);
+  git_remote_free(remote);
+  return reachable ? TagStatus::Pushable : TagStatus::TargetLocalOnly;
 }
 
 Result Remote::clone(Callbacks *callbacks, const QString &url,

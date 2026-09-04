@@ -77,6 +77,24 @@ QString repositoryPath(const git::Repository &repo) {
   return canonicalPath(repo.dir(false).path());
 }
 
+QString repositoryOpenDetails(const QString &path, const QString &error) {
+  const QString normalized = util::canonicalizePath(path);
+  const QDir worktree(normalized);
+  const QDir gitDir(worktree.filePath(".git"));
+  const auto state = [](const QFileInfo &info) {
+    return info.exists() && info.isReadable() ? QObject::tr("available")
+                                              : QObject::tr("unavailable");
+  };
+
+  return QObject::tr("Path: %1\nPath passed to Git: %2\nGit error: %3\n\n"
+                     "Repository directory: %4\n.git directory: %5\n"
+                     ".git/HEAD: %6\n.git/config: %7")
+      .arg(QDir::toNativeSeparators(path), QDir::toNativeSeparators(normalized),
+           error, state(QFileInfo(normalized)), state(QFileInfo(gitDir.path())),
+           state(QFileInfo(gitDir.filePath("HEAD"))),
+           state(QFileInfo(gitDir.filePath("config"))));
+}
+
 QIcon repositoryIcon(const git::Repository &repo, bool submodule) {
   if (repo.isWorktree())
     return WorktreeIcon::icon();
@@ -343,11 +361,13 @@ RepoView *MainWindow::addTab(const QString &path, OpenSource source,
     cursor = WaitCursor::acquire();
   git::Repository repo = git::Repository::open(path, true);
   if (!repo.isValid()) {
+    const QString details =
+        repositoryOpenDetails(path, git::Repository::lastError());
     cursor.reset();
     if (source == OpenSource::RecentRepository)
-      warnInvalidRecentRepo(path);
+      warnInvalidRecentRepo(path, details);
     else
-      warnInvalidRepo(path);
+      warnInvalidRepo(path, details);
     return nullptr;
   }
 
@@ -623,12 +643,14 @@ MainWindow *MainWindow::open(const QString &path, bool warnOnInvalid,
     repo = git::Repository::open(path, true);
   }
   if (!repo.isValid()) {
+    const QString details =
+        repositoryOpenDetails(path, git::Repository::lastError());
     cursor.reset();
     if (warnOnInvalid) {
       if (source == OpenSource::RecentRepository)
-        warnInvalidRecentRepo(path);
+        warnInvalidRecentRepo(path, details);
       else
-        warnInvalidRepo(path);
+        warnInvalidRepo(path, details);
     }
     return nullptr;
   }
@@ -759,13 +781,17 @@ void MainWindow::dropEvent(QDropEvent *event) {
     addTab(url.toLocalFile());
 }
 
-void MainWindow::warnInvalidRepo(const QString &path) {
+void MainWindow::warnInvalidRepo(const QString &path, const QString &details) {
   QString title = tr("Invalid Git Repository");
   QString text = tr("%1 does not contain a valid git repository.");
-  QMessageBox::warning(nullptr, title, text.arg(path));
+  QMessageBox dialog(QMessageBox::Warning, title, text.arg(path),
+                     QMessageBox::Ok);
+  dialog.setDetailedText(details);
+  dialog.exec();
 }
 
-void MainWindow::warnInvalidRecentRepo(const QString &path) {
+void MainWindow::warnInvalidRecentRepo(const QString &path,
+                                       const QString &details) {
   QString title = tr("Recent Repository Unavailable");
   QString text = tr("The recent repository '%1' could not be opened.");
   QString info = tr("It may no longer be a valid Git repository or may be "
@@ -774,6 +800,7 @@ void MainWindow::warnInvalidRecentRepo(const QString &path) {
   QMessageBox dialog(QMessageBox::Warning, title, text.arg(path),
                      QMessageBox::NoButton);
   dialog.setInformativeText(info);
+  dialog.setDetailedText(details);
   QPushButton *remove =
       dialog.addButton(tr("Remove From Recent"), QMessageBox::AcceptRole);
   QPushButton *keep = dialog.addButton(tr("Keep"), QMessageBox::RejectRole);

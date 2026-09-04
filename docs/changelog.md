@@ -4,6 +4,7 @@ Bug Fix and Feature release
 
 #### Added
 
+* Distinguish local tags from tags advertised by origin and offer guarded tag pushes only when their target commit is available on origin
 * Show a loading indicator while repository data is loading
 * Add branch and pull request Windows compilation checks
 * Add local repository workspaces with persistent organization, directory synchronization, asynchronous origin checks with pending, failure, and live status, branch and upstream status, uncommitted file summaries, README previews, search, and full repository management
@@ -41,6 +42,9 @@ Bug Fix and Feature release
 
 #### Changed
 
+* Trigger package and prerelease automation consistently for valid prerelease tags
+* Show repository-open diagnostics in invalid repository and unavailable recent repository dialogs
+* Stop the repository loading indicator and wait cursor reliably after cloning a repository
 * Show a wait cursor for repository transfers, submodule operations, clone, and worktree creation when the commit-list status spinner cannot cover them
 * Improve large-repository startup responsiveness by deferring reference loading and the initial refresh, caching reference sort metadata, coalescing search-index reloads, and limiting indexer worker concurrency
 * Avoid recursively scanning submodule worktrees when listing submodules, improving startup for repositories with large dependencies

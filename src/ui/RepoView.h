@@ -25,6 +25,7 @@
 #include "host/Account.h"
 #include <QFuture>
 #include <QFutureWatcher>
+#include <QHash>
 #include <QProcess>
 #include <QSplitter>
 #include <QTimer>
@@ -276,6 +277,7 @@ public:
   void promptToRenameBranch(const git::Branch &branch);
   void populateRemoteContextMenu(QMenu *menu);
   void populateReferenceContextMenu(QMenu *menu, const git::Reference &ref);
+  void addPushTagToOriginAction(QMenu *menu, const git::Reference &tag);
 
   // stash
   void promptToStash();
@@ -422,6 +424,16 @@ protected:
   void closeEvent(QCloseEvent *event) override;
 
 private:
+  struct OriginTagCheck {
+    git::Remote::TagStatus status = git::Remote::TagStatus::Unknown;
+    quint64 generation = 0;
+    QFutureWatcher<git::Remote::TagStatus> *watcher = nullptr;
+  };
+
+  QString originTagKey(const git::Reference &tag) const;
+  OriginTagCheck *startOriginTagCheck(const git::Reference &tag,
+                                      bool interactive);
+  void pushTagToOrigin(const git::Reference &tag);
   void pushRemote(const git::Remote &remote, const git::Reference &src,
                   const git::Reference &ref, const QString &dst,
                   bool setUpstream, bool force, bool tags, LogEntry *entry,
@@ -440,6 +452,7 @@ private:
   void notifyReferenceUpdated(const QString &name);
 
   void updateLogToggle();
+  void finishInitialLoad();
   void promptForCheckoutConflicts(const git::Reference &ref,
                                   const QStringList &conflicts);
 
@@ -501,6 +514,8 @@ private:
   QTimer mFetchTimer;
   RemoteCallbacks *mCallbacks = nullptr;
   QFutureWatcher<git::Result> *mWatcher = nullptr;
+  QHash<QString, OriginTagCheck> mOriginTagChecks;
+  QSet<QString> mValidatedOriginTagPushes;
   QFutureWatcher<QList<git::Submodule::UpdateStatus>> *mSubmoduleUpdateWatcher =
       nullptr;
   RemoteCallbacks *mSubmoduleUpdateCallbacks = nullptr;

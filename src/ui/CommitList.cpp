@@ -2740,6 +2740,13 @@ void CommitList::contextMenuEvent(QContextMenuEvent *event) {
       addMenuEntries(
           menu, tr("Delete Tag"), tags,
           std::bind(&RepoView::promptToDeleteTag, view, std::placeholders::_1));
+      if (tags.size() == 1) {
+        view->addPushTagToOriginAction(&menu, tags.first());
+      } else if (!tags.isEmpty()) {
+        QMenu *pushTags = menu.addMenu(tr("Push Tags to origin"));
+        for (const git::Reference &tag : tags)
+          view->addPushTagToOriginAction(pushTags, tag);
+      }
       menu.addSeparator();
 
       menu.addAction(tr("Merge..."), [view, commit] {

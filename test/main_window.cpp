@@ -55,6 +55,7 @@ private slots:
   void initTestCase();
   void initialLoadFinished();
   void initialLoadErrorFinished();
+  void initialLoadProgressStartedLate();
   void notifierConnectionsRespectReceiverLifetime();
   void show();
   void singleRepositoryTabVisible();
@@ -148,6 +149,20 @@ void TestMainWindow::initialLoadErrorFinished() {
 
   emit view->statusChanged(false);
   QCOMPARE(finished.count(), 1);
+}
+
+void TestMainWindow::initialLoadProgressStartedLate() {
+  MainWindow window(mSecondRepo);
+  RepoView *view = window.currentView();
+  QSignalSpy finished(view, &RepoView::initialLoadFinished);
+  window.show();
+
+  QVERIFY(qWaitForWindowExposed(&window));
+  QTRY_COMPARE(finished.count(), 1);
+  QVERIFY(!QGuiApplication::overrideCursor());
+
+  view->startInitialLoadProgress();
+  QVERIFY(!QGuiApplication::overrideCursor());
 }
 
 void TestMainWindow::notifierConnectionsRespectReceiverLifetime() {
@@ -911,12 +926,13 @@ void TestMainWindow::invalidRecentRepository() {
   };
   QVERIFY(contains());
 
-  auto clickButton = [](const QString &text) {
-    QTimer::singleShot(0, [text] {
+  auto clickButton = [path](const QString &text) {
+    QTimer::singleShot(0, [path, text] {
       QMessageBox *dialog =
           qobject_cast<QMessageBox *>(QApplication::activeModalWidget());
       QVERIFY(dialog);
-      QVERIFY(!QGuiApplication::overrideCursor());
+      QVERIFY(dialog->detailedText().contains(path));
+      QVERIFY(dialog->detailedText().contains("Git error:"));
       foreach (QPushButton *button, dialog->findChildren<QPushButton *>()) {
         if (button->text() == text) {
           button->click();

@@ -99,8 +99,9 @@ private:
   void updateInterface();
   void updateWindowTitle(int ahead = -1, int behind = -1);
 
-  static void warnInvalidRepo(const QString &path);
-  static void warnInvalidRecentRepo(const QString &path);
+  static void warnInvalidRepo(const QString &path, const QString &details);
+  static void warnInvalidRecentRepo(const QString &path,
+                                    const QString &details);
 
   QStringList paths() const;
   QStringList tabContexts() const;

@@ -264,6 +264,7 @@ private slots:
   void branchGraphColors();
   void stashInteraction();
   void historyPrefetch();
+  void tagPushToOrigin();
   void submoduleInteraction();
   void submoduleInitialization();
   void worktreeSubmoduleInitialization();
@@ -2250,6 +2251,79 @@ void TestRepositorySideBar::historyPrefetch() {
       model, QAbstractItemModelTester::FailureReportingMode::QtTest);
   commitList->resetSettings();
   QCoreApplication::processEvents();
+}
+
+void TestRepositorySideBar::tagPushToOrigin() {
+  Test::ScratchRepository repo;
+  QVERIFY(repo->commit("initial").isValid());
+
+  QTemporaryDir origin;
+  QVERIFY(origin.isValid());
+  QProcess git;
+  git.start(GIT_EXECUTABLE, {"init", "--bare", origin.path()});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  QVERIFY(repo->addRemote("origin", origin.path()).isValid());
+  QCOMPARE(runGit(repo, {"push", "origin", "HEAD:refs/heads/main"}), 0);
+
+  const git::TagRef reachable = repo->createTag(repo->head().target(), "v1");
+  QVERIFY(reachable.isValid());
+  const git::TagRef missing = repo->createTag(repo->head().target(), "v2");
+  QVERIFY(missing.isValid());
+  QCOMPARE(runGit(repo, {"push", "origin", "refs/tags/v1"}), 0);
+  repo->appConfig().setValue("autofetch.enable", false);
+  MainWindow window(repo);
+  RepoView *view = window.currentView();
+  QVERIFY(view);
+  auto actionFor = [](QMenu &menu) {
+    for (QAction *action : menu.actions()) {
+      if (action->text().startsWith("Push Tag "))
+        return action;
+    }
+    return static_cast<QAction *>(nullptr);
+  };
+
+  QMenu reachableMenu;
+  view->populateReferenceContextMenu(&reachableMenu, missing);
+  QAction *pushReachable = actionFor(reachableMenu);
+  QVERIFY(pushReachable);
+  QCOMPARE(pushReachable->text(), "Push Tag v2 to origin");
+  QTRY_VERIFY(pushReachable->isEnabled());
+
+  auto originHasTag = [&origin](const QString &name) {
+    QProcess check;
+    check.start(
+        GIT_EXECUTABLE,
+        {"--git-dir", origin.path(), "show-ref", "--verify",
+         "refs/tags/" + name});
+    return check.waitForFinished() && check.exitCode() == 0;
+  };
+  QVERIFY(originHasTag("v1"));
+  QMenu presentMenu;
+  view->populateReferenceContextMenu(&presentMenu, reachable);
+  QAction *pushPresent = actionFor(presentMenu);
+  QVERIFY(pushPresent);
+  QCOMPARE(pushPresent->text(), "Push Tag v1 to origin");
+  QTRY_VERIFY(!pushPresent->toolTip().contains("Checking"));
+  QVERIFY(!pushPresent->isEnabled());
+  QVERIFY(pushPresent->toolTip().contains("already present on origin"));
+
+  QVERIFY(repo->commit("local only").isValid());
+  const git::TagRef localOnly =
+      repo->createTag(repo->head().target(), "local-only");
+  QVERIFY(localOnly.isValid());
+  QMenu localOnlyMenu;
+  view->populateReferenceContextMenu(&localOnlyMenu, localOnly);
+  QAction *pushLocalOnly = actionFor(localOnlyMenu);
+  QVERIFY(pushLocalOnly);
+  QTRY_VERIFY(!pushLocalOnly->toolTip().contains("Checking"));
+  QVERIFY(!pushLocalOnly->isEnabled());
+  QVERIFY(pushLocalOnly->toolTip().contains("not reachable from origin"));
+
+  // The public push entry point must not bypass the contextual validation.
+  view->push(repo->lookupRemote("origin"), localOnly);
+  QTest::qWait(100);
+  QVERIFY(!originHasTag("local-only"));
 }
 
 void TestRepositorySideBar::submoduleInteraction() {
