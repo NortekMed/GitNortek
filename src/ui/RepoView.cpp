@@ -56,7 +56,6 @@
 #include "git/Signature.h"
 #include "git2/merge.h"
 #include "util/PerformanceTrace.h"
-#include "util/WaitCursor.h"
 #include "host/Accounts.h"
 #include "index/Index.h"
 #include "log/LogEntry.h"
@@ -205,6 +204,9 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
   mCloseCleanupTimer.setSingleShot(true);
   connect(&mCloseCleanupTimer, &QTimer::timeout, this,
           &RepoView::finishClosing);
+  mActivityTimer.setInterval(100);
+  connect(&mActivityTimer, &QTimer::timeout, this, &RepoView::updateActivity);
+  mActivityTimer.start();
 
   // Start (or restart) indexing after the initial status check has completed.
   git::RepositoryNotifier *notifier = repo.notifier();
@@ -1345,7 +1347,6 @@ QFuture<git::Result> RepoView::fetch(const git::Remote &rmt, bool tags,
           &RepoView::notifyReferenceUpdated);
 
   entry->setBusy(true);
-  WaitCursor::track(mWatcher);
   mWatcher->setFuture(
       QtConcurrent::run([this, remote, tags, submodules, prune] {
         git::Result result = git::Remote(remote).fetch(mCallbacks, tags, prune);
@@ -1437,7 +1438,6 @@ void RepoView::pull(MergeFlags flags, const git::Remote &rmt, bool tags,
                   callback);
           });
 
-  WaitCursor::track(watcher);
   watcher->setFuture(fetch(remote, tags, true, entry, submodules, prune));
   if (watcher->isCanceled()) {
     delete watcher;
@@ -2166,7 +2166,6 @@ void RepoView::push(const git::Remote &rmt, const git::Reference &src,
             dialog->open();
           });
       git::Repository repo = mRepo;
-      WaitCursor::track(watcher);
       watcher->setFuture(
           QtConcurrent::run([repo, parents, submodules, callbacks] {
             QList<git::SubmoduleAvailability::Issue> issues;
@@ -2197,12 +2196,10 @@ QString RepoView::originTagKey(const git::Reference &tag) const {
 }
 
 RepoView::OriginTagCheck *
-RepoView::startOriginTagCheck(const git::Reference &tag, bool interactive) {
+RepoView::startOriginTagCheck(const git::Reference &tag) {
   const QString key = originTagKey(tag);
   OriginTagCheck &check = mOriginTagChecks[key];
   if (check.watcher) {
-    if (interactive)
-      WaitCursor::track(check.watcher);
     return &check;
   }
 
@@ -2225,15 +2222,13 @@ RepoView::startOriginTagCheck(const git::Reference &tag, bool interactive) {
             }
             watcher->deleteLater();
           });
-  if (interactive)
-    WaitCursor::track(watcher);
   watcher->setFuture(
       QtConcurrent::run([origin, tag] { return origin.tagStatus(tag); }));
   return &check;
 }
 
 void RepoView::pushTagToOrigin(const git::Reference &tag) {
-  OriginTagCheck *check = startOriginTagCheck(tag, true);
+  OriginTagCheck *check = startOriginTagCheck(tag);
   const QString key = originTagKey(tag);
   if (check->watcher) {
     connect(check->watcher, &QFutureWatcher<git::Remote::TagStatus>::finished,
@@ -2341,7 +2336,6 @@ void RepoView::pushRemote(const git::Remote &remote, const git::Reference &src,
           &RepoView::notifyReferenceUpdated);
 
   entry->setBusy(true);
-  WaitCursor::track(mWatcher);
   git::Result (git::Remote::*push)(git::Remote::Callbacks *,
                                    const git::Reference &, const QString &,
                                    bool, bool) = &git::Remote::push;
@@ -2776,7 +2770,7 @@ void RepoView::addPushTagToOriginAction(QMenu *menu,
     return;
 
   const QString key = originTagKey(tag);
-  OriginTagCheck *check = startOriginTagCheck(tag, false);
+  OriginTagCheck *check = startOriginTagCheck(tag);
   QAction *pushTag = menu->addAction(
       tr("Push Tag %1 to origin").arg(tag.name()), this,
       [this, tag] { pushTagToOrigin(tag); });
@@ -2805,7 +2799,7 @@ void RepoView::addPushTagToOriginAction(QMenu *menu,
   updatePushTag();
   if (check->watcher)
     connect(check->watcher, &QFutureWatcher<git::Remote::TagStatus>::finished,
-            this, updatePushTag);
+            pushTag, updatePushTag);
 }
 
 void RepoView::promptToStash() {
@@ -3121,7 +3115,6 @@ void RepoView::resetSubmodulesAsync(const QList<SubmoduleInfo> &submodules,
                                    QString(), mWatcher, repo);
 
   entry->setBusy(true);
-  WaitCursor::track(mWatcher);
   mWatcher->setFuture(QtConcurrent::run(&git::Submodule::update, submodule,
                                         mCallbacks, false, true));
 }
@@ -3286,7 +3279,6 @@ void RepoView::updateSubmodulesAsync(const QList<SubmoduleInfo> &submodules,
                                    QString(), mWatcher, repo);
 
   entry->setBusy(true);
-  WaitCursor::track(mWatcher);
   mWatcher->setFuture(QtConcurrent::run(&git::Submodule::update, submodule,
                                         mCallbacks, init, checkout_force));
 }
@@ -3475,7 +3467,6 @@ void RepoView::checkSubmoduleUpdates(
         }
       });
 
-  WaitCursor::track(watcher);
   watcher->setFuture(QtConcurrent::run([submodules, callbacks] {
     QList<git::Submodule::UpdateStatus> results;
     for (const git::Submodule &submodule : submodules) {
@@ -3607,7 +3598,6 @@ void RepoView::addSubmodule(const QString &url, const QString &path,
                                    QString(), mWatcher, mRepo);
 
   entry->setBusy(true);
-  WaitCursor::track(mWatcher);
   mWatcher->setFuture(QtConcurrent::run(&git::Submodule::add, mRepo, url, path,
                                         branch, mCallbacks));
 }
@@ -4221,6 +4211,21 @@ void RepoView::finishInitialLoad() {
   if (mOpenProgress)
     mOpenProgress->finish();
   emit initialLoadFinished();
+  updateActivity();
+}
+
+bool RepoView::hasBackgroundActivity() const {
+  return !mInitialLoadFinished || mWatcher || mSubmoduleUpdateWatcher ||
+         mSubmodulePushCheckWatcher;
+}
+
+void RepoView::updateActivity() {
+  const bool active = hasBackgroundActivity();
+  if (mBackgroundActivity == active)
+    return;
+
+  mBackgroundActivity = active;
+  emit activityChanged(active);
 }
 
 void RepoView::paintEvent(QPaintEvent *event) {

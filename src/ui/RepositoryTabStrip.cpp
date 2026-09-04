@@ -6,6 +6,7 @@
 //
 
 #include "RepositoryTabStrip.h"
+#include "ProgressIndicator.h"
 #include <QAbstractButton>
 #include <QAccessible>
 #include <QAccessibleWidget>
@@ -26,6 +27,7 @@
 #include <QStyleOptionFocusRect>
 #include <QStyledItemDelegate>
 #include <QToolButton>
+#include <QTimer>
 #include <QTextDocumentFragment>
 #include <QVBoxLayout>
 
@@ -36,6 +38,7 @@ constexpr int kMinimumTitleColumns = 8;
 constexpr int kHorizontalPadding = 10;
 constexpr int kElementSpacing = 6;
 constexpr int kIconExtent = 16;
+constexpr int kBusyExtent = 8;
 constexpr int kCloseExtent = 16;
 constexpr int kOverflowWidth = 52;
 
@@ -58,6 +61,10 @@ public:
     mClose->setIcon(style()->standardIcon(QStyle::SP_TitleBarCloseButton));
     connect(mClose, &QToolButton::clicked, this,
             &RepositoryTabButton::closeClicked);
+    connect(&mBusyTimer, &QTimer::timeout, this, [this] {
+      ++mProgress;
+      update();
+    });
   }
 
   void setTabText(const QString &text) {
@@ -68,6 +75,20 @@ public:
 
   void setTabIcon(const QIcon &icon) {
     mIcon = icon;
+    update();
+  }
+
+  void setBusy(bool busy) {
+    if (mBusy == busy)
+      return;
+
+    mBusy = busy;
+    if (mBusy) {
+      mProgress = 0;
+      mBusyTimer.start(50);
+    } else {
+      mBusyTimer.stop();
+    }
     update();
   }
 
@@ -158,6 +179,14 @@ protected:
       left = iconRect.right() + 1 + kElementSpacing;
     }
 
+    if (mBusy) {
+      QRect busyRect(left, (height() - kBusyExtent) / 2, kBusyExtent,
+                     kBusyExtent);
+      ProgressIndicator::paint(&painter, busyRect,
+                               palette().buttonText().color(), mProgress, this);
+      left = busyRect.right() + 1 + kElementSpacing;
+    }
+
     QRect textRect(left, 0,
                    qMax(0, closeRect().left() - kElementSpacing - left),
                    height());
@@ -188,7 +217,10 @@ private:
 
   QIcon mIcon;
   QToolButton *mClose;
+  QTimer mBusyTimer;
   QPoint mPressPosition;
+  int mProgress = 0;
+  bool mBusy = false;
   bool mDragging = false;
 };
 
@@ -500,6 +532,19 @@ void RepositoryTabStrip::setTabIcon(int index, const QIcon &icon) {
   relayout();
 }
 
+bool RepositoryTabStrip::tabBusy(int index) const {
+  return index >= 0 && index < count() && mTabs.at(index).busy;
+}
+
+void RepositoryTabStrip::setTabBusy(int index, bool busy) {
+  if (index < 0 || index >= count() || mTabs.at(index).busy == busy)
+    return;
+
+  mTabs[index].busy = busy;
+  static_cast<RepositoryTabButton *>(mTabs.at(index).button)->setBusy(busy);
+  updateAccessibleDescriptions();
+}
+
 QString RepositoryTabStrip::tabText(int index) const {
   return (index >= 0 && index < count()) ? mTabs.at(index).text : QString();
 }
@@ -536,6 +581,7 @@ int RepositoryTabStrip::visibleTabCount() const { return mVisibleCount; }
 int RepositoryTabStrip::minimumTabWidth() const {
   QFontMetrics metrics(font());
   return 2 * kHorizontalPadding + kIconExtent + kElementSpacing +
+         kBusyExtent + kElementSpacing +
          kMinimumTitleColumns * metrics.averageCharWidth() +
          metrics.horizontalAdvance(QChar(0x2026)) + kElementSpacing +
          kCloseExtent;
@@ -585,6 +631,7 @@ int RepositoryTabStrip::naturalTabWidth(int index) const {
   int fixed = 2 * kHorizontalPadding + kElementSpacing + kCloseExtent;
   if (!tab.icon.isNull())
     fixed += kIconExtent + kElementSpacing;
+  fixed += kBusyExtent + kElementSpacing;
   return qMax(minimumTabWidth(),
               fixed + fontMetrics().horizontalAdvance(tab.text));
 }
@@ -717,6 +764,8 @@ void RepositoryTabStrip::updateAccessibleDescriptions() {
         QTextDocumentFragment::fromHtml(mTabs.at(i).toolTip).toPlainText();
     if (!details.isEmpty())
       description += tr(". %1").arg(details);
+    if (mTabs.at(i).busy)
+      description += tr(". Background operation in progress");
     mTabs.at(i).button->setAccessibleDescription(description);
   }
 }

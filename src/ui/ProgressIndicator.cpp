@@ -30,11 +30,12 @@ void ProgressIndicator::paint(QPainter *painter, const QRect &rect,
   // center
   qreal x = rect.x() + (rect.width() / 2);
   qreal y = rect.y() + (rect.height() / 2);
+  const qreal scale = qMin(rect.width(), rect.height()) / qreal(kSize);
 
   if (widget && rect.contains(widget->mapFromGlobal(QCursor::pos()))) {
     // radii
-    const qreal in = 3;
-    const qreal out = 8;
+    const qreal in = 3 * scale;
+    const qreal out = 8 * scale;
 
     // Draw background.
     painter->setPen(Qt::NoPen);
@@ -42,14 +43,14 @@ void ProgressIndicator::paint(QPainter *painter, const QRect &rect,
     painter->drawEllipse(QPointF(x, y), out, out);
 
     // Draw x.
-    painter->setPen(QPen(QColor("#646464"), 1.5));
+    painter->setPen(QPen(QColor("#646464"), 1.5 * scale));
     painter->drawLine(QPointF(x - in, y - in), QPointF(x + in, y + in));
     painter->drawLine(QPointF(x - in, y + in), QPointF(x + in, y - in));
 
   } else {
     // radii
-    const qreal in = 7;
-    const qreal out = 12;
+    const qreal in = 7 * scale;
+    const qreal out = 12 * scale;
 
     int alpha = 32;
     QColor color = c;
@@ -57,7 +58,7 @@ void ProgressIndicator::paint(QPainter *painter, const QRect &rect,
       color.setAlpha(alpha);
       alpha += 16;
 
-      painter->setPen(QPen(color, 2.5, Qt::SolidLine, Qt::RoundCap));
+      painter->setPen(QPen(color, 2.5 * scale, Qt::SolidLine, Qt::RoundCap));
 
       qreal angle = (i + (progress % 12)) * (M_PI / 6); // in radians
       painter->drawLine(QLineF(x + qCos(angle) * in, y + qSin(angle) * in,

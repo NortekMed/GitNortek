@@ -140,6 +140,7 @@ public:
   void cancelBackgroundTasks();
   bool isClosing() const { return mClosing; }
   void startInitialLoadProgress();
+  bool hasBackgroundActivity() const;
 
   // links
   void visitLink(const QString &link);
@@ -409,6 +410,7 @@ private slots:
 
 signals:
   void initialLoadFinished();
+  void activityChanged(bool active);
   void statusChanged(bool dirty);
   void referenceChanged(const git::Reference &ref);
   void referenceSelected(const git::Reference &ref);
@@ -431,8 +433,7 @@ private:
   };
 
   QString originTagKey(const git::Reference &tag) const;
-  OriginTagCheck *startOriginTagCheck(const git::Reference &tag,
-                                      bool interactive);
+  OriginTagCheck *startOriginTagCheck(const git::Reference &tag);
   void pushTagToOrigin(const git::Reference &tag);
   void pushRemote(const git::Remote &remote, const git::Reference &src,
                   const git::Reference &ref, const QString &dst,
@@ -452,6 +453,7 @@ private:
   void notifyReferenceUpdated(const QString &name);
 
   void updateLogToggle();
+  void updateActivity();
   void finishInitialLoad();
   void promptForCheckoutConflicts(const git::Reference &ref,
                                   const QStringList &conflicts);
@@ -512,6 +514,7 @@ private:
   bool mIsLogVisible = false;
 
   QTimer mFetchTimer;
+  QTimer mActivityTimer;
   RemoteCallbacks *mCallbacks = nullptr;
   QFutureWatcher<git::Result> *mWatcher = nullptr;
   QHash<QString, OriginTagCheck> mOriginTagChecks;
@@ -530,6 +533,7 @@ private:
   bool mShown = false;
   bool mFirstPaintTraced = false;
   bool mInitialLoadFinished = false;
+  bool mBackgroundActivity = true;
   RepositoryOpenProgress *mOpenProgress = nullptr;
   bool mClosing = false;
   QTimer mCloseCleanupTimer;

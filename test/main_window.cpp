@@ -131,10 +131,12 @@ void TestMainWindow::initTestCase() {
 void TestMainWindow::initialLoadFinished() {
   MainWindow window(mSecondRepo);
   QSignalSpy finished(window.currentView(), &RepoView::initialLoadFinished);
+  QVERIFY(window.tabWidget()->tabBusy(0));
   window.show();
 
   QVERIFY(qWaitForWindowExposed(&window));
   QTRY_COMPARE(finished.count(), 1);
+  QTRY_VERIFY(!window.tabWidget()->tabBusy(0));
 }
 
 void TestMainWindow::initialLoadErrorFinished() {

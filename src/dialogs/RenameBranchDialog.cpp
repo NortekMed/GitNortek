@@ -12,7 +12,6 @@
 #include "ui/RemoteCallbacks.h"
 #include "ui/ReferenceList.h"
 #include "ui/RepoView.h"
-#include "util/WaitCursor.h"
 #include <QApplication>
 #include <QCheckBox>
 #include <QDialogButtonBox>
@@ -98,7 +97,6 @@ RenameBranchDialog::RenameBranchDialog(const git::Repository &repo,
         QStringList createRefspecs(createRefspec);
         git::Result (git::Remote::*push)(
             git::Remote::Callbacks *, const QStringList &) = &git::Remote::push;
-        WaitCursor::track(createWatcher);
         createWatcher->setFuture(
             QtConcurrent::run(push, remote, createCallbacks, createRefspecs));
 
@@ -127,7 +125,6 @@ RenameBranchDialog::RenameBranchDialog(const git::Repository &repo,
                     deleteWatcher, repo);
                 QStringList deleteRefspecs(
                     QString(":refs/heads/%1").arg(branchName));
-                WaitCursor::track(deleteWatcher);
                 deleteWatcher->setFuture(QtConcurrent::run(
                     push, remote, deleteCallbacks, deleteRefspecs));
 

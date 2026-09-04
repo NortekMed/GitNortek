@@ -77,7 +77,6 @@ void RepositoryOpenProgress::start() {
     return;
 
   mActive = true;
-  mCursor = WaitCursor::acquire();
   mShowTimer->start();
   mFallbackTimer->start();
 }
@@ -90,7 +89,6 @@ void RepositoryOpenProgress::finish() {
   mShowTimer->stop();
   mFallbackTimer->stop();
   hide();
-  mCursor.reset();
 }
 
 bool RepositoryOpenProgress::eventFilter(QObject *watched, QEvent *event) {

@@ -430,6 +430,10 @@ RepoView *MainWindow::addTab(const git::Repository &repo,
   mAddingTab = true;
   QIcon icon = repositoryIcon(repo, submoduleTab);
   const int index = tabs->addTab(view, icon, dir.dirName());
+  connect(view, &RepoView::activityChanged, tabs, [tabs, view](bool active) {
+    tabs->setTabBusy(tabs->indexOf(view), active);
+  });
+  tabs->setTabBusy(index, view->hasBackgroundActivity());
   if (!mRestoringTabs)
     view->startInitialLoadProgress();
   if (!mRestoringTabs)

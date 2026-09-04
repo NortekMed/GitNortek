@@ -7,7 +7,6 @@
 #ifndef REPOSITORYOPENPROGRESS_H
 #define REPOSITORYOPENPROGRESS_H
 
-#include "util/WaitCursor.h"
 #include <QPointer>
 #include <QWidget>
 
@@ -31,7 +30,6 @@ private:
   QPointer<QWidget> mTarget;
   QTimer *mShowTimer;
   QTimer *mFallbackTimer;
-  WaitCursor::Token mCursor;
   bool mActive = false;
 };
 

@@ -14,7 +14,6 @@
 #include "log/LogEntry.h"
 #include "ui/RemoteCallbacks.h"
 #include "ui/RepoView.h"
-#include "util/WaitCursor.h"
 #include <QCheckBox>
 #include <QFutureWatcher>
 #include <QPushButton>
@@ -56,7 +55,6 @@ DeleteBranchDialog::DeleteBranchDialog(const git::Branch &branch,
       QStringList refspecs(QString(":refs/heads/%1").arg(branchName));
       git::Result (git::Remote::*push)(
           git::Remote::Callbacks *, const QStringList &) = &git::Remote::push;
-      WaitCursor::track(watcher);
       watcher->setFuture(QtConcurrent::run(push, remote, callbacks, refspecs));
 
       connect(watcher, &QFutureWatcher<git::Result>::finished, watcher,
@@ -116,7 +114,6 @@ DeleteBranchDialog::DeleteBranchDialog(const git::Branch &branch,
       QStringList refspecs(QString(":%1").arg(upstreamName));
       git::Result (git::Remote::*push)(
           git::Remote::Callbacks *, const QStringList &) = &git::Remote::push;
-      WaitCursor::track(watcher);
       watcher->setFuture(QtConcurrent::run(push, remote, callbacks, refspecs));
 
       connect(watcher, &QFutureWatcher<git::Result>::finished, watcher,

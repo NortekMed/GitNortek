@@ -42,6 +42,7 @@ Bug Fix and Feature release
 
 #### Changed
 
+* Show active repository work with a spinner in the corresponding tab instead of a global busy cursor
 * Trigger package and prerelease automation consistently for valid prerelease tags
 * Show repository-open diagnostics in invalid repository and unavailable recent repository dialogs
 * Stop the repository loading indicator and wait cursor reliably after cloning a repository

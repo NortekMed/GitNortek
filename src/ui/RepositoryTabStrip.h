@@ -32,6 +32,8 @@ public:
 
   QIcon tabIcon(int index) const;
   void setTabIcon(int index, const QIcon &icon);
+  bool tabBusy(int index) const;
+  void setTabBusy(int index, bool busy);
   QString tabText(int index) const;
   void setTabText(int index, const QString &text);
   QString tabToolTip(int index) const;
@@ -59,6 +61,7 @@ private:
     QIcon icon;
     QString text;
     QString toolTip;
+    bool busy = false;
   };
 
   int indexOf(const QObject *object) const;

@@ -240,6 +240,12 @@ void TabWidget::setTabIcon(int index, const QIcon &icon) {
   mTabStrip->setTabIcon(index, icon);
 }
 
+bool TabWidget::tabBusy(int index) const { return mTabStrip->tabBusy(index); }
+
+void TabWidget::setTabBusy(int index, bool busy) {
+  mTabStrip->setTabBusy(index, busy);
+}
+
 QString TabWidget::tabText(int index) const {
   return mTabStrip->tabText(index);
 }

@@ -13,7 +13,6 @@
 #include "StatePushButton.h"
 #include "TabWidget.h"
 #include "WorktreeIcon.h"
-#include "util/WaitCursor.h"
 #include "dialogs/WorktreeDialog.h"
 #include "git/Branch.h"
 #include "git/Config.h"
@@ -1482,7 +1481,6 @@ void RepositoryNavigator::promptToCreateWorktree() {
               mModel->refresh();
               emit openRepositoryRequested(outcome.path, initializeSubmodules);
             });
-    WaitCursor::track(watcher);
     watcher->setFuture(QtConcurrent::run(
         [repositoryPath, selectedName, branchType, localBranchName, worktreeName,
          path] {
