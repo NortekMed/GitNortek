@@ -78,6 +78,7 @@ public:
     OriginBehindRole,
     OriginStateRole,
     OriginTargetRole,
+    SubmoduleBusyRole,
     LoadStateRole,
     IssueNumberRole,
     IssueAuthorRole
@@ -90,6 +91,7 @@ public:
   git::Repository repository() const;
   void setSubmoduleUpdateStatuses(
       const QList<git::Submodule::UpdateStatus> &statuses);
+  void setBusySubmodulePaths(const QStringList &paths);
   void setGitHubIssuesAvailable(bool available);
   void setGitHubIssuesFilter(const QString &filter);
   void beginGitHubIssuesLoad(bool refresh);
@@ -159,6 +161,7 @@ private:
 
   git::Repository mRepo;
   QHash<QString, git::Submodule::UpdateStatus> mSubmoduleUpdateStatuses;
+  QStringList mBusySubmodulePaths;
   QList<SectionData> mSections;
   QList<QMetaObject::Connection> mConnections;
   QTimer mRefreshTimer;

@@ -162,6 +162,18 @@ void RepositoryNavigatorModel::setSubmoduleUpdateStatuses(
   endResetModel();
 }
 
+void RepositoryNavigatorModel::setBusySubmodulePaths(const QStringList &paths) {
+  if (mBusySubmodulePaths == paths)
+    return;
+
+  mBusySubmodulePaths = paths;
+  const QModelIndex section = sectionIndex(Section::Submodules);
+  const int rows = rowCount(section);
+  if (rows > 0)
+    emit dataChanged(index(0, 0, section), index(rows - 1, 0, section),
+                     {SubmoduleBusyRole});
+}
+
 QModelIndex RepositoryNavigatorModel::sectionIndex(
     RepositoryNavigatorModel::Section section) const {
   int row = static_cast<int>(section);
@@ -292,8 +304,11 @@ QVariant RepositoryNavigatorModel::data(const QModelIndex &index,
                  : QVariant();
     case OriginTargetRole:
       return row->originTarget.isValid()
-                 ? QVariant::fromValue(row->originTarget)
-                  : QVariant();
+                  ? QVariant::fromValue(row->originTarget)
+                   : QVariant();
+    case SubmoduleBusyRole:
+      return row->kind == ItemKind::Submodule &&
+             mBusySubmodulePaths.contains(row->path);
     case LoadStateRole:
       return section->section == Section::GitHubIssues
                  ? QVariant::fromValue(mGitHubIssuesState)

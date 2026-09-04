@@ -3226,6 +3226,7 @@ void RepoView::updateSubmodulesAsync(const QList<SubmoduleInfo> &submodules,
                                      bool checkout_force,
                                      bool restoreSelection) {
   if (submodules.isEmpty()) {
+    setActiveSubmodulePaths({});
     emit submodulesChanged();
     refresh(restoreSelection);
     return;
@@ -3236,6 +3237,7 @@ void RepoView::updateSubmodulesAsync(const QList<SubmoduleInfo> &submodules,
   SubmoduleInfo info = tail.takeFirst();
   git::Submodule submodule = info.submodule;
   LogEntry *entry = info.entry->addEntry(submodule.name(), tr("Update"));
+  setActiveSubmodulePaths({submodule.path()});
 
   mWatcher = new QFutureWatcher<git::Result>(this);
   connect(mWatcher, &QFutureWatcher<git::Result>::finished, mWatcher,
@@ -3340,6 +3342,10 @@ void RepoView::checkSubmoduleUpdates(
 
   mSubmoduleUpdateWatcher =
       new QFutureWatcher<QList<git::Submodule::UpdateStatus>>(this);
+  QStringList activePaths;
+  for (const git::Submodule &submodule : submodules)
+    activePaths.append(submodule.path());
+  setActiveSubmodulePaths(activePaths);
   QFutureWatcher<QList<git::Submodule::UpdateStatus>> *watcher =
       mSubmoduleUpdateWatcher;
   mSubmoduleUpdateCallbacks =
@@ -3364,6 +3370,7 @@ void RepoView::checkSubmoduleUpdates(
             mSubmoduleUpdateWatcher = nullptr;
           if (mSubmoduleUpdateCallbacks == callbacks)
             mSubmoduleUpdateCallbacks = nullptr;
+          setActiveSubmodulePaths({});
           QTimer::singleShot(0, this, [this] {
             if (mSubmoduleUpdateCheckPending)
               checkSubmoduleUpdates(true);
@@ -3459,6 +3466,7 @@ void RepoView::checkSubmoduleUpdates(
           mSubmoduleUpdateWatcher = nullptr;
         if (mSubmoduleUpdateCallbacks == callbacks)
           mSubmoduleUpdateCallbacks = nullptr;
+        setActiveSubmodulePaths({});
         if (restart) {
           QTimer::singleShot(0, this, [this] {
             if (mSubmoduleUpdateCheckPending)
@@ -4164,6 +4172,7 @@ void RepoView::closeEvent(QCloseEvent *event) {
   mClosing = true;
   mFetchTimer.stop();
   mSubmoduleUpdateCheckPending = false;
+  setActiveSubmodulePaths({});
   ++mSubmoduleConfigurationGeneration;
   setAttribute(Qt::WA_DeleteOnClose, false);
   cancelBackgroundTasks();
@@ -4226,6 +4235,14 @@ void RepoView::updateActivity() {
 
   mBackgroundActivity = active;
   emit activityChanged(active);
+}
+
+void RepoView::setActiveSubmodulePaths(const QStringList &paths) {
+  if (mActiveSubmodulePaths == paths)
+    return;
+
+  mActiveSubmodulePaths = paths;
+  emit submoduleActivityChanged(mActiveSubmodulePaths);
 }
 
 void RepoView::paintEvent(QPaintEvent *event) {

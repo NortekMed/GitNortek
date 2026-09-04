@@ -8,6 +8,7 @@
 #include "RepositoryNavigator.h"
 #include "FontUtils.h"
 #include "MainWindow.h"
+#include "ProgressIndicator.h"
 #include "RepositoryNavigatorModel.h"
 #include "RepoView.h"
 #include "StatePushButton.h"
@@ -49,6 +50,7 @@
 #include <QStyledItemDelegate>
 #include <QToolButton>
 #include <QTreeView>
+#include <QTimer>
 #include <QVBoxLayout>
 #include <QtConcurrent>
 #include <algorithm>
@@ -155,6 +157,7 @@ struct TrailingPart {
 };
 
 constexpr int kSubmoduleStatusWidth = 44;
+constexpr int kSubmoduleSpinnerExtent = 8;
 
 SubmoduleVisual submoduleVisual(const QModelIndex &index,
                                 const QPalette &palette) {
@@ -321,8 +324,10 @@ private:
 
 class NavigatorDelegate : public QStyledItemDelegate {
 public:
-  NavigatorDelegate(const QFont &sectionFont, QObject *parent)
-      : QStyledItemDelegate(parent), mSectionFont(sectionFont) {}
+  NavigatorDelegate(const QFont &sectionFont, const int *spinnerProgress,
+                    QObject *parent)
+      : QStyledItemDelegate(parent), mSectionFont(sectionFont),
+        mSpinnerProgress(spinnerProgress) {}
 
   QSize sizeHint(const QStyleOptionViewItem &option,
                  const QModelIndex &index) const override {
@@ -407,6 +412,9 @@ public:
             index.data(RepositoryNavigatorModel::ItemKindRole).toInt()) ==
             RepositoryNavigatorModel::ItemKind::Submodule;
     SubmoduleVisual visual;
+    const bool submoduleBusy =
+        submodule && index.data(RepositoryNavigatorModel::SubmoduleBusyRole)
+                         .toBool();
     if (submodule) {
       visual = submoduleVisual(index, palette);
       QRect indicatorRect = content;
@@ -478,6 +486,13 @@ public:
       painter->drawText(partRect, Qt::AlignVCenter | part.alignment, part.text);
       left = partRect.right() + 7;
     }
+    if (submoduleBusy) {
+      QRect spinnerRect(option.rect.right() - kSubmoduleSpinnerExtent + 1,
+                        option.rect.center().y() - kSubmoduleSpinnerExtent / 2,
+                        kSubmoduleSpinnerExtent, kSubmoduleSpinnerExtent);
+      ProgressIndicator::paint(painter, spinnerRect, text,
+                               *mSpinnerProgress, option.widget);
+    }
 
     if (section) {
       painter->setPen(palette.mid().color());
@@ -488,6 +503,7 @@ public:
 
 private:
   QFont mSectionFont;
+  const int *mSpinnerProgress;
 };
 
 } // namespace
@@ -503,6 +519,11 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
   setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
 
   mModel = new RepositoryNavigatorModel(this);
+  connect(&mSubmoduleSpinnerTimer, &QTimer::timeout, this, [this] {
+    ++mSubmoduleSpinnerProgress;
+    if (QTreeView *view = sectionView(RepositoryNavigatorModel::Section::Submodules))
+      view->viewport()->update();
+  });
   mSectionSplitter = new SectionSplitter(Qt::Vertical, this);
   mSectionSplitter->setObjectName("RepositorySectionSplitter");
   mSectionSplitter->setChildrenCollapsible(false);
@@ -598,7 +619,8 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
       view->setUniformRowHeights(true);
       view->setBackgroundRole(QPalette::Window);
       view->viewport()->setBackgroundRole(QPalette::Window);
-      view->setItemDelegate(new NavigatorDelegate(view->font(), view));
+      view->setItemDelegate(
+          new NavigatorDelegate(view->font(), &mSubmoduleSpinnerProgress, view));
       view->setMinimumHeight(0);
       view->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
       view->setModel(mModel);
@@ -757,6 +779,7 @@ void RepositoryNavigator::setRepository(const git::Repository &repo) {
 void RepositoryNavigator::setRepoView(RepoView *view) {
   disconnect(mSubmodulesConnection);
   disconnect(mSubmoduleStatusesConnection);
+  disconnect(mSubmoduleActivityConnection);
   disconnect(mReferenceConnection);
   disconnect(mReferenceSelectedConnection);
   disconnect(mRefreshConnection);
@@ -764,12 +787,16 @@ void RepositoryNavigator::setRepoView(RepoView *view) {
   setRepository(view ? view->repo() : git::Repository());
   if (view) {
     mModel->setSubmoduleUpdateStatuses(view->submoduleUpdateStatuses());
+    setBusySubmodulePaths(view->activeSubmodulePaths());
     mSubmodulesConnection =
         connect(view, &RepoView::submodulesChanged, mModel,
                 &RepositoryNavigatorModel::refresh);
     mSubmoduleStatusesConnection = connect(
         view, &RepoView::submoduleUpdateStatusesChanged, mModel,
         &RepositoryNavigatorModel::setSubmoduleUpdateStatuses);
+    mSubmoduleActivityConnection = connect(
+        view, &RepoView::submoduleActivityChanged, this,
+        &RepositoryNavigator::setBusySubmodulePaths);
     mReferenceConnection = connect(view, &RepoView::referenceChanged, this,
                                    &RepositoryNavigator::selectReference);
     mReferenceSelectedConnection =
@@ -782,6 +809,21 @@ void RepositoryNavigator::setRepoView(RepoView *view) {
       setPanelExpanded(RepositoryNavigatorModel::Section::Local, true, true);
     selectReference(head);
   }
+  else {
+    setBusySubmodulePaths({});
+  }
+}
+
+void RepositoryNavigator::setBusySubmodulePaths(const QStringList &paths) {
+  mModel->setBusySubmodulePaths(paths);
+  if (paths.isEmpty()) {
+    mSubmoduleSpinnerTimer.stop();
+  } else if (!mSubmoduleSpinnerTimer.isActive()) {
+    mSubmoduleSpinnerTimer.start(50);
+  }
+
+  if (QTreeView *view = sectionView(RepositoryNavigatorModel::Section::Submodules))
+    view->viewport()->update();
 }
 
 RepositoryNavigatorModel *RepositoryNavigator::model() const { return mModel; }

@@ -316,6 +316,9 @@ public:
   const QList<git::Submodule::UpdateStatus> &submoduleUpdateStatuses() const {
     return mSubmoduleUpdateStatuses;
   }
+  const QStringList &activeSubmodulePaths() const {
+    return mActiveSubmodulePaths;
+  }
   void addSubmodule(const QString &url, const QString &path,
                     const QString &branch = QString());
   bool modifySubmodule(const QString &oldName, const QString &newName,
@@ -417,6 +420,7 @@ signals:
   void submodulesChanged();
   void submoduleUpdateStatusesChanged(
       const QList<git::Submodule::UpdateStatus> &statuses);
+  void submoduleActivityChanged(const QStringList &paths);
   void manualRefreshRequested();
   void pushSucceeded(const QString &repositoryPath);
 
@@ -454,6 +458,7 @@ private:
 
   void updateLogToggle();
   void updateActivity();
+  void setActiveSubmodulePaths(const QStringList &paths);
   void finishInitialLoad();
   void promptForCheckoutConflicts(const git::Reference &ref,
                                   const QStringList &conflicts);
@@ -524,6 +529,7 @@ private:
   RemoteCallbacks *mSubmoduleUpdateCallbacks = nullptr;
   quint64 mSubmoduleConfigurationGeneration = 0;
   bool mSubmoduleUpdateCheckPending = false;
+  QStringList mActiveSubmodulePaths;
   QFutureWatcher<QList<git::SubmoduleAvailability::Issue>>
       *mSubmodulePushCheckWatcher = nullptr;
   QList<git::Submodule::UpdateStatus> mSubmoduleUpdateStatuses;

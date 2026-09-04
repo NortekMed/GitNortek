@@ -2444,6 +2444,10 @@ void TestRepositorySideBar::submoduleInteraction() {
   submodules = navigator->model()->sectionIndex(
       RepositoryNavigatorModel::Section::Submodules);
   submodule = navigator->model()->index(0, 0, submodules);
+  navigator->model()->setBusySubmodulePaths({selected.path()});
+  QVERIFY(submodule.data(RepositoryNavigatorModel::SubmoduleBusyRole).toBool());
+  navigator->model()->setBusySubmodulePaths({});
+  QVERIFY(!submodule.data(RepositoryNavigatorModel::SubmoduleBusyRole).toBool());
   QCOMPARE(submodule.data(RepositoryNavigatorModel::OriginStateRole)
                .value<RepositoryNavigatorModel::OriginState>(),
            RepositoryNavigatorModel::OriginState::Ready);

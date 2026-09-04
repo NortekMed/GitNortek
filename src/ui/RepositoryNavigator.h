@@ -14,6 +14,7 @@
 #include "host/GitHub.h"
 #include <QHash>
 #include <QPointer>
+#include <QTimer>
 #include <QWidget>
 #include <functional>
 
@@ -68,6 +69,7 @@ private:
   void updatePanelSizes();
   int expandedPanelHeight(const SectionPanel &panel) const;
   void updatePanels();
+  void setBusySubmodulePaths(const QStringList &paths);
   void promptToCreateWorktree();
   void promptToDeleteWorktree(const git::Worktree &worktree);
   bool closeWorktreeTabs(const QString &path);
@@ -131,6 +133,7 @@ private:
   QPointer<RepoView> mRepoView;
   QMetaObject::Connection mSubmodulesConnection;
   QMetaObject::Connection mSubmoduleStatusesConnection;
+  QMetaObject::Connection mSubmoduleActivityConnection;
   QMetaObject::Connection mReferenceConnection;
   QMetaObject::Connection mReferenceSelectedConnection;
   QMetaObject::Connection mRefreshConnection;
@@ -142,6 +145,8 @@ private:
   IssuesRequest mIssuesRequest;
   Clock mClock;
   QPointer<GitHub> mAnonymousGitHub;
+  QTimer mSubmoduleSpinnerTimer;
+  int mSubmoduleSpinnerProgress = 0;
 };
 
 #endif
