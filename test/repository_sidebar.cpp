@@ -2275,6 +2275,9 @@ void TestRepositorySideBar::tagPushToOrigin() {
   MainWindow window(repo);
   RepoView *view = window.currentView();
   QVERIFY(view);
+  QSignalSpy initialLoadFinished(view, &RepoView::initialLoadFinished);
+  QTRY_COMPARE(initialLoadFinished.count(), 1);
+  QTRY_VERIFY(!view->hasBackgroundActivity());
   auto actionFor = [](QMenu &menu) {
     for (QAction *action : menu.actions()) {
       if (action->text().startsWith("Push Tag "))
@@ -2299,6 +2302,17 @@ void TestRepositorySideBar::tagPushToOrigin() {
     return check.waitForFinished() && check.exitCode() == 0;
   };
   QVERIFY(originHasTag("v1"));
+
+  QSignalSpy pushTriggered(pushReachable, &QAction::triggered);
+  pushReachable->trigger();
+  QCOMPARE(pushTriggered.count(), 1);
+  QTRY_VERIFY(originHasTag("v2"));
+  git::Repository published = git::Repository::open(origin.path());
+  QVERIFY(published.isValid());
+  QCOMPARE(published.lookupRef("refs/tags/v2").target().id(),
+           missing.target().id());
+  QVERIFY(originHasTag("v1"));
+
   QMenu presentMenu;
   view->populateReferenceContextMenu(&presentMenu, reachable);
   QAction *pushPresent = actionFor(presentMenu);

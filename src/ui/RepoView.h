@@ -437,7 +437,8 @@ private:
   };
 
   QString originTagKey(const git::Reference &tag) const;
-  OriginTagCheck *startOriginTagCheck(const git::Reference &tag);
+  OriginTagCheck *startOriginTagCheck(const git::Reference &tag,
+                                      bool refresh = false);
   void pushTagToOrigin(const git::Reference &tag);
   void pushRemote(const git::Remote &remote, const git::Reference &src,
                   const git::Reference &ref, const QString &dst,

@@ -2196,10 +2196,10 @@ QString RepoView::originTagKey(const git::Reference &tag) const {
 }
 
 RepoView::OriginTagCheck *
-RepoView::startOriginTagCheck(const git::Reference &tag) {
+RepoView::startOriginTagCheck(const git::Reference &tag, bool refresh) {
   const QString key = originTagKey(tag);
   OriginTagCheck &check = mOriginTagChecks[key];
-  if (check.watcher) {
+  if (check.watcher || (!refresh && check.generation > 0)) {
     return &check;
   }
 
@@ -2770,7 +2770,7 @@ void RepoView::addPushTagToOriginAction(QMenu *menu,
     return;
 
   const QString key = originTagKey(tag);
-  OriginTagCheck *check = startOriginTagCheck(tag);
+  OriginTagCheck *check = startOriginTagCheck(tag, true);
   QAction *pushTag = menu->addAction(
       tr("Push Tag %1 to origin").arg(tag.name()), this,
       [this, tag] { pushTagToOrigin(tag); });

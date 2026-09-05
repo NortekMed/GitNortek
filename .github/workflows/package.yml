@@ -16,6 +16,7 @@ permissions:
 jobs:
   rpm:
     name: Fedora RPM
+    if: ${{ github.ref_type == 'tag' }}
     runs-on:
       group: Public-Releases
       labels: [self-hosted, linux, x64, gitnortek-linux]
@@ -80,7 +81,7 @@ jobs:
 
   windows-exe:
     name: Windows EXE
-    if: ${{ !contains(github.ref_name, '-pre') }}
+    if: ${{ github.ref_type == 'tag' && !contains(github.ref_name, '-pre') }}
     runs-on: windows-2022
     steps:
     - name: Validate tag
@@ -187,6 +188,7 @@ jobs:
     if: >-
       ${{
         always() &&
+        github.ref_type == 'tag' &&
         needs.rpm.result == 'success' &&
         (contains(github.ref_name, '-pre') || needs.windows-exe.result == 'success')
       }}

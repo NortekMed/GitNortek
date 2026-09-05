@@ -6,7 +6,6 @@ Bug Fix and Feature release
 
 * Distinguish local tags from tags advertised by origin and offer guarded tag pushes only when their target commit is available on origin
 * Show a loading indicator while repository data is loading
-* Add branch and pull request Windows compilation checks
 * Add local repository workspaces with persistent organization, directory synchronization, asynchronous origin checks with pending, failure, and live status, branch and upstream status, uncommitted file summaries, README previews, search, and full repository management
 * Preserve paused workspace synchronization settings and support selecting multiple repository folders with Ctrl/Command or Shift, including typed local or network paths
 * Refine workspace interactions with responsive title-click expansion, double-click editing, preserved expansion after repository removal, confirmation before opening all repositories, and terminal or file-manager actions for the selected repository
@@ -42,6 +41,8 @@ Bug Fix and Feature release
 
 #### Changed
 
+* Restrict package jobs and release publishing to Git tag refs even if their workflow trigger is broadened later
+* Build Windows only as part of release tag packaging instead of on branch pushes and pull requests
 * Show active repository work with a spinner in the corresponding tab instead of a global busy cursor
 * Show active submodule checks and updates with a spinner at the end of the matching navigator row
 * Trigger package and prerelease automation consistently for valid prerelease tags
