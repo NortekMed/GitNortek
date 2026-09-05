@@ -43,6 +43,7 @@ Bug Fix and Feature release
 
 * Restrict package jobs and release publishing to Git tag refs even if their workflow trigger is broadened later
 * Build Windows only as part of release tag packaging instead of on branch pushes and pull requests
+* Run package artifact downloads on the Node.js 24 Actions runtime
 * Show active repository work with a spinner in the corresponding tab instead of a global busy cursor
 * Show active submodule checks and updates with a spinner at the end of the matching navigator row
 * Trigger package and prerelease automation consistently for valid prerelease tags
