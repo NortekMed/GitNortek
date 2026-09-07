@@ -207,6 +207,12 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
   mActivityTimer.setInterval(100);
   connect(&mActivityTimer, &QTimer::timeout, this, &RepoView::updateActivity);
   mActivityTimer.start();
+  mReferenceUpdateTimer.setSingleShot(true);
+  mReferenceUpdateTimer.setInterval(100);
+  connect(&mReferenceUpdateTimer, &QTimer::timeout, this, [this] {
+    emit mRepo.notifier()->referenceUpdated(
+        mRepo.lookupRef(mQueuedReferenceUpdate), true);
+  });
 
   // Start (or restart) indexing after the initial status check has completed.
   git::RepositoryNotifier *notifier = repo.notifier();
@@ -626,6 +632,7 @@ void RepoView::statusSelected(const git::WorkingTreeStatusSnapshot status,
 
 RepoView::~RepoView() {
   cancelIndexing();
+  mIndexer.disconnect();
 
   // Work around crash caused by clearing focus from the commit list
   // when it's destroyed. If it gets destroyed after the detail view
@@ -1347,7 +1354,7 @@ QFuture<git::Result> RepoView::fetch(const git::Remote &rmt, bool tags,
   mCallbacks = new RemoteCallbacks(RemoteCallbacks::Receive, entry, url,
                                    remote.name(), mWatcher, mRepo);
   connect(mCallbacks, &RemoteCallbacks::referenceUpdated, this,
-          &RepoView::notifyReferenceUpdated);
+          &RepoView::queueReferenceUpdated);
 
   entry->setBusy(true);
   mWatcher->setFuture(
@@ -4176,6 +4183,7 @@ void RepoView::closeEvent(QCloseEvent *event) {
   ++mTrackingGeneration;
   mTrackingRefreshPending = false;
   mFetchTimer.stop();
+  mReferenceUpdateTimer.stop();
   mSubmoduleUpdateCheckPending = false;
   setActiveSubmodulePaths({});
   ++mSubmoduleConfigurationGeneration;
@@ -4269,6 +4277,11 @@ CommitList *RepoView::commitList() const { return mCommits; }
 
 void RepoView::notifyReferenceUpdated(const QString &name) {
   emit mRepo.notifier()->referenceUpdated(mRepo.lookupRef(name), true);
+}
+
+void RepoView::queueReferenceUpdated(const QString &name) {
+  mQueuedReferenceUpdate = name;
+  mReferenceUpdateTimer.start();
 }
 
 void RepoView::refreshTrackingStatus() { requestTrackingStatus(); }

@@ -471,6 +471,7 @@ private:
   CommitList *commitList() const;
 
   void notifyReferenceUpdated(const QString &name);
+  void queueReferenceUpdated(const QString &name);
   void requestTrackingStatus();
 
   void updateLogToggle();
@@ -537,6 +538,8 @@ private:
 
   QTimer mFetchTimer;
   QTimer mActivityTimer;
+  QTimer mReferenceUpdateTimer;
+  QString mQueuedReferenceUpdate;
   RemoteCallbacks *mCallbacks = nullptr;
   QFutureWatcher<git::Result> *mWatcher = nullptr;
   QFutureWatcher<TrackingStatus> *mTrackingWatcher = nullptr;
