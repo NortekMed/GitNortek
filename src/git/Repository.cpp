@@ -58,6 +58,8 @@
 #include <QMutex>
 #include <QMutexLocker>
 #include <QMap>
+#include <algorithm>
+#include <climits>
 #include <QProcess>
 #include <QSaveFile>
 #include <QStandardPaths>
@@ -1615,6 +1617,26 @@ QString Repository::lastError(const QString &defaultError) {
 
   const git_error *err = git_error_last();
   return err ? err->message : tr("Unknown error");
+}
+
+Repository::AheadBehind Repository::aheadBehind(const Id &local,
+                                                const Id &upstream) const {
+  AheadBehind result;
+  if (!isValid() || !local.isValid() || !upstream.isValid()) {
+    result.error = tr("Invalid commit comparison.");
+    return result;
+  }
+
+  size_t ahead = 0;
+  size_t behind = 0;
+  if (git_graph_ahead_behind(&ahead, &behind, d->repo, local, upstream)) {
+    result.error = lastError();
+    return result;
+  }
+
+  result.ahead = static_cast<int>(std::min(ahead, size_t(INT_MAX)));
+  result.behind = static_cast<int>(std::min(behind, size_t(INT_MAX)));
+  return result;
 }
 
 QDir Repository::appDir(const QDir &dir) {

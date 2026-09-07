@@ -20,6 +20,7 @@
 #include "Worktree.h"
 #include "git2/checkout.h"
 #include "git2/errors.h"
+#include "git2/graph.h"
 #include "git2/revwalk.h"
 #include "git2/status.h"
 #include "git2/submodule.h"
@@ -69,6 +70,14 @@ public:
   struct LfsTracking {
     QStringList included;
     QStringList excluded;
+  };
+
+  struct AheadBehind {
+    int ahead = -1;
+    int behind = -1;
+    QString error;
+
+    bool isValid() const { return error.isEmpty(); }
   };
 
   Repository();
@@ -282,6 +291,8 @@ public:
   // last error
   static int lastErrorKind();
   static QString lastError(const QString &defaultError = QString());
+
+  AheadBehind aheadBehind(const Id &local, const Id &upstream) const;
 
   // Get the app dir for the given git dir.
   static QDir appDir(const QDir &dir);

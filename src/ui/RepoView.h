@@ -60,6 +60,18 @@ class RepoView : public QSplitter {
   Q_OBJECT
 
 public:
+  struct TrackingStatus {
+    git::Id head;
+    git::Id upstream;
+    int ahead = -1;
+    int behind = -1;
+    QString error;
+    bool pending = false;
+
+    bool isValid() const { return !pending && error.isEmpty() && ahead >= 0 &&
+                                  behind >= 0; }
+  };
+
   enum ViewMode {
     DoubleTree,
     // Diff,
@@ -141,6 +153,8 @@ public:
   bool isClosing() const { return mClosing; }
   void startInitialLoadProgress();
   bool hasBackgroundActivity() const;
+  TrackingStatus trackingStatus() const { return mTrackingStatus; }
+  void refreshTrackingStatus();
 
   // links
   void visitLink(const QString &link);
@@ -423,6 +437,7 @@ signals:
   void submoduleActivityChanged(const QStringList &paths);
   void manualRefreshRequested();
   void pushSucceeded(const QString &repositoryPath);
+  void trackingStatusChanged(const RepoView::TrackingStatus &status);
 
 protected:
   void paintEvent(QPaintEvent *event) override;
@@ -456,6 +471,7 @@ private:
   CommitList *commitList() const;
 
   void notifyReferenceUpdated(const QString &name);
+  void requestTrackingStatus();
 
   void updateLogToggle();
   void updateActivity();
@@ -523,6 +539,10 @@ private:
   QTimer mActivityTimer;
   RemoteCallbacks *mCallbacks = nullptr;
   QFutureWatcher<git::Result> *mWatcher = nullptr;
+  QFutureWatcher<TrackingStatus> *mTrackingWatcher = nullptr;
+  TrackingStatus mTrackingStatus;
+  quint64 mTrackingGeneration = 0;
+  bool mTrackingRefreshPending = false;
   QHash<QString, OriginTagCheck> mOriginTagChecks;
   QSet<QString> mValidatedOriginTagPushes;
   QFutureWatcher<QList<git::Submodule::UpdateStatus>> *mSubmoduleUpdateWatcher =

@@ -10,19 +10,20 @@
 #include "git/TagRef.h"
 #include "git/Worktree.h"
 #include <QUrl>
+#include <QtConcurrent>
 #include <algorithm>
 
 namespace {
 
 bool compareCommits(const git::Repository &repo, const git::Id &checkoutId,
                     const git::Id &referenceId, int &ahead, int &behind) {
-  git::Commit checkout = repo.lookupCommit(checkoutId);
-  git::Commit reference = repo.lookupCommit(referenceId);
-  if (!checkout.isValid() || !reference.isValid())
+  const git::Repository::AheadBehind counts =
+      repo.aheadBehind(checkoutId, referenceId);
+  if (!counts.isValid())
     return false;
 
-  ahead = checkout.difference(reference);
-  behind = reference.difference(checkout);
+  ahead = counts.ahead;
+  behind = counts.behind;
   return true;
 }
 
@@ -76,6 +77,8 @@ RepositoryNavigatorModel::RepositoryNavigatorModel(QObject *parent)
 
 void RepositoryNavigatorModel::setRepository(const git::Repository &repo) {
   mRefreshTimer.stop();
+  ++mBranchComparisonGeneration;
+  mBranchComparisonPending = false;
   disconnectRepository();
   beginResetModel();
   mRepo = repo;
@@ -87,6 +90,7 @@ void RepositoryNavigatorModel::setRepository(const git::Repository &repo) {
   rebuild();
   endResetModel();
   connectRepository();
+  requestBranchComparisons();
 }
 
 void RepositoryNavigatorModel::setGitHubIssuesAvailable(bool available) {
@@ -160,6 +164,7 @@ void RepositoryNavigatorModel::setSubmoduleUpdateStatuses(
   mSubmoduleUpdateStatuses = updated;
   rebuild();
   endResetModel();
+  requestBranchComparisons();
 }
 
 void RepositoryNavigatorModel::setBusySubmodulePaths(const QStringList &paths) {
@@ -340,6 +345,7 @@ void RepositoryNavigatorModel::refresh() {
   beginResetModel();
   rebuild();
   endResetModel();
+  requestBranchComparisons();
 }
 
 bool RepositoryNavigatorModel::isSection(const QModelIndex &index) const {
@@ -393,6 +399,87 @@ void RepositoryNavigatorModel::connectRepository() {
                               scheduleRefresh));
 }
 
+void RepositoryNavigatorModel::requestBranchComparisons() {
+  if (!mRepo.isValid())
+    return;
+
+  ++mBranchComparisonGeneration;
+  const quint64 generation = mBranchComparisonGeneration;
+  if (mBranchComparisonWatcher) {
+    mBranchComparisonPending = true;
+    return;
+  }
+
+  QList<BranchComparison> comparisons;
+  const SectionData &local = mSections[static_cast<int>(Section::Local)];
+  for (const Row &row : local.rows) {
+    git::Branch branch = row.reference;
+    git::Branch upstream = branch.upstream();
+    if (!upstream.isValid())
+      continue;
+
+    BranchComparison comparison;
+    comparison.name = branch.qualifiedName();
+    comparison.local = branch.target().id();
+    comparison.upstream = upstream.target().id();
+    if (comparison.local.isValid() && comparison.upstream.isValid())
+      comparisons.append(comparison);
+  }
+
+  if (comparisons.isEmpty())
+    return;
+
+  const QString repoPath = mRepo.dir(false).path();
+  auto *watcher = new QFutureWatcher<QList<BranchComparison>>(this);
+  mBranchComparisonWatcher = watcher;
+  connect(watcher, &QFutureWatcher<QList<BranchComparison>>::finished, this,
+          [this, watcher, generation] {
+            const QList<BranchComparison> comparisons = watcher->result();
+            if (mBranchComparisonWatcher == watcher)
+              mBranchComparisonWatcher = nullptr;
+            watcher->deleteLater();
+
+            if (generation == mBranchComparisonGeneration) {
+              SectionData &local =
+                  mSections[static_cast<int>(Section::Local)];
+              for (const BranchComparison &comparison : comparisons) {
+                for (int row = 0; row < local.rows.size(); ++row) {
+                  Row &item = local.rows[row];
+                  if (item.reference.qualifiedName() != comparison.name)
+                    continue;
+                  item.ahead = comparison.ahead;
+                  item.behind = comparison.behind;
+                  const QModelIndex section = sectionIndex(Section::Local);
+                  const QModelIndex index = this->index(row, 0, section);
+                  emit dataChanged(index, index, {AheadRole, BehindRole});
+                  break;
+                }
+              }
+            }
+
+            if (mBranchComparisonPending) {
+              mBranchComparisonPending = false;
+              QTimer::singleShot(0, this,
+                                 &RepositoryNavigatorModel::requestBranchComparisons);
+            }
+          });
+  watcher->setFuture(QtConcurrent::run([repoPath, comparisons] {
+    QList<BranchComparison> results = comparisons;
+    git::Repository repo = git::Repository::open(repoPath);
+    if (!repo.isValid())
+      return results;
+    for (BranchComparison &comparison : results) {
+      const git::Repository::AheadBehind counts =
+          repo.aheadBehind(comparison.local, comparison.upstream);
+      if (counts.error.isEmpty()) {
+        comparison.ahead = counts.ahead;
+        comparison.behind = counts.behind;
+      }
+    }
+    return results;
+  }));
+}
+
 void RepositoryNavigatorModel::rebuild() {
   mSections = {
       {Section::Local, tr("Local"), QString(), false, {}},
@@ -424,8 +511,8 @@ void RepositoryNavigatorModel::rebuild() {
     row.current = branch.isHead();
     git::Branch upstream = branch.upstream();
     if (upstream.isValid()) {
-      row.ahead = branch.difference(upstream);
-      row.behind = upstream.difference(branch);
+      row.ahead = -1;
+      row.behind = -1;
     }
     local.rows.append(row);
   }

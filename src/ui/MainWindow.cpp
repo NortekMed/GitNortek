@@ -433,6 +433,10 @@ RepoView *MainWindow::addTab(const git::Repository &repo,
   connect(view, &RepoView::activityChanged, tabs, [tabs, view](bool active) {
     tabs->setTabBusy(tabs->indexOf(view), active);
   });
+  connect(view, &RepoView::trackingStatusChanged, this, [this, view] {
+    if (view == currentView())
+      updateInterface();
+  });
   tabs->setTabBusy(index, view->hasBackgroundActivity());
   if (!mRestoringTabs)
     view->startInitialLoadProgress();
@@ -856,14 +860,13 @@ void MainWindow::updateInterface() {
   if (mClosing)
     return;
 
-  int ahead = 0;
-  int behind = 0;
+  int ahead = -1;
+  int behind = -1;
   if (RepoView *view = currentView()) {
-    if (git::Branch head = view->repo().head()) {
-      if (git::Branch upstream = head.upstream()) {
-        ahead = head.difference(upstream);
-        behind = upstream.difference(head);
-      }
+    const RepoView::TrackingStatus status = view->trackingStatus();
+    if (status.isValid()) {
+      ahead = status.ahead;
+      behind = status.behind;
     }
   }
 
@@ -890,22 +893,23 @@ void MainWindow::updateWindowTitle(int ahead, int behind) {
   QString name = head.isValid() ? head.name() : repo.unbornHeadName();
   QString title = tr("%1 - %2").arg(path, name);
 
-  // Add remote tracking information.
+  // Add remote tracking information without blocking on a graph walk.
   if (git::Branch branch = head) {
     if (git::Branch upstream = branch.upstream()) {
-      if (ahead < 0)
-        ahead = branch.difference(upstream);
-      if (behind < 0)
-        behind = upstream.difference(branch);
-
       QStringList parts;
-      if (ahead > 0)
+      const RepoView::TrackingStatus status = view->trackingStatus();
+      if (status.pending) {
+        parts.append(tr("checking tracking status"));
+      } else if (!status.error.isEmpty() || ahead < 0 || behind < 0) {
+        parts.append(tr("tracking status unavailable"));
+      } else if (ahead > 0) {
         parts.append(tr("ahead: %1").arg(ahead));
+      }
       if (behind > 0)
         parts.append(tr("behind: %1").arg(behind));
 
-      QString status = parts.isEmpty() ? tr("up-to-date") : parts.join(", ");
-      QString remote = tr("%1 (%2)").arg(status, upstream.name());
+      QString tracking = parts.isEmpty() ? tr("up-to-date") : parts.join(", ");
+      QString remote = tr("%1 (%2)").arg(tracking, upstream.name());
       title = tr("%1 - %2").arg(title, remote);
     }
   }

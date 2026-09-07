@@ -4,6 +4,7 @@ Bug Fix and Feature release
 
 #### Added
 
+* Calculate branch tracking status asynchronously so large repositories remain responsive
 * Distinguish local tags from tags advertised by origin and offer guarded tag pushes only when their target commit is available on origin
 * Show a loading indicator while repository data is loading
 * Add local repository workspaces with persistent organization, directory synchronization, asynchronous origin checks with pending, failure, and live status, branch and upstream status, uncommitted file summaries, README previews, search, and full repository management

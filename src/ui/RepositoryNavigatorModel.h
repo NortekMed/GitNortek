@@ -14,6 +14,7 @@
 #include "git/Submodule.h"
 #include "host/GitHub.h"
 #include <QAbstractItemModel>
+#include <QFutureWatcher>
 #include <QHash>
 #include <QTimer>
 
@@ -158,6 +159,15 @@ private:
   void connectRepository();
   void rebuild();
   void rebuildGitHubIssuesSection();
+  void requestBranchComparisons();
+
+  struct BranchComparison {
+    QString name;
+    git::Id local;
+    git::Id upstream;
+    int ahead = -1;
+    int behind = -1;
+  };
 
   git::Repository mRepo;
   QHash<QString, git::Submodule::UpdateStatus> mSubmoduleUpdateStatuses;
@@ -165,6 +175,9 @@ private:
   QList<SectionData> mSections;
   QList<QMetaObject::Connection> mConnections;
   QTimer mRefreshTimer;
+  QFutureWatcher<QList<BranchComparison>> *mBranchComparisonWatcher = nullptr;
+  quint64 mBranchComparisonGeneration = 0;
+  bool mBranchComparisonPending = false;
   bool mGitHubIssuesAvailable = false;
   LoadState mGitHubIssuesState = LoadState::Unavailable;
   GitHub::Issues mGitHubIssues;

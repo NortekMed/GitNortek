@@ -210,6 +210,8 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
 
   // Start (or restart) indexing after the initial status check has completed.
   git::RepositoryNotifier *notifier = repo.notifier();
+  connect(notifier, &git::RepositoryNotifier::referenceUpdated, this,
+          [this] { requestTrackingStatus(); });
   connect(this, &RepoView::statusChanged, this,
           [this] { startIndexing(); });
 
@@ -229,6 +231,7 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
           &RepoView::rebaseCommitSuccess);
   connect(notifier, &git::RepositoryNotifier::rebaseConflict, this,
           &RepoView::rebaseConflict);
+  QTimer::singleShot(0, this, [this] { requestTrackingStatus(); });
 
   ToolBar *toolBar = parent->toolBar();
   connect(this, &RepoView::statusChanged, toolBar, &ToolBar::updateStash);
@@ -4170,6 +4173,8 @@ void RepoView::closeEvent(QCloseEvent *event) {
   }
 
   mClosing = true;
+  ++mTrackingGeneration;
+  mTrackingRefreshPending = false;
   mFetchTimer.stop();
   mSubmoduleUpdateCheckPending = false;
   setActiveSubmodulePaths({});
@@ -4187,10 +4192,12 @@ void RepoView::finishClosing() {
     return;
 
   bool active = mIndexer.state() != QProcess::NotRunning || mWatcher ||
+                mTrackingWatcher ||
                 mSubmoduleUpdateWatcher || mSubmodulePushCheckWatcher;
   QJsonObject fields;
   fields["indexer"] = mIndexer.state() != QProcess::NotRunning;
   fields["remote"] = mWatcher != nullptr;
+  fields["tracking"] = mTrackingWatcher != nullptr;
   fields["submoduleUpdate"] = mSubmoduleUpdateWatcher != nullptr;
   fields["submodulePushCheck"] = mSubmodulePushCheckWatcher != nullptr;
   PerformanceTrace::event("close", active ? "finishClosing active"
@@ -4225,7 +4232,7 @@ void RepoView::finishInitialLoad() {
 
 bool RepoView::hasBackgroundActivity() const {
   return !mInitialLoadFinished || mWatcher || mSubmoduleUpdateWatcher ||
-         mSubmodulePushCheckWatcher;
+         mSubmodulePushCheckWatcher || mTrackingWatcher;
 }
 
 void RepoView::updateActivity() {
@@ -4262,6 +4269,97 @@ CommitList *RepoView::commitList() const { return mCommits; }
 
 void RepoView::notifyReferenceUpdated(const QString &name) {
   emit mRepo.notifier()->referenceUpdated(mRepo.lookupRef(name), true);
+}
+
+void RepoView::refreshTrackingStatus() { requestTrackingStatus(); }
+
+void RepoView::requestTrackingStatus() {
+  if (mClosing)
+    return;
+
+  TrackingStatus requested;
+  git::Branch head = mRepo.head();
+  git::Branch upstream = head ? head.upstream() : git::Branch();
+  if (!head || !upstream) {
+    if (mTrackingStatus.head.isValid() || mTrackingStatus.upstream.isValid() ||
+        mTrackingStatus.pending) {
+      ++mTrackingGeneration;
+      mTrackingStatus = requested;
+      emit trackingStatusChanged(mTrackingStatus);
+    }
+    return;
+  }
+
+  requested.head = head.target().id();
+  requested.upstream = upstream.target().id();
+  if (!requested.head.isValid() || !requested.upstream.isValid())
+    return;
+
+  if (!mTrackingStatus.pending && mTrackingStatus.isValid() &&
+      mTrackingStatus.head == requested.head &&
+      mTrackingStatus.upstream == requested.upstream)
+    return;
+
+  ++mTrackingGeneration;
+  const quint64 generation = mTrackingGeneration;
+  requested.pending = true;
+  mTrackingStatus = requested;
+  emit trackingStatusChanged(mTrackingStatus);
+
+  if (mTrackingWatcher) {
+    mTrackingRefreshPending = true;
+    return;
+  }
+
+  const QString repoPath = mRepo.dir(false).path();
+  auto *watcher = new QFutureWatcher<TrackingStatus>(this);
+  mTrackingWatcher = watcher;
+  connect(watcher, &QFutureWatcher<TrackingStatus>::finished, this,
+          [this, watcher, generation] {
+            const TrackingStatus result = watcher->result();
+            if (mTrackingWatcher == watcher)
+              mTrackingWatcher = nullptr;
+            watcher->deleteLater();
+
+            if (!mClosing && generation == mTrackingGeneration &&
+                result.head == mTrackingStatus.head &&
+                result.upstream == mTrackingStatus.upstream) {
+              mTrackingStatus = result;
+              emit trackingStatusChanged(mTrackingStatus);
+              QJsonObject fields;
+              fields["ahead"] = result.ahead;
+              fields["behind"] = result.behind;
+              fields["error"] = result.error;
+              PerformanceTrace::event("tracking", "completed",
+                                      mRepo.dir(false).path(), fields);
+            }
+
+            if (mTrackingRefreshPending && !mClosing) {
+              mTrackingRefreshPending = false;
+              QTimer::singleShot(0, this,
+                                 [this] { requestTrackingStatus(); });
+            }
+          });
+
+  QJsonObject fields;
+  fields["head"] = requested.head.toString();
+  fields["upstream"] = requested.upstream.toString();
+  PerformanceTrace::event("tracking", "requested", repoPath, fields);
+  watcher->setFuture(QtConcurrent::run([repoPath, requested] {
+    TrackingStatus result = requested;
+    git::Repository repo = git::Repository::open(repoPath);
+    if (!repo.isValid()) {
+      result.error = RepoView::tr("Unable to open repository for tracking status.");
+    } else {
+      const git::Repository::AheadBehind counts =
+          repo.aheadBehind(requested.head, requested.upstream);
+      result.ahead = counts.ahead;
+      result.behind = counts.behind;
+      result.error = counts.error;
+    }
+    result.pending = false;
+    return result;
+  }));
 }
 
 bool RepoView::checkForConflicts(LogEntry *parent, const QString &action) {
