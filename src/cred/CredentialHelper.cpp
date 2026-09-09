@@ -38,8 +38,22 @@ CredentialHelper *CredentialHelper::instance() {
   static QPointer<CredentialHelper> instance;
   if (!instance) {
     git::Config config = git::Config::global();
-    auto helperName = config.value<QString>("credential.helper");
-    if (isHelperValid(helperName)) {
+    QStringList helpers;
+    bool onlyGlobalHelpers = true;
+    for (git::Config::Iterator iter = config.glob("credential.*");;) {
+      git::Config::Entry entry = iter.next();
+      if (!entry)
+        break;
+      if (!entry.name().endsWith(".helper"))
+        continue;
+      helpers.append(entry.value<QString>());
+      onlyGlobalHelpers &= (entry.name() == "credential.helper");
+    }
+
+    // Delegate complex configuration to Git so URL matching, helper ordering,
+    // resets, and shell helpers have the same behavior as command-line Git.
+    if (helpers.size() == 1 && onlyGlobalHelpers) {
+      const QString helperName = helpers.first();
       if (helperName == cacheStoreName) {
         instance = new Cache;
       } else if (helperName == storeStoreName ||
@@ -48,8 +62,10 @@ CredentialHelper *CredentialHelper::instance() {
             QString::fromLocal8Bit(qgetenv("HOME") + "/.git-credentials");
         instance = new Store(path);
       } else {
-        instance = new GitCredential(helperName);
+        instance = new GitCredential;
       }
+    } else if (!helpers.isEmpty()) {
+      instance = new GitCredential;
     }
 
     if (!instance)

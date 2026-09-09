@@ -42,6 +42,7 @@ Bug Fix and Feature release
 
 #### Changed
 
+* Honor URL-specific Git credential helpers and prevent automatic fetches from prompting for credentials
 * Treat remote-rejected tag pushes as failures instead of reporting them as successful
 * Validate tag pushes only after they are requested, using the configured credentials and reporting actionable remote errors with retry guidance
 * Coalesce bulk fetch reference updates to keep the commit list responsive
