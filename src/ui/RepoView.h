@@ -446,15 +446,16 @@ protected:
 
 private:
   struct OriginTagCheck {
-    git::Remote::TagStatus status = git::Remote::TagStatus::Unknown;
+    git::Remote::TagStatusResult result;
     quint64 generation = 0;
-    QFutureWatcher<git::Remote::TagStatus> *watcher = nullptr;
+    QFutureWatcher<git::Remote::TagStatusResult> *watcher = nullptr;
+    bool pushPending = false;
   };
 
   QString originTagKey(const git::Reference &tag) const;
   OriginTagCheck *startOriginTagCheck(const git::Reference &tag,
                                       bool refresh = false);
-  void pushTagToOrigin(const git::Reference &tag);
+  void pushTagToOrigin(const git::Reference &tag, bool refresh = false);
   void pushRemote(const git::Remote &remote, const git::Reference &src,
                   const git::Reference &ref, const QString &dst,
                   bool setUpstream, bool force, bool tags, LogEntry *entry,

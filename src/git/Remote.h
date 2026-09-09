@@ -39,6 +39,10 @@ public:
     Pushable,
     TargetLocalOnly
   };
+  struct TagStatusResult {
+    TagStatus status = TagStatus::Unknown;
+    Result result = Result(0);
+  };
   struct PushUpdate {
     QByteArray srcName;
     QByteArray dstName;
@@ -157,7 +161,7 @@ public:
               bool tags = false);
 
   // Inspect the remote advertisement without creating local tracking refs.
-  TagStatus tagStatus(const Reference &tag) const;
+  TagStatusResult tagStatus(Callbacks *callbacks, const Reference &tag) const;
 
   static Result clone(Callbacks *callbacks, const QString &url,
                       const QString &path, bool bare = false);

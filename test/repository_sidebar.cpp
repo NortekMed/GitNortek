@@ -2291,14 +2291,13 @@ void TestRepositorySideBar::tagPushToOrigin() {
   QAction *pushReachable = actionFor(reachableMenu);
   QVERIFY(pushReachable);
   QCOMPARE(pushReachable->text(), "Push Tag v2 to origin");
-  QTRY_VERIFY(pushReachable->isEnabled());
+  QVERIFY(pushReachable->isEnabled());
+  QVERIFY(!pushReachable->toolTip().contains("Checking"));
 
   auto originHasTag = [&origin](const QString &name) {
     QProcess check;
-    check.start(
-        GIT_EXECUTABLE,
-        {"--git-dir", origin.path(), "show-ref", "--verify",
-         "refs/tags/" + name});
+    check.start(GIT_EXECUTABLE, {"--git-dir", origin.path(), "show-ref",
+                                 "--verify", "refs/tags/" + name});
     return check.waitForFinished() && check.exitCode() == 0;
   };
   QVERIFY(originHasTag("v1"));
@@ -2318,9 +2317,10 @@ void TestRepositorySideBar::tagPushToOrigin() {
   QAction *pushPresent = actionFor(presentMenu);
   QVERIFY(pushPresent);
   QCOMPARE(pushPresent->text(), "Push Tag v1 to origin");
-  QTRY_VERIFY(!pushPresent->toolTip().contains("Checking"));
-  QVERIFY(!pushPresent->isEnabled());
-  QVERIFY(pushPresent->toolTip().contains("already present on origin"));
+  QVERIFY(pushPresent->isEnabled());
+  pushPresent->trigger();
+  QTest::qWait(100);
+  QVERIFY(originHasTag("v1"));
 
   QVERIFY(repo->commit("local only").isValid());
   const git::TagRef localOnly =
@@ -2330,9 +2330,25 @@ void TestRepositorySideBar::tagPushToOrigin() {
   view->populateReferenceContextMenu(&localOnlyMenu, localOnly);
   QAction *pushLocalOnly = actionFor(localOnlyMenu);
   QVERIFY(pushLocalOnly);
-  QTRY_VERIFY(!pushLocalOnly->toolTip().contains("Checking"));
-  QVERIFY(!pushLocalOnly->isEnabled());
-  QVERIFY(pushLocalOnly->toolTip().contains("not reachable from origin"));
+  QVERIFY(pushLocalOnly->isEnabled());
+  pushLocalOnly->trigger();
+  QTest::qWait(100);
+  QVERIFY(!originHasTag("local-only"));
+
+  const git::TagRef retry = repo->createTag(reachable.target(), "retry");
+  QVERIFY(retry.isValid());
+  QMenu retryMenu;
+  view->populateReferenceContextMenu(&retryMenu, retry);
+  QAction *pushRetry = actionFor(retryMenu);
+  QVERIFY(pushRetry);
+  repo->lookupRemote("origin").setUrl(origin.path() + "/missing");
+  pushRetry->trigger();
+  QTest::qWait(100);
+  QVERIFY(!originHasTag("retry"));
+
+  repo->lookupRemote("origin").setUrl(origin.path());
+  pushRetry->trigger();
+  QTRY_VERIFY(originHasTag("retry"));
 
   // The public push entry point must not bypass the contextual validation.
   view->push(repo->lookupRemote("origin"), localOnly);

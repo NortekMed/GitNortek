@@ -642,22 +642,22 @@ Result Remote::push(Callbacks *callbacks, const Reference &src,
   return push(callbacks, refspecs);
 }
 
-Remote::TagStatus Remote::tagStatus(const Reference &tag) const {
-  if (!isValid() || !tag.isTag())
-    return TagStatus::Unknown;
+Remote::TagStatusResult Remote::tagStatus(Callbacks *callbacks,
+                                          const Reference &tag) const {
+  if (!isValid() || !callbacks || !tag.isTag())
+    return {TagStatus::Unknown, Result(GIT_EINVALID)};
 
   git_repository *repo = git_remote_owner(d.data());
   git_remote *remote = nullptr;
-  if (git_remote_create_anonymous(&remote, repo, url().toUtf8()))
-    return TagStatus::Unknown;
+  if (int error = git_remote_create_anonymous(&remote, repo, url().toUtf8()))
+    return {TagStatus::Unknown, Result(error)};
 
-  Callbacks callbacks(url(), Repository(repo));
   git_remote_callbacks opts = GIT_REMOTE_CALLBACKS_INIT;
   opts.sideband_progress = &Callbacks::sideband;
   opts.credentials = &Callbacks::credentials;
   opts.certificate_check = &Callbacks::certificate;
   opts.remote_ready = &Callbacks::remoteReady;
-  opts.payload = &callbacks;
+  opts.payload = callbacks;
   git_proxy_options proxyOpts = GIT_PROXY_OPTIONS_INIT;
   QByteArray proxy = proxyUrl(url(), proxyOpts.type);
   proxyOpts.url = proxy;
@@ -669,9 +669,10 @@ Remote::TagStatus Remote::tagStatus(const Reference &tag) const {
   if (!error)
     error = git_remote_ls(&heads, &count, remote);
   if (error) {
+    Result result(error);
     git_remote_disconnect(remote, &opts);
     git_remote_free(remote);
-    return TagStatus::Unknown;
+    return {TagStatus::Unknown, result};
   }
 
   const QByteArray tagName = tag.qualifiedName().toUtf8();
@@ -686,7 +687,7 @@ Remote::TagStatus Remote::tagStatus(const Reference &tag) const {
   if (git_oid_fromstrn(&target, targetName, targetName.size())) {
     git_remote_disconnect(remote, &opts);
     git_remote_free(remote);
-    return TagStatus::Unknown;
+    return {TagStatus::Unknown, Result(GIT_EINVALID)};
   }
   bool reachable = false;
   for (size_t i = 0; i < count; ++i) {
@@ -694,8 +695,9 @@ Remote::TagStatus Remote::tagStatus(const Reference &tag) const {
     if (!qstrcmp(head->name, tagName.constData())) {
       git_remote_disconnect(remote, &opts);
       git_remote_free(remote);
-      return localTagId == Id(&head->oid) ? TagStatus::Present
-                                           : TagStatus::Conflict;
+      return {localTagId == Id(&head->oid) ? TagStatus::Present
+                                           : TagStatus::Conflict,
+              Result(0)};
     }
     if (!qstrncmp(head->name, "refs/heads/", 11) &&
         (!git_oid_cmp(&target, &head->oid) ||
@@ -705,7 +707,8 @@ Remote::TagStatus Remote::tagStatus(const Reference &tag) const {
 
   git_remote_disconnect(remote, &opts);
   git_remote_free(remote);
-  return reachable ? TagStatus::Pushable : TagStatus::TargetLocalOnly;
+  return {reachable ? TagStatus::Pushable : TagStatus::TargetLocalOnly,
+          Result(0)};
 }
 
 Result Remote::clone(Callbacks *callbacks, const QString &url,

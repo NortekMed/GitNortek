@@ -1982,7 +1982,7 @@ void RepoView::push(const git::Remote &rmt, const git::Reference &src,
       remote.name() == QStringLiteral("origin")) {
     const QString key = originTagKey(ref);
     if (mValidatedOriginTagPushes.remove(key) == 0) {
-      pushTagToOrigin(ref);
+      pushTagToOrigin(ref, true);
       return;
     }
   }
@@ -2217,48 +2217,70 @@ RepoView::startOriginTagCheck(const git::Reference &tag, bool refresh) {
   if (!origin.isValid())
     return &check;
 
-  check.status = git::Remote::TagStatus::Unknown;
+  check.result = {};
   ++check.generation;
   const quint64 generation = check.generation;
-  auto *watcher = new QFutureWatcher<git::Remote::TagStatus>(this);
+  auto *watcher = new QFutureWatcher<git::Remote::TagStatusResult>(this);
+  auto *callbacks =
+      new RemoteCallbacks(RemoteCallbacks::Receive, nullptr, origin.url(),
+                          origin.name(), watcher, mRepo, true, this);
   check.watcher = watcher;
-  connect(watcher, &QFutureWatcher<git::Remote::TagStatus>::finished, this,
-          [this, key, generation, watcher] {
+  connect(watcher, &QFutureWatcher<git::Remote::TagStatusResult>::finished,
+          this, [this, callbacks, key, generation, watcher] {
             auto it = mOriginTagChecks.find(key);
             if (it != mOriginTagChecks.end() && it->generation == generation &&
                 it->watcher == watcher) {
-              it->status = watcher->result();
+              it->result = watcher->result();
               it->watcher = nullptr;
+              if (!it->result.result.error())
+                callbacks->storeDeferredCredentials();
             }
             watcher->deleteLater();
           });
-  watcher->setFuture(
-      QtConcurrent::run([origin, tag] { return origin.tagStatus(tag); }));
+  watcher->setFuture(QtConcurrent::run(
+      [origin, callbacks, tag] { return origin.tagStatus(callbacks, tag); }));
   return &check;
 }
 
-void RepoView::pushTagToOrigin(const git::Reference &tag) {
-  OriginTagCheck *check = startOriginTagCheck(tag);
+void RepoView::pushTagToOrigin(const git::Reference &tag, bool refresh) {
+  OriginTagCheck *check = startOriginTagCheck(tag, refresh);
   const QString key = originTagKey(tag);
   if (check->watcher) {
-    connect(check->watcher, &QFutureWatcher<git::Remote::TagStatus>::finished,
-            this, [this, tag] { pushTagToOrigin(tag); });
+    if (!check->pushPending) {
+      check->pushPending = true;
+      connect(check->watcher,
+              &QFutureWatcher<git::Remote::TagStatusResult>::finished, this,
+              [this, key, tag] {
+                auto it = mOriginTagChecks.find(key);
+                if (it != mOriginTagChecks.end())
+                  it->pushPending = false;
+                pushTagToOrigin(tag);
+              });
+    }
     return;
   }
 
-  if (check->status == git::Remote::TagStatus::Pushable) {
+  if (check->result.status == git::Remote::TagStatus::Pushable) {
     mValidatedOriginTagPushes.insert(key);
     push(mRepo.lookupRemote(QStringLiteral("origin")), tag);
     return;
   }
 
   LogEntry *entry = addLogEntry(tag.name(), tr("Push Tag to origin"));
-  if (check->status == git::Remote::TagStatus::Present) {
+  if (check->result.result.error()) {
+    LogEntry *errorEntry =
+        error(entry, tr("validate tag against"), QStringLiteral("origin"),
+              check->result.result.errorString(tr("Unknown remote error")));
+    errorEntry->addEntry(
+        LogEntry::Hint,
+        tr("Check the connection and credentials, then try pushing the tag "
+           "again."));
+  } else if (check->result.status == git::Remote::TagStatus::Present) {
     entry->addEntry(tr("The tag is already present on origin."));
-  } else if (check->status == git::Remote::TagStatus::Conflict) {
+  } else if (check->result.status == git::Remote::TagStatus::Conflict) {
     entry->addEntry(LogEntry::Error,
                     tr("Origin has a different tag with this name."));
-  } else if (check->status == git::Remote::TagStatus::TargetLocalOnly) {
+  } else if (check->result.status == git::Remote::TagStatus::TargetLocalOnly) {
     entry->addEntry(LogEntry::Error,
                     tr("The tag's target commit is not reachable from origin."
                        " Push the commit to origin before pushing this tag."));
@@ -2779,37 +2801,8 @@ void RepoView::addPushTagToOriginAction(QMenu *menu,
   if (!origin.isValid())
     return;
 
-  const QString key = originTagKey(tag);
-  OriginTagCheck *check = startOriginTagCheck(tag, true);
-  QAction *pushTag = menu->addAction(
-      tr("Push Tag %1 to origin").arg(tag.name()), this,
-      [this, tag] { pushTagToOrigin(tag); });
-  auto updatePushTag = [this, pushTag, key] {
-        const auto it = mOriginTagChecks.constFind(key);
-        const git::Remote::TagStatus status =
-            it == mOriginTagChecks.cend() ? git::Remote::TagStatus::Unknown
-                                          : it->status;
-        const bool pending = it != mOriginTagChecks.cend() && it->watcher;
-        pushTag->setEnabled(status == git::Remote::TagStatus::Pushable);
-        if (pending)
-          pushTag->setToolTip(
-              tr("Checking whether this tag is present on origin."));
-        else if (status == git::Remote::TagStatus::Present)
-          pushTag->setToolTip(tr("This tag is already present on origin."));
-        else if (status == git::Remote::TagStatus::Conflict)
-          pushTag->setToolTip(
-              tr("Origin has a different tag with this name."));
-        else if (status == git::Remote::TagStatus::TargetLocalOnly)
-          pushTag->setToolTip(
-              tr("The tag's target commit is not reachable from origin."));
-        else
-          pushTag->setToolTip(
-              tr("Unable to validate this tag against origin."));
-  };
-  updatePushTag();
-  if (check->watcher)
-    connect(check->watcher, &QFutureWatcher<git::Remote::TagStatus>::finished,
-            pushTag, updatePushTag);
+  menu->addAction(tr("Push Tag %1 to origin").arg(tag.name()), this,
+                  [this, tag] { pushTagToOrigin(tag, true); });
 }
 
 void RepoView::promptToStash() {
