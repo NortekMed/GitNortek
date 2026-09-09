@@ -2337,6 +2337,9 @@ void RepoView::pushRemote(const git::Remote &remote, const git::Reference &src,
               errorEntry->addEntry(LogEntry::Warning, hint2);
             }
           }
+        } else if (mCallbacks->wasRejected()) {
+          if (remote.name() == QStringLiteral("origin") && ref.isTag())
+            mOriginTagChecks.remove(originTagKey(ref));
         } else {
           mCallbacks->storeDeferredCredentials();
           if (entry->entries().isEmpty())

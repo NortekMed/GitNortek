@@ -42,6 +42,7 @@ Bug Fix and Feature release
 
 #### Changed
 
+* Treat remote-rejected tag pushes as failures instead of reporting them as successful
 * Validate tag pushes only after they are requested, using the configured credentials and reporting actionable remote errors with retry guidance
 * Coalesce bulk fetch reference updates to keep the commit list responsive
 * Restrict package jobs and release publishing to Git tag refs even if their workflow trigger is broadened later
