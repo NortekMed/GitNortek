@@ -438,6 +438,7 @@ signals:
   void manualRefreshRequested();
   void pushSucceeded(const QString &repositoryPath);
   void trackingStatusChanged(const RepoView::TrackingStatus &status);
+  void originTagStatusChanged(const QString &key);
 
 protected:
   void paintEvent(QPaintEvent *event) override;

@@ -2306,11 +2306,19 @@ void TestRepositorySideBar::tagPushToOrigin() {
   pushReachable->trigger();
   QCOMPARE(pushTriggered.count(), 1);
   QTRY_VERIFY(originHasTag("v2"));
+  QTRY_VERIFY(!view->hasBackgroundActivity());
   git::Repository published = git::Repository::open(origin.path());
   QVERIFY(published.isValid());
   QCOMPARE(published.lookupRef("refs/tags/v2").target().id(),
            missing.target().id());
   QVERIFY(originHasTag("v1"));
+
+  QMenu pushedMenu;
+  view->populateReferenceContextMenu(&pushedMenu, missing);
+  QAction *pushPushed = actionFor(pushedMenu);
+  QVERIFY(pushPushed);
+  QVERIFY(!pushPushed->isEnabled());
+  QVERIFY(pushPushed->toolTip().contains("already present on origin"));
 
   QMenu presentMenu;
   view->populateReferenceContextMenu(&presentMenu, reachable);
@@ -2319,8 +2327,16 @@ void TestRepositorySideBar::tagPushToOrigin() {
   QCOMPARE(pushPresent->text(), "Push Tag v1 to origin");
   QVERIFY(pushPresent->isEnabled());
   pushPresent->trigger();
-  QTest::qWait(100);
+  QTRY_VERIFY(!view->hasBackgroundActivity());
   QVERIFY(originHasTag("v1"));
+
+  QMenu checkedMenu;
+  view->populateReferenceContextMenu(&checkedMenu, reachable);
+  QAction *pushChecked = actionFor(checkedMenu);
+  QVERIFY(pushChecked);
+  QTRY_VERIFY(!pushPresent->isEnabled());
+  QVERIFY(!pushChecked->isEnabled());
+  QVERIFY(pushChecked->toolTip().contains("already present on origin"));
 
   QVERIFY(repo->commit("local only").isValid());
   const git::TagRef localOnly =

@@ -2235,6 +2235,7 @@ RepoView::startOriginTagCheck(const git::Reference &tag, bool refresh) {
               it->watcher = nullptr;
               if (!it->result.result.error())
                 callbacks->storeDeferredCredentials();
+              emit originTagStatusChanged(key);
             }
             watcher->deleteLater();
           });
@@ -2355,9 +2356,13 @@ void RepoView::pushRemote(const git::Remote &remote, const git::Reference &src,
               head.setUpstream(upstream);
             }
           }
+          if (remote.name() == QStringLiteral("origin") && ref.isTag()) {
+            OriginTagCheck &check = mOriginTagChecks[originTagKey(ref)];
+            check.result.status = git::Remote::TagStatus::Present;
+            check.result.result = git::Result(0);
+            emit originTagStatusChanged(originTagKey(ref));
+          }
           emit pushSucceeded(mRepo.workdir().canonicalPath());
-          if (remote.name() == QStringLiteral("origin") && ref.isTag())
-            mOriginTagChecks.remove(originTagKey(ref));
         }
 
         mWatcher->deleteLater();
@@ -2805,8 +2810,24 @@ void RepoView::addPushTagToOriginAction(QMenu *menu,
   if (!origin.isValid())
     return;
 
-  menu->addAction(tr("Push Tag %1 to origin").arg(tag.name()), this,
-                  [this, tag] { pushTagToOrigin(tag, true); });
+  QAction *pushTag = menu->addAction(
+      tr("Push Tag %1 to origin").arg(tag.name()), this,
+      [this, tag] { pushTagToOrigin(tag, true); });
+  const QString key = originTagKey(tag);
+  const auto updatePushTag = [this, pushTag, key] {
+    const auto it = mOriginTagChecks.constFind(key);
+    const bool present = it != mOriginTagChecks.cend() &&
+                         it->result.status == git::Remote::TagStatus::Present;
+    pushTag->setEnabled(!present);
+    pushTag->setToolTip(
+        present ? tr("The tag is already present on origin.") : QString());
+  };
+  updatePushTag();
+  connect(this, &RepoView::originTagStatusChanged, pushTag,
+          [key, updatePushTag](const QString &changedKey) {
+            if (changedKey == key)
+              updatePushTag();
+          });
 }
 
 void RepoView::promptToStash() {
