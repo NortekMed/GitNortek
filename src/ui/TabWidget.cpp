@@ -21,6 +21,7 @@
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QPushButton>
+#include <QSizePolicy>
 #include <QStackedWidget>
 #include <QVBoxLayout>
 
@@ -142,6 +143,8 @@ private:
 } // namespace
 
 TabWidget::TabWidget(QWidget *parent) : QWidget(parent) {
+  setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
+
   mTabStrip = new RepositoryTabStrip(this);
   mStack = new QStackedWidget(this);
 

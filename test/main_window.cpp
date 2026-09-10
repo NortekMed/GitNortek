@@ -58,6 +58,7 @@ private slots:
   void initialLoadProgressStartedLate();
   void notifierConnectionsRespectReceiverLifetime();
   void show();
+  void fitsCinnamonUpperTile();
   void singleRepositoryTabVisible();
   void adaptiveRepositoryTabs();
   void focusUpdatesOnlyEditorActions();
@@ -181,6 +182,12 @@ void TestMainWindow::notifierConnectionsRespectReceiverLifetime() {
 void TestMainWindow::show() {
   mWindow->show();
   QVERIFY(qWaitForWindowActive(mWindow));
+}
+
+void TestMainWindow::fitsCinnamonUpperTile() {
+  // Cinnamon's Super+Up tile is half of a 1080px work area.
+  const int minimumHeight = mWindow->minimumSizeHint().height();
+  QVERIFY2(minimumHeight <= 525, qPrintable(QString::number(minimumHeight)));
 }
 
 void TestMainWindow::singleRepositoryTabVisible() {

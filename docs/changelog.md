@@ -42,6 +42,7 @@ Bug Fix and Feature release
 
 #### Changed
 
+* Allow GitNortek windows to fit Cinnamon's upper-half window tile
 * Disable tag push actions after confirming the tag is present on origin
 * Honor URL-specific Git credential helpers and prevent automatic fetches from prompting for credentials
 * Treat remote-rejected tag pushes as failures instead of reporting them as successful
