@@ -13,6 +13,9 @@ protected:
   void paintEvent(QPaintEvent *event) override {
     QPainter painter(this);
     initButtonPainter(&painter);
+    QPen pen = painter.pen();
+    pen.setColor(Qt::red);
+    painter.setPen(pen);
 
     qreal r = 4;
     qreal x = width() / 2;

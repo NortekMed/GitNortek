@@ -42,6 +42,7 @@ Bug Fix and Feature release
 
 #### Changed
 
+* Color file and hunk discard controls red to identify destructive actions
 * Allow GitNortek windows to fit Cinnamon's upper-half window tile
 * Disable tag push actions after confirming the tag is present on origin
 * Honor URL-specific Git credential helpers and prevent automatic fetches from prompting for credentials
