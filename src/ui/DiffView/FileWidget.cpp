@@ -798,7 +798,8 @@ void FileWidget::rebuildPresentation(int generation) {
     mCompleteDiff->deleteLater();
   }
   mCompleteDiff =
-      new CompleteFileDiffWidget(mDiff, mPatch, mHunks, mode, mPresentation);
+      new CompleteFileDiffWidget(mDiff, mPatch, mHunks, mode, mPresentation,
+                                 mView);
   mCompleteDiffMode = mode;
   mCompleteDiffIgnoresWhitespace = ignoreWhitespace;
   connect(mCompleteDiff, &CompleteFileDiffWidget::stageLinesRequested, this,

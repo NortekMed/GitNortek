@@ -55,6 +55,7 @@ public:
   };
 
   enum Style {
+    ModifiedBlockLineNumber = STYLE_MAX - 5,
     EofNewline = STYLE_MAX - 4,
     CommentBody,
     CommentAuthor,

@@ -18,6 +18,7 @@
 #include "git/Tree.h"
 #include <QFile>
 #include <QPushButton>
+#include <QToolButton>
 
 #define INIT_REPO(repoPath, /* bool */ useTempDir)                             \
   QString path = Test::extractRepository(repoPath, useTempDir);                \
@@ -985,6 +986,58 @@ void TestEditorLineInfo::completeFilePresentationModes() {
       completeText.isEmpty() ? 1 : completeText.count('\n') + 1;
   QVERIFY(inlineEditor->lineCount() >= completeLineCount);
 
+  auto modifiedBlockStarts = [](TextEditor *editor) {
+    QList<int> result;
+    bool previousModified = false;
+    for (int line = 0; line < editor->lineCount(); ++line) {
+      const int markers = editor->markers(line);
+      const bool modified = BITSET(markers, TextEditor::Deletion) ||
+                            BITSET(markers, TextEditor::Addition);
+      if (modified && !previousModified)
+        result.append(line);
+      previousModified = modified;
+    }
+    return result;
+  };
+  auto checkLineNumberHighlight = [](TextEditor *editor, int highlightedLine) {
+    for (int line = 0; line < editor->lineCount(); ++line) {
+      const int expected = line == highlightedLine
+                               ? TextEditor::ModifiedBlockLineNumber
+                               : STYLE_LINENUMBER;
+      QCOMPARE(editor->marginStyle(line), expected);
+    }
+  };
+
+  QToolButton *inlinePrevious =
+      inlineView->findChild<QToolButton *>("PreviousModifiedBlock");
+  QToolButton *inlineNext =
+      inlineView->findChild<QToolButton *>("NextModifiedBlock");
+  QVERIFY(inlinePrevious);
+  QVERIFY(inlineNext);
+  QVERIFY(!inlinePrevious->icon().isNull());
+  QVERIFY(!inlineNext->icon().isNull());
+  QVERIFY(inlinePrevious->styleSheet().contains("#f0a020"));
+  QCOMPARE(inlineEditor->marginTypeN(TextEditor::LineNumber), SC_MARGIN_RTEXT);
+  const QList<int> inlineBlocks = modifiedBlockStarts(inlineEditor);
+  QVERIFY(inlineBlocks.size() > 1);
+  QVERIFY(!inlinePrevious->isEnabled());
+  QVERIFY(inlineNext->isEnabled());
+  checkLineNumberHighlight(inlineEditor, -1);
+  for (int i = 0; i < inlineBlocks.size(); ++i) {
+    inlineNext->click();
+    QCOMPARE(inlineEditor->lineFromPosition(inlineEditor->currentPos()),
+             inlineBlocks.at(i));
+    checkLineNumberHighlight(inlineEditor, inlineBlocks.at(i));
+    QCOMPARE(inlinePrevious->isEnabled(), i > 0);
+    QCOMPARE(inlineNext->isEnabled(), i + 1 < inlineBlocks.size());
+  }
+  for (int i = inlineBlocks.size() - 2; i >= 0; --i) {
+    inlinePrevious->click();
+    QCOMPARE(inlineEditor->lineFromPosition(inlineEditor->currentPos()),
+             inlineBlocks.at(i));
+    checkLineNumberHighlight(inlineEditor, inlineBlocks.at(i));
+  }
+
   auto hasWordHighlight = [](TextEditor *editor) {
     for (int position = 0; position < editor->length(); ++position) {
       if (editor->indicatorValueAt(TextEditor::WordDeletion, position) ||
@@ -1029,6 +1082,42 @@ void TestEditorLineInfo::completeFilePresentationModes() {
   QCOMPARE(splitFile.editors().size(), 2);
   QCOMPARE(splitFile.editors().at(0)->lineCount(),
            splitFile.editors().at(1)->lineCount());
+
+  auto *splitPrevious =
+      splitView->findChild<QToolButton *>("PreviousModifiedBlock");
+  auto *splitNext = splitView->findChild<QToolButton *>("NextModifiedBlock");
+  QVERIFY(splitPrevious);
+  QVERIFY(splitNext);
+  const QList<int> splitBlocks = [&splitFile] {
+    TextEditor *oldEditor = splitFile.editors().first();
+    TextEditor *newEditor = splitFile.editors().last();
+    QList<int> result;
+    bool previousModified = false;
+    for (int line = 0; line < oldEditor->lineCount(); ++line) {
+      const int markers = oldEditor->markers(line) | newEditor->markers(line);
+      const bool modified = BITSET(markers, TextEditor::Deletion) ||
+                            BITSET(markers, TextEditor::Addition);
+      if (modified && !previousModified)
+        result.append(line);
+      previousModified = modified;
+    }
+    return result;
+  }();
+  QCOMPARE(splitBlocks.size(), inlineBlocks.size());
+  QVERIFY(!splitPrevious->isEnabled());
+  QVERIFY(splitNext->isEnabled());
+  for (TextEditor *editor : splitFile.editors())
+    checkLineNumberHighlight(editor, -1);
+  for (int i = 0; i < splitBlocks.size(); ++i) {
+    splitNext->click();
+    for (TextEditor *editor : splitFile.editors()) {
+      QCOMPARE(editor->lineFromPosition(editor->currentPos()),
+               splitBlocks.at(i));
+      checkLineNumberHighlight(editor, splitBlocks.at(i));
+    }
+  }
+  QVERIFY(splitPrevious->isEnabled());
+  QVERIFY(!splitNext->isEnabled());
 
   Settings::instance()->setTextEditorWrapLines(true);
   QCOMPARE(splitFile.editors().first()->wrapMode(), SC_WRAP_WORD);

@@ -1,13 +1,43 @@
 #include "CompleteFileDiffWidget.h"
+#include "DiffView.h"
 #include "Editor.h"
 #include "HunkWidget.h"
 #include "git/Blob.h"
 #include "git/Repository.h"
+#include <QEvent>
 #include <QFile>
 #include <QHBoxLayout>
 #include <QRegularExpression>
+#include <QScrollBar>
+#include <QStyle>
+#include <QToolButton>
+#include <QVBoxLayout>
+#include <QTimer>
 
 namespace {
+
+constexpr int kNavigationWidth = 40;
+constexpr int kNavigationButtonSize = 28;
+constexpr int kNavigationHeight = 66;
+const QColor kNavigationHighlight(240, 160, 32);
+const QColor kNavigationHighlightText(60, 37, 0);
+
+const QString kNavigationStyle = QStringLiteral("QToolButton {"
+                                                "  background-color: #f0a020;"
+                                                "  border: 1px solid #d88e14;"
+                                                "  border-radius: 3px;"
+                                                "  padding: 2px;"
+                                                "}"
+                                                "QToolButton:hover {"
+                                                "  background-color: #ffb52e;"
+                                                "}"
+                                                "QToolButton:pressed {"
+                                                "  background-color: #d98200;"
+                                                "}"
+                                                "QToolButton:disabled {"
+                                                "  background-color: #c9af82;"
+                                                "  border-color: #b59a6d;"
+                                                "}");
 
 QStringList splitLines(const QByteArray &content, const git::Repository &repo) {
   QString text = repo.decode(content);
@@ -38,20 +68,34 @@ QString edgeTrimmed(const QString &text) {
 
 } // namespace
 
-CompleteFileDiffWidget::CompleteFileDiffWidget(
-    const git::Diff &diff, const git::Patch &patch,
-    const QList<HunkWidget *> &hunks, Settings::DiffMode mode, QWidget *parent)
-    : QWidget(parent), mDiff(diff), mPatch(patch), mHunks(hunks), mMode(mode) {
+CompleteFileDiffWidget::CompleteFileDiffWidget(const git::Diff &diff,
+                                               const git::Patch &patch,
+                                               const QList<HunkWidget *> &hunks,
+                                               Settings::DiffMode mode,
+                                               QWidget *parent, DiffView *view)
+    : QWidget(parent), mDiff(diff), mPatch(patch), mHunks(hunks), mMode(mode),
+      mView(view) {
   setObjectName(mode == Settings::DiffMode::Split ? "SplitFileDiff"
                                                   : "InlineFileDiff");
   QHBoxLayout *layout = new QHBoxLayout(this);
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(mode == Settings::DiffMode::Split ? 1 : 0);
 
-  auto createEditor = [this, layout] {
+  auto createEditor = [this] {
     Editor *editor = new Editor(this);
     editor->setObjectName("CompleteFileEditor");
     editor->setLexer(mPatch.name());
+    editor->setMarginTypeN(TextEditor::Margin::LineNumber, SC_MARGIN_RTEXT);
+    auto updateLineNumberStyle = [editor] {
+      editor->styleSetFont(TextEditor::ModifiedBlockLineNumber,
+                           editor->styleFont(STYLE_LINENUMBER));
+      editor->styleSetFore(TextEditor::ModifiedBlockLineNumber,
+                           kNavigationHighlightText);
+      editor->styleSetBack(TextEditor::ModifiedBlockLineNumber,
+                           kNavigationHighlight);
+    };
+    updateLineNumberStyle();
+    connect(editor, &TextEditor::settingsChanged, this, updateLineNumberStyle);
     editor->setCaretStyle(CARETSTYLE_INVISIBLE);
     editor->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     editor->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
@@ -66,17 +110,32 @@ CompleteFileDiffWidget::CompleteFileDiffWidget(
             [this, editor](int start, int end) {
               emit stageLinesRequested(targets(editor, start, end), false);
             });
-    layout->addWidget(editor, 1);
     return editor;
   };
 
   if (mode == Settings::DiffMode::Split) {
     mOld = createEditor();
+    mNavigationSlot = new QWidget(this);
+    mNavigationSlot->setObjectName("ModifiedBlockNavigationSlot");
+    mNavigationSlot->setFixedWidth(kNavigationWidth);
+    mNavigationSlot->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     mNew = createEditor();
+    layout->addWidget(mOld, 1);
+    layout->addWidget(mNavigationSlot);
+    layout->addWidget(mNew, 1);
   } else {
     mInline = createEditor();
+    mNavigationSlot = new QWidget(this);
+    mNavigationSlot->setObjectName("ModifiedBlockNavigationSlot");
+    mNavigationSlot->setFixedWidth(kNavigationWidth);
+    mNavigationSlot->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    layout->addWidget(mInline, 1);
+    layout->addWidget(mNavigationSlot);
   }
+
+  createNavigation();
   reload();
+  QTimer::singleShot(0, this, [this] { updateNavigationGeometry(); });
 }
 
 QList<TextEditor *> CompleteFileDiffWidget::editors() const {
@@ -96,12 +155,187 @@ bool CompleteFileDiffWidget::containsEditor(TextEditor *editor) const {
 
 void CompleteFileDiffWidget::reload() {
   mRows = rows();
+  updateModifiedBlocks();
   if (mInline)
     loadEditor(mInline, false, mRows);
   if (mOld)
     loadEditor(mOld, true, mRows);
   if (mNew)
     loadEditor(mNew, false, mRows);
+  updateNavigationGeometry();
+}
+
+void CompleteFileDiffWidget::createNavigation() {
+  mNavigation = new QWidget(this);
+  mNavigation->setObjectName("ModifiedBlockNavigation");
+  mNavigation->setFixedSize(kNavigationWidth, kNavigationHeight);
+
+  QVBoxLayout *layout = new QVBoxLayout(mNavigation);
+  layout->setContentsMargins(4, 4, 4, 4);
+  layout->setSpacing(2);
+
+  auto createButton = [this](const char *objectName, const QString &name,
+                             QStyle::StandardPixmap icon) {
+    QToolButton *button = new QToolButton(mNavigation);
+    button->setObjectName(objectName);
+    button->setAccessibleName(name);
+    button->setToolTip(name);
+    button->setIcon(style()->standardIcon(icon));
+    button->setIconSize(QSize(16, 16));
+    button->setFixedSize(kNavigationButtonSize, kNavigationButtonSize);
+    button->setStyleSheet(kNavigationStyle);
+    button->setAutoRaise(false);
+    return button;
+  };
+
+  mPreviousBlock =
+      createButton("PreviousModifiedBlock", tr("Previous modified block"),
+                   QStyle::SP_ArrowUp);
+  mNextBlock = createButton("NextModifiedBlock", tr("Next modified block"),
+                            QStyle::SP_ArrowDown);
+  layout->addWidget(mPreviousBlock);
+  layout->addWidget(mNextBlock);
+
+  connect(mPreviousBlock, &QToolButton::clicked, this,
+          [this] { navigateModifiedBlock(-1); });
+  connect(mNextBlock, &QToolButton::clicked, this,
+          [this] { navigateModifiedBlock(1); });
+
+  if (mView) {
+    connect(mView->verticalScrollBar(), &QScrollBar::valueChanged, this,
+            [this] { updateNavigationGeometry(); });
+    mView->viewport()->installEventFilter(this);
+  }
+}
+
+void CompleteFileDiffWidget::updateModifiedBlocks() {
+  mModifiedBlocks.clear();
+  mCurrentBlock = -1;
+  updateLineNumberHighlight();
+
+  int editorLine = 0;
+  int blockStart = -1;
+  auto addLine = [&](bool modified) {
+    if (modified) {
+      if (blockStart < 0)
+        blockStart = editorLine;
+    } else if (blockStart >= 0) {
+      mModifiedBlocks.append({blockStart, editorLine - 1});
+      blockStart = -1;
+    }
+    ++editorLine;
+  };
+
+  for (const Row &row : mRows) {
+    if (mMode == Settings::DiffMode::Inline) {
+      if (row.deletion)
+        addLine(true);
+      if (row.addition)
+        addLine(true);
+      if (!row.deletion && !row.addition)
+        addLine(false);
+    } else {
+      addLine(row.deletion || row.addition);
+    }
+  }
+  if (blockStart >= 0)
+    mModifiedBlocks.append({blockStart, editorLine - 1});
+
+  updateNavigationButtons();
+}
+
+void CompleteFileDiffWidget::updateNavigationButtons() {
+  if (!mPreviousBlock || !mNextBlock)
+    return;
+  mPreviousBlock->setEnabled(mCurrentBlock > 0);
+  mNextBlock->setEnabled(mCurrentBlock + 1 < mModifiedBlocks.size());
+}
+
+void CompleteFileDiffWidget::updateLineNumberHighlight() {
+  const int line = mCurrentBlock >= 0 && mCurrentBlock < mModifiedBlocks.size()
+                       ? mModifiedBlocks.at(mCurrentBlock).first
+                       : -1;
+  if (line == mHighlightedLine)
+    return;
+
+  for (Editor *editor : {mInline, mOld, mNew}) {
+    if (!editor)
+      continue;
+    if (mHighlightedLine >= 0 && mHighlightedLine < editor->lineCount())
+      editor->marginSetStyle(mHighlightedLine, STYLE_LINENUMBER);
+    if (line >= 0 && line < editor->lineCount())
+      editor->marginSetStyle(line, TextEditor::ModifiedBlockLineNumber);
+  }
+  mHighlightedLine = line;
+}
+
+void CompleteFileDiffWidget::updateNavigationGeometry() {
+  if (!mNavigation || !mNavigationSlot)
+    return;
+
+  const QRect slot = mNavigationSlot->geometry();
+  int y = (height() - mNavigation->height()) / 2;
+  if (mView && mView->isAncestorOf(this)) {
+    QWidget *viewport = mView->viewport();
+    const QRect fileRect(this->mapTo(viewport, QPoint()), size());
+    if (!fileRect.intersects(viewport->rect())) {
+      mNavigation->hide();
+      return;
+    }
+
+    const int viewportCenter = viewport->height() / 2;
+    y = this->mapFrom(viewport, QPoint(0, viewportCenter)).y() -
+        mNavigation->height() / 2;
+    y = qBound(0, y, qMax(0, height() - mNavigation->height()));
+  }
+
+  const int x = slot.x() + (slot.width() - mNavigation->width()) / 2;
+  mNavigation->move(x, y);
+  mNavigation->show();
+  mNavigation->raise();
+}
+
+void CompleteFileDiffWidget::navigateModifiedBlock(int direction) {
+  if (mModifiedBlocks.isEmpty())
+    return;
+
+  int target = mCurrentBlock;
+  if (direction > 0)
+    target = target < 0 ? 0 : target + 1;
+  else
+    target = target - 1;
+
+  if (target < 0 || target >= mModifiedBlocks.size())
+    return;
+
+  mCurrentBlock = target;
+  const int line = mModifiedBlocks.at(target).first;
+  for (Editor *editor : {mInline, mOld, mNew}) {
+    if (editor)
+      editor->gotoLine(line);
+  }
+
+  Editor *editor = mInline ? mInline : mNew;
+  if (editor && mView && mView->isAncestorOf(this))
+    mView->ensureVisible(editor, editor->positionFromLine(line));
+
+  updateNavigationButtons();
+  updateLineNumberHighlight();
+}
+
+bool CompleteFileDiffWidget::eventFilter(QObject *watched, QEvent *event) {
+  if (mView && watched == mView->viewport() &&
+      (event->type() == QEvent::Resize || event->type() == QEvent::Show))
+    updateNavigationGeometry();
+  return QWidget::eventFilter(watched, event);
+}
+
+bool CompleteFileDiffWidget::event(QEvent *event) {
+  const bool result = QWidget::event(event);
+  if (event->type() == QEvent::Move || event->type() == QEvent::Resize ||
+      event->type() == QEvent::Show)
+    QTimer::singleShot(0, this, [this] { updateNavigationGeometry(); });
+  return result;
 }
 
 QList<CompleteFileDiffWidget::Row> CompleteFileDiffWidget::rows() const {
@@ -260,11 +494,7 @@ void CompleteFileDiffWidget::loadEditor(Editor *editor, bool oldSide,
         editor->markerAdd(editorLine, TextEditor::Deletion);
       if (addition)
         editor->markerAdd(editorLine, TextEditor::Addition);
-      editor->marginSetText(
-          editorLine,
-          QString("%1 %2")
-              .arg(oldLine >= 0 ? QString::number(oldLine) : QString())
-              .arg(newLine >= 0 ? QString::number(newLine) : QString()));
+      editor->marginSetText(editorLine, QString::number(editorLine + 1));
       editor->marginSetStyle(editorLine, STYLE_LINENUMBER);
       if (target.first >= 0 && target.first < mHunks.size()) {
         TextEditor *source = mHunks.at(target.first)->editor();
@@ -325,8 +555,7 @@ void CompleteFileDiffWidget::loadEditor(Editor *editor, bool oldSide,
 
   editor->setReadOnly(true);
   const QByteArray marginSample =
-      QByteArray::number(qMax(1, qMax(mRows.size(), editor->lineCount()))) +
-      " " + QByteArray::number(qMax(1, qMax(mRows.size(), editor->lineCount())));
+      QByteArray::number(qMax(1, qMax(mRows.size(), editor->lineCount())));
   editor->setMarginWidthN(TextEditor::LineNumber,
                           editor->textWidth(STYLE_LINENUMBER,
                                             marginSample.constData()) +
