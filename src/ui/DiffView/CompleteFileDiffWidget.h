@@ -5,15 +5,17 @@
 #include "git/Diff.h"
 #include "git/Patch.h"
 #include <QHash>
+#include <QPointer>
 #include <QPair>
 #include <QWidget>
 
 class Editor;
 class DiffView;
-class HunkWidget;
+class DiffOverviewBar;
 class QEvent;
-class TextEditor;
+class HunkWidget;
 class QToolButton;
+class TextEditor;
 
 class CompleteFileDiffWidget : public QWidget {
   Q_OBJECT
@@ -25,6 +27,7 @@ public:
                          const QList<HunkWidget *> &hunks,
                          Settings::DiffMode mode, QWidget *parent = nullptr,
                          DiffView *view = nullptr);
+  ~CompleteFileDiffWidget() override;
 
   QList<TextEditor *> editors() const;
   bool containsEditor(TextEditor *editor) const;
@@ -52,11 +55,15 @@ private:
   QList<Row> rows() const;
   void loadEditor(Editor *editor, bool oldSide, const QList<Row> &rows);
   QList<Target> targets(Editor *editor, int start, int end) const;
+  void createOverview();
   void createNavigation();
+  void updateOverview();
   void updateModifiedBlocks();
   void updateNavigationButtons();
   void updateLineNumberHighlight();
+  void updateOverviewGeometry();
   void updateNavigationGeometry();
+  void navigateOverview(qreal position);
   void navigateModifiedBlock(int direction);
 
   git::Diff mDiff;
@@ -67,10 +74,12 @@ private:
   Editor *mInline{nullptr};
   Editor *mOld{nullptr};
   Editor *mNew{nullptr};
-  QWidget *mNavigationSlot{nullptr};
+  QWidget *mOverviewSlot{nullptr};
+  QPointer<DiffOverviewBar> mOverview;
   QWidget *mNavigation{nullptr};
   QToolButton *mPreviousBlock{nullptr};
   QToolButton *mNextBlock{nullptr};
+  bool mOverviewInViewport{false};
   QList<Row> mRows;
   QHash<Editor *, QList<QList<Target>>> mEditorTargets;
   QList<QPair<int, int>> mModifiedBlocks;

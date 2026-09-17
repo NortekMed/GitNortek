@@ -5,6 +5,7 @@
 #include "ui/DiffView/HunkWidget.h"
 #include "ui/DiffView/FileWidget.h"
 #include "ui/DiffView/CompleteFileDiffWidget.h"
+#include "app/Application.h"
 #include "conf/Settings.h"
 
 #include "ui/MainWindow.h"
@@ -17,6 +18,8 @@
 #include "git/Commit.h"
 #include "git/Tree.h"
 #include <QFile>
+#include <QImage>
+#include <QPalette>
 #include <QPushButton>
 #include <QToolButton>
 
@@ -1038,6 +1041,34 @@ void TestEditorLineInfo::completeFilePresentationModes() {
     checkLineNumberHighlight(inlineEditor, inlineBlocks.at(i));
   }
 
+  QWidget *inlineOverview = inlineView->findChild<QWidget *>("DiffOverviewBar");
+  QVERIFY(inlineOverview);
+  QCOMPARE(inlineEditor->marginTypeN(TextEditor::LineNumber), SC_MARGIN_RTEXT);
+
+  auto containsColor = [](const QImage &image, int firstColumn,
+                          int lastColumn, const QColor &color) {
+    for (int y = 0; y < image.height(); ++y) {
+      for (int x = firstColumn; x < lastColumn; ++x) {
+        if (image.pixelColor(x, y) == color)
+          return true;
+      }
+    }
+    return false;
+  };
+  const QColor addition =
+      Application::theme()->diff(Theme::Diff::Addition);
+  const QColor deletion =
+      Application::theme()->diff(Theme::Diff::Deletion);
+  QCoreApplication::processEvents();
+  inlineOverview->resize(32, 320);
+  inlineOverview->show();
+  inlineOverview->repaint();
+  const QImage inlineOverviewImage = inlineOverview->grab().toImage();
+  const int inlineColumn = inlineOverviewImage.width() / 2;
+  QVERIFY(containsColor(inlineOverviewImage, 0, inlineColumn, deletion));
+  QVERIFY(containsColor(inlineOverviewImage, inlineColumn,
+                        inlineOverviewImage.width(), addition));
+
   auto hasWordHighlight = [](TextEditor *editor) {
     for (int position = 0; position < editor->length(); ++position) {
       if (editor->indicatorValueAt(TextEditor::WordDeletion, position) ||
@@ -1118,6 +1149,38 @@ void TestEditorLineInfo::completeFilePresentationModes() {
   }
   QVERIFY(splitPrevious->isEnabled());
   QVERIFY(!splitNext->isEnabled());
+
+  QWidget *splitOverview = splitView->findChild<QWidget *>("DiffOverviewBar");
+  QVERIFY(splitOverview);
+  splitOverview->resize(32, 320);
+  splitOverview->show();
+  splitOverview->repaint();
+  const QImage splitOverviewImage = splitOverview->grab().toImage();
+  const int splitColumn = splitOverviewImage.width() / 2;
+  QVERIFY(containsColor(splitOverviewImage, 0, splitColumn, deletion));
+  QVERIFY(containsColor(splitOverviewImage, splitColumn,
+                        splitOverviewImage.width(), addition));
+  int unchangedLine = -1;
+  for (int line = 0; line < splitFile.editors().first()->lineCount(); ++line) {
+    const int oldMarkers = splitFile.editors().first()->markers(line);
+    const int newMarkers = splitFile.editors().last()->markers(line);
+    if (!BITSET(oldMarkers, TextEditor::Deletion) &&
+        !BITSET(oldMarkers, TextEditor::Addition) &&
+        !BITSET(newMarkers, TextEditor::Deletion) &&
+        !BITSET(newMarkers, TextEditor::Addition)) {
+      unchangedLine = line;
+      break;
+    }
+  }
+  QVERIFY(unchangedLine >= 0);
+  const int unchangedY =
+      unchangedLine * splitOverviewImage.height() /
+      splitFile.editors().first()->lineCount();
+  const QColor background = splitOverview->palette().color(QPalette::Base);
+  QCOMPARE(splitOverviewImage.pixelColor(2, unchangedY), background);
+  QCOMPARE(splitOverviewImage.pixelColor(splitOverviewImage.width() - 2,
+                                         unchangedY),
+           background);
 
   Settings::instance()->setTextEditorWrapLines(true);
   QCOMPARE(splitFile.editors().first()->wrapMode(), SC_WRAP_WORD);

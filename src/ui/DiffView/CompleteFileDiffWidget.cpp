@@ -2,23 +2,35 @@
 #include "DiffView.h"
 #include "Editor.h"
 #include "HunkWidget.h"
+#include "app/Application.h"
 #include "git/Blob.h"
 #include "git/Repository.h"
 #include <QEvent>
 #include <QFile>
 #include <QHBoxLayout>
+#include <QMouseEvent>
+#include <QPainter>
+#include <QPalette>
 #include <QRegularExpression>
 #include <QScrollBar>
 #include <QStyle>
+#include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>
-#include <QTimer>
+#include <QVector>
+#include <QtMath>
+#include <functional>
+#include <utility>
 
 namespace {
 
+constexpr int kOverviewWidth = 32;
+constexpr int kOverviewMinimumThumbHeight = 12;
 constexpr int kNavigationWidth = 40;
 constexpr int kNavigationButtonSize = 28;
 constexpr int kNavigationHeight = 66;
+const QColor kOverviewThumb(128, 128, 128, 96);
+const QColor kOverviewThumbBorder(96, 96, 96, 144);
 const QColor kNavigationHighlight(240, 160, 32);
 const QColor kNavigationHighlightText(60, 37, 0);
 
@@ -68,6 +80,168 @@ QString edgeTrimmed(const QString &text) {
 
 } // namespace
 
+class DiffOverviewBar final : public QWidget {
+public:
+  using Navigate = std::function<void(qreal)>;
+
+  explicit DiffOverviewBar(QWidget *parent = nullptr) : QWidget(parent) {
+    setObjectName("DiffOverviewBar");
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    setCursor(Qt::PointingHandCursor);
+    setMouseTracking(true);
+  }
+
+  QSize sizeHint() const override { return QSize(kOverviewWidth, 100); }
+
+  void setChanges(const QVector<QColor> &left, const QVector<QColor> &right) {
+    mLeftChanges = left;
+    mRightChanges = right;
+    mLineCount = qMax(mLeftChanges.size(), mRightChanges.size());
+    update();
+  }
+
+  void setNavigateHandler(Navigate navigate) {
+    mNavigate = std::move(navigate);
+  }
+
+  void setViewportRange(qreal start, qreal end) {
+    mViewportStart = qBound(qreal(0), start, qreal(1));
+    mViewportEnd = qBound(mViewportStart, end, qreal(1));
+    update();
+  }
+
+protected:
+  void paintEvent(QPaintEvent *) override {
+    QPainter painter(this);
+    painter.fillRect(rect(), palette().color(QPalette::Base));
+
+    const int leftWidth = width() / 2;
+    const int rightWidth = width() - leftWidth;
+    paintChanges(painter, mLeftChanges, 0, leftWidth);
+    paintChanges(painter, mRightChanges, leftWidth, rightWidth);
+
+    if (rightWidth > 0) {
+      QColor divider = palette().color(QPalette::Mid);
+      divider.setAlpha(80);
+      painter.fillRect(QRect(leftWidth, 0, 1, height()), divider);
+    }
+
+    const QRect thumb = viewportThumb();
+    if (!thumb.isEmpty()) {
+      painter.fillRect(thumb, kOverviewThumb);
+      painter.setPen(kOverviewThumbBorder);
+      painter.setBrush(Qt::NoBrush);
+      painter.drawRect(thumb.adjusted(0, 0, -1, -1));
+    }
+  }
+
+  void mousePressEvent(QMouseEvent *event) override {
+    if (event->button() != Qt::LeftButton) {
+      QWidget::mousePressEvent(event);
+      return;
+    }
+
+    const QRect thumb = viewportThumb();
+    if (!thumb.isEmpty() && thumb.contains(event->position().toPoint())) {
+      mDragging = true;
+      mDragOffset = event->position().y() - thumb.top();
+      grabMouse();
+    } else {
+      navigateTo(event->position().y() / qMax(1, height()));
+    }
+    event->accept();
+  }
+
+  void mouseMoveEvent(QMouseEvent *event) override {
+    if (mDragging) {
+      const QRect thumb = viewportThumb();
+      const qreal visualSpan =
+          height() > 0 ? qreal(thumb.height()) / height() : 1.0;
+      const qreal visualAvailable =
+          qMax(qreal(0), qreal(1) - visualSpan);
+      const qreal visualStart =
+          height() > 0 ? (event->position().y() - mDragOffset) / height() : 0;
+      const qreal fraction =
+          visualAvailable > 0
+              ? qBound(qreal(0), visualStart, visualAvailable) /
+                    visualAvailable
+              : 0;
+      const qreal span = qBound(qreal(0), mViewportEnd - mViewportStart,
+                                qreal(1));
+      if (mNavigate)
+        mNavigate(fraction * qMax(qreal(0), qreal(1) - span));
+      event->accept();
+      return;
+    }
+    QWidget::mouseMoveEvent(event);
+  }
+
+  void mouseReleaseEvent(QMouseEvent *event) override {
+    if (event->button() == Qt::LeftButton && mDragging) {
+      mDragging = false;
+      releaseMouse();
+      event->accept();
+      return;
+    }
+    QWidget::mouseReleaseEvent(event);
+  }
+
+private:
+  void paintChanges(QPainter &painter, const QVector<QColor> &changes, int x,
+                    int width) const {
+    if (mLineCount <= 0 || width <= 0 || height() <= 0)
+      return;
+
+    for (int line = 0; line < changes.size(); ++line) {
+      const QColor &color = changes.at(line);
+      if (!color.isValid())
+        continue;
+
+      const int top = qFloor(qreal(line) * height() / mLineCount);
+      int bottom = qCeil(qreal(line + 1) * height() / mLineCount);
+      if (bottom <= top)
+        bottom = top + 1;
+      if (top >= height())
+        continue;
+      bottom = qMin(bottom, height());
+      painter.fillRect(QRect(x, top, width, bottom - top), color);
+    }
+  }
+
+  QRect viewportThumb() const {
+    if (height() <= 0 || mViewportEnd - mViewportStart >= 0.999)
+      return QRect();
+
+    int top = qRound(mViewportStart * height());
+    int bottom = qRound(mViewportEnd * height());
+    const int minimum = qMin(kOverviewMinimumThumbHeight, height());
+    if (bottom - top < minimum) {
+      const int center = (top + bottom) / 2;
+      top = qBound(0, center - minimum / 2, height() - minimum);
+      bottom = top + minimum;
+    }
+    return QRect(0, top, width(), bottom - top);
+  }
+
+  void navigateTo(qreal position) {
+    if (!mNavigate)
+      return;
+    const qreal span =
+        qBound(qreal(0), mViewportEnd - mViewportStart, qreal(1));
+    const qreal maximum = qMax(qreal(0), qreal(1) - span);
+    mNavigate(qBound(qreal(0), position - span / 2, maximum));
+  }
+
+  QVector<QColor> mLeftChanges;
+  QVector<QColor> mRightChanges;
+  Navigate mNavigate;
+  int mLineCount{0};
+  qreal mViewportStart{0};
+  qreal mViewportEnd{1};
+  bool mDragging{false};
+  qreal mDragOffset{0};
+};
+
 CompleteFileDiffWidget::CompleteFileDiffWidget(const git::Diff &diff,
                                                const git::Patch &patch,
                                                const QList<HunkWidget *> &hunks,
@@ -110,33 +284,38 @@ CompleteFileDiffWidget::CompleteFileDiffWidget(const git::Diff &diff,
             [this, editor](int start, int end) {
               emit stageLinesRequested(targets(editor, start, end), false);
             });
+    connect(editor, &TextEditor::settingsChanged, this,
+            [this] { updateOverview(); });
     return editor;
   };
 
   if (mode == Settings::DiffMode::Split) {
     mOld = createEditor();
-    mNavigationSlot = new QWidget(this);
-    mNavigationSlot->setObjectName("ModifiedBlockNavigationSlot");
-    mNavigationSlot->setFixedWidth(kNavigationWidth);
-    mNavigationSlot->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    mOverviewSlot = new QWidget(this);
+    mOverviewSlot->setObjectName("DiffOverviewSlot");
+    mOverviewSlot->setFixedWidth(kNavigationWidth);
+    mOverviewSlot->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     mNew = createEditor();
     layout->addWidget(mOld, 1);
-    layout->addWidget(mNavigationSlot);
+    layout->addWidget(mOverviewSlot);
     layout->addWidget(mNew, 1);
   } else {
     mInline = createEditor();
-    mNavigationSlot = new QWidget(this);
-    mNavigationSlot->setObjectName("ModifiedBlockNavigationSlot");
-    mNavigationSlot->setFixedWidth(kNavigationWidth);
-    mNavigationSlot->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    mOverviewSlot = new QWidget(this);
+    mOverviewSlot->setObjectName("DiffOverviewSlot");
+    mOverviewSlot->setFixedWidth(kNavigationWidth);
+    mOverviewSlot->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     layout->addWidget(mInline, 1);
-    layout->addWidget(mNavigationSlot);
+    layout->addWidget(mOverviewSlot);
   }
 
+  createOverview();
   createNavigation();
   reload();
-  QTimer::singleShot(0, this, [this] { updateNavigationGeometry(); });
+  QTimer::singleShot(0, this, [this] { updateOverviewGeometry(); });
 }
+
+CompleteFileDiffWidget::~CompleteFileDiffWidget() { delete mOverview; }
 
 QList<TextEditor *> CompleteFileDiffWidget::editors() const {
   QList<TextEditor *> result;
@@ -162,11 +341,37 @@ void CompleteFileDiffWidget::reload() {
     loadEditor(mOld, true, mRows);
   if (mNew)
     loadEditor(mNew, false, mRows);
+  updateOverview();
   updateNavigationGeometry();
 }
 
+void CompleteFileDiffWidget::createOverview() {
+  if (!mOverviewSlot)
+    return;
+
+  mOverviewInViewport = mView && mView->isAncestorOf(this);
+  mOverview = new DiffOverviewBar(mOverviewSlot);
+  mOverview->setNavigateHandler(
+      [this](qreal position) { navigateOverview(position); });
+
+  if (mView) {
+    connect(mView->verticalScrollBar(), &QScrollBar::valueChanged, this,
+            [this] { updateOverviewGeometry(); });
+    connect(mView->verticalScrollBar(), &QScrollBar::rangeChanged, this,
+            [this] { updateOverviewGeometry(); });
+    connect(mView->horizontalScrollBar(), &QScrollBar::valueChanged, this,
+            [this] { updateOverviewGeometry(); });
+    connect(mView->horizontalScrollBar(), &QScrollBar::rangeChanged, this,
+            [this] { updateOverviewGeometry(); });
+    mView->viewport()->installEventFilter(this);
+  }
+}
+
 void CompleteFileDiffWidget::createNavigation() {
-  mNavigation = new QWidget(this);
+  if (!mOverviewSlot)
+    return;
+
+  mNavigation = new QWidget(mOverviewSlot);
   mNavigation->setObjectName("ModifiedBlockNavigation");
   mNavigation->setFixedSize(kNavigationWidth, kNavigationHeight);
 
@@ -200,12 +405,6 @@ void CompleteFileDiffWidget::createNavigation() {
           [this] { navigateModifiedBlock(-1); });
   connect(mNextBlock, &QToolButton::clicked, this,
           [this] { navigateModifiedBlock(1); });
-
-  if (mView) {
-    connect(mView->verticalScrollBar(), &QScrollBar::valueChanged, this,
-            [this] { updateNavigationGeometry(); });
-    mView->viewport()->installEventFilter(this);
-  }
 }
 
 void CompleteFileDiffWidget::updateModifiedBlocks() {
@@ -269,30 +468,119 @@ void CompleteFileDiffWidget::updateLineNumberHighlight() {
   mHighlightedLine = line;
 }
 
-void CompleteFileDiffWidget::updateNavigationGeometry() {
-  if (!mNavigation || !mNavigationSlot)
+void CompleteFileDiffWidget::updateOverview() {
+  if (!mOverview)
     return;
 
-  const QRect slot = mNavigationSlot->geometry();
-  int y = (height() - mNavigation->height()) / 2;
+  const QColor addition = Application::theme()->diff(Theme::Diff::Addition);
+  const QColor deletion = Application::theme()->diff(Theme::Diff::Deletion);
+  const QColor noChange;
+  QVector<QColor> left;
+  QVector<QColor> right;
+  left.reserve(mRows.size());
+  right.reserve(mRows.size());
+
+  for (const Row &row : mRows) {
+    if (mMode == Settings::DiffMode::Inline) {
+      if (row.deletion) {
+        left.append(deletion);
+        right.append(noChange);
+      }
+      if (row.addition || !row.deletion) {
+        left.append(noChange);
+        right.append(row.addition ? addition : noChange);
+      }
+    } else {
+      left.append(row.deletion ? deletion : noChange);
+      right.append(row.addition ? addition : noChange);
+    }
+  }
+
+  mOverview->setChanges(left, right);
+  updateOverviewGeometry();
+}
+
+void CompleteFileDiffWidget::updateOverviewGeometry() {
+  if (!mOverview || !mOverviewSlot)
+    return;
+
+  if (!isVisible()) {
+    mOverview->hide();
+    updateNavigationGeometry();
+    return;
+  }
+
+  if (mOverviewInViewport && mView) {
+    QWidget *viewport = mView->viewport();
+    const QRect fileRect(this->mapTo(viewport, QPoint()), size());
+    if (viewport->height() <= 0 || !fileRect.intersects(viewport->rect())) {
+      mOverview->hide();
+      updateNavigationGeometry();
+      return;
+    }
+
+    const QRect slot = mOverviewSlot->rect();
+    mOverview->setGeometry(slot);
+
+    const qreal fileHeight = qMax(1, height());
+    const qreal visibleStart =
+        qBound(qreal(0), -qreal(fileRect.top()) / fileHeight, qreal(1));
+    const qreal visibleEnd = qBound(
+        qreal(0), qreal(viewport->height() - fileRect.top()) / fileHeight,
+        qreal(1));
+    mOverview->setViewportRange(visibleStart, visibleEnd);
+  } else {
+    const QRect slot = mOverviewSlot->rect();
+    mOverview->setGeometry(slot);
+    mOverview->setViewportRange(0, 1);
+  }
+
+  mOverview->show();
+  mOverview->raise();
+  updateNavigationGeometry();
+}
+
+void CompleteFileDiffWidget::updateNavigationGeometry() {
+  if (!mNavigation || !mOverviewSlot)
+    return;
+
+  if (!isVisible()) {
+    mNavigation->hide();
+    return;
+  }
+
+  const QRect slot = mOverviewSlot->rect();
+  int y = (slot.height() - mNavigation->height()) / 2;
   if (mView && mView->isAncestorOf(this)) {
     QWidget *viewport = mView->viewport();
     const QRect fileRect(this->mapTo(viewport, QPoint()), size());
-    if (!fileRect.intersects(viewport->rect())) {
+    if (viewport->height() <= 0 || !fileRect.intersects(viewport->rect())) {
       mNavigation->hide();
       return;
     }
 
-    const int viewportCenter = viewport->height() / 2;
-    y = this->mapFrom(viewport, QPoint(0, viewportCenter)).y() -
+    y = mOverviewSlot->mapFrom(viewport,
+                               QPoint(0, viewport->height() / 2))
+            .y() -
         mNavigation->height() / 2;
-    y = qBound(0, y, qMax(0, height() - mNavigation->height()));
+    y = qBound(0, y, qMax(0, slot.height() - mNavigation->height()));
   }
 
-  const int x = slot.x() + (slot.width() - mNavigation->width()) / 2;
-  mNavigation->move(x, y);
+  mNavigation->setGeometry((slot.width() - mNavigation->width()) / 2, y,
+                           mNavigation->width(), mNavigation->height());
   mNavigation->show();
   mNavigation->raise();
+}
+
+void CompleteFileDiffWidget::navigateOverview(qreal position) {
+  if (!mOverviewInViewport || !mView || !mView->widget() || height() <= 0)
+    return;
+
+  const int fileTop = mapTo(mView->widget(), QPoint()).y();
+  const int viewportHeight = mView->viewport()->height();
+  const int maxStart = qMax(0, height() - viewportHeight);
+  const int offset = qBound(0, qRound(position * height()), maxStart);
+  mView->verticalScrollBar()->setValue(fileTop + offset);
 }
 
 void CompleteFileDiffWidget::navigateModifiedBlock(int direction) {
@@ -325,16 +613,17 @@ void CompleteFileDiffWidget::navigateModifiedBlock(int direction) {
 
 bool CompleteFileDiffWidget::eventFilter(QObject *watched, QEvent *event) {
   if (mView && watched == mView->viewport() &&
-      (event->type() == QEvent::Resize || event->type() == QEvent::Show))
-    updateNavigationGeometry();
+      (event->type() == QEvent::Resize || event->type() == QEvent::Show ||
+       event->type() == QEvent::LayoutRequest))
+    updateOverviewGeometry();
   return QWidget::eventFilter(watched, event);
 }
 
 bool CompleteFileDiffWidget::event(QEvent *event) {
   const bool result = QWidget::event(event);
   if (event->type() == QEvent::Move || event->type() == QEvent::Resize ||
-      event->type() == QEvent::Show)
-    QTimer::singleShot(0, this, [this] { updateNavigationGeometry(); });
+      event->type() == QEvent::Show || event->type() == QEvent::Hide)
+    QTimer::singleShot(0, this, [this] { updateOverviewGeometry(); });
   return result;
 }
 
