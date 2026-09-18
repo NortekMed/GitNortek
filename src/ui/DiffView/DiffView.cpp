@@ -21,6 +21,7 @@
 #include <QScrollBar>
 #include <QPushButton>
 #include <QMimeData>
+#include <QPointer>
 #include <QScopedValueRollback>
 
 namespace {
@@ -103,7 +104,10 @@ DiffView::DiffView(const git::Repository &repo, QWidget *parent)
   connect(shortcut, &QShortcut::activated, [this] { moveHalfPageUp(); });
 }
 
-DiffView::~DiffView() {}
+DiffView::~DiffView() {
+  if (QWidget *content = takeWidget())
+    delete content;
+}
 
 QWidget *DiffView::file(int index) {
   fetchAll(index);
@@ -129,8 +133,13 @@ void DiffView::setDiff(const git::Diff &diff) {
   mDiff = diff;
 
   // Create a new widget.
+  QPointer<QWidget> previousWidget = widget();
   QWidget *widget = new QWidget(this);
-  setWidget(widget);
+  auto installWidget = [&] {
+    setWidget(widget);
+    if (previousWidget)
+      delete previousWidget;
+  };
 
   // Disable painting the background.
   // This allows drawing content over the border shadow.
@@ -171,6 +180,7 @@ void DiffView::setDiff(const git::Diff &diff) {
         0, 0, QSizePolicy::Expanding,
         QSizePolicy::Expanding)); // so the file is always starting from top and
                                   // is not distributed over the hole diff view
+    installWidget();
     return;
   }
 
@@ -213,6 +223,9 @@ void DiffView::setDiff(const git::Diff &diff) {
 
   // connect(repo.notifier(), &git::RepositoryNotifier::indexChanged, this,
   // &DiffView::indexChanged);
+
+  // Keep the current view visible until the replacement has been populated.
+  installWidget();
 }
 
 bool DiffView::scrollToFile(int index) {
@@ -307,18 +320,9 @@ void DiffView::updateFiles() {
     return;
   }
 
-  while (mFiles.count()) {
-    auto file = mFiles.takeFirst();
-    file->hide();
-    mFileWidgetLayout->removeWidget(file);
-    file->deleteLater();
-  }
-  mFiles.clear();
-  mCompleteFilePresentations.clear();
-  updateCompleteFileScrollBarPolicy();
-
-  if (canFetchMore())
-    fetchMore();
+  // Build the replacement in a separate content widget so the current view
+  // remains visible until the new file editors have been created.
+  setDiff(mDiff);
 }
 
 void DiffView::rebuildPresentations() {
@@ -452,7 +456,8 @@ void DiffView::fetchMore(int fetchWidgets) {
     return;
   QScopedValueRollback rollback(mFetching, true);
 
-  QVBoxLayout *layout = static_cast<QVBoxLayout *>(widget()->layout());
+  QWidget *content = mFileWidgetLayout->parentWidget();
+  QVBoxLayout *layout = static_cast<QVBoxLayout *>(content->layout());
 
   // Add widgets.
   RepoView *view = RepoView::parentView(this);
@@ -504,7 +509,7 @@ void DiffView::fetchMore(int fetchWidgets) {
       QString path = repo.workdir().filePath(name);
       bool submodule = repo.lookupSubmodule(name).isValid();
       FileWidget *file = new FileWidget(this, mDiff, patch, staged, indices[i],
-                                        name, path, submodule, widget());
+                                        name, path, submodule, content);
       file->setStageState(state);
       mFileWidgetLayout->addWidget(file);
       addedWidgets += file->hunks().count();
@@ -541,7 +546,7 @@ void DiffView::fetchMore(int fetchWidgets) {
   if (mFiles.size() == mDiff.count()) {
     // Add comments widget.
     if (!mComments.comments.isEmpty())
-      layout->addWidget(new CommentWidget(mComments.comments, widget()));
+      layout->addWidget(new CommentWidget(mComments.comments, content));
 
     layout->addStretch();
   }

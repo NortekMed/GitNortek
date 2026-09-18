@@ -12,6 +12,7 @@
 #include "conf/Settings.h"
 #include "editor/TextEditor.h"
 
+#include <algorithm>
 #include <QHBoxLayout>
 #include <QCheckBox>
 #include <QLabel>
@@ -62,6 +63,7 @@ private slots:
   void conflictedAndStagedFile();
   void stageAllChangesButton();
   void externalRefreshPreservesSelection();
+  void externalRefreshKeepsEditorContent();
   void externalRefreshPreservesViewport();
 
 private:
@@ -674,8 +676,7 @@ void TestTreeView::externalRefreshPreservesSelection() {
   QPointer<FileWidget> outgoingFile = visibleFile;
   diffView->updateFiles();
   QVERIFY(outgoingFile);
-  QVERIFY(outgoingFile->isHidden());
-  QTRY_VERIFY(outgoingFile.isNull());
+  QCOMPARE(diffView->widget()->findChild<FileWidget *>(), outgoingFile.data());
 
   detailRefreshes = 0;
   invalidDetails = 0;
@@ -692,6 +693,89 @@ void TestTreeView::externalRefreshPreservesSelection() {
   QVERIFY(!visibleFile->editors().isEmpty());
   QVERIFY(visibleFile->editors().first()->length() > 0);
 
+}
+
+void TestTreeView::externalRefreshKeepsEditorContent() {
+  INIT_REPO("TestRepository.zip", true);
+
+  auto *commits = repoView->findChild<CommitList *>();
+  QVERIFY(commits);
+  commits->cancelStatus();
+  refresh(repoView, false);
+
+  QModelIndex commitIndex;
+  for (int row = 0; row < commits->model()->rowCount(); ++row) {
+    QModelIndex candidate = commits->model()->index(row, 0);
+    if (candidate.data(CommitList::CommitRole).isValid()) {
+      commitIndex = candidate;
+      break;
+    }
+  }
+  QVERIFY(commitIndex.isValid());
+  commits->selectionModel()->select(commitIndex,
+                                    QItemSelectionModel::ClearAndSelect);
+
+  QFile file(repo.workdir().filePath("file.txt"));
+  QVERIFY(file.open(QFile::WriteOnly | QFile::Truncate));
+  QVERIFY(file.write("Initial external refresh test\n") > 0);
+  file.close();
+  refresh(repoView);
+
+  auto *doubleTree = repoView->findChild<DoubleTreeWidget *>();
+  auto *unstagedFiles = repoView->findChild<TreeView *>("Unstaged");
+  auto *diffView = repoView->findChild<DiffView *>();
+  QVERIFY(doubleTree);
+  QVERIFY(unstagedFiles);
+  QVERIFY(diffView);
+  QTRY_VERIFY(unstagedFiles->model()->rowCount() > 0);
+
+  const QModelIndexList files = unstagedFiles->model()->match(
+      unstagedFiles->model()->index(0, 0), Qt::EditRole, QString("file.txt"),
+      1, Qt::MatchExactly | Qt::MatchRecursive);
+  QVERIFY(!files.isEmpty());
+  unstagedFiles->selectionModel()->setCurrentIndex(
+      files.first(),
+      QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+  QVERIFY(QMetaObject::invokeMethod(unstagedFiles, "fileSelectionRequested"));
+  QTRY_VERIFY(repoView->isFileInspectionVisible());
+
+  FileWidget *visibleFile = nullptr;
+  QTRY_VERIFY((visibleFile = diffView->widget()->findChild<FileWidget *>()));
+  QVERIFY(!visibleFile->editors().isEmpty());
+  QVERIFY(visibleFile->editors().first()->length() > 0);
+
+  QPointer<FileWidget> outgoingFile = visibleFile;
+  bool statusSelectionObserved = false;
+  bool outgoingFileVisibleDuringStatusRefresh = false;
+  connect(commits, &CommitList::statusSelected,
+          [&statusSelectionObserved, &outgoingFile,
+           &outgoingFileVisibleDuringStatusRefresh](
+              const git::WorkingTreeStatusSnapshot &, const QString &, bool) {
+            statusSelectionObserved = true;
+            outgoingFileVisibleDuringStatusRefresh =
+                outgoingFile && !outgoingFile->isHidden();
+          });
+
+  QVERIFY(file.open(QFile::WriteOnly | QFile::Truncate));
+  QVERIFY(file.write("Updated external refresh test\n") > 0);
+  file.close();
+  QSignalSpy statusChanged(repoView, &RepoView::statusChanged);
+  emit repo.notifier()->workdirChanged();
+  QTRY_VERIFY(statusSelectionObserved);
+  QVERIFY(outgoingFileVisibleDuringStatusRefresh);
+  QTRY_VERIFY(!statusChanged.isEmpty());
+
+  QTRY_VERIFY((visibleFile = diffView->widget()->findChild<FileWidget *>()));
+  QCOMPARE(visibleFile->name(), QString("file.txt"));
+  QVERIFY(!visibleFile->editors().isEmpty());
+  QVERIFY(visibleFile->editors().first()->length() > 0);
+  QTRY_VERIFY([visibleFile] {
+    const QList<TextEditor *> editors = visibleFile->editors();
+    return std::any_of(
+        editors.cbegin(), editors.cend(), [](TextEditor *editor) {
+          return editor->text().contains("Updated external refresh test");
+        });
+  }());
 }
 
 void TestTreeView::externalRefreshPreservesViewport() {

@@ -805,19 +805,23 @@ void FileWidget::rebuildPresentation(int generation) {
     return;
   }
 
-  if (mCompleteDiff) {
-    mPresentation->removeWidget(mCompleteDiff);
-    mCompleteDiff->deleteLater();
-  }
-  mCompleteDiff =
+  CompleteFileDiffWidget *previous = mCompleteDiff;
+  CompleteFileDiffWidget *replacement =
       new CompleteFileDiffWidget(mDiff, mPatch, mHunks, mode, mPresentation,
                                  mView);
+  mCompleteDiff = replacement;
   mCompleteDiffMode = mode;
   mCompleteDiffIgnoresWhitespace = ignoreWhitespace;
-  connect(mCompleteDiff, &CompleteFileDiffWidget::stageLinesRequested, this,
+  connect(replacement, &CompleteFileDiffWidget::stageLinesRequested, this,
           &FileWidget::stagePresentationLines);
-  mPresentation->addWidget(mCompleteDiff);
+  mPresentation->addWidget(replacement);
   mPresentation->setCurrentWidget(mCompleteDiff);
+
+  if (previous) {
+    mPresentation->removeWidget(previous);
+    previous->deleteLater();
+  }
+
   updateCompleteFilePresentationState();
 }
 

@@ -784,11 +784,14 @@ void DoubleTreeWidget::setWorkingTreeStatus(
     unstagedFiles->collapseAll();
   }
 
+  const bool inspectionVisible =
+      RepoView::parentView(this)->isFileInspectionVisible();
   mEditor->clear();
-  mDiffView->setDiff(git::Diff());
+  if (!inspectionVisible)
+    mDiffView->setDiff(git::Diff());
 
   if (status.isDirty() && !mFileInspectionClosed && loadSelection() &&
-      RepoView::parentView(this)->isFileInspectionVisible())
+      inspectionVisible && mFileView->currentIndex() == Blame)
     scheduleEditorContentLoad();
 
   mIgnoreSelectionChange = ignoreSelectionChange;
@@ -1201,6 +1204,11 @@ void DoubleTreeWidget::loadEditorContent(const QModelIndexList &indexes) {
     mEditor->load(name, blob, std::move(commit));
     return;
   }
+
+  // The status snapshot is only a lightweight tree model. Keep the current
+  // diff visible until the asynchronously generated full status diff arrives.
+  if (mStatusSnapshotMode)
+    return;
 
   mEditor->clear();
   mDiffView->enable(true);
