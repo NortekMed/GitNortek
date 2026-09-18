@@ -1245,8 +1245,36 @@ void TestEditorLineInfo::completeFilePresentationModes() {
         realOverview->size());
     QVERIFY(!overviewRect.intersected(realContent->rect()).isEmpty());
 
-    scrollBar->setValue(0);
-    QCoreApplication::processEvents();
+    const QList<int> &realBlocks = mode == Settings::DiffMode::Split
+                                       ? splitBlocks
+                                       : inlineBlocks;
+    TextEditor *realEditor = mode == Settings::DiffMode::Split
+                                 ? realView->editors().last()
+                                 : realView->editors().first();
+    const int viewportHeight = realDiffView->viewport()->height();
+    const int topAnchor = qRound(viewportHeight * 0.20);
+    auto documentLineY = [&](int line) {
+      return realEditor->mapTo(realDiffView->widget(), QPoint()).y() +
+             realEditor->pointFromPosition(realEditor->positionFromLine(line))
+                 .y();
+    };
+    QTRY_COMPARE(realEditor->lineFromPosition(realEditor->currentPos()),
+                 realBlocks.first());
+    for (TextEditor *editor : realView->editors()) {
+      QCOMPARE(editor->lineFromPosition(editor->currentPos()),
+               realBlocks.first());
+      checkLineNumberHighlight(editor, realBlocks.first());
+    }
+    QVERIFY(!realPrevious->isEnabled());
+    QVERIFY(realNext->isEnabled());
+    const int firstDocumentY = documentLineY(realBlocks.first());
+    const int expectedInitialScroll =
+        qBound(scrollBar->minimum(), firstDocumentY - topAnchor,
+               scrollBar->maximum());
+    QTRY_COMPARE(scrollBar->value(), expectedInitialScroll);
+    QTRY_COMPARE(documentLineY(realBlocks.first()) - scrollBar->value(),
+                 topAnchor);
+
     const QImage viewportImage = realContent->grab().toImage();
     const int railLeft = overviewRect.x();
     QVERIFY(containsColor(viewportImage, railLeft,
@@ -1256,25 +1284,7 @@ void TestEditorLineInfo::completeFilePresentationModes() {
                           viewportImage.width(), addition));
 
     if (mode == Settings::DiffMode::Split) {
-      TextEditor *realEditor = realView->editors().last();
-      const int viewportHeight = realDiffView->viewport()->height();
-      const int topAnchor = qRound(viewportHeight * 0.20);
       const int bottomAnchor = qRound(viewportHeight * 0.80);
-      auto documentLineY = [&](int line) {
-        return realEditor->mapTo(realDiffView->widget(), QPoint()).y() +
-               realEditor
-                   ->pointFromPosition(realEditor->positionFromLine(line))
-                   .y();
-      };
-
-      const int firstDocumentY = documentLineY(splitBlocks.first());
-      realNext->click();
-      QCoreApplication::processEvents();
-      QCOMPARE(scrollBar->value(),
-               qBound(scrollBar->minimum(), firstDocumentY - topAnchor,
-                      scrollBar->maximum()));
-      QCOMPARE(documentLineY(splitBlocks.first()) - scrollBar->value(),
-               topAnchor);
 
       for (int i = 1; i < splitBlocks.size(); ++i) {
         const int before = scrollBar->value();

@@ -63,6 +63,7 @@ private:
   void updateLineNumberHighlight();
   void updateOverviewGeometry();
   void updateNavigationGeometry();
+  void initializeModifiedBlockNavigation();
   void navigateOverview(qreal position);
   void navigateModifiedBlock(int direction);
 
@@ -84,6 +85,7 @@ private:
   QList<Row> mRows;
   QHash<Editor *, QList<QList<Target>>> mEditorTargets;
   QList<QPair<int, int>> mModifiedBlocks;
+  bool mInitialNavigationPending{true};
   int mCurrentBlock{-1};
   int mHighlightedLine{-1};
 };

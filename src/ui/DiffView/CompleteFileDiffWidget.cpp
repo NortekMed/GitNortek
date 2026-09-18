@@ -525,12 +525,15 @@ void CompleteFileDiffWidget::updateOverview() {
 }
 
 void CompleteFileDiffWidget::updateOverviewGeometry() {
-  if (!mOverview)
+  if (!mOverview) {
+    initializeModifiedBlockNavigation();
     return;
+  }
 
   if (!isVisible()) {
     mOverview->hide();
     updateNavigationGeometry();
+    initializeModifiedBlockNavigation();
     return;
   }
 
@@ -540,6 +543,7 @@ void CompleteFileDiffWidget::updateOverviewGeometry() {
     if (viewport->height() <= 0 || !fileRect.intersects(viewport->rect())) {
       mOverview->hide();
       updateNavigationGeometry();
+      initializeModifiedBlockNavigation();
       return;
     }
 
@@ -560,6 +564,7 @@ void CompleteFileDiffWidget::updateOverviewGeometry() {
   mOverview->show();
   mOverview->raise();
   updateNavigationGeometry();
+  initializeModifiedBlockNavigation();
 }
 
 void CompleteFileDiffWidget::updateNavigationGeometry() {
@@ -603,6 +608,37 @@ void CompleteFileDiffWidget::navigateOverview(qreal position) {
   const int maxStart = qMax(0, height() - viewportHeight);
   const int offset = qBound(0, qRound(position * height()), maxStart);
   mView->verticalScrollBar()->setValue(fileTop + offset);
+}
+
+void CompleteFileDiffWidget::initializeModifiedBlockNavigation() {
+  if (!mInitialNavigationPending)
+    return;
+  if (mModifiedBlocks.isEmpty()) {
+    mInitialNavigationPending = false;
+    return;
+  }
+  if (!mView || !mView->isAncestorOf(this) || !isVisible() ||
+      !mView->widget())
+    return;
+
+  QWidget *viewport = mView->viewport();
+  if (viewport->height() <= 0 || height() <= 0)
+    return;
+
+  const QRect fileRect(this->mapTo(viewport, QPoint()), size());
+  if (!fileRect.intersects(viewport->rect()))
+    return;
+
+  Editor *editor = mInline ? mInline : mNew;
+  if (!editor || editor->height() <= 0)
+    return;
+
+  QScrollBar *scrollBar = mView->verticalScrollBar();
+  if (height() > viewport->height() && scrollBar->maximum() <= 0)
+    return;
+
+  mInitialNavigationPending = false;
+  navigateModifiedBlock(1);
 }
 
 void CompleteFileDiffWidget::navigateModifiedBlock(int direction) {
