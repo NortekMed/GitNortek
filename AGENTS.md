@@ -5,6 +5,18 @@
 - Build outputs belong under ignored `build*` directories; do not edit vendored code under `dep/` unless the task explicitly targets a dependency.
 - `src/app` wires the GUI app, and `src/index/Indexer` builds the `gitnortek-indexer` helper.
 
+## Code Navigation
+- Use the global Serena MCP first for symbols, definitions, references, call relationships, and semantic navigation when connected.
+- Use normal OpenCode file tools for configuration, generated files, documentation, and cases Serena cannot analyze.
+- Serena availability does not replace builds, tests, review, or project-specific validation.
+
+## Agent Routing
+- Use `@cpp-c-engineer` for C/C++ implementation and refactoring.
+- Use `@cmake-engineer` for CMake targets, dependencies, build options, and linker/include issues.
+- Use `@test-engineer` for tests and CTest integration.
+- Use `@debug-engineer` for build failures, runtime bugs, crashes, linker errors, and flaky tests.
+- Use `@cpp-reviewer` for C++ correctness, safety, modernization, and performance reviews.
+
 ## Setup And Build
 - Initialize dependencies before configuring: `git submodule update --init --recursive`.
 - Standard local configure/build from repo root: `mkdir -p build/release && cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -S . -B build/release && ninja -C build/release`.

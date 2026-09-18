@@ -12,3 +12,22 @@ build
 .venv
 compile_commands.json
 .flatpak-builder
+
+# CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+
+# Compiled artifacts
+*.o
+*.a
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.out
+
+# OpenCode local machine state
+.opencode/setup-path.conf

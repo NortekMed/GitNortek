@@ -1,0 +1,145 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "AGENTS.md",
+    "README.md"
+  ],
+  "formatter": {
+    "clang-format": {
+      "command": [
+        "clang-format",
+        "-i",
+        "$FILE"
+      ],
+      "extensions": [
+        ".cpp",
+        ".hpp",
+        ".h",
+        ".cc",
+        ".cxx"
+      ]
+    }
+  },
+  "permission": {
+    "*": "ask",
+    "edit": "allow",
+    "read": {
+      "*": "allow",
+      "*.env": "deny",
+      "*.env.*": "deny",
+      "*.env.example": "allow"
+    },
+    "glob": "allow",
+    "grep": "allow",
+    "list": "allow",
+    "lsp": "allow",
+    "bash": {
+      "*": "ask",
+      "git status*": "allow",
+      "git diff*": "allow",
+      "git log*": "allow",
+      "git show*": "allow",
+      "git blame*": "allow",
+      "git grep*": "allow",
+      "git ls-files*": "allow",
+      "git rev-parse*": "allow",
+      "git merge*": "ask",
+      "git merge-base*": "allow",
+      "git submodule status*": "allow",
+      "git config --get*": "allow",
+      "git config -f .gitmodules --get*": "allow",
+      "opencode mcp list*": "allow",
+      "command -v *": "allow",
+      "cmake --version*": "allow",
+      "clang-format --version*": "allow",
+      "clang-tidy --version*": "allow",
+      "g++ --version*": "allow",
+      "ninja --version*": "allow",
+      "ls": "allow",
+      "pwd": "allow",
+      "cmake -B build*": "ask",
+      "cmake -G *": "ask",
+      "cmake --build build*": "ask",
+      "ninja -C build*": "ask",
+      "ctest*": "ask",
+      "git submodule update*": "ask",
+      "git add*": "ask",
+      "git commit*": "ask",
+      "git push*": "ask",
+      "git pull*": "ask",
+      "git rebase*": "ask",
+      "git reset*": "ask",
+      "git stash*": "ask",
+      "sudo *": "ask",
+      "su *": "ask",
+      "chmod *": "ask",
+      "chown *": "ask",
+      "rm -rf *": "deny",
+      "rm -rf /": "deny",
+      "rm -rf /*": "deny",
+      "rm -rf ~": "deny",
+      "rm -rf ~/*": "deny",
+      "rm -rf .git*": "deny",
+      ".opencode/scripts/*": "ask"
+    },
+    "external_directory": {
+      "~/.config/opencode/opencode.json": "allow"
+    }
+  },
+  "agent": {
+    "plan": {
+      "permission": {
+        "*": "ask",
+        "edit": "deny",
+        "read": {
+          "*": "allow",
+          "*.env": "deny",
+          "*.env.*": "deny",
+          "*.env.example": "allow"
+        },
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "lsp": "allow",
+        "bash": {
+          "*": "ask",
+          "git status*": "allow",
+          "git diff*": "allow",
+          "git log*": "allow",
+          "git show*": "allow",
+          "git blame*": "allow",
+          "git grep*": "allow",
+          "git ls-files*": "allow",
+          "git rev-parse*": "allow",
+          "git merge-base*": "allow",
+          "git submodule status*": "allow",
+          "git config --get*": "allow",
+          "git config -f .gitmodules --get*": "allow",
+          "opencode mcp list*": "allow",
+          "command -v *": "allow",
+          "cmake --version*": "allow",
+          "clang-format --version*": "allow",
+          "clang-tidy --version*": "allow",
+          "g++ --version*": "allow",
+          "ninja --version*": "allow",
+          "ls": "allow",
+          "pwd": "allow"
+        }
+      }
+    }
+  },
+  "watcher": {
+    "ignore": [
+      "build*/**",
+      ".cache/**",
+      "*.o",
+      "*.a",
+      "*.so",
+      "*.dylib",
+      "*.dll",
+      "*.exe",
+      "*.out",
+      "compile_commands.json"
+    ]
+  }
+}
