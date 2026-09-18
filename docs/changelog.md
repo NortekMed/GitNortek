@@ -45,6 +45,7 @@ Bug Fix and Feature release
 
 * Color file and hunk discard controls red to identify destructive actions
 * Reduce complete-file modified-block navigation button size
+* Show modified-block navigation buttons in Inline complete-file view
 * Use the diff overview as the only visible scrollbar in complete-file views
 * Keep modified-block navigation within directional viewport margins instead of recentering each selected block
 * Allow GitNortek windows to fit Cinnamon's upper-half window tile

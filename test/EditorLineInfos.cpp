@@ -1018,13 +1018,26 @@ void TestEditorLineInfo::completeFilePresentationModes() {
       inlineView->findChild<QToolButton *>("PreviousModifiedBlock");
   QToolButton *inlineNext =
       inlineView->findChild<QToolButton *>("NextModifiedBlock");
-  QVERIFY(!inlinePrevious);
-  QVERIFY(!inlineNext);
-  QVERIFY(!inlineView->findChild<QWidget *>("ModifiedBlockNavigation"));
+  QVERIFY(inlinePrevious);
+  QVERIFY(inlineNext);
+  QCOMPARE(inlinePrevious->size(), QSize(20, 20));
+  QCOMPARE(inlineNext->size(), QSize(20, 20));
+  QCOMPARE(inlinePrevious->iconSize(), QSize(16, 16));
+  QCOMPARE(inlineNext->iconSize(), QSize(16, 16));
+  auto *inlineNavigation =
+      inlineView->findChild<QWidget *>("ModifiedBlockNavigation");
+  QVERIFY(inlineNavigation);
+  QCOMPARE(inlineNavigation->size(), QSize(40, 50));
   QCOMPARE(inlineEditor->marginTypeN(TextEditor::LineNumber), SC_MARGIN_RTEXT);
   const QList<int> inlineBlocks = modifiedBlockStarts(inlineEditor);
   QVERIFY(inlineBlocks.size() > 1);
   checkLineNumberHighlight(inlineEditor, -1);
+  QVERIFY(!inlinePrevious->isEnabled());
+  QVERIFY(inlineNext->isEnabled());
+  inlineNext->click();
+  QCOMPARE(inlineEditor->lineFromPosition(inlineEditor->currentPos()),
+           inlineBlocks.first());
+  checkLineNumberHighlight(inlineEditor, inlineBlocks.first());
 
   QWidget *inlineOverview = inlineView->findChild<QWidget *>("DiffOverviewBar");
   QVERIFY(inlineOverview);
@@ -1200,14 +1213,22 @@ void TestEditorLineInfo::completeFilePresentationModes() {
     auto *realPrevious =
         realView->findChild<QToolButton *>("PreviousModifiedBlock");
     auto *realNext = realView->findChild<QToolButton *>("NextModifiedBlock");
-    if (mode == Settings::DiffMode::Split) {
-      QVERIFY(realPrevious);
-      QVERIFY(realNext);
-      QTRY_VERIFY(realPrevious->isVisible());
-      QTRY_VERIFY(realNext->isVisible());
-    } else {
-      QVERIFY(!realPrevious);
-      QVERIFY(!realNext);
+    QVERIFY(realPrevious);
+    QVERIFY(realNext);
+    QTRY_VERIFY(realPrevious->isVisible());
+    QTRY_VERIFY(realNext->isVisible());
+    auto *realNavigation =
+        realView->findChild<QWidget *>("ModifiedBlockNavigation");
+    QVERIFY(realNavigation);
+    QCOMPARE(realNavigation->size(), QSize(40, 50));
+    if (mode == Settings::DiffMode::Inline) {
+      const QRect navigationRect(
+          realNavigation->mapTo(realContent, QPoint()),
+          realNavigation->size());
+      TextEditor *realEditor = realView->editors().first();
+      const QRect editorRect(realEditor->mapTo(realContent, QPoint()),
+                             realEditor->size());
+      QVERIFY(navigationRect.right() < editorRect.left());
     }
 
     QWidget *realOverview = realView->findChild<QWidget *>("DiffOverviewBar");

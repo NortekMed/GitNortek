@@ -307,11 +307,16 @@ CompleteFileDiffWidget::CompleteFileDiffWidget(const git::Diff &diff,
     layout->addWidget(mNew, 1);
     layout->addWidget(mOverviewSlot);
   } else {
+    mNavigationSlot = new QWidget(this);
+    mNavigationSlot->setObjectName("ModifiedBlockNavigationSlot");
+    mNavigationSlot->setFixedWidth(kNavigationWidth);
+    mNavigationSlot->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     mInline = createEditor();
     mOverviewSlot = new QWidget(this);
     mOverviewSlot->setObjectName("DiffOverviewSlot");
     mOverviewSlot->setFixedWidth(kOverviewWidth);
     mOverviewSlot->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    layout->addWidget(mNavigationSlot);
     layout->addWidget(mInline, 1);
     layout->addWidget(mOverviewSlot);
   }
