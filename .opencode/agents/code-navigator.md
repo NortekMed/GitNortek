@@ -4,6 +4,13 @@ mode: subagent
 temperature: 0.1
 permission:
   "*": ask
+  "serena_find_*": allow
+  "serena_get_*": allow
+  "serena_initial_instructions": allow
+  "serena_list_*": allow
+  "serena_query_project": allow
+  "serena_read_*": allow
+  "serena_search_for_pattern": allow
   edit: deny
   read:
     "*": allow
