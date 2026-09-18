@@ -4,7 +4,6 @@ mode: subagent
 temperature: 0.2
 permission:
   edit: allow
-  bash: ask
 ---
 
 # C/C++ Engineer
