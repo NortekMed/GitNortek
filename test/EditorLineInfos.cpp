@@ -1188,6 +1188,7 @@ void TestEditorLineInfo::completeFilePresentationModes() {
                                  : "InlineFileDiff";
     auto *realView = realFile.findChild<CompleteFileDiffWidget *>(objectName);
     QVERIFY(realView);
+    QScrollBar *scrollBar = realDiffView->verticalScrollBar();
     auto *realPrevious =
         realView->findChild<QToolButton *>("PreviousModifiedBlock");
     auto *realNext = realView->findChild<QToolButton *>("NextModifiedBlock");
@@ -1214,7 +1215,6 @@ void TestEditorLineInfo::completeFilePresentationModes() {
         realOverview->size());
     QVERIFY(!overviewRect.intersected(realContent->rect()).isEmpty());
 
-    QScrollBar *scrollBar = realDiffView->verticalScrollBar();
     scrollBar->setValue(0);
     QCoreApplication::processEvents();
     const QImage viewportImage = realContent->grab().toImage();
@@ -1224,6 +1224,61 @@ void TestEditorLineInfo::completeFilePresentationModes() {
     QVERIFY(containsColor(viewportImage,
                           railLeft + realOverview->width() / 2,
                           viewportImage.width(), addition));
+
+    if (mode == Settings::DiffMode::Split) {
+      TextEditor *realEditor = realView->editors().last();
+      const int viewportHeight = realDiffView->viewport()->height();
+      const int topAnchor = qRound(viewportHeight * 0.20);
+      const int bottomAnchor = qRound(viewportHeight * 0.80);
+      auto documentLineY = [&](int line) {
+        return realEditor->mapTo(realDiffView->widget(), QPoint()).y() +
+               realEditor
+                   ->pointFromPosition(realEditor->positionFromLine(line))
+                   .y();
+      };
+
+      const int firstDocumentY = documentLineY(splitBlocks.first());
+      realNext->click();
+      QCoreApplication::processEvents();
+      QCOMPARE(scrollBar->value(),
+               qBound(scrollBar->minimum(), firstDocumentY - topAnchor,
+                      scrollBar->maximum()));
+      QCOMPARE(documentLineY(splitBlocks.first()) - scrollBar->value(),
+               topAnchor);
+
+      for (int i = 1; i < splitBlocks.size(); ++i) {
+        const int before = scrollBar->value();
+        const int targetDocumentY = documentLineY(splitBlocks.at(i));
+        const int targetViewportY = targetDocumentY - before;
+        realNext->click();
+        QCoreApplication::processEvents();
+        const int expected = targetViewportY > bottomAnchor
+                                 ? qBound(scrollBar->minimum(),
+                                          targetDocumentY - bottomAnchor,
+                                          scrollBar->maximum())
+                                 : before;
+        QCOMPARE(scrollBar->value(), expected);
+        QCOMPARE(documentLineY(splitBlocks.at(i)) - scrollBar->value(),
+                 targetViewportY > bottomAnchor ? bottomAnchor
+                                                 : targetViewportY);
+      }
+
+      for (int i = splitBlocks.size() - 2; i >= 0; --i) {
+        const int before = scrollBar->value();
+        const int targetDocumentY = documentLineY(splitBlocks.at(i));
+        const int targetViewportY = targetDocumentY - before;
+        realPrevious->click();
+        QCoreApplication::processEvents();
+        const int expected = targetViewportY < topAnchor
+                                 ? qBound(scrollBar->minimum(),
+                                          targetDocumentY - topAnchor,
+                                          scrollBar->maximum())
+                                 : before;
+        QCOMPARE(scrollBar->value(), expected);
+        QCOMPARE(documentLineY(splitBlocks.at(i)) - scrollBar->value(),
+                 targetViewportY < topAnchor ? topAnchor : targetViewportY);
+      }
+    }
 
     scrollBar->setValue(scrollBar->maximum());
     QTRY_COMPARE(scrollBar->value(), scrollBar->maximum());

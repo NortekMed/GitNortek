@@ -29,6 +29,8 @@ constexpr int kOverviewMinimumThumbHeight = 12;
 constexpr int kNavigationWidth = 40;
 constexpr int kNavigationButtonSize = 28;
 constexpr int kNavigationHeight = 66;
+constexpr qreal kNavigationTopAnchor = 0.20;
+constexpr qreal kNavigationBottomAnchor = 0.80;
 const QColor kOverviewThumb(128, 128, 128, 96);
 const QColor kOverviewThumbBorder(96, 96, 96, 144);
 const QColor kNavigationHighlight(240, 160, 32);
@@ -602,6 +604,7 @@ void CompleteFileDiffWidget::navigateModifiedBlock(int direction) {
   if (mModifiedBlocks.isEmpty())
     return;
 
+  const bool initialSelection = mCurrentBlock < 0;
   int target = mCurrentBlock;
   if (direction > 0)
     target = target < 0 ? 0 : target + 1;
@@ -619,8 +622,32 @@ void CompleteFileDiffWidget::navigateModifiedBlock(int direction) {
   }
 
   Editor *editor = mInline ? mInline : mNew;
-  if (editor && mView && mView->isAncestorOf(this))
-    mView->ensureVisible(editor, editor->positionFromLine(line));
+  if (editor && mView && mView->isAncestorOf(this) && mView->widget()) {
+    QScrollBar *scrollBar = mView->verticalScrollBar();
+    const int viewportHeight = mView->viewport()->height();
+    if (viewportHeight > 0) {
+      const int linePosition = editor->positionFromLine(line);
+      const int lineY =
+          editor->mapTo(mView->widget(), QPoint()).y() +
+          editor->pointFromPosition(linePosition).y();
+      const int lineViewportY = lineY - scrollBar->value();
+      const int topAnchor = qRound(viewportHeight * kNavigationTopAnchor);
+      const int bottomAnchor =
+          qRound(viewportHeight * kNavigationBottomAnchor);
+      int scrollValue = scrollBar->value();
+
+      if (initialSelection) {
+        scrollValue = lineY - topAnchor;
+      } else if (direction > 0 && lineViewportY > bottomAnchor) {
+        scrollValue = lineY - bottomAnchor;
+      } else if (direction < 0 && lineViewportY < topAnchor) {
+        scrollValue = lineY - topAnchor;
+      }
+
+      scrollBar->setValue(qBound(scrollBar->minimum(), scrollValue,
+                                 scrollBar->maximum()));
+    }
+  }
 
   updateNavigationButtons();
   updateLineNumberHighlight();
