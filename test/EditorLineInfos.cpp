@@ -1104,6 +1104,14 @@ void TestEditorLineInfo::completeFilePresentationModes() {
   auto *splitNext = splitView->findChild<QToolButton *>("NextModifiedBlock");
   QVERIFY(splitPrevious);
   QVERIFY(splitNext);
+  QCOMPARE(splitPrevious->size(), QSize(20, 20));
+  QCOMPARE(splitNext->size(), QSize(20, 20));
+  QCOMPARE(splitPrevious->iconSize(), QSize(16, 16));
+  QCOMPARE(splitNext->iconSize(), QSize(16, 16));
+  auto *splitNavigation =
+      splitView->findChild<QWidget *>("ModifiedBlockNavigation");
+  QVERIFY(splitNavigation);
+  QCOMPARE(splitNavigation->size(), QSize(40, 50));
   const QList<int> splitBlocks = [&splitFile] {
     TextEditor *oldEditor = splitFile.editors().first();
     TextEditor *newEditor = splitFile.editors().last();

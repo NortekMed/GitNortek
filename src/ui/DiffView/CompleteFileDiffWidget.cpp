@@ -27,8 +27,8 @@ namespace {
 constexpr int kOverviewWidth = 32;
 constexpr int kOverviewMinimumThumbHeight = 12;
 constexpr int kNavigationWidth = 40;
-constexpr int kNavigationButtonSize = 28;
-constexpr int kNavigationHeight = 66;
+constexpr int kNavigationButtonSize = 20;
+constexpr int kNavigationHeight = 50;
 constexpr qreal kNavigationTopAnchor = 0.20;
 constexpr qreal kNavigationBottomAnchor = 0.80;
 const QColor kOverviewThumb(128, 128, 128, 96);
