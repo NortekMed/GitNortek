@@ -44,6 +44,7 @@ Bug Fix and Feature release
 #### Changed
 
 * Color file and hunk discard controls red to identify destructive actions
+* Use the diff overview as the only visible scrollbar in complete-file views
 * Keep modified-block navigation within directional viewport margins instead of recentering each selected block
 * Allow GitNortek windows to fit Cinnamon's upper-half window tile
 * Disable tag push actions after confirming the tag is present on origin

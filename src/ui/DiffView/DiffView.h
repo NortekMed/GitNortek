@@ -21,6 +21,7 @@
 #include "app/Theme.h"
 #include <QMap>
 #include <QScrollArea>
+#include <QSet>
 
 class QCheckBox;
 class QVBoxLayout;
@@ -104,6 +105,7 @@ public:
   void diffTreeModelDataChanged(const QModelIndex &topLeft,
                                 const QModelIndex &bottomRight,
                                 const QVector<int> &roles);
+  void setCompleteFilePresentationActive(FileWidget *file, bool active);
   void moveHalfPageDown();
   void moveHalfPageUp();
   void moveRelative(int pixelsDown);
@@ -128,6 +130,7 @@ private:
   QList<QModelIndex> selectedFileIndices() const;
   void indexChanged(const QStringList &paths);
   void loadStagedPatches();
+  void updateCompleteFileScrollBarPolicy();
 
   git::Diff mDiff;
   QMap<QString, int> mStagedPatches;
@@ -144,6 +147,7 @@ private:
   DiffTreeModel *mDiffTreeModel{nullptr};
   QWidget *mParent{nullptr};
   QVBoxLayout *mFileWidgetLayout{nullptr};
+  QSet<FileWidget *> mCompleteFilePresentations;
 };
 
 #endif

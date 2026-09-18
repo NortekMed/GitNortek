@@ -1,5 +1,6 @@
 
 #include "FileWidget.h"
+#include "DiffView.h"
 #include "DisclosureButton.h"
 #include "EditButton.h"
 #include "DiscardButton.h"
@@ -595,6 +596,11 @@ FileWidget::FileWidget(DiffView *view, const git::Diff &diff,
   updateMarkResolvedState();
 }
 
+FileWidget::~FileWidget() {
+  if (mCompleteFilePresentationActive && mView)
+    mView->setCompleteFilePresentationActive(this, false);
+}
+
 void FileWidget::updateHunks(git::Patch stagedPatch) {
   mStaged = stagedPatch;
   for (auto hunk : mHunks)
@@ -743,14 +749,17 @@ void FileWidget::rebuildPresentation(int generation) {
     return;
 
   if (!mPresentation || mPatch.isConflicted() || mPatch.isBinary() ||
-      mPatch.isLfsPointer() || mHunks.isEmpty())
+      mPatch.isLfsPointer() || mHunks.isEmpty()) {
+    updateCompleteFilePresentationState();
     return;
+  }
 
   const Settings::DiffMode mode = Settings::instance()->diffMode();
   if (mCompleteDiffMessage)
     mCompleteDiffMessage->hide();
   if (mode == Settings::DiffMode::Hunk) {
     mPresentation->setCurrentWidget(mHunkPage);
+    updateCompleteFilePresentationState();
     return;
   }
 
@@ -775,11 +784,13 @@ void FileWidget::rebuildPresentation(int generation) {
     }
     mCompleteDiffMessage->show();
     mPresentation->setCurrentWidget(mHunkPage);
+    updateCompleteFilePresentationState();
     return;
   }
 
   if (canFetchMore()) {
     fetchMore(1);
+    updateCompleteFilePresentationState();
     QTimer::singleShot(0, this,
                        [this, generation] { rebuildPresentation(generation); });
     return;
@@ -790,6 +801,7 @@ void FileWidget::rebuildPresentation(int generation) {
   if (mCompleteDiff && mCompleteDiffMode == mode &&
       mCompleteDiffIgnoresWhitespace == ignoreWhitespace) {
     mPresentation->setCurrentWidget(mCompleteDiff);
+    updateCompleteFilePresentationState();
     return;
   }
 
@@ -806,6 +818,19 @@ void FileWidget::rebuildPresentation(int generation) {
           &FileWidget::stagePresentationLines);
   mPresentation->addWidget(mCompleteDiff);
   mPresentation->setCurrentWidget(mCompleteDiff);
+  updateCompleteFilePresentationState();
+}
+
+void FileWidget::updateCompleteFilePresentationState() {
+  const bool active =
+      mCompleteDiff && mPresentation &&
+      mPresentation->currentWidget() == mCompleteDiff;
+  if (active == mCompleteFilePresentationActive)
+    return;
+
+  mCompleteFilePresentationActive = active;
+  if (mView)
+    mView->setCompleteFilePresentationActive(this, active);
 }
 
 void FileWidget::stagePresentationLines(

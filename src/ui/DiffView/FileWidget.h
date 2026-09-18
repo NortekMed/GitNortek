@@ -8,6 +8,7 @@
 #include <QWidget>
 #include <QFrame>
 #include <QModelIndex>
+#include <QPointer>
 
 #include "git/Diff.h"
 #include "git/Patch.h"
@@ -99,6 +100,7 @@ public:
              const git::Patch &staged, const QModelIndex modelIndex,
              const QString &name, const QString &path, bool submodule,
              QWidget *parent = nullptr);
+  ~FileWidget() override;
   bool isEmpty();
   void updatePatch(const git::Patch &patch, const git::Patch &staged,
                    const QString &name, const QString &path, bool submodule);
@@ -158,8 +160,9 @@ private:
   void rebuildPresentation(int generation);
   void stagePresentationLines(const QList<QPair<int, int>> &targets,
                               bool staged);
+  void updateCompleteFilePresentationState();
 
-  DiffView *mView{nullptr};
+  QPointer<DiffView> mView;
 
   git::Diff mDiff;
   git::Patch mPatch;
@@ -182,6 +185,7 @@ private:
   bool mDiffSuppressed{false};
   bool mSuppressUpdate{false};
   bool mSupressStaging{false};
+  bool mCompleteFilePresentationActive{false};
 };
 
 #endif // FILEWIDGET_H

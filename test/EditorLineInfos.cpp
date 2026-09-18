@@ -1205,7 +1205,8 @@ void TestEditorLineInfo::completeFilePresentationModes() {
     QWidget *realOverview = realView->findChild<QWidget *>("DiffOverviewBar");
     QVERIFY(realOverview);
     QTRY_VERIFY(realDiffView->verticalScrollBar()->maximum() > 0);
-    QTRY_VERIFY(realDiffView->verticalScrollBar()->isVisible());
+    QTRY_COMPARE(realDiffView->verticalScrollBarPolicy(),
+                 Qt::ScrollBarAlwaysOff);
     QTRY_VERIFY(realOverview->isVisible());
     QCOMPARE(realOverview->parentWidget(),
              realView->findChild<QWidget *>("DiffOverviewSlot"));
@@ -1286,6 +1287,11 @@ void TestEditorLineInfo::completeFilePresentationModes() {
   };
   verifyRealFile(Settings::DiffMode::Split);
   verifyRealFile(Settings::DiffMode::Inline);
+
+  Settings::instance()->setDiffMode(Settings::DiffMode::Hunk);
+  inlineFile.rebuildPresentation();
+  splitFile.rebuildPresentation();
+  QTRY_COMPARE(diffView.verticalScrollBarPolicy(), Qt::ScrollBarAsNeeded);
 
   Settings::instance()->setTextEditorWrapLines(true);
   QCOMPARE(splitFile.editors().first()->wrapMode(), SC_WRAP_WORD);

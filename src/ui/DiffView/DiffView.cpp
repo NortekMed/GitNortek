@@ -121,6 +121,8 @@ void DiffView::setDiff(const git::Diff &diff) {
 
   // Clear state.
   mFiles.clear();
+  mCompleteFilePresentations.clear();
+  setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
   mComments = Account::CommitComments();
 
   // Set data.
@@ -312,6 +314,8 @@ void DiffView::updateFiles() {
     file->deleteLater();
   }
   mFiles.clear();
+  mCompleteFilePresentations.clear();
+  updateCompleteFileScrollBarPolicy();
 
   if (canFetchMore())
     fetchMore();
@@ -320,6 +324,23 @@ void DiffView::updateFiles() {
 void DiffView::rebuildPresentations() {
   for (FileWidget *file : std::as_const(mFiles))
     file->rebuildPresentation();
+  updateCompleteFileScrollBarPolicy();
+}
+
+void DiffView::setCompleteFilePresentationActive(FileWidget *file,
+                                                  bool active) {
+  if (active) {
+    if (!mCompleteFilePresentations.contains(file)) {
+      mCompleteFilePresentations.insert(file);
+      connect(file, &QObject::destroyed, this, [this, file] {
+        mCompleteFilePresentations.remove(file);
+        updateCompleteFileScrollBarPolicy();
+      });
+    }
+  } else {
+    mCompleteFilePresentations.remove(file);
+  }
+  updateCompleteFileScrollBarPolicy();
 }
 
 QList<TextEditor *> DiffView::editors() {
@@ -524,6 +545,8 @@ void DiffView::fetchMore(int fetchWidgets) {
 
     layout->addStretch();
   }
+
+  updateCompleteFileScrollBarPolicy();
 }
 
 void DiffView::fetchAll(int index) {
@@ -566,4 +589,18 @@ void DiffView::moveRelative(int pixelsDown) {
   int oldPosition = verticalScrollBar()->sliderPosition();
   int newPosition = oldPosition + pixelsDown;
   verticalScrollBar()->setSliderPosition(newPosition);
+}
+
+void DiffView::updateCompleteFileScrollBarPolicy() {
+  bool useCompleteFileOverview = !mCompleteFilePresentations.isEmpty();
+  for (FileWidget *file : std::as_const(mFiles)) {
+    if (!mCompleteFilePresentations.contains(file)) {
+      useCompleteFileOverview = false;
+      break;
+    }
+  }
+
+  setVerticalScrollBarPolicy(useCompleteFileOverview
+                                 ? Qt::ScrollBarAlwaysOff
+                                 : Qt::ScrollBarAsNeeded);
 }
