@@ -291,19 +291,24 @@ CompleteFileDiffWidget::CompleteFileDiffWidget(const git::Diff &diff,
 
   if (mode == Settings::DiffMode::Split) {
     mOld = createEditor();
+    mNavigationSlot = new QWidget(this);
+    mNavigationSlot->setObjectName("ModifiedBlockNavigationSlot");
+    mNavigationSlot->setFixedWidth(kNavigationWidth);
+    mNavigationSlot->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    mNew = createEditor();
     mOverviewSlot = new QWidget(this);
     mOverviewSlot->setObjectName("DiffOverviewSlot");
-    mOverviewSlot->setFixedWidth(kNavigationWidth);
+    mOverviewSlot->setFixedWidth(kOverviewWidth);
     mOverviewSlot->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
-    mNew = createEditor();
     layout->addWidget(mOld, 1);
-    layout->addWidget(mOverviewSlot);
+    layout->addWidget(mNavigationSlot);
     layout->addWidget(mNew, 1);
+    layout->addWidget(mOverviewSlot);
   } else {
     mInline = createEditor();
     mOverviewSlot = new QWidget(this);
     mOverviewSlot->setObjectName("DiffOverviewSlot");
-    mOverviewSlot->setFixedWidth(kNavigationWidth);
+    mOverviewSlot->setFixedWidth(kOverviewWidth);
     mOverviewSlot->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     layout->addWidget(mInline, 1);
     layout->addWidget(mOverviewSlot);
@@ -334,13 +339,22 @@ bool CompleteFileDiffWidget::containsEditor(TextEditor *editor) const {
 
 void CompleteFileDiffWidget::reload() {
   mRows = rows();
-  updateModifiedBlocks();
+  if (mNavigation)
+    updateModifiedBlocks();
   if (mInline)
     loadEditor(mInline, false, mRows);
   if (mOld)
     loadEditor(mOld, true, mRows);
   if (mNew)
     loadEditor(mNew, false, mRows);
+  setMinimumHeight(0);
+  int contentHeight = 0;
+  for (Editor *editor : {mInline, mOld, mNew})
+    if (editor)
+      contentHeight = qMax(contentHeight, editor->sizeHint().height());
+  if (contentHeight > 0)
+    setMinimumHeight(contentHeight);
+  updateGeometry();
   updateOverview();
   updateNavigationGeometry();
 }
@@ -364,14 +378,17 @@ void CompleteFileDiffWidget::createOverview() {
     connect(mView->horizontalScrollBar(), &QScrollBar::rangeChanged, this,
             [this] { updateOverviewGeometry(); });
     mView->viewport()->installEventFilter(this);
+    mView->installEventFilter(this);
+    mView->verticalScrollBar()->installEventFilter(this);
+    mView->horizontalScrollBar()->installEventFilter(this);
   }
 }
 
 void CompleteFileDiffWidget::createNavigation() {
-  if (!mOverviewSlot)
+  if (!mNavigationSlot)
     return;
 
-  mNavigation = new QWidget(mOverviewSlot);
+  mNavigation = new QWidget(mNavigationSlot);
   mNavigation->setObjectName("ModifiedBlockNavigation");
   mNavigation->setFixedSize(kNavigationWidth, kNavigationHeight);
 
@@ -501,7 +518,7 @@ void CompleteFileDiffWidget::updateOverview() {
 }
 
 void CompleteFileDiffWidget::updateOverviewGeometry() {
-  if (!mOverview || !mOverviewSlot)
+  if (!mOverview)
     return;
 
   if (!isVisible()) {
@@ -519,8 +536,7 @@ void CompleteFileDiffWidget::updateOverviewGeometry() {
       return;
     }
 
-    const QRect slot = mOverviewSlot->rect();
-    mOverview->setGeometry(slot);
+    mOverview->setGeometry(mOverviewSlot->rect());
 
     const qreal fileHeight = qMax(1, height());
     const qreal visibleStart =
@@ -530,8 +546,7 @@ void CompleteFileDiffWidget::updateOverviewGeometry() {
         qreal(1));
     mOverview->setViewportRange(visibleStart, visibleEnd);
   } else {
-    const QRect slot = mOverviewSlot->rect();
-    mOverview->setGeometry(slot);
+    mOverview->setGeometry(mOverviewSlot->rect());
     mOverview->setViewportRange(0, 1);
   }
 
@@ -541,7 +556,7 @@ void CompleteFileDiffWidget::updateOverviewGeometry() {
 }
 
 void CompleteFileDiffWidget::updateNavigationGeometry() {
-  if (!mNavigation || !mOverviewSlot)
+  if (!mNavigation || !mNavigationSlot)
     return;
 
   if (!isVisible()) {
@@ -549,7 +564,7 @@ void CompleteFileDiffWidget::updateNavigationGeometry() {
     return;
   }
 
-  const QRect slot = mOverviewSlot->rect();
+  const QRect slot = mNavigationSlot->rect();
   int y = (slot.height() - mNavigation->height()) / 2;
   if (mView && mView->isAncestorOf(this)) {
     QWidget *viewport = mView->viewport();
@@ -559,8 +574,8 @@ void CompleteFileDiffWidget::updateNavigationGeometry() {
       return;
     }
 
-    y = mOverviewSlot->mapFrom(viewport,
-                               QPoint(0, viewport->height() / 2))
+    y = mNavigationSlot->mapFrom(viewport,
+                                 QPoint(0, viewport->height() / 2))
             .y() -
         mNavigation->height() / 2;
     y = qBound(0, y, qMax(0, slot.height() - mNavigation->height()));
@@ -612,8 +627,13 @@ void CompleteFileDiffWidget::navigateModifiedBlock(int direction) {
 }
 
 bool CompleteFileDiffWidget::eventFilter(QObject *watched, QEvent *event) {
-  if (mView && watched == mView->viewport() &&
-      (event->type() == QEvent::Resize || event->type() == QEvent::Show ||
+  const bool viewGeometryChanged =
+      mView && (watched == mView || watched == mView->viewport() ||
+                watched == mView->verticalScrollBar() ||
+                watched == mView->horizontalScrollBar());
+  if (viewGeometryChanged &&
+      (event->type() == QEvent::Move || event->type() == QEvent::Resize ||
+       event->type() == QEvent::Show || event->type() == QEvent::Hide ||
        event->type() == QEvent::LayoutRequest))
     updateOverviewGeometry();
   return QWidget::eventFilter(watched, event);

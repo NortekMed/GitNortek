@@ -75,6 +75,7 @@ private:
   Editor *mOld{nullptr};
   Editor *mNew{nullptr};
   QWidget *mOverviewSlot{nullptr};
+  QWidget *mNavigationSlot{nullptr};
   QPointer<DiffOverviewBar> mOverview;
   QWidget *mNavigation{nullptr};
   QToolButton *mPreviousBlock{nullptr};

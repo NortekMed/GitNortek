@@ -21,7 +21,10 @@
 #include <QImage>
 #include <QPalette>
 #include <QPushButton>
+#include <QScrollBar>
+#include <QTest>
 #include <QToolButton>
+#include <QVBoxLayout>
 
 #define INIT_REPO(repoPath, /* bool */ useTempDir)                             \
   QString path = Test::extractRepository(repoPath, useTempDir);                \
@@ -1015,31 +1018,13 @@ void TestEditorLineInfo::completeFilePresentationModes() {
       inlineView->findChild<QToolButton *>("PreviousModifiedBlock");
   QToolButton *inlineNext =
       inlineView->findChild<QToolButton *>("NextModifiedBlock");
-  QVERIFY(inlinePrevious);
-  QVERIFY(inlineNext);
-  QVERIFY(!inlinePrevious->icon().isNull());
-  QVERIFY(!inlineNext->icon().isNull());
-  QVERIFY(inlinePrevious->styleSheet().contains("#f0a020"));
+  QVERIFY(!inlinePrevious);
+  QVERIFY(!inlineNext);
+  QVERIFY(!inlineView->findChild<QWidget *>("ModifiedBlockNavigation"));
   QCOMPARE(inlineEditor->marginTypeN(TextEditor::LineNumber), SC_MARGIN_RTEXT);
   const QList<int> inlineBlocks = modifiedBlockStarts(inlineEditor);
   QVERIFY(inlineBlocks.size() > 1);
-  QVERIFY(!inlinePrevious->isEnabled());
-  QVERIFY(inlineNext->isEnabled());
   checkLineNumberHighlight(inlineEditor, -1);
-  for (int i = 0; i < inlineBlocks.size(); ++i) {
-    inlineNext->click();
-    QCOMPARE(inlineEditor->lineFromPosition(inlineEditor->currentPos()),
-             inlineBlocks.at(i));
-    checkLineNumberHighlight(inlineEditor, inlineBlocks.at(i));
-    QCOMPARE(inlinePrevious->isEnabled(), i > 0);
-    QCOMPARE(inlineNext->isEnabled(), i + 1 < inlineBlocks.size());
-  }
-  for (int i = inlineBlocks.size() - 2; i >= 0; --i) {
-    inlinePrevious->click();
-    QCOMPARE(inlineEditor->lineFromPosition(inlineEditor->currentPos()),
-             inlineBlocks.at(i));
-    checkLineNumberHighlight(inlineEditor, inlineBlocks.at(i));
-  }
 
   QWidget *inlineOverview = inlineView->findChild<QWidget *>("DiffOverviewBar");
   QVERIFY(inlineOverview);
@@ -1181,6 +1166,71 @@ void TestEditorLineInfo::completeFilePresentationModes() {
   QCOMPARE(splitOverviewImage.pixelColor(splitOverviewImage.width() - 2,
                                          unchangedY),
            background);
+
+  DiffView *realDiffView = &diffView;
+  QWidget *realContent = new QWidget(realDiffView);
+  realDiffView->setWidget(realContent);
+  realDiffView->setFixedSize(640, 160);
+  realDiffView->show();
+  QVBoxLayout *realLayout = new QVBoxLayout(realContent);
+  realLayout->setContentsMargins(0, 0, 0, 0);
+  auto verifyRealFile = [&](Settings::DiffMode mode) {
+    Settings::instance()->setDiffMode(mode);
+    FileWidget realFile(realDiffView, diff, patch, stagedPatch, QModelIndex(),
+                        name, path_, false, realContent);
+    realLayout->addWidget(&realFile);
+    realFile.show();
+    realContent->show();
+    QCoreApplication::processEvents();
+
+    const char *objectName = mode == Settings::DiffMode::Split
+                                 ? "SplitFileDiff"
+                                 : "InlineFileDiff";
+    auto *realView = realFile.findChild<CompleteFileDiffWidget *>(objectName);
+    QVERIFY(realView);
+    auto *realPrevious =
+        realView->findChild<QToolButton *>("PreviousModifiedBlock");
+    auto *realNext = realView->findChild<QToolButton *>("NextModifiedBlock");
+    if (mode == Settings::DiffMode::Split) {
+      QVERIFY(realPrevious);
+      QVERIFY(realNext);
+      QTRY_VERIFY(realPrevious->isVisible());
+      QTRY_VERIFY(realNext->isVisible());
+    } else {
+      QVERIFY(!realPrevious);
+      QVERIFY(!realNext);
+    }
+
+    QWidget *realOverview = realView->findChild<QWidget *>("DiffOverviewBar");
+    QVERIFY(realOverview);
+    QTRY_VERIFY(realDiffView->verticalScrollBar()->maximum() > 0);
+    QTRY_VERIFY(realDiffView->verticalScrollBar()->isVisible());
+    QTRY_VERIFY(realOverview->isVisible());
+    QCOMPARE(realOverview->parentWidget(),
+             realView->findChild<QWidget *>("DiffOverviewSlot"));
+    QCOMPARE(realOverview->width(), 32);
+    const QRect overviewRect(
+        realOverview->mapTo(realContent, QPoint()),
+        realOverview->size());
+    QVERIFY(!overviewRect.intersected(realContent->rect()).isEmpty());
+
+    QScrollBar *scrollBar = realDiffView->verticalScrollBar();
+    scrollBar->setValue(0);
+    QCoreApplication::processEvents();
+    const QImage viewportImage = realContent->grab().toImage();
+    const int railLeft = overviewRect.x();
+    QVERIFY(containsColor(viewportImage, railLeft,
+                          railLeft + realOverview->width() / 2, deletion));
+    QVERIFY(containsColor(viewportImage,
+                          railLeft + realOverview->width() / 2,
+                          viewportImage.width(), addition));
+
+    scrollBar->setValue(scrollBar->maximum());
+    QTRY_COMPARE(scrollBar->value(), scrollBar->maximum());
+    QTRY_VERIFY(realOverview->isVisible());
+  };
+  verifyRealFile(Settings::DiffMode::Split);
+  verifyRealFile(Settings::DiffMode::Inline);
 
   Settings::instance()->setTextEditorWrapLines(true);
   QCOMPARE(splitFile.editors().first()->wrapMode(), SC_WRAP_WORD);
