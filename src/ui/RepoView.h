@@ -295,7 +295,7 @@ public:
   void addPushTagToOriginAction(QMenu *menu, const git::Reference &tag);
 
   // stash
-  void promptToStash();
+  void promptToStash(bool includeUntracked = false);
   bool stash(const QString &message = QString(), bool includeUntracked = false);
   void applyStash(int index = 0);
   void dropStash(int index = 0);

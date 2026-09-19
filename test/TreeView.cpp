@@ -15,7 +15,9 @@
 #include <algorithm>
 #include <QHBoxLayout>
 #include <QCheckBox>
+#include <QFile>
 #include <QLabel>
+#include <QMessageBox>
 #include <QPointer>
 #include <QPushButton>
 #include <QScrollBar>
@@ -62,6 +64,8 @@ private slots:
   void dirtySubmoduleAndStagedSubmodule();
   void conflictedAndStagedFile();
   void stageAllChangesButton();
+  void discardAllChangesButton();
+  void discardAllChangesInUnbornRepository();
   void externalRefreshPreservesSelection();
   void externalRefreshKeepsEditorContent();
   void externalRefreshPreservesViewport();
@@ -600,6 +604,158 @@ void TestTreeView::stageAllChangesButton() {
   commits->selectionModel()->select(commitIndex,
                                     QItemSelectionModel::ClearAndSelect);
   QTRY_VERIFY(!button->isVisible());
+}
+
+void TestTreeView::discardAllChangesButton() {
+  INIT_REPO("TestRepository.zip", false);
+
+  QFile modified(repo.workdir().filePath("file.txt"));
+  QVERIFY(modified.open(QIODevice::WriteOnly | QIODevice::Truncate));
+  QVERIFY(modified.write("discarded modification\n") > 0);
+  modified.close();
+
+  const QString deletedPath = repo.workdir().filePath("file2.txt");
+  QVERIFY(QFile::remove(deletedPath));
+
+  const QString untrackedPath = repo.workdir().filePath("discard-all.txt");
+  QFile untracked(untrackedPath);
+  QVERIFY(untracked.open(QIODevice::WriteOnly));
+  QVERIFY(untracked.write("remove me\n") > 0);
+  untracked.close();
+
+  const QString submoduleTrackedPath =
+      repo.workdir().filePath("GittyupTestRepo/README.md");
+  QFile submoduleTracked(submoduleTrackedPath);
+  QVERIFY(submoduleTracked.open(QIODevice::ReadOnly));
+  const QByteArray submoduleOriginal = submoduleTracked.readAll();
+  submoduleTracked.close();
+  QVERIFY(submoduleTracked.open(QIODevice::WriteOnly | QIODevice::Truncate));
+  QVERIFY(submoduleTracked.write("discarded submodule modification\n") > 0);
+  submoduleTracked.close();
+
+  const QString submoduleUntrackedPath =
+      repo.workdir().filePath("GittyupTestRepo/discard-all.txt");
+  QFile submoduleUntracked(submoduleUntrackedPath);
+  QVERIFY(submoduleUntracked.open(QIODevice::WriteOnly));
+  QVERIFY(submoduleUntracked.write("remove me too\n") > 0);
+  submoduleUntracked.close();
+
+  refresh(repoView);
+
+  auto *doubleTree = repoView->findChild<DoubleTreeWidget *>();
+  QVERIFY(doubleTree);
+  auto *discard =
+      doubleTree->findChild<QToolButton *>("DiscardAllChangesButton");
+  auto *stage = doubleTree->findChild<QPushButton *>("StageAllChangesButton");
+  QVERIFY(discard);
+  QVERIFY(stage);
+  QVERIFY(doubleTree->collapseButtonUnstagedFiles);
+  QCOMPARE(discard->height(),
+           doubleTree->collapseButtonUnstagedFiles->height());
+
+  auto *unstagedLayout = qobject_cast<QVBoxLayout *>(
+      doubleTree->collapseButtonUnstagedFiles->parentWidget()->layout());
+  QVERIFY(unstagedLayout);
+  auto *headerLayout =
+      qobject_cast<QHBoxLayout *>(unstagedLayout->itemAt(0)->layout());
+  QVERIFY(headerLayout);
+  QVERIFY(headerLayout->indexOf(discard) < headerLayout->indexOf(stage));
+  QCOMPARE(headerLayout->indexOf(stage) - headerLayout->indexOf(discard), 2);
+
+  QTRY_VERIFY(discard->isVisible());
+  QTRY_VERIFY(discard->isEnabled());
+  mouseClick(discard, Qt::LeftButton);
+
+  auto *dialog = repoView->findChild<QMessageBox *>();
+  QVERIFY(dialog);
+  const QString details = dialog->detailedText();
+  QVERIFY(details.contains("file.txt"));
+  QVERIFY(details.contains("file2.txt"));
+  QVERIFY(details.contains("discard-all.txt"));
+  QVERIFY(details.contains("GittyupTestRepo/README.md"));
+  QVERIFY(details.contains("GittyupTestRepo/discard-all.txt"));
+
+  auto *cancel = dialog->button(QMessageBox::Cancel);
+  QVERIFY(cancel);
+  mouseClick(cancel, Qt::LeftButton);
+  QTRY_VERIFY(!dialog->isVisible());
+
+  QVERIFY(modified.open(QIODevice::ReadOnly));
+  QCOMPARE(modified.readAll(), QByteArray("discarded modification\n"));
+  QVERIFY(!QFile::exists(deletedPath));
+  QVERIFY(QFile::exists(untrackedPath));
+
+  mouseClick(discard, Qt::LeftButton);
+  dialog = repoView->findChild<QMessageBox *>();
+  QVERIFY(dialog);
+  auto *accept = dialog->findChild<QPushButton *>("DiscardButton");
+  QVERIFY(accept);
+  mouseClick(accept, Qt::LeftButton);
+
+  QTRY_VERIFY(QFile::exists(deletedPath));
+  QTRY_VERIFY(!QFile::exists(untrackedPath));
+  QTRY_VERIFY(!QFile::exists(submoduleUntrackedPath));
+  QTRY_VERIFY([&] {
+    QFile restored(deletedPath);
+    return restored.open(QIODevice::ReadOnly) &&
+           restored.readAll() == QByteArray("file2.txt\n");
+  }());
+  QTRY_VERIFY([&] {
+    QFile restored(modified.fileName());
+    return restored.open(QIODevice::ReadOnly) &&
+           restored.readAll() == QByteArray("File.txt\n");
+  }());
+  QTRY_VERIFY([&] {
+    QFile restored(submoduleTrackedPath);
+    return restored.open(QIODevice::ReadOnly) &&
+           restored.readAll() == submoduleOriginal;
+  }());
+  QTRY_VERIFY(!discard->isEnabled());
+}
+
+void TestTreeView::discardAllChangesInUnbornRepository() {
+  Test::ScratchRepository repo;
+
+  const QString stagedPath = repo->workdir().filePath("staged.txt");
+  QFile staged(stagedPath);
+  QVERIFY(staged.open(QIODevice::WriteOnly));
+  QVERIFY(staged.write("staged\n") > 0);
+  staged.close();
+  repo->index().setStaged({"staged.txt"}, true, false);
+
+  const QString untrackedPath = repo->workdir().filePath("untracked.txt");
+  QFile untracked(untrackedPath);
+  QVERIFY(untracked.open(QIODevice::WriteOnly));
+  QVERIFY(untracked.write("untracked\n") > 0);
+  untracked.close();
+
+  MainWindow window(repo);
+  window.show();
+  QVERIFY(QTest::qWaitForWindowExposed(&window));
+  RepoView *repoView = window.currentView();
+  QVERIFY(repoView);
+  refresh(repoView);
+
+  auto *doubleTree = repoView->findChild<DoubleTreeWidget *>();
+  QVERIFY(doubleTree);
+  auto *discard =
+      doubleTree->findChild<QToolButton *>("DiscardAllChangesButton");
+  QVERIFY(discard);
+  QTRY_VERIFY(discard->isEnabled());
+
+  mouseClick(discard, Qt::LeftButton);
+  auto *dialog = repoView->findChild<QMessageBox *>();
+  QVERIFY(dialog);
+  QVERIFY(dialog->detailedText().contains("staged.txt"));
+  QVERIFY(dialog->detailedText().contains("untracked.txt"));
+
+  auto *accept = dialog->findChild<QPushButton *>("DiscardButton");
+  QVERIFY(accept);
+  mouseClick(accept, Qt::LeftButton);
+
+  QTRY_VERIFY(!QFile::exists(stagedPath));
+  QTRY_VERIFY(!QFile::exists(untrackedPath));
+  QTRY_VERIFY(!discard->isEnabled());
 }
 
 void TestTreeView::externalRefreshPreservesSelection() {

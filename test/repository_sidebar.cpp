@@ -135,6 +135,31 @@ QStringList contextMenuItems(CommitList *view, const QModelIndex &index) {
   return items;
 }
 
+bool triggerCommitContextMenuItem(CommitList *view, const QModelIndex &index,
+                                  const QString &text) {
+  bool triggered = false;
+  view->scrollTo(index);
+  QPoint viewportPoint = view->visualRect(index).center();
+  QPoint globalPoint = view->viewport()->mapToGlobal(viewportPoint);
+  QTimer::singleShot(0, [&triggered, text] {
+    QMenu *menu = qobject_cast<QMenu *>(QApplication::activePopupWidget());
+    if (!menu)
+      return;
+    for (QAction *action : menu->actions()) {
+      if (action->text() != text)
+        continue;
+      triggered = true;
+      menu->close();
+      action->trigger();
+      return;
+    }
+    menu->close();
+  });
+  QContextMenuEvent event(QContextMenuEvent::Mouse, viewportPoint, globalPoint);
+  QApplication::sendEvent(view->viewport(), &event);
+  return triggered;
+}
+
 QStringList contextSubmenuItems(CommitList *view, const QModelIndex &index,
                                 const QString &submenuText) {
   QStringList items;
@@ -263,6 +288,7 @@ private slots:
   void checkoutConflictCommit();
   void branchGraphColors();
   void stashInteraction();
+  void uncommittedChangesContextMenuStash();
   void historyPrefetch();
   void tagPushToOrigin();
   void submoduleInteraction();
@@ -2197,6 +2223,61 @@ void TestRepositorySideBar::stashInteraction() {
   QTRY_COMPARE(graphStashes().size(), 1);
 }
 
+void TestRepositorySideBar::uncommittedChangesContextMenuStash() {
+  Test::ScratchRepository repo;
+  QFile tracked(repo->workdir().filePath("tracked.txt"));
+  QVERIFY(tracked.open(QIODevice::WriteOnly));
+  QVERIFY(tracked.write("initial\n") > 0);
+  tracked.close();
+  repo->index().setStaged({"tracked.txt"}, true);
+  QVERIFY(repo->commit("initial").isValid());
+
+  QVERIFY(tracked.open(QIODevice::WriteOnly | QIODevice::Truncate));
+  QVERIFY(tracked.write("changed\n") > 0);
+  tracked.close();
+  QFile untracked(repo->workdir().filePath("untracked.txt"));
+  QVERIFY(untracked.open(QIODevice::WriteOnly));
+  QVERIFY(untracked.write("untracked\n") > 0);
+  untracked.close();
+
+  Settings *settings = Settings::instance();
+  const bool promptStash = settings->prompt(Prompt::Kind::Stash);
+  auto restorePrompt = qScopeGuard([settings, promptStash] {
+    settings->setPrompt(Prompt::Kind::Stash, promptStash);
+  });
+  settings->setPrompt(Prompt::Kind::Stash, false);
+
+  MainWindow window(repo);
+  window.show();
+  QVERIFY(qWaitForWindowExposed(&window));
+  RepoView *view = window.currentView();
+  QVERIFY(view);
+  Test::refresh(view);
+
+  CommitList *commitList = window.findChild<CommitList *>();
+  QVERIFY(commitList);
+  QModelIndex statusIndex;
+  for (int row = 0; row < commitList->model()->rowCount(); ++row) {
+    QModelIndex candidate = commitList->model()->index(row, 0);
+    if (!candidate.data(CommitList::CommitRole)
+             .value<git::Commit>()
+             .isValid()) {
+      statusIndex = candidate;
+      break;
+    }
+  }
+  QVERIFY(statusIndex.isValid());
+
+  const QStringList items = contextMenuItems(commitList, statusIndex);
+  QVERIFY(items.contains("Stash"));
+  QVERIFY(triggerCommitContextMenuItem(commitList, statusIndex, "Stash"));
+
+  QTRY_COMPARE(repo->stashes().size(), 1);
+  QTRY_VERIFY(!QFile::exists(untracked.fileName()));
+  QVERIFY(tracked.open(QIODevice::ReadOnly));
+  QCOMPARE(tracked.readAll(), QByteArray("initial\n"));
+}
+
 void TestRepositorySideBar::historyPrefetch() {
   constexpr int commitCount = 600;
   Test::ScratchRepository repo;
@@ -2493,7 +2574,8 @@ void TestRepositorySideBar::submoduleInteraction() {
   navigator->model()->setBusySubmodulePaths({selected.path()});
   QVERIFY(submodule.data(RepositoryNavigatorModel::SubmoduleBusyRole).toBool());
   navigator->model()->setBusySubmodulePaths({});
-  QVERIFY(!submodule.data(RepositoryNavigatorModel::SubmoduleBusyRole).toBool());
+  QVERIFY(
+      !submodule.data(RepositoryNavigatorModel::SubmoduleBusyRole).toBool());
   QCOMPARE(submodule.data(RepositoryNavigatorModel::OriginStateRole)
                .value<RepositoryNavigatorModel::OriginState>(),
            RepositoryNavigatorModel::OriginState::Ready);

@@ -2326,8 +2326,8 @@ void CommitList::updateHeader(bool saveState) {
   mHeader->setVisible(compact);
   mHeaderOptions->setVisible(compact);
   if (compact) {
-    mHeader->setSectionHidden(
-        GraphColumn, !config.value<bool>(ConfigKeys::kGraphKey, true));
+    mHeader->setSectionHidden(GraphColumn,
+                              !config.value<bool>(ConfigKeys::kGraphKey, true));
     mHeader->setSectionHidden(AuthorColumn,
                               !Settings::instance()
                                    ->value(Setting::Id::ShowCommitsAuthor, true)
@@ -2635,6 +2635,11 @@ void CommitList::contextMenuEvent(QContextMenuEvent *event) {
 
     // clean
     QStringList untracked = untrackedStatusPaths();
+
+    QAction *stash =
+        menu.addAction(tr("Stash"), [view] { view->promptToStash(true); });
+    stash->setEnabled(view && view->repo().head().target().isValid() &&
+                      hasStatusChanges());
 
     QAction *clean =
         menu.addAction(tr("Remove Untracked Files"),

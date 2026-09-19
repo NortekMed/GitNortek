@@ -2830,24 +2830,28 @@ void RepoView::addPushTagToOriginAction(QMenu *menu,
           });
 }
 
-void RepoView::promptToStash() {
+void RepoView::promptToStash(bool includeUntracked) {
   // Prompt to edit stash commit message.
   if (!Settings::instance()->prompt(Prompt::Kind::Stash)) {
-    stash();
+    stash(QString(), includeUntracked);
     return;
   }
 
   // Reproduce default commit message.
   git::Reference head = mRepo.head();
-  git::Commit commit = head.target();
-  QString id = commit.shortId();
-  QString ref = head.isBranch() ? head.name() : tr("(no branch)");
-  QString msg = tr("WIP on %1: %2 %3").arg(ref, id, commit.summary());
+  git::Commit commit = head.isValid() ? head.target() : git::Commit();
+  QString ref =
+      head.isValid() && head.isBranch() ? head.name() : tr("(no branch)");
+  QString msg =
+      commit.isValid()
+          ? tr("WIP on %1: %2 %3").arg(ref, commit.shortId(), commit.summary())
+          : tr("WIP on %1").arg(ref);
   CommitDialog *dialog = new CommitDialog(msg, Prompt::Kind::Stash, this);
-  connect(dialog, &QDialog::accepted, this, [this, msg, dialog] {
-    QString userMsg = dialog->message();
-    stash(msg != userMsg ? userMsg : QString());
-  });
+  connect(dialog, &QDialog::accepted, this,
+          [this, msg, dialog, includeUntracked] {
+            QString userMsg = dialog->message();
+            stash(msg != userMsg ? userMsg : QString(), includeUntracked);
+          });
 
   dialog->open();
 }

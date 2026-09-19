@@ -26,6 +26,7 @@ class QLabel;
 class QCheckBox;
 class QPushButton;
 class QToolButton;
+class DiscardButton;
 
 // button in treeview:
 // https://stackoverflow.com/questions/40716138/how-to-add-a-button-to-a-qtreeview-row
@@ -79,6 +80,9 @@ private:
   void scheduleEditorContentLoad();
   void loadEditorContent(const QModelIndexList &indexes);
   void updateStageAllChangesButton();
+  void promptToDiscardAllChanges();
+  void discardAllChanges(const QStringList &tracked,
+                         const QStringList &untracked);
   void updateConflictUi();
   void selectAdjacentConflict(int direction);
   void toggleCollapseStagedFiles();
@@ -91,6 +95,7 @@ private:
   TreeView *unstagedFiles{nullptr};
   StatePushButton *collapseButtonStagedFiles{nullptr};
   StatePushButton *collapseButtonUnstagedFiles{nullptr};
+  DiscardButton *mDiscardAllChanges{nullptr};
   QPushButton *mStageAllChanges{nullptr};
   QLabel *mStagedFilesLabel{nullptr};
   QLabel *mUnstagedCommitedFiles{nullptr};
@@ -131,6 +136,7 @@ private:
   QStackedWidget *mFileView{nullptr};
   bool mIgnoreSelectionChange{false};
   bool mFileInspectionClosed{false};
+  bool mDiscardAllChangesInProgress{false};
   bool mConflictAutoOpenEnabled{false};
   int mEditorLoadGeneration{0};
 

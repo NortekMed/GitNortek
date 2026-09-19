@@ -2,6 +2,7 @@
 #define DISCARDBUTTON_H
 
 #include "Button.h"
+#include <QPainterPath>
 
 class DiscardButton : public Button {
 public:
