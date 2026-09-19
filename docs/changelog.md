@@ -45,6 +45,7 @@ Bug Fix and Feature release
 #### Changed
 
 * Color file and hunk discard controls red to identify destructive actions
+* Use a red trash icon and left-align the discard-all working-tree control
 * Reduce complete-file modified-block navigation button size
 * Show modified-block navigation buttons in Inline complete-file view
 * Position the first modified block at the upper viewport anchor when opening complete-file views

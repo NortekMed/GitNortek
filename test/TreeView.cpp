@@ -16,6 +16,7 @@
 #include <QHBoxLayout>
 #include <QCheckBox>
 #include <QFile>
+#include <QImage>
 #include <QLabel>
 #include <QMessageBox>
 #include <QPointer>
@@ -650,6 +651,21 @@ void TestTreeView::discardAllChangesButton() {
   QVERIFY(discard);
   QVERIFY(stage);
   QVERIFY(doubleTree->collapseButtonUnstagedFiles);
+  QVERIFY(!discard->icon().isNull());
+  const QImage iconImage =
+      discard->icon().pixmap(discard->iconSize()).toImage();
+  bool hasRedPixel = false;
+  for (int y = 0; y < iconImage.height() && !hasRedPixel; ++y) {
+    for (int x = 0; x < iconImage.width(); ++x) {
+      const QColor color = iconImage.pixelColor(x, y);
+      if (color.alpha() > 0 && color.red() > color.green() &&
+          color.red() > color.blue()) {
+        hasRedPixel = true;
+        break;
+      }
+    }
+  }
+  QVERIFY(hasRedPixel);
   QCOMPARE(discard->height(),
            doubleTree->collapseButtonUnstagedFiles->height());
 
@@ -659,8 +675,8 @@ void TestTreeView::discardAllChangesButton() {
   auto *headerLayout =
       qobject_cast<QHBoxLayout *>(unstagedLayout->itemAt(0)->layout());
   QVERIFY(headerLayout);
+  QCOMPARE(headerLayout->indexOf(discard), 0);
   QVERIFY(headerLayout->indexOf(discard) < headerLayout->indexOf(stage));
-  QCOMPARE(headerLayout->indexOf(stage) - headerLayout->indexOf(discard), 2);
 
   QTRY_VERIFY(discard->isVisible());
   QTRY_VERIFY(discard->isEnabled());

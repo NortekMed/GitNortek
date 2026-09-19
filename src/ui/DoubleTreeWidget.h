@@ -26,7 +26,6 @@ class QLabel;
 class QCheckBox;
 class QPushButton;
 class QToolButton;
-class DiscardButton;
 
 // button in treeview:
 // https://stackoverflow.com/questions/40716138/how-to-add-a-button-to-a-qtreeview-row
@@ -95,7 +94,7 @@ private:
   TreeView *unstagedFiles{nullptr};
   StatePushButton *collapseButtonStagedFiles{nullptr};
   StatePushButton *collapseButtonUnstagedFiles{nullptr};
-  DiscardButton *mDiscardAllChanges{nullptr};
+  QToolButton *mDiscardAllChanges{nullptr};
   QPushButton *mStageAllChanges{nullptr};
   QLabel *mStagedFilesLabel{nullptr};
   QLabel *mUnstagedCommitedFiles{nullptr};

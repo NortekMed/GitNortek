@@ -17,7 +17,6 @@
 #include "TreeView.h"
 #include "Debug.h"
 #include "conf/Settings.h"
-#include "DiffView/DiscardButton.h"
 #include "DiffView/DiffView.h"
 #include "DiffView/FileWidget.h"
 #include "git/Index.h"
@@ -149,6 +148,21 @@ QIcon diffModeIcon(Settings::DiffMode mode) {
       painter.drawLine(4, y, 13, y);
   }
   return QIcon(pixmap);
+}
+
+QIcon redTrashIcon(const QStyle *style) {
+  const QIcon source = style->standardIcon(QStyle::SP_TrashIcon);
+  QIcon red;
+  for (const QSize size : {QSize(16, 16), QSize(32, 32)}) {
+    QPixmap pixmap = source.pixmap(size);
+    if (pixmap.isNull())
+      continue;
+    QPainter painter(&pixmap);
+    painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+    painter.fillRect(pixmap.rect(), QColor(Qt::red));
+    red.addPixmap(pixmap);
+  }
+  return red.isNull() ? source : red;
 }
 
 class SegmentedButton : public QWidget {
@@ -439,9 +453,12 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   mShowAllFiles->setVisible(false);
   hBoxLayout->addWidget(mShowAllFiles);
 
-  mDiscardAllChanges = new DiscardButton(this);
+  mDiscardAllChanges = new QToolButton(this);
   mDiscardAllChanges->setObjectName("DiscardAllChangesButton");
+  mDiscardAllChanges->setAccessibleName(tr("Discard All Changes"));
   mDiscardAllChanges->setToolTip(tr("Discard All Changes"));
+  mDiscardAllChanges->setAutoRaise(true);
+  mDiscardAllChanges->setIcon(redTrashIcon(style()));
   mDiscardAllChanges->setVisible(false);
   mDiscardAllChanges->setEnabled(false);
 
@@ -469,8 +486,7 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   mDiscardAllChanges->setFixedHeight(headerButtonHeight);
   mStageAllChanges->setFixedHeight(headerButtonHeight);
   collapseButtonUnstagedFiles->setFixedHeight(headerButtonHeight);
-  hBoxLayout->addWidget(mDiscardAllChanges);
-  hBoxLayout->addSpacing(8);
+  hBoxLayout->insertWidget(0, mDiscardAllChanges);
   hBoxLayout->addWidget(mStageAllChanges);
   hBoxLayout->addWidget(collapseButtonUnstagedFiles);
 
