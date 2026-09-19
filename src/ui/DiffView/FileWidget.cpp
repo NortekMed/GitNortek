@@ -250,9 +250,8 @@ _FileWidget::Header::Header(const git::Diff &diff, const git::Patch &patch,
     return;
 
   connect(mStageButton, &QPushButton::clicked, this, [this] {
-    emit stageStateChanged(mCheck->checkState() == Qt::Checked
-                               ? Qt::Unchecked
-                               : Qt::Checked);
+    emit stageStateChanged(mCheck->checkState() == Qt::Checked ? Qt::Unchecked
+                                                               : Qt::Checked);
   });
 
   // Respond to check changes.
@@ -268,6 +267,7 @@ _FileWidget::Header::Header(const git::Diff &diff, const git::Patch &patch,
 }
 
 void _FileWidget::Header::updatePatch(const git::Patch &patch) {
+  mPatch = patch;
   auto status = patch.status();
   QList<Badge::Label> labels = {Badge::Label(
       Badge::Label::Type::Status, QChar(git::Diff::statusChar(status)))};
@@ -365,6 +365,9 @@ void _FileWidget::Header::updatePatch(const git::Patch &patch) {
   mDiscardButton->setVisible(mDiff.isStatusDiff() && !mSubmodule &&
                              !isConflicted);
 }
+
+void _FileWidget::Header::setDiff(const git::Diff &diff) { mDiff = diff; }
+
 QCheckBox *_FileWidget::Header::check() const { return mCheck; }
 
 DisclosureButton *_FileWidget::Header::disclosureButton() const {
@@ -425,9 +428,8 @@ void _FileWidget::Header::updateCheckState() {
 }
 
 void _FileWidget::Header::updateStageButton() {
-  mStageButton->setText(mCheck->checkState() == Qt::Checked
-                            ? tr("Unstage File")
-                            : tr("Stage File"));
+  mStageButton->setText(mCheck->checkState() == Qt::Checked ? tr("Unstage File")
+                                                            : tr("Stage File"));
 }
 
 // ###############################################################################
@@ -614,6 +616,41 @@ bool FileWidget::isEmpty() {
          !mResolver && !mFileResolver;
 }
 
+bool FileWidget::matchesPatch(const git::Patch &patch) const {
+  if (mPatch.isBinary() || patch.isBinary() || mPatch.isUntracked() ||
+      patch.isUntracked() || mPatch.count() == 0 || patch.count() == 0)
+    return false;
+
+  if (mPatch.status() != patch.status() ||
+      mPatch.isConflicted() != patch.isConflicted() ||
+      mPatch.name(git::Diff::OldFile) != patch.name(git::Diff::OldFile) ||
+      mPatch.name(git::Diff::NewFile) != patch.name(git::Diff::NewFile) ||
+      mPatch.count() != patch.count() || mPatch.print() != patch.print())
+    return false;
+
+  for (int i = 0; i < mPatch.count(); ++i) {
+    if (mPatch.header(i) != patch.header(i) ||
+        mPatch.lineCount(i) != patch.lineCount(i))
+      return false;
+  }
+
+  return true;
+}
+
+void FileWidget::updateContext(const git::Diff &diff, const git::Patch &patch,
+                               const git::Patch &staged,
+                               const QModelIndex &modelIndex) {
+  mDiff = diff;
+  mPatch = patch;
+  mStaged = staged;
+  mModelIndex = modelIndex;
+  mHeader->setDiff(diff);
+  mHeader->updatePatch(patch);
+  updateHunks(staged);
+  setStageState(static_cast<git::Index::StagedState>(
+      mModelIndex.data(Qt::CheckStateRole).toInt()));
+}
+
 void FileWidget::setStageState(git::Index::StagedState state) {
   mHeader->setStageState(state);
 
@@ -769,9 +806,8 @@ void FileWidget::rebuildPresentation(int generation) {
   if (git::Blob blob = mPatch.blob(git::Diff::NewFile); blob.isValid())
     completeFileBytes += blob.size();
   else if (mDiff.isStatusDiff())
-    completeFileBytes += QFileInfo(
-                             mPatch.repo().workdir().filePath(mPatch.name()))
-                             .size();
+    completeFileBytes +=
+        QFileInfo(mPatch.repo().workdir().filePath(mPatch.name())).size();
   if (completeFileBytes > kMaxCompleteFileBytes) {
     if (!mCompleteDiffMessage) {
       mCompleteDiffMessage = new QLabel(
@@ -796,8 +832,7 @@ void FileWidget::rebuildPresentation(int generation) {
     return;
   }
 
-  const bool ignoreWhitespace =
-      Settings::instance()->isEdgeWhitespaceIgnored();
+  const bool ignoreWhitespace = Settings::instance()->isEdgeWhitespaceIgnored();
   if (mCompleteDiff && mCompleteDiffMode == mode &&
       mCompleteDiffIgnoresWhitespace == ignoreWhitespace) {
     mPresentation->setCurrentWidget(mCompleteDiff);
@@ -806,9 +841,8 @@ void FileWidget::rebuildPresentation(int generation) {
   }
 
   CompleteFileDiffWidget *previous = mCompleteDiff;
-  CompleteFileDiffWidget *replacement =
-      new CompleteFileDiffWidget(mDiff, mPatch, mHunks, mode, mPresentation,
-                                 mView);
+  CompleteFileDiffWidget *replacement = new CompleteFileDiffWidget(
+      mDiff, mPatch, mHunks, mode, mPresentation, mView);
   mCompleteDiff = replacement;
   mCompleteDiffMode = mode;
   mCompleteDiffIgnoresWhitespace = ignoreWhitespace;
@@ -826,9 +860,8 @@ void FileWidget::rebuildPresentation(int generation) {
 }
 
 void FileWidget::updateCompleteFilePresentationState() {
-  const bool active =
-      mCompleteDiff && mPresentation &&
-      mPresentation->currentWidget() == mCompleteDiff;
+  const bool active = mCompleteDiff && mPresentation &&
+                      mPresentation->currentWidget() == mCompleteDiff;
   if (active == mCompleteFilePresentationActive)
     return;
 
@@ -837,8 +870,8 @@ void FileWidget::updateCompleteFilePresentationState() {
     mView->setCompleteFilePresentationActive(this, active);
 }
 
-void FileWidget::stagePresentationLines(
-    const QList<QPair<int, int>> &targets, bool staged) {
+void FileWidget::stagePresentationLines(const QList<QPair<int, int>> &targets,
+                                        bool staged) {
   for (const QPair<int, int> &target : targets) {
     if (target.first < 0 || target.first >= mHunks.size())
       continue;

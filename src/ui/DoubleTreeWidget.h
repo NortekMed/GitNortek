@@ -135,6 +135,7 @@ private:
   int mEditorLoadGeneration{0};
 
   git::Diff mDiff;
+  git::Diff mPendingStatusDiff;
   git::WorkingTreeStatusSnapshot mStatusSnapshot;
   bool mStatusSnapshotMode = false;
 

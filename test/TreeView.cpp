@@ -692,7 +692,6 @@ void TestTreeView::externalRefreshPreservesSelection() {
   QCOMPARE(visibleFile->name(), QString("file.txt"));
   QVERIFY(!visibleFile->editors().isEmpty());
   QVERIFY(visibleFile->editors().first()->length() > 0);
-
 }
 
 void TestTreeView::externalRefreshKeepsEditorContent() {
@@ -702,6 +701,9 @@ void TestTreeView::externalRefreshKeepsEditorContent() {
   QVERIFY(commits);
   commits->cancelStatus();
   refresh(repoView, false);
+  int detailRefreshes = 0;
+  connect(commits, &CommitList::diffSelected,
+          [&detailRefreshes](const git::Diff &) { ++detailRefreshes; });
 
   QModelIndex commitIndex;
   for (int row = 0; row < commits->model()->rowCount(); ++row) {
@@ -730,8 +732,8 @@ void TestTreeView::externalRefreshKeepsEditorContent() {
   QTRY_VERIFY(unstagedFiles->model()->rowCount() > 0);
 
   const QModelIndexList files = unstagedFiles->model()->match(
-      unstagedFiles->model()->index(0, 0), Qt::EditRole, QString("file.txt"),
-      1, Qt::MatchExactly | Qt::MatchRecursive);
+      unstagedFiles->model()->index(0, 0), Qt::EditRole, QString("file.txt"), 1,
+      Qt::MatchExactly | Qt::MatchRecursive);
   QVERIFY(!files.isEmpty());
   unstagedFiles->selectionModel()->setCurrentIndex(
       files.first(),
@@ -776,6 +778,34 @@ void TestTreeView::externalRefreshKeepsEditorContent() {
           return editor->text().contains("Updated external refresh test");
         });
   }());
+
+  QPointer<FileWidget> stableFile = visibleFile;
+  detailRefreshes = 0;
+  QSignalSpy unchangedStatus(repoView, &RepoView::statusChanged);
+  emit repo.notifier()->workdirChanged();
+  QTRY_VERIFY(!unchangedStatus.isEmpty());
+  QTRY_COMPARE(detailRefreshes, 1);
+  QCOMPARE(diffView->widget()->findChild<FileWidget *>(), stableFile.data());
+
+  QFile unrelated(repo.workdir().filePath("unrelated.txt"));
+  QVERIFY(unrelated.open(QFile::WriteOnly | QFile::Truncate));
+  QVERIFY(unrelated.write("Unrelated external refresh test\n") > 0);
+  unrelated.close();
+
+  detailRefreshes = 0;
+  QSignalSpy unrelatedStatus(repoView, &RepoView::statusChanged);
+  emit repo.notifier()->workdirChanged();
+  QTRY_VERIFY(!unrelatedStatus.isEmpty());
+  QTRY_COMPARE(detailRefreshes, 1);
+  QCOMPARE(diffView->widget()->findChild<FileWidget *>(), stableFile.data());
+
+  auto *stageButton = visibleFile->findChild<QPushButton *>("StageFileButton");
+  QVERIFY(stageButton);
+  QSignalSpy stagedStatus(repoView, &RepoView::statusChanged);
+  stageButton->click();
+  QTRY_VERIFY(!stagedStatus.isEmpty());
+  QTRY_VERIFY((visibleFile = diffView->widget()->findChild<FileWidget *>()));
+  QCOMPARE(visibleFile->header()->check()->checkState(), Qt::Checked);
 }
 
 void TestTreeView::externalRefreshPreservesViewport() {
@@ -783,8 +813,7 @@ void TestTreeView::externalRefreshPreservesViewport() {
 
   auto *commits = repoView->findChild<CommitList *>();
   QVERIFY(commits);
-  QTRY_COMPARE(commits->selectedRange(),
-               repo.head().target().id().toString());
+  QTRY_COMPARE(commits->selectedRange(), repo.head().target().id().toString());
   commits->cancelStatus();
   refresh(repoView, false);
 

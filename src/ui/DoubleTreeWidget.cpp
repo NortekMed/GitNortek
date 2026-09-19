@@ -153,12 +153,11 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   const QList<QToolButton *> modeButtons = {inlineMode, hunkMode, splitMode};
   modeButtons.at(static_cast<int>(Settings::instance()->diffMode()))
       ->setChecked(true);
-  connect(diffModes->buttonGroup(), &QButtonGroup::idClicked, this,
-          [this](int id) {
-            Settings::instance()->setDiffMode(
-                static_cast<Settings::DiffMode>(id));
-            mDiffView->rebuildPresentations();
-          });
+  connect(
+      diffModes->buttonGroup(), &QButtonGroup::idClicked, this, [this](int id) {
+        Settings::instance()->setDiffMode(static_cast<Settings::DiffMode>(id));
+        mDiffView->rebuildPresentations();
+      });
 
   QToolButton *ignoreWhitespace = new QToolButton(this);
   ignoreWhitespace->setObjectName("IgnoreEdgeWhitespace");
@@ -166,8 +165,7 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   ignoreWhitespace->setToolTip(
       tr("Ignore leading/trailing whitespace in Inline and Split views"));
   ignoreWhitespace->setCheckable(true);
-  ignoreWhitespace->setChecked(
-      Settings::instance()->isEdgeWhitespaceIgnored());
+  ignoreWhitespace->setChecked(Settings::instance()->isEdgeWhitespaceIgnored());
   connect(ignoreWhitespace, &QToolButton::toggled, this, [this](bool checked) {
     Settings::instance()->setEdgeWhitespaceIgnored(checked);
     mDiffView->rebuildPresentations();
@@ -187,8 +185,7 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
             Settings *settings = Settings::instance();
             modeButtons.at(static_cast<int>(settings->diffMode()))
                 ->setChecked(true);
-            ignoreWhitespace->setChecked(
-                settings->isEdgeWhitespaceIgnored());
+            ignoreWhitespace->setChecked(settings->isEdgeWhitespaceIgnored());
             wordWrap->setChecked(settings->isTextEditorWrapLines());
           });
 
@@ -481,6 +478,8 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
 
   connect(repo.notifier(), &git::RepositoryNotifier::indexChanged, this,
           [this, repo](const QStringList &paths) {
+            const bool refreshStatus = mPendingStatusDiff.isValid();
+            mPendingStatusDiff = git::Diff();
             if (repo.state() != GIT_REPOSITORY_STATE_NONE) {
               for (const QString &path : paths) {
                 const int index = mDiff.indexOf(path);
@@ -490,6 +489,11 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
               }
             }
             mDiffTreeModel->refresh(paths);
+            if (refreshStatus) {
+              QMetaObject::invokeMethod(
+                  this, [this] { RepoView::parentView(this)->refresh(); },
+                  Qt::QueuedConnection);
+            }
             QMetaObject::invokeMethod(
                 this, [this] { updateStageAllChangesButton(); },
                 Qt::QueuedConnection);
@@ -617,6 +621,15 @@ void DoubleTreeWidget::setDiff(const git::Diff &diff, const QString &file,
   Q_UNUSED(file)
   Q_UNUSED(pathspec)
 
+  if (mStatusSnapshotMode &&
+      RepoView::parentView(this)->isFileInspectionVisible() &&
+      mFileView->currentIndex() == Diff && mDiffView->reuseFiles(diff)) {
+    mDiff = diff;
+    mPendingStatusDiff = diff;
+    return;
+  }
+
+  mPendingStatusDiff = git::Diff();
   mSetDiffCounter++;
   bool ignoreSelectionChange = mIgnoreSelectionChange;
   mIgnoreSelectionChange = true;
@@ -721,7 +734,7 @@ void DoubleTreeWidget::setDiff(const git::Diff &diff, const QString &file,
   mIgnoreSelectionChange = ignoreSelectionChange;
 
   DebugRefresh("finished, time: " << QDateTime::currentDateTime()
-                                   << "Counter: " << mSetDiffCounter);
+                                  << "Counter: " << mSetDiffCounter);
 }
 
 void DoubleTreeWidget::setWorkingTreeStatus(
@@ -737,6 +750,7 @@ void DoubleTreeWidget::setWorkingTreeStatus(
   bool ignoreSelectionChange = mIgnoreSelectionChange;
   mIgnoreSelectionChange = true;
 
+  mPendingStatusDiff = git::Diff();
   mDiff = git::Diff();
   mStatusSnapshot = status;
   mStatusSnapshotMode = status.isValid();
@@ -806,8 +820,8 @@ void DoubleTreeWidget::findPrevious() { mEditor->findPrevious(); }
 void DoubleTreeWidget::cancelBackgroundTasks() { mEditor->cancelBlame(); }
 
 void DoubleTreeWidget::updateStageAllChangesButton() {
-  const bool statusDiff = mStatusSnapshotMode ||
-                          (mDiff.isValid() && mDiff.isStatusDiff());
+  const bool statusDiff =
+      mStatusSnapshotMode || (mDiff.isValid() && mDiff.isStatusDiff());
   const bool conflictMode = mDiff.isValid() && mDiff.isConflicted();
   mStageAllChanges->setVisible(statusDiff && !conflictMode);
   mStageAllChanges->setEnabled(statusDiff && !conflictMode &&
@@ -1207,8 +1221,15 @@ void DoubleTreeWidget::loadEditorContent(const QModelIndexList &indexes) {
 
   // The status snapshot is only a lightweight tree model. Keep the current
   // diff visible until the asynchronously generated full status diff arrives.
-  if (mStatusSnapshotMode)
+  if (mStatusSnapshotMode) {
+    if (mPendingStatusDiff.isValid()) {
+      git::Diff pending = mPendingStatusDiff;
+      mPendingStatusDiff = git::Diff();
+      mStatusSnapshotMode = false;
+      setDiff(pending);
+    }
     return;
+  }
 
   mEditor->clear();
   mDiffView->enable(true);

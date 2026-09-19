@@ -79,6 +79,7 @@ public:
   QWidget *file(int index);
 
   void setDiff(const git::Diff &diff);
+  bool reuseFiles(const git::Diff &diff);
 
   bool scrollToFile(int index);
 

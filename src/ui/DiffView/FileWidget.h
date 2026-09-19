@@ -38,6 +38,7 @@ class Header : public QFrame {
 public:
   Header(const git::Diff &diff, const git::Patch &patch, bool binary, bool lfs,
          bool submodule, QWidget *parent = nullptr);
+  void setDiff(const git::Diff &diff);
   void updatePatch(const git::Patch &patch);
   QCheckBox *check() const;
 
@@ -102,6 +103,9 @@ public:
              QWidget *parent = nullptr);
   ~FileWidget() override;
   bool isEmpty();
+  bool matchesPatch(const git::Patch &patch) const;
+  void updateContext(const git::Diff &diff, const git::Patch &patch,
+                     const git::Patch &staged, const QModelIndex &modelIndex);
   void updatePatch(const git::Patch &patch, const git::Patch &staged,
                    const QString &name, const QString &path, bool submodule);
   /*!

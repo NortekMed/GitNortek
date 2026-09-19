@@ -114,6 +114,49 @@ QWidget *DiffView::file(int index) {
   return mFiles.at(index);
 }
 
+bool DiffView::reuseFiles(const git::Diff &diff) {
+  if (!mDiff.isValid() || !diff.isValid() ||
+      mDiff.isStatusDiff() != diff.isStatusDiff() || mFiles.isEmpty() ||
+      mDiff.isConflicted() || diff.isConflicted())
+    return false;
+
+  const QList<QModelIndex> indices = selectedFileIndices();
+  if (indices.size() != mFiles.size())
+    return false;
+
+  QList<QModelIndex> modelIndices;
+  QList<int> diffIndices;
+  for (FileWidget *file : mFiles) {
+    QModelIndex modelIndex;
+    for (const QModelIndex &index : indices) {
+      if (index.data(Qt::EditRole).toString() == file->name()) {
+        modelIndex = index;
+        break;
+      }
+    }
+    if (!modelIndex.isValid())
+      return false;
+
+    const int newIndex = diff.indexOf(file->name());
+    if (newIndex < 0 || !file->matchesPatch(diff.patch(newIndex)))
+      return false;
+
+    modelIndices.append(modelIndex);
+    diffIndices.append(newIndex);
+  }
+
+  loadStagedPatches();
+  for (int i = 0; i < mFiles.size(); ++i) {
+    const int stagedIndex = mStagedPatches.value(mFiles.at(i)->name(), -1);
+    const git::Patch staged =
+        stagedIndex >= 0 ? mStagedDiff.patch(stagedIndex) : git::Patch();
+    mFiles.at(i)->updateContext(diff, diff.patch(diffIndices.at(i)), staged,
+                                modelIndices.at(i));
+  }
+
+  return true;
+}
+
 void DiffView::setDiff(const git::Diff &diff) {
   RepoView *view = RepoView::parentView(this);
   git::Repository repo = view->repo();
@@ -264,8 +307,8 @@ void DiffView::loadStagedPatches() {
     if (git::Reference head = repo.head()) {
       if (git::Commit commit = head.target()) {
         Settings *settings = Settings::instance();
-        mStagedDiff = repo.diffTreeToIndex(
-            commit.tree(), git::Index(), settings->isWhitespaceIgnored());
+        mStagedDiff = repo.diffTreeToIndex(commit.tree(), git::Index(),
+                                           settings->isWhitespaceIgnored());
         for (int i = 0; i < mStagedDiff.count(); ++i)
           mStagedPatches[mStagedDiff.name(i)] = i;
       }
@@ -332,7 +375,7 @@ void DiffView::rebuildPresentations() {
 }
 
 void DiffView::setCompleteFilePresentationActive(FileWidget *file,
-                                                  bool active) {
+                                                 bool active) {
   if (active) {
     if (!mCompleteFilePresentations.contains(file)) {
       mCompleteFilePresentations.insert(file);
@@ -448,8 +491,9 @@ QList<QModelIndex> DiffView::selectedFileIndices() const {
 void DiffView::fetchMore(int fetchWidgets) {
   const bool forceFetch = fetchWidgets < 0;
   const bool lazyLoadBlocked =
-      !forceFetch && verticalScrollBar()->maximum() -
-                         verticalScrollBar()->value() > height() / 2;
+      !forceFetch &&
+      verticalScrollBar()->maximum() - verticalScrollBar()->value() >
+          height() / 2;
 
   // Back out early if we're reentrant or lazy loading isn't triggered
   if (mFetching || lazyLoadBlocked)
@@ -605,7 +649,6 @@ void DiffView::updateCompleteFileScrollBarPolicy() {
     }
   }
 
-  setVerticalScrollBarPolicy(useCompleteFileOverview
-                                 ? Qt::ScrollBarAlwaysOff
-                                 : Qt::ScrollBarAsNeeded);
+  setVerticalScrollBarPolicy(useCompleteFileOverview ? Qt::ScrollBarAlwaysOff
+                                                     : Qt::ScrollBarAsNeeded);
 }
