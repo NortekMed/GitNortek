@@ -31,3 +31,6 @@ CTestTestfile.cmake
 
 # OpenCode local machine state
 .opencode/setup-path.conf
+
+# Serena local memories
+.serena/memories/*
