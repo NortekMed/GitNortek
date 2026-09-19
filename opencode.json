@@ -102,47 +102,26 @@
     "build": {
       "permission": {
         "edit": "allow",
+        "task": "allow",
+        "skill": "allow",
+        "todowrite": "allow",
         "bash": {
           "*": "allow",
-          "git add*": "ask",
-          "git apply*": "ask",
-          "git bisect*": "ask",
-          "git branch -D*": "ask",
-          "git checkout*": "ask",
-          "git clean*": "ask",
-          "git commit*": "ask",
-          "git config *": "ask",
-          "git fetch*": "ask",
-          "git merge*": "ask",
-          "git pull*": "ask",
-          "git push*": "ask",
-          "git rebase*": "ask",
-          "git reset*": "ask",
-          "git restore*": "ask",
-          "git revert*": "ask",
-          "git stash*": "ask",
-          "git submodule update*": "ask",
-          "git switch*": "ask",
-          "git tag*": "ask",
-          "git worktree*": "ask",
-          "sudo *": "ask",
-          "su *": "ask",
-          "doas *": "ask",
-          "chmod *": "ask",
-          "chown *": "ask",
-          "rm *": "ask",
-          "rm -rf *": "deny",
-          "rm -rf build*": "ask",
+          "sudo *": "deny",
+          "su *": "deny",
+          "doas *": "deny",
           "rm -rf /": "deny",
           "rm -rf /*": "deny",
           "rm -rf ~": "deny",
           "rm -rf ~/*": "deny",
           "rm -rf .git*": "deny",
-          "git config --get*": "allow",
-          "git config -f .gitmodules --get*": "allow"
+          "git config --global *": "deny",
+          "git config --system *": "deny"
         },
         "external_directory": {
-          "/tmp/opencode/**": "allow"
+          "*": "deny",
+          "/tmp/opencode/**": "allow",
+          "~/.config/opencode/opencode.json": "allow"
         }
       }
     },
