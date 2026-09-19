@@ -6,6 +6,7 @@ Remove generated files from the existing Release build directory using its
 verified Ninja clean target:
 
 ```bash
+cd "$(pwd -P)"
 ninja -C build/release clean
 ```
 

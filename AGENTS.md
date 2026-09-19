@@ -19,14 +19,14 @@
 
 ## Setup And Build
 - Initialize dependencies before configuring: `git submodule update --init --recursive`.
-- Standard local configure/build from repo root: `mkdir -p build/release && cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -S . -B build/release && ninja -C build/release`.
+- Standard local configure/build from repo root: `cd "$(pwd -P)" && mkdir -p build/release && cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -S . -B build/release && ninja -C build/release`.
 - If Qt is outside the default search path, pass `-DCMAKE_PREFIX_PATH=<qt-install-prefix>`.
 - CI configures with `-DUPDATE_TRANSLATIONS=ON -DGITNORTEK_CI_TESTS=ON`; keep this in mind when changing translations or tests that touch global settings.
 - Default CMake uses bundled libgit2/cmark/lua/hunspell/git but system OpenSSL, libssh2, and Qt unless options such as `-DUSE_SYSTEM_LIBSSH2=OFF` are changed.
 
 ## Tests
-- Full test target from an existing build: `ninja -C build/release check --verbose`.
-- Focus one test with CTest: `ctest --test-dir build/release -R '^<test_name>$' --output-on-failure`.
+- Full test target from an existing build: `cd "$(pwd -P)" && ninja -C build/release check --verbose`.
+- Focus one test with CTest: `cd "$(pwd -P)" && ctest --test-dir build/release -R '^<test_name>$' --output-on-failure`.
 - Test names come from `test/CMakeLists.txt` without the `test_` executable prefix, e.g. `Diff`, `log`, `SshConfig`.
 - Tests run Qt headless via `QT_QPA_PLATFORM=offscreen`; Linux CI wraps the full check in `xvfb-run -a`.
 - Before running tests that create commits, ensure Git has a usable identity, e.g. `git config --global user.name "Your Name"` and `git config --global user.email "youremail@yourdomain.com"`.

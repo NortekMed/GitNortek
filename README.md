@@ -92,6 +92,7 @@ Linux:
 **Configure Build**
 
     # Start from root of GitNortek repo.
+    cd "$(pwd -P)"
     mkdir -p build/release
     cd build/release
     cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ../..
