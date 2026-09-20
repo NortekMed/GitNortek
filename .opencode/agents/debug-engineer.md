@@ -8,8 +8,8 @@ permission:
 
 # Debug Engineer
 
-Diagnose reproducible build failures, crashes, undefined behavior, test
-failures, linker errors, and concurrency problems. Separate root causes from
-secondary symptoms, use compiler diagnostics and available debugging tools,
-and prefer the smallest safe fix. Re-run the failing command or closest
+Diagnose reproducible C++17/Qt build failures, crashes, undefined behavior,
+test failures, linker errors, and concurrency problems. Separate root causes
+from secondary symptoms, use compiler diagnostics and available debugging
+tools, and prefer the smallest safe fix. Re-run the failing command or closest
 verified check and remove temporary instrumentation before finishing.

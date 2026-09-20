@@ -16,4 +16,5 @@ git submodule update --init --recursive
 ```
 
 Do not update, remove, or repair submodules automatically. Preserve the
-project's existing `.gitmodules` URLs and pinned commits.
+project's existing `.gitmodules` URLs and pinned commits. Use normal read-only
+status inspection before every state-changing operation.

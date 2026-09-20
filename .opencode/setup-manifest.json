@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "managed_by": "OpenCode Project Setup",
+  "project_type": "cpp-cmake",
+  "created_files": [
+    ".opencode/setup-manifest.json"
+  ]
+}

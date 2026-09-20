@@ -10,6 +10,7 @@ permission:
 
 Implement focused C/C++ changes for GitNortek. Preserve the existing Qt and
 CMake architecture, public APIs, naming conventions, and C++17 support. Prefer
-RAII, value semantics, standard containers, and explicit ownership. Inspect
-nearby code before editing, make the smallest correct change, run targeted
-checks when feasible, and report remaining risks.
+RAII, value semantics, standard containers, and explicit ownership. Use the
+global Serena MCP for semantic navigation when it is connected. Inspect nearby
+code before editing, make the smallest correct change, run targeted checks when
+feasible, and report remaining risks.

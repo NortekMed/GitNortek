@@ -10,5 +10,6 @@ cd "$(pwd -P)"
 ninja -C build/release clean
 ```
 
-This does not remove source files or the build directory itself. Reconfigure
-and rebuild with `/build` afterward.
+This does not remove source files or the build directory itself. Do not use
+recursive deletion as a substitute. Reconfigure and rebuild with `/build`
+afterward.

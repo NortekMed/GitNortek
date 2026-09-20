@@ -42,6 +42,7 @@ permission:
     "clang-tidy --version*": allow
     "g++ --version*": allow
     "ls": allow
+    "ls *": allow
     "pwd": allow
 ---
 

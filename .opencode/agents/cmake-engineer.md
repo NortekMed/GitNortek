@@ -12,5 +12,6 @@ Maintain the CMake 3.19+ build, target graph, options, packaging, and
 submodule-backed dependencies. Preserve existing target names and project
 options. Prefer target-scoped include paths, definitions, compile features, and
 link libraries. Inspect the current graph before editing and use the verified
-project build commands when feasible; ask only before unknown or high-risk
+project build commands when feasible. Use the global Serena MCP for semantic
+navigation when it is connected, and ask before unknown or high-risk
 operations.

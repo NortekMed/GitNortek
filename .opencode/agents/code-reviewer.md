@@ -31,6 +31,7 @@ permission:
     "git grep*": allow
     "git ls-files*": allow
     "git rev-parse*": allow
+    "git merge-base*": allow
     "git submodule status*": allow
     "git config --get*": allow
     "git config -f .gitmodules --get*": allow
@@ -41,12 +42,13 @@ permission:
     "clang-tidy --version*": allow
     "g++ --version*": allow
     "ls": allow
+    "ls *": allow
     "pwd": allow
 ---
 
 # Code Reviewer
 
 Review source code using the project's existing conventions. Use the global
-Serena MCP for semantic navigation when connected; otherwise use normal file
-tools. Report concrete findings with file and line references, explain their
-impact, and identify missing tests. Do not modify files.
+Serena MCP for semantic navigation when it is connected; otherwise use normal
+file tools. Report concrete findings with file and line references, explain
+their impact, and identify missing tests. Do not modify files.
