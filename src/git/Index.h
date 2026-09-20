@@ -59,7 +59,7 @@ public:
 
   bool isTracked(const QString &path) const;
   StagedState isStaged(const QString &path) const;
-  void setStaged(const QStringList &paths, bool staged, bool yieldFocus = true);
+  bool setStaged(const QStringList &paths, bool staged, bool yieldFocus = true);
 
   void add(const QString &path, const QByteArray &buffer);
 

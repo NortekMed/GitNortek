@@ -26,8 +26,9 @@ add_library(
   SubmoduleAvailability.cpp
   Tag.cpp
   TagRef.cpp
-  Tree.cpp)
-target_sources(git PUBLIC Worktree.h WorkingTreeStatus.h)
+  Tree.cpp
+  WorkingTreeDiscard.cpp)
+target_sources(git PUBLIC Worktree.h WorkingTreeStatus.h WorkingTreeDiscard.h)
 target_sources(git PRIVATE WorkingTreeStatus.cpp)
 
 if(USE_SYSTEM_LIBGIT2)

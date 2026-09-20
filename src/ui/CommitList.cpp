@@ -1951,8 +1951,10 @@ CommitList::CommitList(Index *index, CommitAvatarProvider *avatars,
     // the tip. Otherwise the fallback below selects the newest visible commit.
     if (selectedIndexes().isEmpty() && model->isHeadDetached()) {
       git::Commit commit = model->reference().target();
-      if (commit.isValid() && selectRange(commit.id().toString()))
+      if (commit.isValid() && selectRange(commit.id().toString())) {
+        emit statusChanged(dirty);
         return;
+      }
     }
 
     // Select the first commit if the selection was cleared.

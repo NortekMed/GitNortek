@@ -218,10 +218,10 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
   git::RepositoryNotifier *notifier = repo.notifier();
   connect(notifier, &git::RepositoryNotifier::referenceUpdated, this,
           [this] { requestTrackingStatus(); });
-  connect(this, &RepoView::statusChanged, this,
-          [this] { startIndexing(); });
+  connect(this, &RepoView::statusChanged, this, [this] { startIndexing(); });
 
   MenuBar *menuBar = MenuBar::instance(parent);
+  connect(this, &RepoView::activityChanged, menuBar, &MenuBar::update);
   connect(this, &RepoView::statusChanged, menuBar, &MenuBar::updateStash);
   connect(notifier, &git::RepositoryNotifier::stateChanged, menuBar,
           &MenuBar::updateBranch);
@@ -255,14 +255,14 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
   using Signal = void (QProcess::*)(int, QProcess::ExitStatus);
   auto signal = static_cast<Signal>(&QProcess::finished);
   connect(&mIndexer, signal, this,
-           [this, searchField](int code, QProcess::ExitStatus status) {
-             QJsonObject fields;
-             fields["exitCode"] = code;
-             fields["crashed"] = status == QProcess::CrashExit;
-             PerformanceTrace::event("indexer", "finished",
-                                     mRepo.dir(false).path(), fields);
+          [this, searchField](int code, QProcess::ExitStatus status) {
+            QJsonObject fields;
+            fields["exitCode"] = code;
+            fields["crashed"] = status == QProcess::CrashExit;
+            PerformanceTrace::event("indexer", "finished",
+                                    mRepo.dir(false).path(), fields);
 
-             searchField->setPlaceholderText(tr("Search"));
+            searchField->setPlaceholderText(tr("Search"));
             if (status == QProcess::CrashExit) {
               QString text =
                   tr("The indexer worker process crashed. If this problem "
@@ -359,6 +359,8 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
   connect(mRefs, &ReferenceWidget::referenceSelected, mCommits,
           &CommitList::selectReference);
   connect(mCommits, &CommitList::statusChanged, this, &RepoView::statusChanged);
+  connect(mCommits, &CommitList::statusChanged, this,
+          [this](bool) { finishDiscardRefresh(); });
   connect(this, &RepoView::statusChanged, this, &RepoView::finishInitialLoad);
   connect(mCommits, &CommitList::statusSelected, this,
           &RepoView::statusSelected);
@@ -369,9 +371,10 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
               mPendingCheckoutRef.clear();
           });
   connect(mCommits, &CommitList::statusError, this,
-           [this](const QString &error) {
-             finishInitialLoad();
-             LogEntry *entry = addLogEntry(QString(), tr("Status"));
+          [this](const QString &error) {
+            finishDiscardRefresh();
+            finishInitialLoad();
+            LogEntry *entry = addLogEntry(QString(), tr("Status"));
             entry->addEntry(LogEntry::Error, error.toHtmlEscaped());
             setLogVisible(true);
           });
@@ -513,11 +516,16 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
 
   // Refresh when the workdir changes.
   RepositoryWatcher *watcher = new RepositoryWatcher(repo, this);
-  connect(notifier, &git::RepositoryNotifier::workdirChanged, this,
-          [this] {
-            mCommits->preserveSelectionOnRefresh();
-            refresh(true);
-          });
+  connect(notifier, &git::RepositoryNotifier::workdirChanged, this, [this] {
+    if (mDiscardAllChangesState == DiscardAllChangesState::Executing ||
+        mDiscardAllChangesState == DiscardAllChangesState::Canceling) {
+      mDiscardExternalRefreshPending = true;
+      return;
+    }
+
+    mCommits->preserveSelectionOnRefresh();
+    refresh(true);
+  });
   connect(notifier, &git::RepositoryNotifier::referenceUpdated, watcher,
           &RepositoryWatcher::cancelPendingNotification);
 
@@ -631,6 +639,12 @@ void RepoView::statusSelected(const git::WorkingTreeStatusSnapshot status,
 }
 
 RepoView::~RepoView() {
+  cancelDiscardAllChanges();
+  if (mDiscardPreparationWatcher)
+    mDiscardPreparationWatcher->future().waitForFinished();
+  if (mDiscardExecutionWatcher)
+    mDiscardExecutionWatcher->future().waitForFinished();
+
   cancelIndexing();
   mIndexer.disconnect();
 
@@ -642,6 +656,9 @@ RepoView::~RepoView() {
 }
 
 void RepoView::clean(const QStringList &untracked) {
+  if (isDiscardAllChangesActive())
+    return;
+
   QString singular = tr("untracked file");
   QString plural = tr("untracked files");
   QString phrase = (untracked.count() == 1) ? singular : plural;
@@ -658,6 +675,9 @@ void RepoView::clean(const QStringList &untracked) {
   mb->setDefaultButton(remove);
 
   connect(remove, &QPushButton::clicked, [this, untracked] {
+    if (isDiscardAllChangesActive())
+      return;
+
     for (const QString &name : untracked)
       repo().clean(name);
   });
@@ -669,17 +689,35 @@ void RepoView::selectHead() { mRefs->select(mRepo.head()); }
 
 void RepoView::selectFirstCommit() { mCommits->selectFirstCommit(); }
 
-void RepoView::commit(bool force) { mDetails->commit(force); }
+void RepoView::commit(bool force) {
+  if (isDiscardAllChangesActive())
+    return;
+  mDetails->commit(force);
+}
 
-bool RepoView::isCommitEnabled() const { return mDetails->isCommitEnabled(); }
+bool RepoView::isCommitEnabled() const {
+  return !isDiscardAllChangesActive() && mDetails->isCommitEnabled();
+}
 
-void RepoView::stage() { mDetails->stage(); }
+void RepoView::stage() {
+  if (isDiscardAllChangesActive())
+    return;
+  mDetails->stage();
+}
 
-bool RepoView::isStageEnabled() const { return mDetails->isStageEnabled(); }
+bool RepoView::isStageEnabled() const {
+  return !isDiscardAllChangesActive() && mDetails->isStageEnabled();
+}
 
-void RepoView::unstage() { mDetails->unstage(); }
+void RepoView::unstage() {
+  if (isDiscardAllChangesActive())
+    return;
+  mDetails->unstage();
+}
 
-bool RepoView::isUnstageEnabled() const { return mDetails->isUnstageEnabled(); }
+bool RepoView::isUnstageEnabled() const {
+  return !isDiscardAllChangesActive() && mDetails->isUnstageEnabled();
+}
 
 RepoView::ViewMode RepoView::viewMode() const { return mDetails->viewMode(); }
 
@@ -715,6 +753,185 @@ bool RepoView::isFileInspectionVisible() const {
 bool RepoView::isWorkingDirectoryDirty() const {
   // FIXME: Add option to stash untracked files?
   return mCommits->hasTrackedStatusChanges();
+}
+
+bool RepoView::prepareDiscardAllChanges(const QStringList &trackedPaths,
+                                        const QStringList &untrackedPaths,
+                                        const QString &headId) {
+  if (mClosing || mDiscardAllChangesState != DiscardAllChangesState::Idle ||
+      mWatcher || mSubmoduleUpdateWatcher || mSubmodulePushCheckWatcher)
+    return false;
+
+  ++mDiscardAllChangesGeneration;
+  const quint64 generation = mDiscardAllChangesGeneration;
+  const QString repositoryPath = mRepo.dir(false).path();
+  const std::shared_ptr<std::atomic_bool> canceled =
+      std::make_shared<std::atomic_bool>(false);
+  mDiscardCancel = canceled;
+  mDiscardAllChangesState = DiscardAllChangesState::Preparing;
+
+  auto *watcher = new QFutureWatcher<git::WorkingTreeDiscardPreparation>(this);
+  mDiscardPreparationWatcher = watcher;
+  connect(watcher,
+          &QFutureWatcher<git::WorkingTreeDiscardPreparation>::finished, this,
+          [this, watcher, generation] {
+            git::WorkingTreeDiscardPreparation result;
+            if (watcher->future().resultCount())
+              result = watcher->result();
+            else
+              result.error = tr("Unable to prepare the discard operation.");
+
+            if (mDiscardPreparationWatcher == watcher)
+              mDiscardPreparationWatcher = nullptr;
+            watcher->deleteLater();
+
+            if (generation != mDiscardAllChangesGeneration || mClosing) {
+              if (mDiscardAllChangesState == DiscardAllChangesState::Canceling)
+                mDiscardAllChangesState = DiscardAllChangesState::Idle;
+              mDiscardCancel.reset();
+              updateActivity();
+              refreshAfterDiscardIfNeeded();
+              finishClosing();
+              return;
+            }
+
+            if (result.isValid() && result.plan.isDirty()) {
+              result.plan.generation = generation;
+              mDiscardAllChangesState =
+                  DiscardAllChangesState::AwaitingConfirmation;
+            } else {
+              mDiscardAllChangesState = DiscardAllChangesState::Idle;
+              mDiscardCancel.reset();
+            }
+            updateActivity();
+            emit discardAllChangesPrepared(result);
+          });
+
+  watcher->setFuture(QtConcurrent::run(
+      [repositoryPath, headId, trackedPaths, untrackedPaths, canceled] {
+        return git::WorkingTreeDiscard::prepare(
+            repositoryPath, headId, trackedPaths, untrackedPaths, canceled);
+      }));
+  updateActivity();
+  return true;
+}
+
+bool RepoView::executeDiscardAllChanges(
+    const git::WorkingTreeDiscardPlan &plan) {
+  if (plan.generation && plan.generation != mDiscardAllChangesGeneration)
+    return false;
+
+  if (mClosing ||
+      mDiscardAllChangesState != DiscardAllChangesState::AwaitingConfirmation ||
+      plan.repositoryPath != mRepo.dir(false).path() || mWatcher ||
+      mSubmoduleUpdateWatcher || mSubmodulePushCheckWatcher) {
+    if (mDiscardAllChangesState ==
+        DiscardAllChangesState::AwaitingConfirmation) {
+      mDiscardAllChangesState = DiscardAllChangesState::Idle;
+      mDiscardCancel.reset();
+      updateActivity();
+    }
+    return false;
+  }
+
+  ++mDiscardAllChangesGeneration;
+  const quint64 generation = mDiscardAllChangesGeneration;
+  const std::shared_ptr<std::atomic_bool> canceled =
+      mDiscardCancel ? mDiscardCancel
+                     : std::make_shared<std::atomic_bool>(false);
+  mDiscardCancel = canceled;
+  mDiscardAllChangesState = DiscardAllChangesState::Executing;
+  mCommits->cancelStatus();
+
+  LogEntry *entry = addLogEntry(tr("<i>working directory</i>"), tr("Discard"));
+  entry->setBusy(true);
+
+  auto *watcher = new QFutureWatcher<git::WorkingTreeDiscardExecution>(this);
+  mDiscardExecutionWatcher = watcher;
+  connect(watcher, &QFutureWatcher<git::WorkingTreeDiscardExecution>::finished,
+          this, [this, watcher, generation, plan, entry] {
+            git::WorkingTreeDiscardExecution result;
+            if (watcher->future().resultCount())
+              result = watcher->result();
+            else
+              result.error = tr("Unable to discard working-tree changes.");
+
+            if (mDiscardExecutionWatcher == watcher)
+              mDiscardExecutionWatcher = nullptr;
+            watcher->deleteLater();
+            entry->setBusy(false);
+
+            if (generation != mDiscardAllChangesGeneration || mClosing) {
+              mDiscardAllChangesState = DiscardAllChangesState::Idle;
+              mDiscardCancel.reset();
+              updateActivity();
+              refreshAfterDiscardIfNeeded();
+              finishClosing();
+              return;
+            }
+
+            if (!result.error.isEmpty())
+              entry->addEntry(LogEntry::Error, result.error);
+            if (!result.rootResetError.isEmpty())
+              error(entry, tr("discard"), tr("working directory"),
+                    result.rootResetError);
+            if (!result.failedPaths.isEmpty())
+              error(entry, tr("remove untracked files"),
+                    result.failedPaths.join('\n'), result.cleanupError);
+            if (!result.failedSubmodules.isEmpty())
+              error(entry, tr("discard submodule changes"),
+                    result.failedSubmodules.join('\n'), result.submoduleError);
+
+            if (result.canceled || !result.error.isEmpty()) {
+              mDiscardRefreshPending = true;
+              mDiscardRefreshResult = result;
+              mDiscardRefreshGeneration = generation;
+              refresh();
+              return;
+            }
+
+            mDiscardRefreshPending = true;
+            mDiscardRefreshResult = result;
+            mDiscardRefreshGeneration = generation;
+            refresh();
+          });
+
+  watcher->setFuture(QtConcurrent::run([plan, canceled] {
+    return git::WorkingTreeDiscard::execute(plan, canceled);
+  }));
+  updateActivity();
+  return true;
+}
+
+void RepoView::cancelDiscardAllChanges(quint64 generation) {
+  if (generation && generation != mDiscardAllChangesGeneration)
+    return;
+
+  if (!isDiscardAllChangesActive())
+    return;
+
+  ++mDiscardAllChangesGeneration;
+  if (mDiscardCancel)
+    mDiscardCancel->store(true);
+
+  if (mDiscardPreparationWatcher || mDiscardExecutionWatcher) {
+    mDiscardAllChangesState = DiscardAllChangesState::Canceling;
+  } else {
+    mDiscardAllChangesState = DiscardAllChangesState::Idle;
+    mDiscardCancel.reset();
+    refreshAfterDiscardIfNeeded();
+  }
+  updateActivity();
+}
+
+bool RepoView::isDiscardAllChangesActive() const {
+  return mDiscardAllChangesState != DiscardAllChangesState::Idle ||
+         mDiscardPreparationWatcher || mDiscardExecutionWatcher;
+}
+
+bool RepoView::isDiscardAllChangesAwaitingConfirmation() const {
+  return mDiscardAllChangesState ==
+         DiscardAllChangesState::AwaitingConfirmation;
 }
 
 git::Reference RepoView::reference() const { return mRefs->currentReference(); }
@@ -769,6 +986,7 @@ void RepoView::cancelRemoteTransfer() {
 void RepoView::cancelBackgroundTasks() {
   cancelIndexing();
   cancelRemoteTransfer();
+  cancelDiscardAllChanges();
   mCommits->cancelStatus();
   mDetails->cancelBackgroundTasks();
 }
@@ -973,6 +1191,9 @@ Repository *RepoView::remoteRepo() {
 }
 
 void RepoView::lfsInitialize() {
+  if (isDiscardAllChangesActive())
+    return;
+
   LogEntry *entry = addLogEntry(tr("Git LFS"), tr("Initialize"));
   if (!mRepo.lfsInitialize()) {
     error(entry, tr("initialize"));
@@ -983,6 +1204,9 @@ void RepoView::lfsInitialize() {
 }
 
 void RepoView::lfsDeinitialize() {
+  if (isDiscardAllChangesActive())
+    return;
+
   LogEntry *entry = addLogEntry(tr("Git LFS"), tr("Deinitialize"));
   if (!mRepo.lfsDeinitialize()) {
     error(entry, tr("deinitialize"));
@@ -993,6 +1217,9 @@ void RepoView::lfsDeinitialize() {
 }
 
 bool RepoView::lfsSetLocked(const QStringList &paths, bool lock) {
+  if (isDiscardAllChangesActive())
+    return false;
+
   QStringList errors;
   QString verb = lock ? tr("Lock") : tr("Unlock");
 
@@ -1067,7 +1294,8 @@ void RepoView::startIndexing() {
   if (!check_file.isFile()) {
     Debug("No indexer found: " << indexer_cmd);
   }
-  PerformanceTrace::event("indexer", "start requested", mRepo.dir(false).path());
+  PerformanceTrace::event("indexer", "start requested",
+                          mRepo.dir(false).path());
   mIndexer.start(indexer_cmd, args);
 }
 
@@ -1379,6 +1607,9 @@ QFuture<git::Result> RepoView::fetch(const git::Remote &rmt, bool tags,
 
 void RepoView::pull(MergeFlags flags, const git::Remote &rmt, bool tags,
                     bool prune) {
+  if (isDiscardAllChangesActive())
+    return;
+
   if (mWatcher) {
     // Queue pull.
     connect(mWatcher, &QFutureWatcher<git::Result>::finished, mWatcher,
@@ -1459,6 +1690,9 @@ void RepoView::pull(MergeFlags flags, const git::Remote &rmt, bool tags,
 void RepoView::merge(MergeFlags flags, const git::Reference &ref,
                      const git::AnnotatedCommit &commit, LogEntry *parent,
                      const std::function<void()> &callback) {
+  if (isDiscardAllChangesActive())
+    return;
+
   DebugRefresh("");
   git::Reference head = mRepo.head();
 
@@ -1551,6 +1785,9 @@ void RepoView::fastForward(const git::Reference &ref,
                            const git::AnnotatedCommit &upstream,
                            LogEntry *parent,
                            const std::function<void()> &callback) {
+  if (isDiscardAllChangesActive())
+    return;
+
   git::Reference head = mRepo.head();
   Q_ASSERT(head.isValid());
 
@@ -1597,6 +1834,9 @@ void RepoView::fastForward(const git::Reference &ref,
 
 void RepoView::merge(MergeFlags flags, const git::AnnotatedCommit &upstream,
                      LogEntry *parent, const std::function<void()> &callback) {
+  if (isDiscardAllChangesActive())
+    return;
+
   git::Reference head = mRepo.head();
   Q_ASSERT(head.isValid());
 
@@ -1650,6 +1890,9 @@ void RepoView::merge(MergeFlags flags, const git::AnnotatedCommit &upstream,
 }
 
 void RepoView::mergeAbort(LogEntry *parent) {
+  if (isDiscardAllChangesActive())
+    return;
+
   // Make sure that the we're still merging.
   if (mRepo.state() == GIT_REPOSITORY_STATE_NONE)
     return;
@@ -1717,12 +1960,18 @@ void RepoView::mergeAbort(LogEntry *parent) {
 }
 
 void RepoView::abortRebase() {
+  if (isDiscardAllChangesActive())
+    return;
+
   mRepo.rebaseAbort();
   mRebase = nullptr;
   refresh(false);
 }
 
 void RepoView::continueRebase() {
+  if (isDiscardAllChangesActive())
+    return;
+
   if (!mRebase) {
     // Rebase operation was started externally so before going on with rebasing,
     // create a log entry
@@ -1732,6 +1981,9 @@ void RepoView::continueRebase() {
 }
 
 void RepoView::rebase(const git::AnnotatedCommit &upstream, LogEntry *parent) {
+  if (isDiscardAllChangesActive())
+    return;
+
   git::Branch head = mRepo.head();
   if (!head.isValid()) {
     addLogEntry(tr("Invalid head."), tr("Abort"), parent);
@@ -1813,6 +2065,9 @@ void RepoView::rebaseFinished(const git::Rebase rebase) {
 }
 
 void RepoView::squash(const git::AnnotatedCommit &upstream, LogEntry *parent) {
+  if (isDiscardAllChangesActive())
+    return;
+
   git::Branch head = mRepo.head();
   Q_ASSERT(head.isValid());
 
@@ -1842,6 +2097,9 @@ void RepoView::squash(const git::AnnotatedCommit &upstream, LogEntry *parent) {
 }
 
 void RepoView::revert(const git::Commit &commit) {
+  if (isDiscardAllChangesActive())
+    return;
+
   if (!commit.isValid())
     return;
 
@@ -1885,6 +2143,9 @@ void RepoView::revert(const git::Commit &commit) {
 }
 
 void RepoView::cherryPick(const git::Commit &commit) {
+  if (isDiscardAllChangesActive())
+    return;
+
   if (!commit.isValid())
     return;
 
@@ -2387,6 +2648,8 @@ void RepoView::pushRemote(const git::Remote &remote, const git::Reference &src,
 bool RepoView::commit(const QString &message,
                       const git::AnnotatedCommit &upstream, LogEntry *parent,
                       bool force) {
+  if (isDiscardAllChangesActive())
+    return false;
 
   bool fakeSignature = false;
   git::Signature signature = mRepo.defaultSignature(
@@ -2399,6 +2662,9 @@ bool RepoView::commit(const git::Signature &author,
                       const git::Signature &commiter, const QString &message,
                       const git::AnnotatedCommit &upstream, LogEntry *parent,
                       bool force, bool fakeSignature) {
+  if (isDiscardAllChangesActive())
+    return false;
+
   // Check for detached head.
   git::Reference head = mRepo.head();
   if (!force && head.isValid() && !head.isLocalBranch()) {
@@ -2469,6 +2735,9 @@ bool RepoView::commit(const git::Signature &author,
 }
 
 void RepoView::amendCommit() {
+  if (isDiscardAllChangesActive())
+    return;
+
   // FIXME: Log errors.
   git::Branch head = mRepo.head();
   if (!head.isValid())
@@ -2482,6 +2751,9 @@ void RepoView::amendCommit() {
 }
 
 void RepoView::promptToCheckout() {
+  if (isDiscardAllChangesActive())
+    return;
+
   git::Reference ref = reference();
   CheckoutDialog *dialog = new CheckoutDialog(mRepo, ref, this);
   connect(dialog, &QDialog::accepted, this,
@@ -2491,12 +2763,14 @@ void RepoView::promptToCheckout() {
 }
 
 void RepoView::checkoutFromNavigator(const git::Reference &ref) {
+  if (isDiscardAllChangesActive())
+    return;
+
   Q_ASSERT(ref.isValid());
   mPendingCheckoutRef.clear();
   mSelectingPendingCheckoutStatus = false;
 
-  if (!ref.isLocalBranch() || ref.isHead() ||
-      git::Branch(ref).isCheckedOut()) {
+  if (!ref.isLocalBranch() || ref.isHead() || git::Branch(ref).isCheckedOut()) {
     checkout(ref);
     return;
   }
@@ -2514,14 +2788,13 @@ void RepoView::checkoutFromNavigator(const git::Reference &ref) {
 
 void RepoView::promptForCheckoutConflicts(const git::Reference &ref,
                                           const QStringList &conflicts) {
-  QMessageBox *dialog = new QMessageBox(QMessageBox::Warning,
-                                        tr("Checkout Blocked"), QString(),
-                                        QMessageBox::Cancel, this);
+  QMessageBox *dialog =
+      new QMessageBox(QMessageBox::Warning, tr("Checkout Blocked"), QString(),
+                      QMessageBox::Cancel, this);
   dialog->setObjectName("CheckoutConflictsDialog");
   dialog->setAttribute(Qt::WA_DeleteOnClose);
-  dialog->setText(
-      tr("Checking out '%1' would overwrite uncommitted changes.")
-          .arg(ref.name()));
+  dialog->setText(tr("Checking out '%1' would overwrite uncommitted changes.")
+                      .arg(ref.name()));
   dialog->setInformativeText(
       tr("Stash or commit the conflicting changes before checking out this "
          "branch."));
@@ -2562,6 +2835,9 @@ void RepoView::promptForCheckoutConflicts(const git::Reference &ref,
 }
 
 void RepoView::checkout(const git::Commit &commit, const QStringList &paths) {
+  if (isDiscardAllChangesActive())
+    return;
+
   QString count = QString::number(paths.size());
   QString name = (paths.size() == 1) ? tr("file") : tr("files");
   QString text = tr("%1 - %2 %3").arg(commit.link(), count, name);
@@ -2574,6 +2850,9 @@ void RepoView::checkout(const git::Commit &commit, const QStringList &paths) {
 }
 
 void RepoView::checkout(const git::Reference &ref, bool detach) {
+  if (isDiscardAllChangesActive())
+    return;
+
   Q_ASSERT(ref.isValid());
   mPendingCheckoutRef.clear();
   mSelectingPendingCheckoutStatus = false;
@@ -2633,6 +2912,9 @@ void RepoView::checkout(const git::Reference &ref, bool detach) {
 
 void RepoView::checkout(const git::Commit &commit, const git::Reference &ref,
                         bool detach) {
+  if (isDiscardAllChangesActive())
+    return;
+
   Q_ASSERT(detach || ref.isValid());
 
   QString name = tr("<i>no commit</i>");
@@ -2695,6 +2977,9 @@ git::Branch RepoView::createBranch(const QString &name,
                                    const git::Commit &target,
                                    const git::Branch &upstream, bool checkout,
                                    bool force) {
+  if (isDiscardAllChangesActive())
+    return git::Branch();
+
   LogEntry *entry = addLogEntry(name, tr("New Branch"));
   git::Branch branch = mRepo.createBranch(name, target, force);
   if (!branch.isValid()) {
@@ -2748,7 +3033,8 @@ void RepoView::populateReferenceContextMenu(QMenu *menu,
                                       [this, ref] { this->checkout(ref); });
   const bool checkedOutElsewhere =
       ref.isLocalBranch() && !ref.isHead() && git::Branch(ref).isCheckedOut();
-  checkout->setEnabled(!ref.isHead() && !checkedOutElsewhere && !mRepo.isBare());
+  checkout->setEnabled(!ref.isHead() && !checkedOutElsewhere &&
+                       !mRepo.isBare());
   menu->addSeparator();
 
   if (ref.isLocalBranch()) {
@@ -2773,9 +3059,8 @@ void RepoView::populateReferenceContextMenu(QMenu *menu,
     addPushTagToOriginAction(menu, ref);
 
   if (ref.isRemoteBranch()) {
-    menu->addAction(tr("Rename %1").arg(ref.name()), this, [this, ref] {
-      promptToRenameBranch(git::Branch(ref));
-    });
+    menu->addAction(tr("Rename %1").arg(ref.name()), this,
+                    [this, ref] { promptToRenameBranch(git::Branch(ref)); });
     menu->addAction(tr("Delete %1").arg(ref.name()), this,
                     [this, ref] { promptToDeleteBranch(ref); });
     menu->addAction(tr("New Local Branch"), this, [this, ref] {
@@ -2810,17 +3095,17 @@ void RepoView::addPushTagToOriginAction(QMenu *menu,
   if (!origin.isValid())
     return;
 
-  QAction *pushTag = menu->addAction(
-      tr("Push Tag %1 to origin").arg(tag.name()), this,
-      [this, tag] { pushTagToOrigin(tag, true); });
+  QAction *pushTag =
+      menu->addAction(tr("Push Tag %1 to origin").arg(tag.name()), this,
+                      [this, tag] { pushTagToOrigin(tag, true); });
   const QString key = originTagKey(tag);
   const auto updatePushTag = [this, pushTag, key] {
     const auto it = mOriginTagChecks.constFind(key);
     const bool present = it != mOriginTagChecks.cend() &&
                          it->result.status == git::Remote::TagStatus::Present;
     pushTag->setEnabled(!present);
-    pushTag->setToolTip(
-        present ? tr("The tag is already present on origin.") : QString());
+    pushTag->setToolTip(present ? tr("The tag is already present on origin.")
+                                : QString());
   };
   updatePushTag();
   connect(this, &RepoView::originTagStatusChanged, pushTag,
@@ -2831,6 +3116,9 @@ void RepoView::addPushTagToOriginAction(QMenu *menu,
 }
 
 void RepoView::promptToStash(bool includeUntracked) {
+  if (isDiscardAllChangesActive())
+    return;
+
   // Prompt to edit stash commit message.
   if (!Settings::instance()->prompt(Prompt::Kind::Stash)) {
     stash(QString(), includeUntracked);
@@ -2857,6 +3145,9 @@ void RepoView::promptToStash(bool includeUntracked) {
 }
 
 bool RepoView::stash(const QString &message, bool includeUntracked) {
+  if (isDiscardAllChangesActive())
+    return false;
+
   QString text = tr("<i>working directory</i>");
   LogEntry *entry = addLogEntry(text, tr("Stash"));
 
@@ -2872,6 +3163,9 @@ bool RepoView::stash(const QString &message, bool includeUntracked) {
 }
 
 void RepoView::applyStash(int index) {
+  if (isDiscardAllChangesActive())
+    return;
+
   QList<git::Commit> stashes = mRepo.stashes();
   Q_ASSERT(index >= 0 && index < stashes.size());
 
@@ -2886,6 +3180,9 @@ void RepoView::applyStash(int index) {
 }
 
 void RepoView::dropStash(int index) {
+  if (isDiscardAllChangesActive())
+    return;
+
   QList<git::Commit> stashes = mRepo.stashes();
   Q_ASSERT(index >= 0 && index < stashes.size());
 
@@ -2903,6 +3200,9 @@ void RepoView::dropStash(int index) {
 }
 
 void RepoView::popStash(int index) {
+  if (isDiscardAllChangesActive())
+    return;
+
   QList<git::Commit> stashes = mRepo.stashes();
   Q_ASSERT(index >= 0 && index < stashes.size());
 
@@ -3045,6 +3345,9 @@ void RepoView::promptToReset(const git::Commit &commit, git_reset_t type) {
 
 void RepoView::reset(const git::Commit &commit, git_reset_t type,
                      const git::Commit &commitToAmend) {
+  if (isDiscardAllChangesActive())
+    return;
+
   git::Reference head = mRepo.head();
   Q_ASSERT(head.isValid());
 
@@ -3065,6 +3368,9 @@ void RepoView::reset(const git::Commit &commit, git_reset_t type,
 void RepoView::resetSubmodules(const QList<git::Submodule> &submodules,
                                bool recursive, git_reset_t type,
                                LogEntry *parent) {
+  if (isDiscardAllChangesActive())
+    return;
+
   if (mWatcher) {
     // Queue update. synchrone
     connect(mWatcher, &QFutureWatcher<git::Result>::finished, mWatcher,
@@ -3192,6 +3498,9 @@ RepoView::submoduleResetInfoList(const git::Repository &repo,
 void RepoView::updateSubmodules(const QList<git::Submodule> &submodules,
                                 bool recursive, bool init, bool checkout_force,
                                 LogEntry *parent, bool restoreSelection) {
+  if (isDiscardAllChangesActive())
+    return;
+
   if (mWatcher) {
     // Queue update. synchrone
     connect(mWatcher, &QFutureWatcher<git::Result>::finished, mWatcher,
@@ -3211,6 +3520,51 @@ void RepoView::updateSubmodules(const QList<git::Submodule> &submodules,
       submoduleUpdateInfoList(mRepo, submodules, init, checkout_force, parent);
   updateSubmodulesAsync(infos, recursive, init, checkout_force,
                         restoreSelection);
+}
+
+void RepoView::finishDiscardAllChanges(
+    const git::WorkingTreeDiscardExecution &result, quint64 generation) {
+  if (generation != mDiscardAllChangesGeneration) {
+    refreshAfterDiscardIfNeeded();
+    if (mClosing)
+      finishClosing();
+    return;
+  }
+
+  if (mClosing) {
+    mDiscardAllChangesState = DiscardAllChangesState::Idle;
+    mDiscardCancel.reset();
+    updateActivity();
+    finishClosing();
+    return;
+  }
+
+  mDiscardAllChangesState = DiscardAllChangesState::Idle;
+  mDiscardCancel.reset();
+  updateActivity();
+  emit discardAllChangesFinished(result);
+  refreshAfterDiscardIfNeeded();
+}
+
+void RepoView::finishDiscardRefresh() {
+  if (!mDiscardRefreshPending)
+    return;
+
+  mDiscardRefreshPending = false;
+  const git::WorkingTreeDiscardExecution result = mDiscardRefreshResult;
+  const quint64 generation = mDiscardRefreshGeneration;
+  mDiscardRefreshResult = git::WorkingTreeDiscardExecution();
+  mDiscardRefreshGeneration = 0;
+  finishDiscardAllChanges(result, generation);
+}
+
+void RepoView::refreshAfterDiscardIfNeeded() {
+  if (mClosing || !mDiscardExternalRefreshPending)
+    return;
+
+  mDiscardExternalRefreshPending = false;
+  mCommits->preserveSelectionOnRefresh();
+  refresh(true);
 }
 
 /*!
@@ -3418,7 +3772,8 @@ void RepoView::checkSubmoduleUpdates(
                 mSubmoduleUpdateStatuses.begin(),
                 mSubmoduleUpdateStatuses.end(),
                 [&result](const git::Submodule::UpdateStatus &status) {
-                  return status.name == result.name && status.path == result.path;
+                  return status.name == result.name &&
+                         status.path == result.path;
                 });
             if (existing == mSubmoduleUpdateStatuses.end())
               mSubmoduleUpdateStatuses.append(result);
@@ -3540,6 +3895,9 @@ void RepoView::submoduleConfigurationChanged() {
 bool RepoView::checkoutSubmoduleOrigin(const QString &name,
                                        const QString &branch,
                                        const git::Id &target) {
+  if (isDiscardAllChangesActive())
+    return false;
+
   LogEntry *entry = addLogEntry(name, tr("Checkout Submodule"));
   if (mWatcher || mSubmoduleUpdateWatcher || mSubmodulePushCheckWatcher) {
     entry->addEntry(LogEntry::Error,
@@ -3603,6 +3961,9 @@ bool RepoView::checkoutSubmoduleOrigin(const QString &name,
 
 void RepoView::addSubmodule(const QString &url, const QString &path,
                             const QString &branch) {
+  if (isDiscardAllChangesActive())
+    return;
+
   if (mWatcher || mSubmoduleUpdateWatcher) {
     addLogEntry(tr("Another remote operation is already running."),
                 tr("Add Submodule"));
@@ -3645,6 +4006,9 @@ void RepoView::addSubmodule(const QString &url, const QString &path,
 bool RepoView::modifySubmodule(const QString &oldName, const QString &newName,
                                const QString &newPath, const QString &newUrl,
                                const QString &newBranch) {
+  if (isDiscardAllChangesActive())
+    return false;
+
   git::Result result = git::Submodule::modify(mRepo, oldName, newName, newPath,
                                               newUrl, newBranch);
   if (!result) {
@@ -3659,6 +4023,9 @@ bool RepoView::modifySubmodule(const QString &oldName, const QString &newName,
 }
 
 void RepoView::promptToModifySubmodule(const git::Submodule &submodule) {
+  if (isDiscardAllChangesActive())
+    return;
+
   if (!submodule.isValid())
     return;
 
@@ -3671,6 +4038,9 @@ void RepoView::promptToModifySubmodule(const git::Submodule &submodule) {
 }
 
 void RepoView::promptToDeleteSubmodule(const git::Submodule &submodule) {
+  if (isDiscardAllChangesActive())
+    return;
+
   if (!submodule.isValid())
     return;
 
@@ -3696,6 +4066,9 @@ void RepoView::promptToDeleteSubmodule(const git::Submodule &submodule) {
   message->setDefaultButton(QMessageBox::Cancel);
   message->setEscapeButton(QMessageBox::Cancel);
   connect(remove, &QPushButton::clicked, this, [this, submodule] {
+    if (isDiscardAllChangesActive())
+      return;
+
     const QString name = submodule.name();
     LogEntry *entry = addLogEntry(name, tr("Delete Submodule"));
     git::Result result = git::Submodule::remove(mRepo, submodule);
@@ -3734,6 +4107,9 @@ bool RepoView::canCommitSubmoduleChanges(
 }
 
 void RepoView::commitSubmoduleChanges(const git::Submodule &submodule) {
+  if (isDiscardAllChangesActive())
+    return;
+
   if (!mRepo.isValid() || !submodule.isValid())
     return;
 
@@ -3964,8 +4340,7 @@ void RepoView::openTerminal(const QString &workingDirectory, QWidget *parent) {
     if (launchDetectedPtyxis) {
       QString workdir = workingDirectory;
       workdir.replace("\\", "\\\\").replace("\"", "\\\"");
-      terminalCmd +=
-          QString(" --tab --working-directory \"%1\"").arg(workdir);
+      terminalCmd += QString(" --tab --working-directory \"%1\"").arg(workdir);
     }
 #endif
 #endif
@@ -4049,6 +4424,9 @@ void RepoView::openFileManager(const QString &path) {
 }
 
 void RepoView::ignore(const QString &name) {
+  if (isDiscardAllChangesActive())
+    return;
+
   QFile file(mRepo.workdir().filePath(".gitignore"));
   if (!file.open(QFile::Append | QFile::Text))
     return;
@@ -4222,17 +4600,20 @@ void RepoView::finishClosing() {
     return;
 
   bool active = mIndexer.state() != QProcess::NotRunning || mWatcher ||
-                mTrackingWatcher ||
-                mSubmoduleUpdateWatcher || mSubmodulePushCheckWatcher;
+                mTrackingWatcher || mSubmoduleUpdateWatcher ||
+                mSubmodulePushCheckWatcher || mDiscardPreparationWatcher ||
+                mDiscardExecutionWatcher;
   QJsonObject fields;
   fields["indexer"] = mIndexer.state() != QProcess::NotRunning;
   fields["remote"] = mWatcher != nullptr;
   fields["tracking"] = mTrackingWatcher != nullptr;
   fields["submoduleUpdate"] = mSubmoduleUpdateWatcher != nullptr;
   fields["submodulePushCheck"] = mSubmodulePushCheckWatcher != nullptr;
-  PerformanceTrace::event("close", active ? "finishClosing active"
-                                           : "finishClosing deleteLater",
-                          mRepo.dir(false).path(), fields);
+  fields["discardPreparation"] = mDiscardPreparationWatcher != nullptr;
+  fields["discardExecution"] = mDiscardExecutionWatcher != nullptr;
+  PerformanceTrace::event(
+      "close", active ? "finishClosing active" : "finishClosing deleteLater",
+      mRepo.dir(false).path(), fields);
   if (active) {
     mCloseCleanupTimer.start(50);
     return;
@@ -4262,7 +4643,9 @@ void RepoView::finishInitialLoad() {
 
 bool RepoView::hasBackgroundActivity() const {
   return !mInitialLoadFinished || mWatcher || mSubmoduleUpdateWatcher ||
-         mSubmodulePushCheckWatcher || mTrackingWatcher;
+         mSubmodulePushCheckWatcher || mTrackingWatcher ||
+         mDiscardAllChangesState != DiscardAllChangesState::Idle ||
+         mDiscardPreparationWatcher || mDiscardExecutionWatcher;
 }
 
 void RepoView::updateActivity() {
@@ -4371,8 +4754,7 @@ void RepoView::requestTrackingStatus() {
 
             if (mTrackingRefreshPending && !mClosing) {
               mTrackingRefreshPending = false;
-              QTimer::singleShot(0, this,
-                                 [this] { requestTrackingStatus(); });
+              QTimer::singleShot(0, this, [this] { requestTrackingStatus(); });
             }
           });
 
@@ -4384,7 +4766,8 @@ void RepoView::requestTrackingStatus() {
     TrackingStatus result = requested;
     git::Repository repo = git::Repository::open(repoPath);
     if (!repo.isValid()) {
-      result.error = RepoView::tr("Unable to open repository for tracking status.");
+      result.error =
+          RepoView::tr("Unable to open repository for tracking status.");
     } else {
       const git::Repository::AheadBehind counts =
           repo.aheadBehind(requested.head, requested.upstream);

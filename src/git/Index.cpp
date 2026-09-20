@@ -16,6 +16,7 @@
 #include "Tree.h"
 #include "git2/checkout.h"
 #include "git2/commit.h"
+#include "git2/errors.h"
 #include "git2/ignore.h"
 #include "git2/refs.h"
 #include "git2/repository.h"
@@ -237,7 +238,8 @@ Index::StagedState Index::isStaged(const QString &path) const {
   return d->stagedCache.insert(path, PartiallyStaged).value();
 }
 
-void Index::setStaged(const QStringList &files, bool staged, bool yieldFocus) {
+bool Index::setStaged(const QStringList &files, bool staged, bool yieldFocus) {
+  bool success = true;
   bool dirAdded = false;
   QStringList changedFiles;
   Repository repo(git_index_owner(d->index));
@@ -260,8 +262,10 @@ void Index::setStaged(const QStringList &files, bool staged, bool yieldFocus) {
     // submodule
     if (Submodule submodule = repo.lookupSubmodule(file)) {
       if (staged) {
-        if (git_submodule_add_to_index(submodule, false))
+        if (git_submodule_add_to_index(submodule, false)) {
+          success = false;
           continue;
+        }
       } else {
         if (fileExists) {
           // Reset to HEAD id.
@@ -276,12 +280,16 @@ void Index::setStaged(const QStringList &files, bool staged, bool yieldFocus) {
 
           // Set timestamps.
           Repository smRepo = submodule.open();
-          if (!smRepo.isValid())
+          if (!smRepo.isValid()) {
+            success = false;
             continue;
+          }
 
           Commit smHead = smRepo.lookupCommit(headId);
-          if (!smHead.isValid())
+          if (!smHead.isValid()) {
+            success = false;
             continue;
+          }
 
           git_time_t time = smHead.committer().date().toSecsSinceEpoch();
           entry.ctime.seconds = time;
@@ -289,12 +297,17 @@ void Index::setStaged(const QStringList &files, bool staged, bool yieldFocus) {
           entry.mtime.seconds = time;
           entry.mtime.nanoseconds = 0;
 
-          if (git_index_add(d->index, &entry))
+          if (git_index_add(d->index, &entry)) {
+            success = false;
             continue;
+          }
         } else {
           // Remove from index.
-          if (git_index_remove_bypath(d->index, path))
+          const int error = git_index_remove_bypath(d->index, path);
+          if (error && error != GIT_ENOTFOUND) {
+            success = false;
             continue;
+          }
         }
       }
 
@@ -321,8 +334,10 @@ void Index::setStaged(const QStringList &files, bool staged, bool yieldFocus) {
 
           QDir::setCurrent(current);
 
-          if (!added)
+          if (!added) {
+            success = false;
             continue;
+          }
 
           dirAdded = true;
 
@@ -342,10 +357,13 @@ void Index::setStaged(const QStringList &files, bool staged, bool yieldFocus) {
             emit notifier->largeFileAboutToBeStaged(file, size, allow);
           }
 
-          if (!allow)
+          if (!allow) {
+            success = false;
             continue;
+          }
 
           if (git_index_add_bypath(d->index, path)) {
+            success = false;
             emit notifier->indexStageError(file);
             continue;
           }
@@ -353,7 +371,9 @@ void Index::setStaged(const QStringList &files, bool staged, bool yieldFocus) {
 
       } else {
         // Remove from index.
-        if (git_index_remove_bypath(d->index, path)) {
+        const int error = git_index_remove_bypath(d->index, path);
+        if (error && error != GIT_ENOTFOUND) {
+          success = false;
           emit notifier->indexStageError(file);
           continue;
         }
@@ -370,12 +390,15 @@ void Index::setStaged(const QStringList &files, bool staged, bool yieldFocus) {
         git_oid_cpy(&entry.id, fileId);
 
         if (git_index_add(d->index, &entry)) {
+          success = false;
           emit notifier->indexStageError(file);
           continue;
         }
       } else {
         // Remove from index.
-        if (git_index_remove_bypath(d->index, path)) {
+        const int error = git_index_remove_bypath(d->index, path);
+        if (error && error != GIT_ENOTFOUND) {
+          success = false;
           emit notifier->indexStageError(file);
           continue;
         }
@@ -386,7 +409,8 @@ void Index::setStaged(const QStringList &files, bool staged, bool yieldFocus) {
   }
 
   if (!changedFiles.isEmpty()) {
-    git_index_write(d->index);
+    if (git_index_write(d->index))
+      success = false;
     foreach (const QString &changedFile, changedFiles)
       d->stagedCache.remove(changedFile);
     emit notifier->indexChanged(changedFiles, yieldFocus);
@@ -394,6 +418,8 @@ void Index::setStaged(const QStringList &files, bool staged, bool yieldFocus) {
 
   if (dirAdded)
     emit notifier->directoryStaged();
+
+  return success;
 }
 
 void Index::add(const QString &path, const QByteArray &buffer) {

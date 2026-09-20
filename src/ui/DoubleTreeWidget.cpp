@@ -16,6 +16,7 @@
 #include "TreeProxy.h"
 #include "TreeView.h"
 #include "Debug.h"
+#include "RepoView.h"
 #include "conf/Settings.h"
 #include "DiffView/DiffView.h"
 #include "DiffView/FileWidget.h"
@@ -28,7 +29,6 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QCheckBox>
-#include <QFileInfo>
 #include <QLabel>
 #include <QMessageBox>
 #include <QPainter>
@@ -55,77 +55,6 @@ const QString kAllFiles = QString(QObject::tr("Workdir Files"));
 void appendPath(QStringList &paths, const QString &path) {
   if (!path.isEmpty() && !paths.contains(path))
     paths.append(path);
-}
-
-QString prefixedPath(const QString &prefix, const QString &path) {
-  return prefix.isEmpty() ? path : prefix + '/' + path;
-}
-
-void appendSubmoduleStatusPaths(const git::Repository &repo,
-                                const QString &prefix, QStringList &tracked,
-                                QStringList &untracked) {
-  for (const git::Submodule &submodule : repo.submodules()) {
-    if (!submodule.isInitialized())
-      continue;
-
-    git::Repository subrepo = submodule.open();
-    if (!subrepo.isValid())
-      continue;
-
-    const QString submodulePrefix = prefixedPath(prefix, submodule.path());
-    const bool hasHead = subrepo.head().target().isValid();
-    const git::WorkingTreeStatusSnapshot status =
-        git::WorkingTreeStatusSnapshot::scan(subrepo.dir(false).path(),
-                                             git::WorkingTreeStatusOptions());
-    for (const git::WorkingTreeStatusEntry &entry : status.entries()) {
-      QStringList &paths =
-          (!hasHead || entry.isUntracked()) ? untracked : tracked;
-      appendPath(paths, prefixedPath(submodulePrefix, entry.path));
-      if (!entry.isUntracked())
-        appendPath(paths, prefixedPath(submodulePrefix, entry.oldPath));
-    }
-
-    appendSubmoduleStatusPaths(subrepo, submodulePrefix, tracked, untracked);
-  }
-}
-
-void discardSubmoduleWorktrees(const git::Repository &repo,
-                               const QString &prefix, QStringList &failed) {
-  for (const git::Submodule &submodule : repo.submodules()) {
-    if (!submodule.isInitialized())
-      continue;
-
-    git::Repository subrepo = submodule.open();
-    if (!subrepo.isValid())
-      continue;
-
-    const QString submodulePrefix = prefixedPath(prefix, submodule.path());
-    const git::WorkingTreeStatusSnapshot status =
-        git::WorkingTreeStatusSnapshot::scan(subrepo.dir(false).path(),
-                                             git::WorkingTreeStatusOptions());
-    const git::Commit head = subrepo.head().target();
-    QStringList pathsToClean = status.untrackedPaths();
-
-    if (head.isValid()) {
-      if (!head.reset(GIT_RESET_HARD, QStringList(), false))
-        appendPath(failed, submodulePrefix);
-    } else {
-      for (const git::WorkingTreeStatusEntry &entry : status.entries()) {
-        appendPath(pathsToClean, entry.path);
-        appendPath(pathsToClean, entry.oldPath);
-      }
-      if (!pathsToClean.isEmpty())
-        subrepo.index().setStaged(pathsToClean, false);
-    }
-
-    for (const QString &path : pathsToClean) {
-      if (!subrepo.clean(path) &&
-          QFileInfo(subrepo.workdir().filePath(path)).exists())
-        appendPath(failed, prefixedPath(submodulePrefix, path));
-    }
-
-    discardSubmoduleWorktrees(subrepo, submodulePrefix, failed);
-  }
 }
 
 QIcon diffModeIcon(Settings::DiffMode mode) {
@@ -159,7 +88,7 @@ QIcon redTrashIcon(const QStyle *style) {
       continue;
     QPainter painter(&pixmap);
     painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
-    painter.fillRect(pixmap.rect(), QColor(Qt::red));
+    painter.fillRect(pixmap.rect(), QColor(210, 70, 70, 175));
     red.addPixmap(pixmap);
   }
   return red.isNull() ? source : red;
@@ -574,12 +503,12 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
           &DoubleTreeWidget::promptToDiscardAllChanges);
   connect(repoView, &RepoView::activityChanged, this,
           [this](bool) { updateStageAllChangesButton(); });
-  connect(repoView, &RepoView::statusChanged, this, [this](bool) {
-    if (mDiscardAllChangesInProgress) {
-      mDiscardAllChangesInProgress = false;
-      updateStageAllChangesButton();
-    }
-  });
+  connect(repoView, &RepoView::discardAllChangesPrepared, this,
+          &DoubleTreeWidget::showDiscardAllChangesDialog);
+  connect(repoView, &RepoView::discardAllChangesFinished, this,
+          [this](const git::WorkingTreeDiscardExecution &) {
+            updateStageAllChangesButton();
+          });
   connect(mStageAllChanges, &QPushButton::clicked, repoView, &RepoView::stage);
   connect(mShowAllFiles, &QCheckBox::toggled, this, [this] { setDiff(mDiff); });
   connect(mUnresolvedOnly, &QCheckBox::toggled, this, [this](bool checked) {
@@ -872,7 +801,6 @@ void DoubleTreeWidget::setWorkingTreeStatus(
   mDiff = git::Diff();
   mStatusSnapshot = status;
   mStatusSnapshotMode = status.isValid();
-  mDiscardAllChangesInProgress = false;
 
   storeSelection();
 
@@ -949,9 +877,11 @@ void DoubleTreeWidget::updateStageAllChangesButton() {
           : mDiff.isValid() && mDiff.isStatusDiff() && mDiff.count() > 0;
   mStageAllChanges->setVisible(statusDiff && !conflictMode);
   mStageAllChanges->setEnabled(statusDiff && !conflictMode &&
-                               view->isStageEnabled());
+                               view->isStageEnabled() &&
+                               !view->hasBackgroundActivity());
   mDiscardAllChanges->setVisible(dirtyStatus);
-  mDiscardAllChanges->setEnabled(dirtyStatus && !mDiscardAllChangesInProgress &&
+  mDiscardAllChanges->setEnabled(dirtyStatus &&
+                                 !view->isDiscardAllChangesActive() &&
                                  !view->hasBackgroundActivity());
 }
 
@@ -959,10 +889,11 @@ void DoubleTreeWidget::promptToDiscardAllChanges() {
   QStringList tracked;
   QStringList untracked;
   RepoView *view = RepoView::parentView(this);
-  if (!view || mDiscardAllChangesInProgress)
+  if (!view || view->isDiscardAllChangesActive())
     return;
 
-  const bool hasHead = view->repo().head().target().isValid();
+  const git::Commit head = view->repo().head().target();
+  const bool hasHead = head.isValid();
 
   if (mStatusSnapshotMode) {
     for (const git::WorkingTreeStatusEntry &entry : mStatusSnapshot.entries()) {
@@ -987,11 +918,32 @@ void DoubleTreeWidget::promptToDiscardAllChanges() {
     }
   }
 
-  if (hasHead)
-    appendSubmoduleStatusPaths(view->repo(), QString(), tracked, untracked);
-
   if (tracked.isEmpty() && untracked.isEmpty())
     return;
+
+  view->prepareDiscardAllChanges(tracked, untracked,
+                                 hasHead ? head.id().toString() : QString());
+}
+
+void DoubleTreeWidget::showDiscardAllChangesDialog(
+    const git::WorkingTreeDiscardPreparation &preparation) {
+  RepoView *view = RepoView::parentView(this);
+  if (!view || preparation.canceled)
+    return;
+
+  if (!preparation.error.isEmpty()) {
+    QMessageBox *warning =
+        new QMessageBox(QMessageBox::Warning, tr("Unable to prepare discard"),
+                        preparation.error, QMessageBox::Ok, this);
+    warning->setAttribute(Qt::WA_DeleteOnClose);
+    warning->open();
+    return;
+  }
+
+  const git::WorkingTreeDiscardPlan plan = preparation.plan;
+  if (!plan.isDirty())
+    return;
+  const bool hasHead = !plan.headId.isEmpty();
 
   QMessageBox *dialog = new QMessageBox(
       QMessageBox::Warning, tr("Discard all changes?"),
@@ -1006,14 +958,14 @@ void DoubleTreeWidget::promptToDiscardAllChanges() {
                    "cannot be undone."));
 
   QString detailedText;
-  if (!tracked.isEmpty())
-    detailedText =
-        tr("Tracked paths (restored from HEAD):\n%1").arg(tracked.join('\n'));
-  if (!untracked.isEmpty()) {
+  if (!plan.trackedPaths.isEmpty())
+    detailedText = tr("Tracked paths (restored from HEAD):\n%1")
+                       .arg(plan.trackedPaths.join('\n'));
+  if (!plan.untrackedPaths.isEmpty()) {
     if (!detailedText.isEmpty())
       detailedText += "\n\n";
     detailedText += tr("Untracked paths (permanently deleted):\n%1")
-                        .arg(untracked.join('\n'));
+                        .arg(plan.untrackedPaths.join('\n'));
   }
   dialog->setDetailedText(detailedText);
 
@@ -1028,66 +980,18 @@ void DoubleTreeWidget::promptToDiscardAllChanges() {
       dialog->addButton(tr("Discard All Changes"), QMessageBox::AcceptRole);
   discard->setObjectName("DiscardButton");
   dialog->setDefaultButton(discard);
-  connect(discard, &QPushButton::clicked, this, [this, tracked, untracked] {
-    discardAllChanges(tracked, untracked);
+  const std::shared_ptr<bool> accepted = std::make_shared<bool>(false);
+  connect(discard, &QPushButton::pressed, this,
+          [accepted] { *accepted = true; });
+  connect(discard, &QPushButton::clicked, this, [view, plan, accepted] {
+    if (!view->executeDiscardAllChanges(plan))
+      *accepted = false;
+  });
+  connect(dialog, &QDialog::finished, this, [view, plan, accepted] {
+    if (!*accepted && view->isDiscardAllChangesAwaitingConfirmation())
+      view->cancelDiscardAllChanges(plan.generation);
   });
   dialog->open();
-}
-
-void DoubleTreeWidget::discardAllChanges(const QStringList &tracked,
-                                         const QStringList &untracked) {
-  RepoView *view = RepoView::parentView(this);
-  if (!view || mDiscardAllChangesInProgress)
-    return;
-
-  mDiscardAllChangesInProgress = true;
-  updateStageAllChangesButton();
-
-  git::Repository repo = view->repo();
-  git::Reference reference = repo.head();
-  git::Commit head = reference.isValid() ? reference.target() : git::Commit();
-  LogEntry *entry =
-      view->addLogEntry(tr("<i>working directory</i>"), tr("Discard"));
-
-  if (head.isValid()) {
-    // Reset to the existing HEAD without changing branch history.
-    if (!head.reset(GIT_RESET_HARD, QStringList(), false))
-      view->error(entry, tr("discard"), tr("working directory"));
-  } else {
-    // An unborn repository has no tree to restore. Unstage and remove all
-    // paths because every worktree file is new.
-    QStringList paths = tracked;
-    paths.append(untracked);
-    if (!paths.isEmpty())
-      repo.index().setStaged(paths, false);
-  }
-
-  QStringList pathsToClean = untracked;
-  if (!head.isValid())
-    pathsToClean.append(tracked);
-
-  QStringList failed;
-  for (const QString &path : pathsToClean) {
-    if (!repo.clean(path) && QFileInfo(repo.workdir().filePath(path)).exists())
-      failed.append(path);
-  }
-  if (!failed.isEmpty())
-    view->error(entry, tr("remove untracked files"), failed.join('\n'));
-
-  const QList<git::Submodule> submodules = repo.submodules();
-  QStringList failedSubmodules;
-  discardSubmoduleWorktrees(repo, QString(), failedSubmodules);
-  if (!failedSubmodules.isEmpty())
-    view->error(entry, tr("discard submodule changes"),
-                failedSubmodules.join('\n'));
-
-  if (head.isValid()) {
-    view->updateSubmodules(submodules, true, true, true, entry);
-    if (submodules.isEmpty())
-      view->refresh();
-  } else {
-    view->refresh();
-  }
 }
 
 void DoubleTreeWidget::updateConflictUi() {

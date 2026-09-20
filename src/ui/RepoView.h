@@ -21,6 +21,7 @@
 #include "git/Submodule.h"
 #include "git/SubmoduleAvailability.h"
 #include "git/Rebase.h"
+#include "git/WorkingTreeDiscard.h"
 #include "git/WorkingTreeStatus.h"
 #include "host/Account.h"
 #include <QFuture>
@@ -29,7 +30,9 @@
 #include <QProcess>
 #include <QSplitter>
 #include <QTimer>
+#include <atomic>
 #include <functional>
+#include <memory>
 
 class CommitList;
 class CommitAvatarProvider;
@@ -68,8 +71,9 @@ public:
     QString error;
     bool pending = false;
 
-    bool isValid() const { return !pending && error.isEmpty() && ahead >= 0 &&
-                                  behind >= 0; }
+    bool isValid() const {
+      return !pending && error.isEmpty() && ahead >= 0 && behind >= 0;
+    }
   };
 
   enum ViewMode {
@@ -135,6 +139,13 @@ public:
 
   // workdir
   bool isWorkingDirectoryDirty() const;
+  bool prepareDiscardAllChanges(const QStringList &trackedPaths,
+                                const QStringList &untrackedPaths,
+                                const QString &headId);
+  bool executeDiscardAllChanges(const git::WorkingTreeDiscardPlan &plan);
+  void cancelDiscardAllChanges(quint64 generation = 0);
+  bool isDiscardAllChangesActive() const;
+  bool isDiscardAllChangesAwaitingConfirmation() const;
 
   // current reference
   git::Reference reference() const;
@@ -435,6 +446,10 @@ signals:
   void submoduleUpdateStatusesChanged(
       const QList<git::Submodule::UpdateStatus> &statuses);
   void submoduleActivityChanged(const QStringList &paths);
+  void
+  discardAllChangesPrepared(const git::WorkingTreeDiscardPreparation &result);
+  void
+  discardAllChangesFinished(const git::WorkingTreeDiscardExecution &result);
   void manualRefreshRequested();
   void pushSucceeded(const QString &repositoryPath);
   void trackingStatusChanged(const RepoView::TrackingStatus &status);
@@ -491,6 +506,10 @@ private:
                              bool recursive = true, bool init = false,
                              bool checkout_force = false,
                              bool restoreSelection = true);
+  void finishDiscardAllChanges(const git::WorkingTreeDiscardExecution &result,
+                               quint64 generation);
+  void finishDiscardRefresh();
+  void refreshAfterDiscardIfNeeded();
   void clearSubmoduleUpdateStatuses();
 
   QList<SubmoduleInfo>
@@ -544,6 +563,24 @@ private:
   QString mQueuedReferenceUpdate;
   RemoteCallbacks *mCallbacks = nullptr;
   QFutureWatcher<git::Result> *mWatcher = nullptr;
+  QFutureWatcher<git::WorkingTreeDiscardPreparation>
+      *mDiscardPreparationWatcher = nullptr;
+  QFutureWatcher<git::WorkingTreeDiscardExecution> *mDiscardExecutionWatcher =
+      nullptr;
+  std::shared_ptr<std::atomic_bool> mDiscardCancel;
+  enum class DiscardAllChangesState {
+    Idle,
+    Preparing,
+    AwaitingConfirmation,
+    Executing,
+    Canceling,
+  };
+  DiscardAllChangesState mDiscardAllChangesState = DiscardAllChangesState::Idle;
+  quint64 mDiscardAllChangesGeneration = 0;
+  bool mDiscardRefreshPending = false;
+  git::WorkingTreeDiscardExecution mDiscardRefreshResult;
+  quint64 mDiscardRefreshGeneration = 0;
+  bool mDiscardExternalRefreshPending = false;
   QFutureWatcher<TrackingStatus> *mTrackingWatcher = nullptr;
   TrackingStatus mTrackingStatus;
   quint64 mTrackingGeneration = 0;

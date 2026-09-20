@@ -13,6 +13,7 @@
 #include "DiffTreeModel.h"
 #include "DetailView.h"
 #include "git/Index.h"
+#include "git/WorkingTreeDiscard.h"
 #include <QModelIndexList>
 #include <QSet>
 #include "conf/Settings.h"
@@ -80,8 +81,8 @@ private:
   void loadEditorContent(const QModelIndexList &indexes);
   void updateStageAllChangesButton();
   void promptToDiscardAllChanges();
-  void discardAllChanges(const QStringList &tracked,
-                         const QStringList &untracked);
+  void showDiscardAllChangesDialog(
+      const git::WorkingTreeDiscardPreparation &preparation);
   void updateConflictUi();
   void selectAdjacentConflict(int direction);
   void toggleCollapseStagedFiles();
@@ -135,7 +136,6 @@ private:
   QStackedWidget *mFileView{nullptr};
   bool mIgnoreSelectionChange{false};
   bool mFileInspectionClosed{false};
-  bool mDiscardAllChangesInProgress{false};
   bool mConflictAutoOpenEnabled{false};
   int mEditorLoadGeneration{0};
 

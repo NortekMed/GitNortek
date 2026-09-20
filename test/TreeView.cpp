@@ -21,6 +21,7 @@
 #include <QMessageBox>
 #include <QPointer>
 #include <QPushButton>
+#include <QSignalSpy>
 #include <QScrollBar>
 #include <QStackedWidget>
 #include <QTextEdit>
@@ -609,6 +610,8 @@ void TestTreeView::stageAllChangesButton() {
 
 void TestTreeView::discardAllChangesButton() {
   INIT_REPO("TestRepository.zip", false);
+  QSignalSpy discardFinished(repoView, &RepoView::discardAllChangesFinished);
+  QVERIFY(discardFinished.isValid());
 
   QFile modified(repo.workdir().filePath("file.txt"));
   QVERIFY(modified.open(QIODevice::WriteOnly | QIODevice::Truncate));
@@ -682,8 +685,10 @@ void TestTreeView::discardAllChangesButton() {
   QTRY_VERIFY(discard->isEnabled());
   mouseClick(discard, Qt::LeftButton);
 
-  auto *dialog = repoView->findChild<QMessageBox *>();
+  QMessageBox *dialog = nullptr;
+  QTRY_VERIFY((dialog = repoView->findChild<QMessageBox *>()));
   QVERIFY(dialog);
+  QVERIFY(!discard->isEnabled());
   const QString details = dialog->detailedText();
   QVERIFY(details.contains("file.txt"));
   QVERIFY(details.contains("file2.txt"));
@@ -695,18 +700,27 @@ void TestTreeView::discardAllChangesButton() {
   QVERIFY(cancel);
   mouseClick(cancel, Qt::LeftButton);
   QTRY_VERIFY(!dialog->isVisible());
+  QTRY_VERIFY(discard->isEnabled());
 
   QVERIFY(modified.open(QIODevice::ReadOnly));
   QCOMPARE(modified.readAll(), QByteArray("discarded modification\n"));
   QVERIFY(!QFile::exists(deletedPath));
   QVERIFY(QFile::exists(untrackedPath));
 
+  const QPointer<QMessageBox> firstDialog = dialog;
   mouseClick(discard, Qt::LeftButton);
-  dialog = repoView->findChild<QMessageBox *>();
-  QVERIFY(dialog);
+  dialog = nullptr;
+  QTRY_VERIFY((dialog = repoView->findChild<QMessageBox *>()) &&
+              dialog != firstDialog && dialog->isVisible());
   auto *accept = dialog->findChild<QPushButton *>("DiscardButton");
   QVERIFY(accept);
   mouseClick(accept, Qt::LeftButton);
+  QTRY_VERIFY(!discard->isEnabled());
+  QTRY_VERIFY(!discardFinished.isEmpty());
+  const git::WorkingTreeDiscardExecution execution =
+      qvariant_cast<git::WorkingTreeDiscardExecution>(
+          discardFinished.constFirst().constFirst());
+  QVERIFY(execution.isValid());
 
   QTRY_VERIFY(QFile::exists(deletedPath));
   QTRY_VERIFY(!QFile::exists(untrackedPath));
@@ -760,14 +774,15 @@ void TestTreeView::discardAllChangesInUnbornRepository() {
   QTRY_VERIFY(discard->isEnabled());
 
   mouseClick(discard, Qt::LeftButton);
-  auto *dialog = repoView->findChild<QMessageBox *>();
-  QVERIFY(dialog);
+  QMessageBox *dialog = nullptr;
+  QTRY_VERIFY((dialog = repoView->findChild<QMessageBox *>()));
   QVERIFY(dialog->detailedText().contains("staged.txt"));
   QVERIFY(dialog->detailedText().contains("untracked.txt"));
 
   auto *accept = dialog->findChild<QPushButton *>("DiscardButton");
   QVERIFY(accept);
   mouseClick(accept, Qt::LeftButton);
+  QTRY_VERIFY(!discard->isEnabled());
 
   QTRY_VERIFY(!QFile::exists(stagedPath));
   QTRY_VERIFY(!QFile::exists(untrackedPath));

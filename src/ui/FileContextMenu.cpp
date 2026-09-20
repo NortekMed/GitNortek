@@ -248,7 +248,9 @@ FileContextMenu::FileContextMenu(RepoView *view, const QStringList &files,
       git_filemode_t mode = index.mode(file);
       bool exe = (mode == GIT_FILEMODE_BLOB_EXECUTABLE);
       QString exeName = exe ? tr("Unset Executable") : tr("Set Executable");
-      QAction *exeAct = addAction(exeName, [index, file, exe] {
+      QAction *exeAct = addAction(exeName, [view, index, file, exe] {
+        if (view->isDiscardAllChangesActive())
+          return;
         git::Index(index).setMode(file, exe ? GIT_FILEMODE_BLOB
                                             : GIT_FILEMODE_BLOB_EXECUTABLE);
       });
@@ -265,11 +267,15 @@ void FileContextMenu::handleUncommittedChanges(const git::Index &index,
   const auto view = mView;
   if (index.isValid()) {
     // Stage/Unstage
-    QAction *stage = addAction(tr("Stage"), [index, files] {
+    QAction *stage = addAction(tr("Stage"), [view, index, files] {
+      if (view->isDiscardAllChangesActive())
+        return;
       git::Index(index).setStaged(files, true);
     });
 
-    QAction *unstage = addAction(tr("Unstage"), [index, files] {
+    QAction *unstage = addAction(tr("Unstage"), [view, index, files] {
+      if (view->isDiscardAllChangesActive())
+        return;
       git::Index(index).setStaged(files, false);
     });
 
@@ -357,6 +363,8 @@ void FileContextMenu::handleUncommittedChanges(const git::Index &index,
         QPushButton *discard = dialog->addButton(text, QMessageBox::AcceptRole);
         discard->setObjectName("DiscardButton");
         connect(discard, &QPushButton::clicked, [view, modified, submodules] {
+          if (view->isDiscardAllChangesActive())
+            return;
           git::Repository repo = view->repo();
           int strategy = GIT_CHECKOUT_FORCE;
           if (modified.count() &&
@@ -405,6 +413,8 @@ void FileContextMenu::handleCommits(const QList<git::Commit> &commits,
 
   // Checkout
   QAction *checkout = addAction(tr("Checkout"), [view, files] {
+    if (view->isDiscardAllChangesActive())
+      return;
     view->checkout(view->commits().first(), files);
     view->setViewMode(RepoView::DoubleTree);
   });
