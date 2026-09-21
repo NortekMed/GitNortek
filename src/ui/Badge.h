@@ -31,8 +31,7 @@ public:
       LFS,
     };
     Label(Type t, const QString &text = QString(), bool bold = false,
-          bool tag = false, bool branch = false,
-          bool remoteBranch = false,
+          bool tag = false, bool branch = false, bool remoteBranch = false,
           const QColor &background = QColor())
         : type(t), text(text), bold(bold), tag(tag), branch(branch),
           remoteBranch(remoteBranch), background(background) {}
@@ -56,6 +55,7 @@ public:
 
   static QSize size(const QFont &font, const QList<Label> &labels);
   static QSize size(const QFont &font, const Label &label);
+  static QString statusTooltip(QChar status);
 
   static int paint(QPainter *painter, const QList<Label> &labels,
                    const QRect &rect, QStyleOption *opt = nullptr,
@@ -65,6 +65,7 @@ protected:
   void paintEvent(QPaintEvent *event) override;
 
 private:
+  void updateToolTip();
   static void paint(QPainter *painter, const Label &label, const QRect &rect,
                     bool selected, bool active);
 

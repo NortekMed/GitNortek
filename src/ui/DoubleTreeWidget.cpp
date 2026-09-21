@@ -812,6 +812,8 @@ void DoubleTreeWidget::setWorkingTreeStatus(
 
   TreeProxy *proxy = static_cast<TreeProxy *>(unstagedFiles->model());
   DiffTreeModel *model = static_cast<DiffTreeModel *>(proxy->sourceModel());
+  model->setIgnoredPaths(
+      RepoView::parentView(this)->stopTrackingIgnoredPaths());
 
   bool singleTree =
       Settings::instance()

@@ -1033,7 +1033,7 @@ bool RepoView::executeStopTracking(const git::WorkingTreeUntrackPlan &plan,
   auto *watcher = new QFutureWatcher<git::WorkingTreeUntrackExecution>(this);
   mUntrackExecutionWatcher = watcher;
   connect(watcher, &QFutureWatcher<git::WorkingTreeUntrackExecution>::finished,
-          this, [this, watcher, generation, entry] {
+          this, [this, watcher, generation, entry, plan] {
             git::WorkingTreeUntrackExecution result;
             if (watcher->future().resultCount())
               result = watcher->result();
@@ -1044,6 +1044,8 @@ bool RepoView::executeStopTracking(const git::WorkingTreeUntrackPlan &plan,
               mUntrackExecutionWatcher = nullptr;
             watcher->deleteLater();
             entry->setBusy(false);
+
+            recordStopTrackingIgnoredPaths(plan, result);
 
             const bool mutated = result.ignoreWritten || result.indexWritten ||
                                  !result.deletedTrackedPaths.isEmpty() ||
@@ -1115,6 +1117,20 @@ bool RepoView::isStopTrackingAwaitingConfirmation() const {
   return mStopTrackingState == StopTrackingState::AwaitingConfirmation;
 }
 
+void RepoView::recordStopTrackingIgnoredPaths(
+    const git::WorkingTreeUntrackPlan &plan,
+    const git::WorkingTreeUntrackExecution &result) {
+  if (!result.indexWritten)
+    return;
+
+  for (const QString &path : plan.trackedPaths) {
+    if (result.deletedTrackedPaths.contains(path))
+      mStopTrackingIgnoredPaths.removeAll(path);
+    else if (!mStopTrackingIgnoredPaths.contains(path))
+      mStopTrackingIgnoredPaths.append(path);
+  }
+}
+
 git::Reference RepoView::reference() const { return mRefs->currentReference(); }
 
 void RepoView::selectReference(const git::Reference &ref) {
@@ -1147,6 +1163,10 @@ git::Diff RepoView::diff() const { return mCommits->selectedDiff(); }
 
 git::WorkingTreeStatusSnapshot RepoView::workingTreeStatus() const {
   return mCommits->statusSnapshot();
+}
+
+QStringList RepoView::stopTrackingIgnoredPaths() const {
+  return mStopTrackingIgnoredPaths;
 }
 
 git::Tree RepoView::tree() const {

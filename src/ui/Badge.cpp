@@ -9,6 +9,7 @@
 
 #include "Badge.h"
 #include "app/Application.h"
+#include <QCoreApplication>
 #include <QPainter>
 #include <QPainterPath>
 #include <QStyleOption>
@@ -32,16 +33,19 @@ bool isEmpty(QList<Badge::Label> &labels) {
 Badge::Badge(const QList<Label> &labels, QWidget *parent)
     : QWidget(parent), mLabels(labels) {
   setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+  updateToolTip();
 }
 
 void Badge::appendLabel(const Label &label) {
   mLabels.append(label);
   updateGeometry();
+  updateToolTip();
 }
 
 void Badge::setLabels(const QList<Label> &labels) {
   mLabels = labels;
   updateGeometry();
+  updateToolTip();
 }
 
 QSize Badge::sizeHint() const {
@@ -73,6 +77,44 @@ QSize Badge::size(const QFont &font, const Label &label) {
   int width = (label.text.length() > 1) ? fm.horizontalAdvance(label.text)
                                         : fm.averageCharWidth();
   return QSize(icon + width + kPadding, fm.lineSpacing() + 2);
+}
+
+QString Badge::statusTooltip(QChar status) {
+  switch (status.toLatin1()) {
+    case 'I':
+      return QCoreApplication::translate(
+          "Badge", "Ignored and no longer tracked; the file remains on disk.");
+    case 'D':
+      return QCoreApplication::translate("Badge", "Deleted");
+    case 'M':
+      return QCoreApplication::translate("Badge", "Modified");
+    case 'A':
+      return QCoreApplication::translate("Badge", "Added");
+    case '?':
+      return QCoreApplication::translate("Badge", "Untracked");
+    case 'R':
+      return QCoreApplication::translate("Badge", "Renamed");
+    case '!':
+      return QCoreApplication::translate("Badge", "Conflicted");
+    case 'C':
+      return QCoreApplication::translate("Badge", "Copied");
+    case 'T':
+      return QCoreApplication::translate("Badge", "Type changed");
+    case 'U':
+      return QCoreApplication::translate("Badge", "Updated");
+    default:
+      return QCoreApplication::translate("Badge", "Git status: %1").arg(status);
+  }
+}
+
+void Badge::updateToolTip() {
+  QStringList descriptions;
+  for (const Label &label : mLabels) {
+    if (label.type != Label::Type::Status || label.text.isEmpty())
+      continue;
+    descriptions.append(statusTooltip(label.text.at(0)));
+  }
+  setToolTip(descriptions.join('\n'));
 }
 
 // Draws the badges in all available space, right-aligned by default.
@@ -165,10 +207,10 @@ void Badge::paint(QPainter *painter, const Label &label, const QRect &rect,
   const QColor back = label.background.isValid()
                           ? label.background
                           : theme->badge(Theme::BadgeRole::Background, state);
-  const QColor fore = label.background.isValid()
-                          ? QColor(qGray(back.rgb()) > 140 ? Qt::black
-                                                          : Qt::white)
-                          : theme->badge(Theme::BadgeRole::Foreground, state);
+  const QColor fore =
+      label.background.isValid()
+          ? QColor(qGray(back.rgb()) > 140 ? Qt::black : Qt::white)
+          : theme->badge(Theme::BadgeRole::Foreground, state);
 
   painter->setBrush(back);
   painter->setPen(Qt::NoPen);

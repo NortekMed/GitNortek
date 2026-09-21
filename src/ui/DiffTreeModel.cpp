@@ -35,8 +35,7 @@ bool asList() {
       .toBool();
 }
 
-git::Index::StagedState stageState(
-    const git::WorkingTreeStatusEntry &entry) {
+git::Index::StagedState stageState(const git::WorkingTreeStatusEntry &entry) {
   if (entry.isConflicted())
     return git::Index::Conflicted;
   if (entry.hasIndexChange() && entry.hasWorkdirChange())
@@ -46,9 +45,15 @@ git::Index::StagedState stageState(
   return git::Index::Unstaged;
 }
 
-QString statusText(const git::WorkingTreeStatusEntry &entry) {
+QString statusText(const git::WorkingTreeStatusEntry &entry,
+                   const QSet<QString> &ignoredPaths) {
   if (entry.isConflicted())
     return QStringLiteral("!");
+
+  if (ignoredPaths.contains(entry.path) &&
+      entry.indexStatus == GIT_DELTA_DELETED &&
+      entry.workdirStatus != GIT_DELTA_DELETED)
+    return QStringLiteral("I");
 
   QString status;
   for (git_delta_t delta : {entry.indexStatus, entry.workdirStatus}) {
@@ -145,6 +150,10 @@ void DiffTreeModel::setStatusSnapshot(
   }
 
   endResetModel();
+}
+
+void DiffTreeModel::setIgnoredPaths(const QStringList &paths) {
+  mIgnoredPaths = QSet<QString>(paths.cbegin(), paths.cend());
 }
 
 void DiffTreeModel::setTree(const git::Tree &tree, const git::Diff &diff) {
@@ -348,8 +357,8 @@ QVariant DiffTreeModel::data(const QModelIndex &index, int role) const {
       if (index.column() > 0)
         return QVariant();
 
-      const bool statusDiff = mStatusSnapshotMode ||
-                              (mDiff.isValid() && mDiff.isStatusDiff());
+      const bool statusDiff =
+          mStatusSnapshotMode || (mDiff.isValid() && mDiff.isStatusDiff());
       const bool resolvedPath =
           !node->hasChildren() && mResolvedPaths.contains(node->path(true));
       if (!statusDiff && !resolvedPath)
@@ -420,7 +429,8 @@ QVariant DiffTreeModel::data(const QModelIndex &index, int role) const {
       for (auto patchIndex : patchIndices) {
         const QString chars =
             mStatusSnapshotMode
-                ? statusText(mStatusSnapshot.entries().at(patchIndex))
+                ? statusText(mStatusSnapshot.entries().at(patchIndex),
+                             mIgnoredPaths)
                 : QString(git::Diff::statusChar(mDiff.status(patchIndex)));
         for (QChar ch : chars) {
           if (!status.contains(ch))

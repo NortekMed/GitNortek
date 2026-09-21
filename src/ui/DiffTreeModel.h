@@ -103,6 +103,7 @@ public:
   void setDiff(const git::Diff &diff = git::Diff(),
                const QStringList &resolvedPaths = {});
   void setStatusSnapshot(const git::WorkingTreeStatusSnapshot &status);
+  void setIgnoredPaths(const QStringList &paths);
   void setTree(const git::Tree &tree, const git::Diff &diff = git::Diff());
   void refresh(const QStringList &paths);
   void setMultiColumn(bool);
@@ -178,6 +179,7 @@ private:
   Node *mRoot{nullptr};
   git::Repository mRepo;
   QSet<QString> mResolvedPaths;
+  QSet<QString> mIgnoredPaths;
 
   bool mListView = false;
   bool mMultiColumn{true};

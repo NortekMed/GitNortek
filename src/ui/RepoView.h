@@ -163,6 +163,7 @@ public:
   QList<git::Commit> commits() const;
   git::Diff diff() const;
   git::WorkingTreeStatusSnapshot workingTreeStatus() const;
+  QStringList stopTrackingIgnoredPaths() const;
   git::Tree tree() const;
 
   // background tasks
@@ -518,6 +519,9 @@ private:
                              bool restoreSelection = true);
   void finishDiscardAllChanges(const git::WorkingTreeDiscardExecution &result,
                                quint64 generation);
+  void recordStopTrackingIgnoredPaths(
+      const git::WorkingTreeUntrackPlan &plan,
+      const git::WorkingTreeUntrackExecution &result);
   void finishDiscardRefresh();
   void refreshAfterDiscardIfNeeded();
   void clearSubmoduleUpdateStatuses();
@@ -606,6 +610,7 @@ private:
   StopTrackingState mStopTrackingState = StopTrackingState::Idle;
   quint64 mStopTrackingGeneration = 0;
   bool mStopTrackingExternalRefreshPending = false;
+  QStringList mStopTrackingIgnoredPaths;
   QFutureWatcher<TrackingStatus> *mTrackingWatcher = nullptr;
   TrackingStatus mTrackingStatus;
   quint64 mTrackingGeneration = 0;

@@ -46,6 +46,7 @@ Bug Fix and Feature release
 #### Changed
 
 * Prepare and execute Discard All Changes asynchronously so large working trees and submodules do not block the interface
+* Explain file status badges on hover while preserving full-path filename tooltips
 * Color file and hunk discard controls red to identify destructive actions
 * Use a red trash icon and left-align the discard-all working-tree control
 * Reduce complete-file modified-block navigation button size
