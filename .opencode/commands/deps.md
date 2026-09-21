@@ -1,20 +1,39 @@
 ---
-description: Inspect and manage GitNortek Git submodules
+description: Inspect and manage Git submodule dependencies
 ---
 
-GitNortek uses Git submodules for bundled dependencies. Inspect first:
+Manage GitNortek's Git submodule dependencies. Dependency changes require a
+separate direct confirmation; the setup confirmation does not approve them.
+
+## Initialize Submodules
+
+Inspect status first, then ask before running either documented initialization
+sequence:
 
 ```bash
-git submodule status
+git submodule init
+git submodule update --depth 1
 ```
 
-The setup confirmation does not approve dependency changes. Ask for a direct
-affirmative answer before running this state-changing command:
+For the project's full recursive initialization procedure, ask before running:
 
 ```bash
 git submodule update --init --recursive
 ```
 
-Do not update, remove, or repair submodules automatically. Preserve the
-project's existing `.gitmodules` URLs and pinned commits. Use normal read-only
-status inspection before every state-changing operation.
+## Check Submodule Status
+
+```bash
+git submodule status
+```
+
+## Update Dependencies
+
+Inspect the requested paths and ask before updating any submodule. Do not run
+updates automatically or replace pinned revisions without explicit approval.
+
+## Remove or Add Dependencies
+
+Do not add or remove a submodule during routine setup. Require explicit approval
+of the exact Git commands and verify the target path before changing repository
+metadata.

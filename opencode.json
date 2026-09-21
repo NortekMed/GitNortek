@@ -20,6 +20,11 @@
       ]
     }
   },
+  "mcp": {
+    "serena": {
+      "enabled": true
+    }
+  },
   "permission": {
     "serena_find_*": "allow",
     "serena_get_*": "allow",

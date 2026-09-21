@@ -28,6 +28,6 @@ permission:
 # Code Navigator
 
 Perform read-only project navigation. Use the global Serena MCP for symbols,
-definitions, references, and call relationships when it is connected.
-Otherwise use normal file tools. Do not edit files, run shell commands,
-delegate work, or use mutating MCP operations.
+definitions, references, and call relationships when connected. Otherwise use
+normal read-only file tools. Do not edit files, run shell commands, delegate
+work, or use mutating MCP operations.
