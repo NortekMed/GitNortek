@@ -1159,6 +1159,16 @@ QList<git::Commit> RepoView::commits() const {
   return mCommits->selectedCommits();
 }
 
+bool RepoView::isWorkingTreeContext() const {
+  const QList<git::Commit> selected = mCommits->selectedCommits();
+  if (selected.isEmpty())
+    return true;
+
+  const git::Commit head = mRepo.head().target();
+  return selected.size() == 1 && head.isValid() &&
+         selected.first().id() == head.id();
+}
+
 git::Diff RepoView::diff() const { return mCommits->selectedDiff(); }
 
 git::WorkingTreeStatusSnapshot RepoView::workingTreeStatus() const {

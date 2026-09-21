@@ -1,9 +1,11 @@
 #include "Test.h"
 
+#include "ui/CommitList.h"
 #include "ui/FileContextMenu.h"
+#include "ui/IgnoreDialog.h"
 #include "ui/MainWindow.h"
 #include "ui/RepoView.h"
-#include "ui/IgnoreDialog.h"
+#include "ui/StopTrackingDialog.h"
 #include "git/Reference.h"
 
 #include <QMessageBox>
@@ -31,9 +33,44 @@ private slots:
   void testIgnoreFileUntracked();
   void testIgnoreFolder();
   void testRemoveUntrackedFolder();
+  void testStopTrackingCommittedFolder();
 };
 
 using namespace git;
+
+namespace {
+
+QModelIndex findCommitIndex(const CommitList *commits, const git::Id &id) {
+  for (int row = 0; row < commits->model()->rowCount(); ++row) {
+    const QModelIndex index = commits->model()->index(row, 0);
+    const git::Commit commit =
+        index.data(CommitList::CommitRole).value<git::Commit>();
+    if (commit.isValid() && commit.id() == id)
+      return index;
+  }
+  return QModelIndex();
+}
+
+QModelIndex findOtherCommitIndex(const CommitList *commits, const git::Id &id) {
+  for (int row = 0; row < commits->model()->rowCount(); ++row) {
+    const QModelIndex index = commits->model()->index(row, 0);
+    const git::Commit commit =
+        index.data(CommitList::CommitRole).value<git::Commit>();
+    if (commit.isValid() && commit.id() != id)
+      return index;
+  }
+  return QModelIndex();
+}
+
+QAction *findAction(QMenu *menu, const QString &objectName) {
+  for (QAction *action : menu->actions()) {
+    if (action->objectName() == objectName)
+      return action;
+  }
+  return nullptr;
+}
+
+} // namespace
 
 void TestFileContextMenu::testDiscardFile() {
   INIT_REPO("TestRepository.zip", false);
@@ -614,6 +651,60 @@ void TestFileContextMenu::testRemoveUntrackedFolder() {
       QVERIFY2(file.readAll() == i.value(), qPrintable(i.key()));
     }
   }
+}
+
+void TestFileContextMenu::testStopTrackingCommittedFolder() {
+  INIT_REPO("CrashMerge.zip", false);
+
+  const git::Commit head = repo.head().target();
+  QVERIFY(head.isValid());
+  auto *commits = repoView->findChild<CommitList *>();
+  QVERIFY(commits);
+
+  QModelIndex headIndex;
+  QModelIndex historicalIndex;
+  QTRY_VERIFY((headIndex = findCommitIndex(commits, head.id())).isValid());
+  QTRY_VERIFY(
+      (historicalIndex = findOtherCommitIndex(commits, head.id())).isValid());
+
+  commits->selectionModel()->setCurrentIndex(
+      historicalIndex, QItemSelectionModel::ClearAndSelect);
+  QTRY_VERIFY(repoView->commits().size() == 1 &&
+              repoView->commits().first().id() != head.id());
+  QVERIFY(!repoView->isWorkingTreeContext());
+
+  const QString root = QStringLiteral("common");
+  FileContextMenu historicalMenu(repoView, {root}, repo.index(), repoView,
+                                 {root}, repoView->isWorkingTreeContext());
+  QVERIFY(!findAction(&historicalMenu, QStringLiteral("StopTrackingAction")));
+
+  commits->selectionModel()->setCurrentIndex(
+      headIndex, QItemSelectionModel::ClearAndSelect);
+  QTRY_VERIFY(repoView->commits().size() == 1 &&
+              repoView->commits().first().id() == head.id());
+  QVERIFY(repoView->isWorkingTreeContext());
+
+  FileContextMenu currentMenu(repoView, {root}, repo.index(), repoView, {root},
+                              repoView->isWorkingTreeContext());
+  QAction *stopTracking =
+      findAction(&currentMenu, QStringLiteral("StopTrackingAction"));
+  QVERIFY(stopTracking);
+  stopTracking->trigger();
+
+  StopTrackingDialog *dialog = nullptr;
+  QTRY_VERIFY((dialog = repoView->findChild<StopTrackingDialog *>()));
+  QVERIFY(!dialog->deleteTracked());
+  QVERIFY(!dialog->deleteUntracked());
+  dialog->accept();
+
+  QTRY_VERIFY(!repoView->isStopTrackingActive());
+
+  const git::Repository reopened = git::Repository::open(path);
+  QVERIFY(reopened.index().pathsUnder({root}).isEmpty());
+  QVERIFY(QDir(reopened.workdir().filePath(root)).exists());
+  QFile ignoreFile(reopened.workdir().filePath(QStringLiteral(".gitignore")));
+  QVERIFY(ignoreFile.open(QIODevice::ReadOnly));
+  QVERIFY(ignoreFile.readAll().contains("/common/\n"));
 }
 
 TEST_MAIN(TestFileContextMenu)

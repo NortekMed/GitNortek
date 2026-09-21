@@ -161,6 +161,7 @@ public:
 
   // current selection
   QList<git::Commit> commits() const;
+  bool isWorkingTreeContext() const;
   git::Diff diff() const;
   git::WorkingTreeStatusSnapshot workingTreeStatus() const;
   QStringList stopTrackingIgnoredPaths() const;

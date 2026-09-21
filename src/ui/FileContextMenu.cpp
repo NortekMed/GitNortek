@@ -152,7 +152,7 @@ FileContextMenu::FileContextMenu(RepoView *view, const QStringList &files,
                                  bool workingTreeContext)
     : QMenu(parent), mView(view), mFiles(files),
       mIgnoreRoots(roots.isEmpty() ? files : roots),
-      mWorkingTreeContext(workingTreeContext) {
+      mWorkingTreeContext(workingTreeContext && view->isWorkingTreeContext()) {
   // Show diff and merge tools for the currently selected diff.
   git::Diff diff = view->diff();
   git::Repository repo = view->repo();
@@ -240,6 +240,8 @@ FileContextMenu::FileContextMenu(RepoView *view, const QStringList &files,
   } else {
     handleCommits(commits, files);
   }
+
+  addStopTrackingAction();
 
   // TODO: moving this into handleWorkingDirChanges()? Because
   // Locking committed files does not make sense or?
@@ -471,8 +473,13 @@ void FileContextMenu::handleUncommittedChanges(const git::Index &index,
     }
   }
   ignore->setEnabled(ignoreEnabled);
+}
 
-  // Stop tracking and ignore tracked paths in the working-tree menu only.
+void FileContextMenu::addStopTrackingAction() {
+  if (!mWorkingTreeContext)
+    return;
+
+  const git::Repository repo = mView->repo();
   bool hasTrackedPaths = false;
   for (const QString &path : repo.index().pathsUnder(mIgnoreRoots)) {
     if (!repo.lookupSubmodule(path).isValid()) {
@@ -480,12 +487,13 @@ void FileContextMenu::handleUncommittedChanges(const git::Index &index,
       break;
     }
   }
-  if (mWorkingTreeContext && hasTrackedPaths) {
-    QAction *stopTracking = addAction(tr("Stop Tracking and Ignore..."));
-    stopTracking->setObjectName("StopTrackingAction");
-    connect(stopTracking, &QAction::triggered, this,
-            [view, roots = mIgnoreRoots] { view->stopTracking(roots); });
-  }
+  if (!hasTrackedPaths)
+    return;
+
+  QAction *stopTracking = addAction(tr("Stop Tracking and Ignore..."));
+  stopTracking->setObjectName("StopTrackingAction");
+  connect(stopTracking, &QAction::triggered, this,
+          [view = mView, roots = mIgnoreRoots] { view->stopTracking(roots); });
 }
 
 void FileContextMenu::handleCommits(const QList<git::Commit> &commits,

@@ -44,6 +44,7 @@ class TestWorkingTreeUntrack : public QObject {
   Q_OBJECT
 
 private slots:
+  void preparesCleanTrackedFile();
   void preparesFolderAndKeepsFilesWhenDeletionIsDisabled();
   void deletesTrackedAndUntrackedFilesSeparately();
   void rejectsFilesChangedAfterPreparation();
@@ -54,6 +55,40 @@ private slots:
   void refusesDeletionThroughSymlinkedParent();
 #endif
 };
+
+void TestWorkingTreeUntrack::preparesCleanTrackedFile() {
+  Test::ScratchRepository scratch;
+  git::Repository repo = scratch;
+  const QString repositoryPath = repo.dir(false).path();
+  const QString filePath = repo.workdir().filePath("tracked.txt");
+  QVERIFY(writeFile(filePath, "tracked\n"));
+  QVERIFY(runGit(repositoryPath, {"add", "tracked.txt"}));
+  QVERIFY(runGit(repositoryPath, {"commit", "-m", "initial"}));
+
+  const auto canceled = std::make_shared<std::atomic_bool>(false);
+  const git::WorkingTreeUntrackPreparation preparation =
+      git::WorkingTreeUntrack::prepare(repositoryPath, {"tracked.txt"},
+                                       canceled);
+  QVERIFY(preparation.isValid());
+  QCOMPARE(preparation.plan.trackedPaths,
+           QStringList({QStringLiteral("tracked.txt")}));
+  QVERIFY(preparation.plan.untrackedPaths.isEmpty());
+  QCOMPARE(preparation.plan.ignorePatterns,
+           QStringList({QStringLiteral("/tracked.txt")}));
+
+  const git::WorkingTreeUntrackExecution execution =
+      git::WorkingTreeUntrack::execute(preparation.plan, false, false,
+                                       canceled);
+  QVERIFY(execution.isValid());
+  QVERIFY(execution.indexWritten);
+  QVERIFY(execution.ignoreWritten);
+  QVERIFY(QFile::exists(filePath));
+  QVERIFY(readFile(repo.workdir().filePath(QStringLiteral(".gitignore")))
+              .contains("/tracked.txt\n"));
+
+  const git::Repository reopened = git::Repository::open(repositoryPath);
+  QVERIFY(!reopened.index().isTracked(QStringLiteral("tracked.txt")));
+}
 
 void TestWorkingTreeUntrack::
     preparesFolderAndKeepsFilesWhenDeletionIsDisabled() {

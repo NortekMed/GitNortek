@@ -610,7 +610,8 @@ void DoubleTreeWidget::showFileContextMenu(const QPoint &pos, RepoView *view,
   if (files.isEmpty())
     return;
 
-  auto menu = new FileContextMenu(view, files, git::Index(), tree, roots);
+  auto menu = new FileContextMenu(view, files, git::Index(), tree, roots,
+                                  view->isWorkingTreeContext());
   menu->setAttribute(Qt::WA_DeleteOnClose);
   menu->popup(tree->mapToGlobal(pos));
 }
@@ -628,7 +629,8 @@ void DoubleTreeWidget::openExternalDiffTool(const QModelIndex &index,
   if (files.isEmpty())
     return;
 
-  FileContextMenu fileMenu(view, files, git::Index(), nullptr);
+  FileContextMenu fileMenu(view, files, git::Index(), nullptr, files,
+                           view->isWorkingTreeContext());
   auto doubleClickAction = fileMenu.doubleClickAction();
   if (doubleClickAction)
     doubleClickAction->trigger();

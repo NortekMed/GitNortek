@@ -41,6 +41,7 @@ private:
                                 const QStringList &files);
   void handleCommits(const QList<git::Commit> &commits,
                      const QStringList &files);
+  void addStopTrackingAction();
 
   RepoView *mView;
   QStringList mFiles;

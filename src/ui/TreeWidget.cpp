@@ -151,7 +151,7 @@ void TreeWidget::contextMenuEvent(QContextMenuEvent *event) {
 
   RepoView *view = RepoView::parentView(this);
   FileContextMenu menu(view, files, git::Index(), this, files,
-                       view->commits().isEmpty());
+                       view->isWorkingTreeContext());
   menu.exec(event->globalPos());
 }
 

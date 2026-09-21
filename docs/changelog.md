@@ -45,6 +45,8 @@ Bug Fix and Feature release
 
 #### Changed
 
+* Make Stop Tracking and Ignore available for clean tracked files and folders
+  from the current HEAD file tree
 * Prepare and execute Discard All Changes asynchronously so large working trees and submodules do not block the interface
 * Explain file status badges on hover while preserving full-path filename tooltips
 * Color file and hunk discard controls red to identify destructive actions
