@@ -27,8 +27,10 @@ add_library(
   Tag.cpp
   TagRef.cpp
   Tree.cpp
-  WorkingTreeDiscard.cpp)
-target_sources(git PUBLIC Worktree.h WorkingTreeStatus.h WorkingTreeDiscard.h)
+  WorkingTreeDiscard.cpp
+  WorkingTreeUntrack.cpp)
+target_sources(git PUBLIC Worktree.h WorkingTreeStatus.h WorkingTreeDiscard.h
+                         WorkingTreeUntrack.h)
 target_sources(git PRIVATE WorkingTreeStatus.cpp)
 
 if(USE_SYSTEM_LIBGIT2)

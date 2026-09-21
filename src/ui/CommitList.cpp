@@ -2368,6 +2368,10 @@ QStringList CommitList::untrackedStatusPaths() const {
   return static_cast<CommitModel *>(mModel)->untrackedStatusPaths();
 }
 
+git::WorkingTreeStatusSnapshot CommitList::statusSnapshot() const {
+  return static_cast<CommitModel *>(mModel)->statusSnapshot();
+}
+
 QString CommitList::selectedRange() const {
   QList<git::Commit> commits = selectedCommits();
   if (commits.isEmpty())

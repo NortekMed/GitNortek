@@ -393,7 +393,8 @@ void _FileWidget::Header::mouseDoubleClickEvent(QMouseEvent *event) {
 
 void _FileWidget::Header::contextMenuEvent(QContextMenuEvent *event) {
   RepoView *view = RepoView::parentView(this);
-  FileContextMenu menu(view, {mPatch.name()}, mDiff.index());
+  FileContextMenu menu(view, {mPatch.name()}, mDiff.index(), nullptr,
+                       QStringList(), mDiff.isStatusDiff());
   menu.exec(event->globalPos());
 }
 

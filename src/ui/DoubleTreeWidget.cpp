@@ -13,6 +13,7 @@
 #include "DiffTreeModel.h"
 #include "FileContextMenu.h"
 #include "StatePushButton.h"
+#include "StopTrackingDialog.h"
 #include "TreeProxy.h"
 #include "TreeView.h"
 #include "Debug.h"
@@ -505,6 +506,8 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
           [this](bool) { updateStageAllChangesButton(); });
   connect(repoView, &RepoView::discardAllChangesPrepared, this,
           &DoubleTreeWidget::showDiscardAllChangesDialog);
+  connect(repoView, &RepoView::stopTrackingPrepared, this,
+          &DoubleTreeWidget::showStopTrackingDialog);
   connect(repoView, &RepoView::discardAllChangesFinished, this,
           [this](const git::WorkingTreeDiscardExecution &) {
             updateStageAllChangesButton();
@@ -589,6 +592,7 @@ static void addNodeToMenu(const git::Index &index, QStringList &files,
 void DoubleTreeWidget::showFileContextMenu(const QPoint &pos, RepoView *view,
                                            QTreeView *tree, bool staged) {
   QStringList files;
+  QStringList roots;
   QModelIndexList indexes = tree->selectionModel()->selectedIndexes();
   const auto diff = view->diff();
   if (!diff.isValid())
@@ -597,6 +601,8 @@ void DoubleTreeWidget::showFileContextMenu(const QPoint &pos, RepoView *view,
   const bool statusDiff = diff.isStatusDiff();
   foreach (const QModelIndex &index, indexes) {
     auto node = index.data(Qt::UserRole).value<Node *>();
+    if (node)
+      roots.append(node->path(true));
 
     addNodeToMenu(view->repo().index(), files, node, staged, statusDiff);
   }
@@ -604,7 +610,7 @@ void DoubleTreeWidget::showFileContextMenu(const QPoint &pos, RepoView *view,
   if (files.isEmpty())
     return;
 
-  auto menu = new FileContextMenu(view, files, git::Index(), tree);
+  auto menu = new FileContextMenu(view, files, git::Index(), tree, roots);
   menu->setAttribute(Qt::WA_DeleteOnClose);
   menu->popup(tree->mapToGlobal(pos));
 }
@@ -990,6 +996,38 @@ void DoubleTreeWidget::showDiscardAllChangesDialog(
   connect(dialog, &QDialog::finished, this, [view, plan, accepted] {
     if (!*accepted && view->isDiscardAllChangesAwaitingConfirmation())
       view->cancelDiscardAllChanges(plan.generation);
+  });
+  dialog->open();
+}
+
+void DoubleTreeWidget::showStopTrackingDialog(
+    const git::WorkingTreeUntrackPreparation &preparation) {
+  RepoView *view = RepoView::parentView(this);
+  if (!view || preparation.canceled)
+    return;
+
+  if (!preparation.error.isEmpty()) {
+    QMessageBox *warning = new QMessageBox(
+        QMessageBox::Warning, tr("Unable to prepare stop tracking"),
+        preparation.error, QMessageBox::Ok, this);
+    warning->setAttribute(Qt::WA_DeleteOnClose);
+    warning->open();
+    return;
+  }
+
+  const git::WorkingTreeUntrackPlan plan = preparation.plan;
+  if (plan.isEmpty())
+    return;
+
+  auto *dialog = new StopTrackingDialog(plan, this);
+  connect(dialog, &QDialog::accepted, this, [view, dialog, plan] {
+    view->executeStopTracking(plan, dialog->deleteTracked(),
+                              dialog->deleteUntracked());
+  });
+  connect(dialog, &QDialog::finished, this, [view, plan](int result) {
+    if (result != QDialog::Accepted &&
+        view->isStopTrackingAwaitingConfirmation())
+      view->cancelStopTracking(plan.generation);
   });
   dialog->open();
 }

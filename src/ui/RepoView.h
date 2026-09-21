@@ -23,6 +23,7 @@
 #include "git/Rebase.h"
 #include "git/WorkingTreeDiscard.h"
 #include "git/WorkingTreeStatus.h"
+#include "git/WorkingTreeUntrack.h"
 #include "host/Account.h"
 #include <QFuture>
 #include <QFutureWatcher>
@@ -146,6 +147,11 @@ public:
   void cancelDiscardAllChanges(quint64 generation = 0);
   bool isDiscardAllChangesActive() const;
   bool isDiscardAllChangesAwaitingConfirmation() const;
+  bool executeStopTracking(const git::WorkingTreeUntrackPlan &plan,
+                           bool deleteTracked, bool deleteUntracked);
+  void cancelStopTracking(quint64 generation = 0);
+  bool isStopTrackingActive() const;
+  bool isStopTrackingAwaitingConfirmation() const;
 
   // current reference
   git::Reference reference() const;
@@ -156,6 +162,7 @@ public:
   // current selection
   QList<git::Commit> commits() const;
   git::Diff diff() const;
+  git::WorkingTreeStatusSnapshot workingTreeStatus() const;
   git::Tree tree() const;
 
   // background tasks
@@ -368,6 +375,7 @@ public:
 
   // ignore
   void ignore(const QString &name);
+  void stopTracking(const QStringList &roots);
 
   // editor
   EditorWindow *newEditor();
@@ -450,6 +458,8 @@ signals:
   discardAllChangesPrepared(const git::WorkingTreeDiscardPreparation &result);
   void
   discardAllChangesFinished(const git::WorkingTreeDiscardExecution &result);
+  void stopTrackingPrepared(const git::WorkingTreeUntrackPreparation &result);
+  void stopTrackingFinished(const git::WorkingTreeUntrackExecution &result);
   void manualRefreshRequested();
   void pushSucceeded(const QString &repositoryPath);
   void trackingStatusChanged(const RepoView::TrackingStatus &status);
@@ -581,6 +591,21 @@ private:
   git::WorkingTreeDiscardExecution mDiscardRefreshResult;
   quint64 mDiscardRefreshGeneration = 0;
   bool mDiscardExternalRefreshPending = false;
+  QFutureWatcher<git::WorkingTreeUntrackPreparation>
+      *mUntrackPreparationWatcher = nullptr;
+  QFutureWatcher<git::WorkingTreeUntrackExecution> *mUntrackExecutionWatcher =
+      nullptr;
+  std::shared_ptr<std::atomic_bool> mUntrackCancel;
+  enum class StopTrackingState {
+    Idle,
+    Preparing,
+    AwaitingConfirmation,
+    Executing,
+    Canceling,
+  };
+  StopTrackingState mStopTrackingState = StopTrackingState::Idle;
+  quint64 mStopTrackingGeneration = 0;
+  bool mStopTrackingExternalRefreshPending = false;
   QFutureWatcher<TrackingStatus> *mTrackingWatcher = nullptr;
   TrackingStatus mTrackingStatus;
   quint64 mTrackingGeneration = 0;

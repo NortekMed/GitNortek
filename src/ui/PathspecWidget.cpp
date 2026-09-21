@@ -57,7 +57,8 @@ protected:
     foreach (const QModelIndex &index, selectionModel()->selectedIndexes())
       files.append(index.data(Qt::EditRole).toString());
 
-    FileContextMenu menu(RepoView::parentView(this), files);
+    FileContextMenu menu(RepoView::parentView(this), files, git::Index(), this,
+                         files, false);
     menu.exec(event->globalPos());
   }
 };

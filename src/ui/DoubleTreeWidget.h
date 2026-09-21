@@ -14,6 +14,7 @@
 #include "DetailView.h"
 #include "git/Index.h"
 #include "git/WorkingTreeDiscard.h"
+#include "git/WorkingTreeUntrack.h"
 #include <QModelIndexList>
 #include <QSet>
 #include "conf/Settings.h"
@@ -83,6 +84,8 @@ private:
   void promptToDiscardAllChanges();
   void showDiscardAllChangesDialog(
       const git::WorkingTreeDiscardPreparation &preparation);
+  void
+  showStopTrackingDialog(const git::WorkingTreeUntrackPreparation &preparation);
   void updateConflictUi();
   void selectAdjacentConflict(int direction);
   void toggleCollapseStagedFiles();

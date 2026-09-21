@@ -15,6 +15,7 @@
 #include <QMap>
 #include <QSet>
 #include <QSharedPointer>
+#include <QStringList>
 
 namespace git {
 
@@ -58,6 +59,9 @@ public:
   void setMode(const QString &path, git_filemode_t mode);
 
   bool isTracked(const QString &path) const;
+  QStringList paths() const;
+  QStringList pathsUnder(const QStringList &roots) const;
+  bool removePaths(const QStringList &paths, bool yieldFocus = true);
   StagedState isStaged(const QString &path) const;
   bool setStaged(const QStringList &paths, bool staged, bool yieldFocus = true);
 

@@ -522,6 +522,11 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
       mDiscardExternalRefreshPending = true;
       return;
     }
+    if (mStopTrackingState == StopTrackingState::Executing ||
+        mStopTrackingState == StopTrackingState::Canceling) {
+      mStopTrackingExternalRefreshPending = true;
+      return;
+    }
 
     mCommits->preserveSelectionOnRefresh();
     refresh(true);
@@ -640,10 +645,15 @@ void RepoView::statusSelected(const git::WorkingTreeStatusSnapshot status,
 
 RepoView::~RepoView() {
   cancelDiscardAllChanges();
+  cancelStopTracking();
   if (mDiscardPreparationWatcher)
     mDiscardPreparationWatcher->future().waitForFinished();
   if (mDiscardExecutionWatcher)
     mDiscardExecutionWatcher->future().waitForFinished();
+  if (mUntrackPreparationWatcher)
+    mUntrackPreparationWatcher->future().waitForFinished();
+  if (mUntrackExecutionWatcher)
+    mUntrackExecutionWatcher->future().waitForFinished();
 
   cancelIndexing();
   mIndexer.disconnect();
@@ -934,6 +944,177 @@ bool RepoView::isDiscardAllChangesAwaitingConfirmation() const {
          DiscardAllChangesState::AwaitingConfirmation;
 }
 
+void RepoView::stopTracking(const QStringList &roots) {
+  if (mClosing || roots.isEmpty() || isStopTrackingActive() ||
+      isDiscardAllChangesActive() || mWatcher || mSubmoduleUpdateWatcher ||
+      mSubmodulePushCheckWatcher)
+    return;
+
+  ++mStopTrackingGeneration;
+  const quint64 generation = mStopTrackingGeneration;
+  const QString repositoryPath = mRepo.dir(false).path();
+  const std::shared_ptr<std::atomic_bool> canceled =
+      std::make_shared<std::atomic_bool>(false);
+  mUntrackCancel = canceled;
+  mStopTrackingState = StopTrackingState::Preparing;
+
+  auto *watcher = new QFutureWatcher<git::WorkingTreeUntrackPreparation>(this);
+  mUntrackPreparationWatcher = watcher;
+  connect(
+      watcher, &QFutureWatcher<git::WorkingTreeUntrackPreparation>::finished,
+      this, [this, watcher, generation] {
+        git::WorkingTreeUntrackPreparation result;
+        if (watcher->future().resultCount())
+          result = watcher->result();
+        else
+          result.error = tr("Unable to prepare the stop-tracking operation.");
+
+        if (mUntrackPreparationWatcher == watcher)
+          mUntrackPreparationWatcher = nullptr;
+        watcher->deleteLater();
+
+        if (generation != mStopTrackingGeneration || mClosing) {
+          if (mStopTrackingState == StopTrackingState::Canceling)
+            mStopTrackingState = StopTrackingState::Idle;
+          mUntrackCancel.reset();
+          updateActivity();
+          finishClosing();
+          return;
+        }
+
+        if (result.isValid() && !result.plan.isEmpty()) {
+          result.plan.generation = generation;
+          mStopTrackingState = StopTrackingState::AwaitingConfirmation;
+        } else {
+          mStopTrackingState = StopTrackingState::Idle;
+          mUntrackCancel.reset();
+        }
+        updateActivity();
+        emit stopTrackingPrepared(result);
+      });
+
+  watcher->setFuture(QtConcurrent::run([repositoryPath, roots, canceled] {
+    return git::WorkingTreeUntrack::prepare(repositoryPath, roots, canceled);
+  }));
+  updateActivity();
+}
+
+bool RepoView::executeStopTracking(const git::WorkingTreeUntrackPlan &plan,
+                                   bool deleteTracked, bool deleteUntracked) {
+  if (plan.generation && plan.generation != mStopTrackingGeneration)
+    return false;
+
+  if (mClosing ||
+      mStopTrackingState != StopTrackingState::AwaitingConfirmation ||
+      plan.repositoryPath != mRepo.dir(false).path() || mWatcher ||
+      mSubmoduleUpdateWatcher || mSubmodulePushCheckWatcher ||
+      isDiscardAllChangesActive()) {
+    if (mStopTrackingState == StopTrackingState::AwaitingConfirmation) {
+      mStopTrackingState = StopTrackingState::Idle;
+      mUntrackCancel.reset();
+      updateActivity();
+    }
+    return false;
+  }
+
+  ++mStopTrackingGeneration;
+  const quint64 generation = mStopTrackingGeneration;
+  const std::shared_ptr<std::atomic_bool> canceled =
+      mUntrackCancel ? mUntrackCancel
+                     : std::make_shared<std::atomic_bool>(false);
+  mUntrackCancel = canceled;
+  mStopTrackingState = StopTrackingState::Executing;
+  mCommits->cancelStatus();
+
+  LogEntry *entry =
+      addLogEntry(tr("<i>working directory</i>"), tr("Stop tracking"));
+  entry->setBusy(true);
+
+  auto *watcher = new QFutureWatcher<git::WorkingTreeUntrackExecution>(this);
+  mUntrackExecutionWatcher = watcher;
+  connect(watcher, &QFutureWatcher<git::WorkingTreeUntrackExecution>::finished,
+          this, [this, watcher, generation, entry] {
+            git::WorkingTreeUntrackExecution result;
+            if (watcher->future().resultCount())
+              result = watcher->result();
+            else
+              result.error = tr("Unable to stop tracking the selected paths.");
+
+            if (mUntrackExecutionWatcher == watcher)
+              mUntrackExecutionWatcher = nullptr;
+            watcher->deleteLater();
+            entry->setBusy(false);
+
+            const bool mutated = result.ignoreWritten || result.indexWritten ||
+                                 !result.deletedTrackedPaths.isEmpty() ||
+                                 !result.deletedUntrackedPaths.isEmpty();
+            if (generation != mStopTrackingGeneration || mClosing) {
+              mStopTrackingState = StopTrackingState::Idle;
+              mUntrackCancel.reset();
+              mStopTrackingExternalRefreshPending = false;
+              updateActivity();
+              if (mutated && !mClosing) {
+                mCommits->preserveSelectionOnRefresh();
+                refresh(true);
+              }
+              finishClosing();
+              return;
+            }
+
+            if (!result.error.isEmpty())
+              entry->addEntry(LogEntry::Error, result.error);
+            if (!result.failedPaths.isEmpty())
+              error(entry, tr("delete files"), result.failedPaths.join('\n'),
+                    tr("Some files could not be deleted."));
+
+            mStopTrackingState = StopTrackingState::Idle;
+            mUntrackCancel.reset();
+            updateActivity();
+            emit stopTrackingFinished(result);
+            mStopTrackingExternalRefreshPending = false;
+            mCommits->preserveSelectionOnRefresh();
+            refresh(true);
+          });
+
+  watcher->setFuture(
+      QtConcurrent::run([plan, deleteTracked, deleteUntracked, canceled] {
+        return git::WorkingTreeUntrack::execute(plan, deleteTracked,
+                                                deleteUntracked, canceled);
+      }));
+  updateActivity();
+  return true;
+}
+
+void RepoView::cancelStopTracking(quint64 generation) {
+  if (generation && generation != mStopTrackingGeneration)
+    return;
+
+  if (!isStopTrackingActive())
+    return;
+
+  ++mStopTrackingGeneration;
+  if (mUntrackCancel)
+    mUntrackCancel->store(true);
+
+  if (mUntrackPreparationWatcher || mUntrackExecutionWatcher) {
+    mStopTrackingState = StopTrackingState::Canceling;
+  } else {
+    mStopTrackingState = StopTrackingState::Idle;
+    mUntrackCancel.reset();
+  }
+  updateActivity();
+  finishClosing();
+}
+
+bool RepoView::isStopTrackingActive() const {
+  return mStopTrackingState != StopTrackingState::Idle ||
+         mUntrackPreparationWatcher || mUntrackExecutionWatcher;
+}
+
+bool RepoView::isStopTrackingAwaitingConfirmation() const {
+  return mStopTrackingState == StopTrackingState::AwaitingConfirmation;
+}
+
 git::Reference RepoView::reference() const { return mRefs->currentReference(); }
 
 void RepoView::selectReference(const git::Reference &ref) {
@@ -964,6 +1145,10 @@ QList<git::Commit> RepoView::commits() const {
 
 git::Diff RepoView::diff() const { return mCommits->selectedDiff(); }
 
+git::WorkingTreeStatusSnapshot RepoView::workingTreeStatus() const {
+  return mCommits->statusSnapshot();
+}
+
 git::Tree RepoView::tree() const {
   QList<git::Commit> commits = mCommits->selectedCommits();
   if (!commits.isEmpty())
@@ -987,6 +1172,7 @@ void RepoView::cancelBackgroundTasks() {
   cancelIndexing();
   cancelRemoteTransfer();
   cancelDiscardAllChanges();
+  cancelStopTracking();
   mCommits->cancelStatus();
   mDetails->cancelBackgroundTasks();
 }
@@ -4602,7 +4788,8 @@ void RepoView::finishClosing() {
   bool active = mIndexer.state() != QProcess::NotRunning || mWatcher ||
                 mTrackingWatcher || mSubmoduleUpdateWatcher ||
                 mSubmodulePushCheckWatcher || mDiscardPreparationWatcher ||
-                mDiscardExecutionWatcher;
+                mDiscardExecutionWatcher || mUntrackPreparationWatcher ||
+                mUntrackExecutionWatcher;
   QJsonObject fields;
   fields["indexer"] = mIndexer.state() != QProcess::NotRunning;
   fields["remote"] = mWatcher != nullptr;
@@ -4611,6 +4798,8 @@ void RepoView::finishClosing() {
   fields["submodulePushCheck"] = mSubmodulePushCheckWatcher != nullptr;
   fields["discardPreparation"] = mDiscardPreparationWatcher != nullptr;
   fields["discardExecution"] = mDiscardExecutionWatcher != nullptr;
+  fields["stopTrackingPreparation"] = mUntrackPreparationWatcher != nullptr;
+  fields["stopTrackingExecution"] = mUntrackExecutionWatcher != nullptr;
   PerformanceTrace::event(
       "close", active ? "finishClosing active" : "finishClosing deleteLater",
       mRepo.dir(false).path(), fields);
@@ -4645,7 +4834,9 @@ bool RepoView::hasBackgroundActivity() const {
   return !mInitialLoadFinished || mWatcher || mSubmoduleUpdateWatcher ||
          mSubmodulePushCheckWatcher || mTrackingWatcher ||
          mDiscardAllChangesState != DiscardAllChangesState::Idle ||
-         mDiscardPreparationWatcher || mDiscardExecutionWatcher;
+         mDiscardPreparationWatcher || mDiscardExecutionWatcher ||
+         mStopTrackingState != StopTrackingState::Idle ||
+         mUntrackPreparationWatcher || mUntrackExecutionWatcher;
 }
 
 void RepoView::updateActivity() {

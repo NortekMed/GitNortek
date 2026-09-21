@@ -8,6 +8,7 @@
 //
 
 #include "FileContextMenu.h"
+#include "CommitList.h"
 #include "RepoView.h"
 #include "IgnoreDialog.h"
 #include "conf/Settings.h"
@@ -30,6 +31,11 @@
 #include <qfileinfo.h>
 
 namespace {
+
+void appendUnique(QStringList &paths, const QString &path) {
+  if (!path.isEmpty() && !paths.contains(path))
+    paths.append(path);
+}
 
 void warnRevisionNotFound(QWidget *parent, const QString &fragment,
                           const QString &file) {
@@ -84,17 +90,72 @@ void handlePath(const git::Repository &repo, const QString &path,
   }
 }
 
+void handleStatusPath(const git::Repository &repo, const QString &path,
+                      const git::WorkingTreeStatusSnapshot &status,
+                      QStringList &modified, QStringList &untracked) {
+  const QString fullPath = repo.workdir().absoluteFilePath(path);
+  const QFileInfo info(fullPath);
+  if (info.isDir() && !info.isSymLink()) {
+    const QDir dir(fullPath);
+    for (const QString &entry : dir.entryList(
+             QDir::NoDotAndDotDot | QDir::Hidden | QDir::Dirs | QDir::Files))
+      handleStatusPath(repo, QDir(path).filePath(entry), status, modified,
+                       untracked);
+    return;
+  }
+
+  for (const git::WorkingTreeStatusEntry &entry : status.entries()) {
+    if (entry.path != path && entry.oldPath != path)
+      continue;
+    if (entry.isUntracked())
+      appendUnique(untracked, path);
+    else if (entry.hasTrackedChange())
+      appendUnique(modified, path);
+    return;
+  }
+}
+
+void handleIndexPath(const git::Repository &repo, const QString &path,
+                     const git::Index &index, QStringList &modified,
+                     QStringList &untracked) {
+  const QString fullPath = repo.workdir().absoluteFilePath(path);
+  const QFileInfo info(fullPath);
+  if (info.isDir() && !info.isSymLink()) {
+    const QDir dir(fullPath);
+    for (const QString &entry : dir.entryList(
+             QDir::NoDotAndDotDot | QDir::Hidden | QDir::Dirs | QDir::Files))
+      handleIndexPath(repo, QDir(path).filePath(entry), index, modified,
+                      untracked);
+    return;
+  }
+
+  if (!index.isTracked(path)) {
+    appendUnique(untracked, path);
+    return;
+  }
+
+  switch (index.isStaged(path)) {
+    case git::Index::Staged:
+    case git::Index::Disabled:
+      break;
+    default:
+      appendUnique(modified, path);
+      break;
+  }
+}
+
 } // namespace
 
 FileContextMenu::FileContextMenu(RepoView *view, const QStringList &files,
-                                 const git::Index &index, QWidget *parent)
-    : QMenu(parent), mView(view), mFiles(files) {
+                                 const git::Index &index, QWidget *parent,
+                                 const QStringList &roots,
+                                 bool workingTreeContext)
+    : QMenu(parent), mView(view), mFiles(files),
+      mIgnoreRoots(roots.isEmpty() ? files : roots),
+      mWorkingTreeContext(workingTreeContext) {
   // Show diff and merge tools for the currently selected diff.
   git::Diff diff = view->diff();
   git::Repository repo = view->repo();
-
-  if (!diff.isValid())
-    return;
 
   // Create external tools.
   QList<ExternalTool *> showTools;
@@ -333,8 +394,17 @@ void FileContextMenu::handleUncommittedChanges(const git::Index &index,
   }
 
   // handle files not submodules
+  const git::WorkingTreeStatusSnapshot status = mView->workingTreeStatus();
   foreach (const QString &file, filePatches) {
-    handlePath(repo, file, diff, modified, untracked);
+    if (diff.isValid())
+      handlePath(repo, file, diff, modified, untracked);
+    else {
+      const int classified = modified.size() + untracked.size();
+      if (status.isValid())
+        handleStatusPath(repo, file, status, modified, untracked);
+      if (classified == modified.size() + untracked.size())
+        handleIndexPath(repo, file, index, modified, untracked);
+    }
   }
 
   QAction *discard =
@@ -388,19 +458,33 @@ void FileContextMenu::handleUncommittedChanges(const git::Index &index,
   remove->setObjectName("RemoveAction");
   remove->setEnabled(!untracked.isEmpty());
 
-  // Ignore
+  // Ignore untracked paths.
   QAction *ignore = addAction(tr("Ignore"));
   ignore->setObjectName("IgnoreAction");
   connect(ignore, &QAction::triggered, this, &FileContextMenu::ignoreFile);
-  foreach (const QString &file, files) {
-    int index = diff.indexOf(file);
-    if (index < 0)
-      continue;
-
-    if (diff.status(index) != GIT_DELTA_UNTRACKED) {
-      ignore->setEnabled(false);
+  bool ignoreEnabled = true;
+  for (const QString &root : mIgnoreRoots) {
+    if (!QFileInfo(repo.workdir().filePath(root)).isDir() &&
+        modified.contains(root)) {
+      ignoreEnabled = false;
       break;
     }
+  }
+  ignore->setEnabled(ignoreEnabled);
+
+  // Stop tracking and ignore tracked paths in the working-tree menu only.
+  bool hasTrackedPaths = false;
+  for (const QString &path : repo.index().pathsUnder(mIgnoreRoots)) {
+    if (!repo.lookupSubmodule(path).isValid()) {
+      hasTrackedPaths = true;
+      break;
+    }
+  }
+  if (mWorkingTreeContext && hasTrackedPaths) {
+    QAction *stopTracking = addAction(tr("Stop Tracking and Ignore..."));
+    stopTracking->setObjectName("StopTrackingAction");
+    connect(stopTracking, &QAction::triggered, this,
+            [view, roots = mIgnoreRoots] { view->stopTracking(roots); });
   }
 }
 
@@ -507,7 +591,7 @@ void FileContextMenu::ignoreFile() {
   if (!mFiles.count())
     return;
 
-  auto d = new IgnoreDialog(mFiles.join('\n'), parentWidget());
+  auto d = new IgnoreDialog(mIgnoreRoots.join('\n'), parentWidget());
   d->setAttribute(Qt::WA_DeleteOnClose);
 
   auto *view = mView;

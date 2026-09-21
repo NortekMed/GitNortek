@@ -52,6 +52,7 @@ add_library(
   SideBar.cpp
   StateAction.cpp
   StatePushButton.cpp
+  StopTrackingDialog.cpp
   SpellChecker.cpp
   TabBar.cpp
   TabWidget.cpp

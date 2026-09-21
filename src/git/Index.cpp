@@ -187,6 +187,72 @@ void Index::setMode(const QString &path, git_filemode_t mode) {
 
 bool Index::isTracked(const QString &path) const { return entry(path); }
 
+namespace {
+
+bool pathMatchesRoot(const QString &path, const QString &root) {
+  return path == root || path.startsWith(root + QStringLiteral("/"));
+}
+
+} // namespace
+
+QStringList Index::paths() const {
+  QStringList result;
+  if (!isValid())
+    return result;
+
+  const size_t count = git_index_entrycount(d->index);
+  result.reserve(static_cast<int>(count));
+  for (size_t i = 0; i < count; ++i) {
+    const git_index_entry *entry = git_index_get_byindex(d->index, i);
+    if (entry && entry->path)
+      result.append(QString::fromUtf8(entry->path));
+  }
+  return result;
+}
+
+QStringList Index::pathsUnder(const QStringList &roots) const {
+  QStringList result;
+  for (const QString &path : paths()) {
+    for (const QString &inputRoot : roots) {
+      const QString root =
+          QDir::cleanPath(QDir::fromNativeSeparators(inputRoot));
+      if (pathMatchesRoot(path, root)) {
+        result.append(path);
+        break;
+      }
+    }
+  }
+  return result;
+}
+
+bool Index::removePaths(const QStringList &paths, bool yieldFocus) {
+  if (!isValid())
+    return false;
+
+  QStringList changedPaths;
+  for (const QString &path : paths) {
+    const int error = git_index_remove_bypath(d->index, path.toUtf8());
+    if (error && error != GIT_ENOTFOUND)
+      return false;
+
+    if (!error)
+      changedPaths.append(path);
+  }
+
+  if (changedPaths.isEmpty())
+    return true;
+
+  if (git_index_write(d->index))
+    return false;
+
+  for (const QString &path : changedPaths)
+    d->stagedCache.remove(path);
+
+  Repository repo(git_index_owner(d->index));
+  emit repo.notifier()->indexChanged(changedPaths, yieldFocus);
+  return true;
+}
+
 Index::StagedState Index::isStaged(const QString &path) const {
   if (!isValid())
     return Disabled;

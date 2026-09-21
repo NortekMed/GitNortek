@@ -73,6 +73,7 @@ public:
   bool hasStatusChanges() const;
   bool hasTrackedStatusChanges() const;
   QStringList untrackedStatusPaths() const;
+  git::WorkingTreeStatusSnapshot statusSnapshot() const;
 
   // Get the current selection.
   QString selectedRange() const;

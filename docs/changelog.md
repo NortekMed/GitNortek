@@ -41,6 +41,7 @@ Bug Fix and Feature release
 * Resolve merges in an ancestor-backed Current/Incoming/Output workspace with exact-output saving, staged conflict chunks, content-aware handling for text files marked binary, dedicated true-binary and delete/modify choosers, retained Current-only resolutions, external merge-tool launch, unsaved-output warnings, color-coded merge actions, proposals, and Output origins, conflict/resolved file groups, efficient large-file rendering, bulk Current-version resolution, conflict navigation, safe history inspection during active merges, guarded merge commits, and automatic return to the branch view after the final conflict is resolved, committed, or aborted
 * Add Inline, Hunk, and Split file diff presentations with explicit file and hunk staging actions, selected-line staging, Inline/Split edge-whitespace filtering, and word wrapping
 * Add stash access to the uncommitted-changes context menu and a confirmation-backed discard-all control for working-tree changes
+* Add asynchronous Stop Tracking and Ignore actions for tracked files and folders with protected repository paths and optional deletion
 
 #### Changed
 

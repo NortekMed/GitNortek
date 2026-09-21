@@ -24,7 +24,9 @@ class FileContextMenu : public QMenu {
 public:
   FileContextMenu(RepoView *view, const QStringList &files,
                   const git::Index &index = git::Index(),
-                  QWidget *parent = nullptr);
+                  QWidget *parent = nullptr,
+                  const QStringList &roots = QStringList(),
+                  bool workingTreeContext = true);
 
   QAction *doubleClickAction() { return mDoubleClickAction; }
 
@@ -42,6 +44,8 @@ private:
 
   RepoView *mView;
   QStringList mFiles;
+  QStringList mIgnoreRoots;
+  bool mWorkingTreeContext;
   QAction *mDoubleClickAction;
 
   friend class TestTreeView;
