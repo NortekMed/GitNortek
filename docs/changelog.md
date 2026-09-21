@@ -45,6 +45,8 @@ Bug Fix and Feature release
 
 #### Changed
 
+* Make Save Selected Version as safe for popup-menu dismissal and support
+  recursive folder exports
 * Make Stop Tracking and Ignore available for clean tracked files and folders
   from the current HEAD file tree
 * Prepare and execute Discard All Changes asynchronously so large working trees and submodules do not block the interface

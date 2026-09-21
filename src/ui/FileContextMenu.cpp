@@ -28,6 +28,8 @@
 #include <QFileDialog>
 #include <QDesktopServices>
 #include <QFileInfo>
+#include <QSaveFile>
+#include <QTimer>
 #include <qfileinfo.h>
 
 namespace {
@@ -142,6 +144,100 @@ void handleIndexPath(const git::Repository &repo, const QString &path,
       appendUnique(modified, path);
       break;
   }
+}
+
+enum class TreeEntryKind { Invalid, Blob, Tree };
+
+QStringList pathComponents(const QString &path) {
+  const QStringList components = path.split('/', Qt::SkipEmptyParts);
+  for (const QString &component : components) {
+    if (component == "." || component == "..")
+      return QStringList();
+  }
+  return components;
+}
+
+TreeEntryKind findTreeEntry(const git::Tree &root, const QString &path,
+                            git::Blob &blob, git::Tree &tree) {
+  const QStringList components = pathComponents(path);
+  if (!root.isValid() || components.isEmpty())
+    return TreeEntryKind::Invalid;
+
+  git::Tree current = root;
+  for (int depth = 0; depth < components.size(); ++depth) {
+    const QString &component = components.at(depth);
+    bool found = false;
+    for (int index = 0; index < current.count(); ++index) {
+      if (current.name(index) != component)
+        continue;
+      const git::Object object = current.object(index);
+      if (!object.isValid())
+        return TreeEntryKind::Invalid;
+
+      if (depth + 1 < components.size()) {
+        current = git::Tree(object);
+        if (!current.isValid())
+          return TreeEntryKind::Invalid;
+      } else if (object.type() == GIT_OBJECT_BLOB) {
+        blob = git::Blob(object);
+        return blob.isValid() ? TreeEntryKind::Blob : TreeEntryKind::Invalid;
+      } else if (object.type() == GIT_OBJECT_TREE) {
+        tree = git::Tree(object);
+        return tree.isValid() ? TreeEntryKind::Tree : TreeEntryKind::Invalid;
+      } else {
+        return TreeEntryKind::Invalid;
+      }
+      found = true;
+      break;
+    }
+
+    if (!found)
+      return TreeEntryKind::Invalid;
+  }
+
+  return TreeEntryKind::Invalid;
+}
+
+bool writeBlob(const git::Blob &blob, const QString &path) {
+  if (!blob.isValid())
+    return false;
+
+  QSaveFile file(path);
+  if (!file.open(QIODevice::WriteOnly))
+    return false;
+
+  const QByteArray content = blob.content();
+  if (file.write(content) != content.size()) {
+    file.cancelWriting();
+    return false;
+  }
+
+  return file.commit();
+}
+
+bool writeTree(const git::Tree &tree, const QString &path) {
+  if (!tree.isValid() || !QDir().mkpath(path))
+    return false;
+
+  for (int index = 0; index < tree.count(); ++index) {
+    const QString name = tree.name(index);
+    if (name.isEmpty() || name == "." || name == ".." || name.contains('/'))
+      return false;
+
+    const git::Object object = tree.object(index);
+    const QString childPath = QDir(path).filePath(name);
+    if (object.type() == GIT_OBJECT_BLOB) {
+      if (!writeBlob(git::Blob(object), childPath))
+        return false;
+    } else if (object.type() == GIT_OBJECT_TREE) {
+      if (!writeTree(git::Tree(object), childPath))
+        return false;
+    } else {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 } // namespace
@@ -501,49 +597,56 @@ void FileContextMenu::handleCommits(const QList<git::Commit> &commits,
   // because this might not live anymore
   // when the lambdas are handled
   const auto view = mView;
+  const git::Commit commit = commits.first();
+  const QStringList exportPaths = mIgnoreRoots;
   git::Repository repo = view->repo();
 
   // Checkout
-  QAction *checkout = addAction(tr("Checkout"), [view, files] {
+  QAction *checkout = addAction(tr("Checkout"), [view, commit, files] {
     if (view->isDiscardAllChangesActive())
       return;
-    view->checkout(view->commits().first(), files);
+    view->checkout(commit, files);
     view->setViewMode(RepoView::DoubleTree);
   });
 
   // Checkout to ...
-  QAction *checkoutTo =
-      addAction(tr("Save Selected Version as ..."), [this, view, files] {
-        QFileDialog d(this); // TODO: this might not live anymore??
+  QAction *checkoutTo = addAction(
+      tr("Save Selected Version as ..."), [view, commit, exportPaths] {
+        QFileDialog d(view);
         d.setFileMode(QFileDialog::FileMode::Directory);
         d.setOption(QFileDialog::ShowDirsOnly);
         d.setWindowTitle(tr("Select new file directory"));
-        if (d.exec()) {
+        if (d.exec() && !d.selectedFiles().isEmpty()) {
           const auto folder = d.selectedFiles().first();
           const auto save =
               view->addLogEntry(tr("Saving files"),
                                 tr("Saving files of selected version to disk"));
-          for (const auto &file : files) {
+          for (const auto &file : exportPaths) {
             const auto saveFile =
                 view->addLogEntry(tr("Save file ") + file, "Save file", save);
-            // assumption. file is a file not a folder!
-            if (!exportFile(view, folder, file))
-              view->error(saveFile, "save file", file, tr("Invalid Blob"));
+            if (!FileContextMenu::exportPath(commit, folder, file,
+                                             exportPaths.size() > 1))
+              view->error(saveFile, tr("save file"), file,
+                          tr("Unable to export selected version."));
           }
-          view->setViewMode(RepoView::DoubleTree);
+          QTimer::singleShot(
+              0, view, [view] { view->setViewMode(RepoView::DoubleTree); });
         }
-        return true;
       });
 
-  QAction *open = addAction(tr("Open this version"), [this, view, files] {
+  QAction *open = addAction(tr("Open this version"), [view, commit,
+                                                      exportPaths] {
+    if (exportPaths.size() != 1)
+      return;
+
     QString folder = QDir::tempPath();
-    const auto &file = files.first();
+    const QString file = exportPaths.first();
     auto filename = file.split("/").last();
 
     auto logentry =
         view->addLogEntry(tr("Opening file"), tr("Open ") + filename);
 
-    if (exportFile(view, folder, file))
+    if (FileContextMenu::exportPath(commit, folder, file))
       QDesktopServices::openUrl(QUrl::fromLocalFile(
           QFileInfo(folder + "/" + filename).absoluteFilePath()));
     else
@@ -560,7 +663,7 @@ void FileContextMenu::handleCommits(const QList<git::Commit> &commits,
   //	  auto logentry = view->addLogEntry(tr("Opening file with ..."),
   // tr("Open ") + filename);
 
-  //	  if (exportFile(view, folder, file))
+  //	  if (FileContextMenu::exportPath(commit, folder, file))
   //		QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(folder
   //+
   //"/"
@@ -570,21 +673,28 @@ void FileContextMenu::handleCommits(const QList<git::Commit> &commits,
   //	});
 
   auto isBare = view->repo().isBare();
-  const auto blob = view->commits().first().blob(files.first());
+  bool canExport = false;
+  bool canOpen = exportPaths.size() == 1;
+  for (const QString &file : exportPaths) {
+    git::Blob blob;
+    git::Tree tree;
+    const auto kind = findTreeEntry(commit.tree(), file, blob, tree);
+    canExport |= kind == TreeEntryKind::Blob || kind == TreeEntryKind::Tree;
+    canOpen &= kind == TreeEntryKind::Blob;
+  }
   checkout->setEnabled(!isBare);
   checkout->setToolTip(!isBare ? ""
                                : tr("Unable to checkout bare repositories"));
-  checkoutTo->setEnabled(!isBare && blob.isValid());
+  checkoutTo->setEnabled(!isBare && canExport);
   checkoutTo->setToolTip(!isBare ? ""
                                  : tr("Unable to checkout bare repositories"));
-  open->setEnabled(!isBare && blob.isValid());
+  open->setEnabled(!isBare && canOpen);
   open->setToolTip(!isBare ? ""
                            : tr("Unable to open files from bare repository"));
   // openWith->setEnabled(!isBare && blob.isValid());
 
   /* disable checkout if the file is already
    * in the current working directory */
-  git::Commit commit = commits.first();
   foreach (const QString &file, files) {
     if (commit.tree().id(file) == repo.workdirId(file)) {
       checkout->setEnabled(false);
@@ -612,20 +722,26 @@ void FileContextMenu::ignoreFile() {
   d->open();
 }
 
-bool FileContextMenu::exportFile(const RepoView *view, const QString &folder,
-                                 const QString &file) {
-  const auto blob = view->commits().first().blob(file);
-  if (!blob.isValid())
+bool FileContextMenu::exportPath(const git::Commit &commit,
+                                 const QString &folder, const QString &path,
+                                 bool preservePath) {
+  if (!commit.isValid() || folder.isEmpty())
     return false;
 
-  auto filename = file.split("/").last();
-  QFile f(folder + "/" + filename);
-  if (!f.open(QFile::ReadWrite))
+  git::Blob blob;
+  git::Tree tree;
+  const auto kind = findTreeEntry(commit.tree(), path, blob, tree);
+  if (kind == TreeEntryKind::Invalid)
     return false;
 
-  f.write(blob.content());
-  f.close();
-  return true;
+  const QStringList components = pathComponents(path);
+  const QString relativePath = kind == TreeEntryKind::Tree || preservePath
+                                   ? components.join('/')
+                                   : components.last();
+  const QString destination = QDir(folder).filePath(relativePath);
+  if (kind == TreeEntryKind::Blob)
+    return writeBlob(blob, destination);
+  return writeTree(tree, destination);
 }
 
 QAction *

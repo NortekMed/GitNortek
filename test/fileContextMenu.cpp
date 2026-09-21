@@ -8,8 +8,10 @@
 #include "ui/StopTrackingDialog.h"
 #include "git/Reference.h"
 
+#include <QFileDialog>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QTimer>
 
 #define INIT_REPO(repoPath, /* bool */ useTempDir)                             \
   QString path = Test::extractRepository(repoPath, useTempDir);                \
@@ -34,6 +36,8 @@ private slots:
   void testIgnoreFolder();
   void testRemoveUntrackedFolder();
   void testStopTrackingCommittedFolder();
+  void testExportSelectedVersion();
+  void testExportSelectedVersionAction();
 };
 
 using namespace git;
@@ -705,6 +709,113 @@ void TestFileContextMenu::testStopTrackingCommittedFolder() {
   QFile ignoreFile(reopened.workdir().filePath(QStringLiteral(".gitignore")));
   QVERIFY(ignoreFile.open(QIODevice::ReadOnly));
   QVERIFY(ignoreFile.readAll().contains("/common/\n"));
+}
+
+void TestFileContextMenu::testExportSelectedVersion() {
+  INIT_REPO("TestRepository.zip", false);
+
+  const git::Commit commit =
+      repo.lookupCommit("5c61b24e236310ad4a8a64f7cd1ccc968f1eec20");
+  QVERIFY(commit.isValid());
+
+  QTemporaryDir destination;
+  QVERIFY(destination.isValid());
+
+  QFile existing(destination.filePath("file.txt"));
+  QVERIFY(existing.open(QIODevice::WriteOnly));
+  QVERIFY(existing.write("stale content") > 0);
+  existing.close();
+
+  QVERIFY(FileContextMenu::exportPath(commit, destination.path(),
+                                      QStringLiteral("file.txt")));
+  QVERIFY(existing.open(QIODevice::ReadOnly));
+  QCOMPARE(existing.readAll(), QByteArray("File.txt\n"));
+  existing.close();
+
+  QVERIFY(FileContextMenu::exportPath(commit, destination.path(),
+                                      QStringLiteral("folder1")));
+
+  QFile nested(destination.filePath("folder1/file.txt"));
+  QVERIFY(nested.open(QIODevice::ReadOnly));
+  QCOMPARE(nested.readAll(), QByteArray("file in folder1\n"));
+  nested.close();
+
+  QVERIFY(QFile::exists(destination.filePath("folder1/file2.txt")));
+  QVERIFY(!FileContextMenu::exportPath(commit, destination.path(),
+                                       QStringLiteral("does-not-exist")));
+}
+
+void TestFileContextMenu::testExportSelectedVersionAction() {
+  INIT_REPO("TestRepository.zip", false);
+
+  const git::Commit commit =
+      repo.lookupCommit("5c61b24e236310ad4a8a64f7cd1ccc968f1eec20");
+  QVERIFY(commit.isValid());
+  auto *commits = repoView->findChild<CommitList *>();
+  QVERIFY(commits);
+
+  QModelIndex commitIndex;
+  QTRY_VERIFY((commitIndex = findCommitIndex(commits, commit.id())).isValid());
+  commits->selectionModel()->setCurrentIndex(
+      commitIndex, QItemSelectionModel::ClearAndSelect);
+  QTRY_VERIFY(repoView->commits().size() == 1 &&
+              repoView->commits().first().id() == commit.id());
+
+  QTemporaryDir destination;
+  QVERIFY(destination.isValid());
+
+  FileContextMenu menu(repoView, {QStringLiteral("folder1")}, git::Index(),
+                       repoView, {QStringLiteral("folder1")}, false);
+  QAction *save = nullptr;
+  for (QAction *action : menu.actions()) {
+    if (action->text() == tr("Save Selected Version as ...")) {
+      save = action;
+      break;
+    }
+  }
+  QVERIFY(save);
+  QVERIFY(save->isEnabled());
+
+  auto *dialogPoller = new QTimer(repoView);
+  dialogPoller->setInterval(20);
+  connect(dialogPoller, &QTimer::timeout, repoView,
+          [dialogPoller, destinationPath = destination.path(),
+           attempts = 0]() mutable {
+            ++attempts;
+            for (QWidget *widget : QApplication::allWidgets()) {
+              auto *dialog = qobject_cast<QFileDialog *>(widget);
+              if (!dialog || !dialog->isVisible())
+                continue;
+
+              dialog->setDirectory(destinationPath);
+              QMetaObject::invokeMethod(dialog, "accept");
+              dialogPoller->stop();
+              dialogPoller->deleteLater();
+              return;
+            }
+
+            if (attempts >= 250) {
+              for (QWidget *widget : QApplication::allWidgets()) {
+                auto *dialog = qobject_cast<QFileDialog *>(widget);
+                if (dialog && dialog->isVisible())
+                  QMetaObject::invokeMethod(dialog, "reject");
+              }
+              dialogPoller->stop();
+              dialogPoller->deleteLater();
+            }
+          });
+  dialogPoller->start();
+
+  menu.popup(QPoint(100, 100));
+  QTRY_VERIFY(menu.isVisible());
+  QTest::mouseClick(&menu, Qt::LeftButton, Qt::NoModifier,
+                    menu.actionGeometry(save).center());
+
+  QTRY_VERIFY(!menu.isVisible());
+  QFile nested(destination.filePath("folder1/file2.txt"));
+  QVERIFY(nested.exists());
+  QVERIFY(nested.open(QIODevice::ReadOnly));
+  QCOMPARE(nested.readAll(), QByteArray("file2 in folder1\n"));
 }
 
 TEST_MAIN(TestFileContextMenu)

@@ -35,8 +35,8 @@ private slots:
 
 private:
   QAction *addExternalToolsAction(const QList<ExternalTool *> &tools);
-  bool exportFile(const RepoView *view, const QString &folder,
-                  const QString &file);
+  static bool exportPath(const git::Commit &commit, const QString &folder,
+                         const QString &path, bool preservePath = false);
   void handleUncommittedChanges(const git::Index &index,
                                 const QStringList &files);
   void handleCommits(const QList<git::Commit> &commits,
@@ -50,6 +50,7 @@ private:
   QAction *mDoubleClickAction;
 
   friend class TestTreeView;
+  friend class TestFileContextMenu;
 };
 
 #endif
