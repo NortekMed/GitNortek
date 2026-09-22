@@ -34,3 +34,5 @@ CTestTestfile.cmake
 
 # Serena local memories
 .serena/memories/*
+/.opencode/
+/opencode.json
