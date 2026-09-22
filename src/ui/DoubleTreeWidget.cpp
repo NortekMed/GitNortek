@@ -235,9 +235,9 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   QHBoxLayout *buttonLayout = new QHBoxLayout();
   buttonLayout->addStretch();
   buttonLayout->addWidget(segmentedButton);
-  buttonLayout->addWidget(mBlameButton);
   buttonLayout->addStretch();
   buttonLayout->addWidget(diffModes);
+  buttonLayout->addWidget(mBlameButton);
   buttonLayout->addWidget(ignoreWhitespace);
   buttonLayout->addWidget(wordWrap);
   buttonLayout->addWidget(contextButton);
@@ -250,7 +250,7 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   mEditor->setObjectName("FileViewEditor");
   mEditor->setBlameVisible(false);
   mDiffView = new DiffView(repo, this);
-  mDiffBlameEditor = new BlameEditor(repo, this);
+  mDiffBlameEditor = new BlameEditor(repo, this, true);
   mDiffBlameEditor->setObjectName("DiffBlameEditor");
   mDiffBlameEditor->setBlameVisible(false);
   mDiffBlameEditor->setVisible(false);
@@ -260,8 +260,8 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   fileViewLayout->addLayout(buttonLayout);
   QHBoxLayout *inspectionLayout = new QHBoxLayout();
   inspectionLayout->setContentsMargins(0, 0, 0, 0);
-  inspectionLayout->addWidget(mFileView);
   inspectionLayout->addWidget(mDiffBlameEditor);
+  inspectionLayout->addWidget(mFileView);
   fileViewLayout->addLayout(inspectionLayout);
   mFileView->setCurrentIndex(DoubleTreeWidget::Diff);
   mDiffButton->setChecked(true);
@@ -1490,6 +1490,8 @@ void DoubleTreeWidget::scheduleEditorContentLoad() {
 }
 
 void DoubleTreeWidget::loadEditorContent(const QModelIndexList &indexes) {
+  mDiffBlameEditor->setEditor(nullptr);
+
   QString name;
   int idx = -1;
   bool unresolvedConflict = false;
@@ -1543,29 +1545,37 @@ void DoubleTreeWidget::loadEditorContent(const QModelIndexList &indexes) {
   }
 
   mEditor->clear();
-  if (mBlameButton->isChecked() && blameAvailable) {
-    mDiffBlameEditor->setBlameVisible(true);
-    mDiffBlameEditor->setVisible(true);
-    mDiffBlameEditor->load(name, blob, commit);
-  } else {
-    mDiffBlameEditor->clear();
-    mDiffBlameEditor->setVisible(false);
-  }
-
   // The status snapshot is only a lightweight tree model. Keep the current
   // diff visible until the asynchronously generated full status diff arrives.
+  mDiffView->enable(true);
   if (mStatusSnapshotMode) {
     if (mPendingStatusDiff.isValid()) {
       git::Diff pending = mPendingStatusDiff;
       mPendingStatusDiff = git::Diff();
       mStatusSnapshotMode = false;
       setDiff(pending);
+    } else {
+      return;
     }
-    return;
+  } else {
+    mDiffView->updateFiles();
   }
 
-  mDiffView->enable(true);
-  mDiffView->updateFiles();
+  if (mBlameButton->isChecked() && blameAvailable) {
+    const QList<TextEditor *> editors = mDiffView->editors();
+    if (!editors.isEmpty()) {
+      mDiffBlameEditor->setEditor(editors.first());
+      mDiffBlameEditor->setBlameVisible(true);
+      mDiffBlameEditor->setVisible(true);
+      mDiffBlameEditor->load(name, blob, commit);
+    } else {
+      mDiffBlameEditor->clear();
+      mDiffBlameEditor->setVisible(false);
+    }
+  } else {
+    mDiffBlameEditor->clear();
+    mDiffBlameEditor->setVisible(false);
+  }
 }
 
 void DoubleTreeWidget::toggleCollapseStagedFiles() {

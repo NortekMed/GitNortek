@@ -47,15 +47,18 @@ private:
 
 } // namespace
 
-BlameEditor::BlameEditor(const git::Repository &repo, QWidget *parent)
-    : QWidget(parent), mRepo(repo) {
+BlameEditor::BlameEditor(const git::Repository &repo, QWidget *parent,
+                         bool annotationOnly)
+    : QWidget(parent), mRepo(repo), mAnnotationOnly(annotationOnly) {
   // Create editor.
-  mEditor = new TextEditor(this);
-  connect(mEditor, &TextEditor::linesAdded, this,
-          &BlameEditor::adjustLineMarginWidth);
-  connect(mEditor, &TextEditor::settingsChanged, this,
-          &BlameEditor::adjustLineMarginWidth);
-  connect(mEditor, &TextEditor::onVisible, this, &BlameEditor::startBlame);
+  if (!mAnnotationOnly) {
+    mEditor = new TextEditor(this);
+    connect(mEditor, &TextEditor::linesAdded, this,
+            &BlameEditor::adjustLineMarginWidth);
+    connect(mEditor, &TextEditor::settingsChanged, this,
+            &BlameEditor::adjustLineMarginWidth);
+    connect(mEditor, &TextEditor::onVisible, this, &BlameEditor::startBlame);
+  }
 
   // Create blame margin.
   mMargin = new BlameMargin(mEditor, this);
@@ -63,41 +66,61 @@ BlameEditor::BlameEditor(const git::Repository &repo, QWidget *parent)
           &BlameEditor::linkActivated);
 
   // Add find widget.
-  mFind = new FindWidget(this, this);
-  mFind->hide(); // Start hidden.
+  if (!mAnnotationOnly) {
+    mFind = new FindWidget(this, this);
+    mFind->hide(); // Start hidden.
+  }
 
   // Add widgets.
-  QSplitter *splitter = new QSplitter(this);
-  splitter->setHandleWidth(1);
-  splitter->addWidget(mEditor);
-  splitter->addWidget(mMargin);
-  splitter->setStretchFactor(0, 1);
-  connect(splitter, &QSplitter::splitterMoved, this, [splitter] {
-    QSettings().setValue(kSplitterKey, splitter->saveState());
-  });
-
-  // Restore splitter state.
-  splitter->restoreState(QSettings().value(kSplitterKey).toByteArray());
-
   QVBoxLayout *layout = new QVBoxLayout(this);
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
-  layout->addWidget(mFind);
-  layout->addWidget(splitter, 1);
-
-  // Handle asynchronous blame termination.
-  connect(&mBlame, &QFutureWatcher<git::Blame>::finished, [this] {
-    QFuture<git::Blame> future = mBlame.future();
-    if (future.resultCount() > 0) {
-      git::Blame blame = future.result();
-      mMargin->setBlame(mRepo, blame);
-      mMargin->setVisible(mBlameVisible && blame.isValid());
-    }
-  });
+  if (mFind)
+    layout->addWidget(mFind);
+  if (mAnnotationOnly) {
+    layout->addWidget(mMargin, 1);
+  } else {
+    QSplitter *splitter = new QSplitter(this);
+    splitter->setHandleWidth(1);
+    splitter->addWidget(mMargin);
+    splitter->addWidget(mEditor);
+    splitter->setStretchFactor(1, 1);
+    connect(splitter, &QSplitter::splitterMoved, this, [splitter] {
+      QSettings().setValue(kSplitterKey, splitter->saveState());
+    });
+    splitter->restoreState(QSettings().value(kSplitterKey).toByteArray());
+    layout->addWidget(splitter, 1);
+  }
 
   // Margin starts hidden by default.
   mMargin->setVisible(false);
+  connect(&mBlame, &QFutureWatcher<git::Blame>::finished, this,
+          &BlameEditor::blameFinished);
 }
+
+void BlameEditor::setEditor(TextEditor *editor) {
+  if (!mAnnotationOnly || mEditor == editor)
+    return;
+  cancelBlame();
+  mMargin->clear();
+  mMargin->setVisible(false);
+  mEditor = editor;
+  mMargin->setEditor(editor);
+  if (!mEditor)
+    return;
+  connect(mEditor, &TextEditor::linesAdded, this,
+          &BlameEditor::adjustLineMarginWidth, Qt::UniqueConnection);
+  connect(mEditor, &TextEditor::linesAdded, this,
+          &BlameEditor::editorLinesAdded, Qt::UniqueConnection);
+  connect(mEditor, &TextEditor::settingsChanged, this,
+          &BlameEditor::adjustLineMarginWidth, Qt::UniqueConnection);
+  connect(mEditor, &TextEditor::onVisible, this, &BlameEditor::startBlame,
+          Qt::UniqueConnection);
+}
+
+TextEditor *BlameEditor::editor() const { return mEditor.data(); }
+
+QList<TextEditor *> BlameEditor::editors() { return {mEditor.data()}; }
 
 QString BlameEditor::name() const {
   return !mName.isEmpty() ? mName : tr("Untitled");
@@ -124,6 +147,19 @@ bool BlameEditor::load(const QString &name, const git::Blob &blob,
 
   // Remember name.
   mName = name;
+
+  if (mAnnotationOnly) {
+    mRevision = commit.isValid() ? commit.shortId() : tr("HEAD");
+    mBlameCommit = commit;
+    if (mBlameVisible && mRepo.isValid() && mEditor) {
+      mMargin->setVisible(mEditor->length() > 0);
+      mMargin->startBlame(name);
+      mPendingBlameCommit = commit;
+      if (mEditor->length() > 0)
+        startBlame();
+    }
+    return true;
+  }
 
   // Load content.
   QByteArray content;
@@ -164,9 +200,7 @@ bool BlameEditor::load(const QString &name, const git::Blob &blob,
   if (mBlameVisible && mRepo.isValid() && !content.isEmpty()) {
     mMargin->startBlame(name);
     mPendingBlameCommit = commit;
-    if (mEditor->isVisible()) {
-      startBlame();
-    }
+    startBlame();
   }
 
   return true;
@@ -184,23 +218,34 @@ void BlameEditor::setBlameVisible(bool visible) {
     return;
   }
 
-  if (!mRepo.isValid() || mEditor->length() == 0 || mName.isEmpty())
+  if (!mRepo.isValid() || !mEditor || mEditor->length() == 0 || mName.isEmpty())
     return;
 
   mMargin->setVisible(true);
   mMargin->startBlame(mName);
   mPendingBlameCommit = mBlameCommit;
-  if (mEditor->isVisible())
-    startBlame();
+  startBlame();
 }
 
 void BlameEditor::startBlame() {
   if (mPendingBlameCommit.has_value()) {
+    const git::Commit commit = mPendingBlameCommit.value();
+    const QString name = mName;
+    const QString cacheKey =
+        commit.isValid() ? name + QStringLiteral("\n") + commit.id().toString()
+                         : QString();
+    if (!cacheKey.isEmpty() && mBlameCache.contains(cacheKey)) {
+      mMargin->setBlame(mRepo, mBlameCache.value(cacheKey));
+      mPendingBlameCommit = std::nullopt;
+      return;
+    }
+
     mCallbacks = QSharedPointer<BlameCallbacks>::create();
     const QSharedPointer<git::Blame::Callbacks> callbacks = mCallbacks;
     const git::Repository repo = mRepo;
-    const QString name = mName;
-    const git::Commit commit = mPendingBlameCommit.value();
+    const int generation = ++mBlameGeneration;
+    mActiveBlameGeneration = generation;
+    mActiveBlameCacheKey = cacheKey;
     mBlame.setFuture(QtConcurrent::run([repo, name, commit, callbacks] {
       return repo.blame(name, commit, callbacks.data());
     }));
@@ -208,7 +253,39 @@ void BlameEditor::startBlame() {
   }
 }
 
+void BlameEditor::blameFinished() {
+  if (mActiveBlameGeneration == 0 || mActiveBlameGeneration != mBlameGeneration)
+    return;
+
+  QFuture<git::Blame> future = mBlame.future();
+  mActiveBlameGeneration = 0;
+  if (future.resultCount() == 0)
+    return;
+
+  git::Blame blame = future.result();
+  if (!mActiveBlameCacheKey.isEmpty()) {
+    if (mBlameCache.size() >= 32)
+      mBlameCache.erase(mBlameCache.begin());
+    mBlameCache.insert(mActiveBlameCacheKey, blame);
+  }
+  mMargin->setBlame(mRepo, blame);
+  mMargin->setVisible(mBlameVisible && blame.isValid());
+}
+
+void BlameEditor::editorLinesAdded() {
+  if (!mAnnotationOnly || !mBlameVisible || !mEditor ||
+      mEditor->length() == 0 || mName.isEmpty() ||
+      !mPendingBlameCommit.has_value())
+    return;
+
+  mMargin->setVisible(true);
+  startBlame();
+}
+
 void BlameEditor::cancelBlame() {
+  ++mBlameGeneration;
+  mActiveBlameGeneration = 0;
+  mActiveBlameCacheKey.clear();
   if (mCallbacks)
     static_cast<BlameCallbacks *>(mCallbacks.data())->setCanceled(true);
   mBlame.setFuture(QFuture<git::Blame>());
@@ -250,16 +327,19 @@ void BlameEditor::save() {
 
 void BlameEditor::clear() {
   // Cancel find and blame.
-  mFind->hide();
+  if (mFind)
+    mFind->hide();
   cancelBlame();
 
   // Clear margin and editor.
   mMargin->clear();
   mMargin->setVisible(false);
 
-  mEditor->setReadOnly(false);
-  mEditor->clearAll();
-  mEditor->setReadOnly(true);
+  if (mEditor && !mAnnotationOnly) {
+    mEditor->setReadOnly(false);
+    mEditor->clearAll();
+    mEditor->setReadOnly(true);
+  }
 
   mName = QString();
   mRevision = QString();
@@ -267,15 +347,23 @@ void BlameEditor::clear() {
 }
 
 void BlameEditor::find() {
-  if (mEditor->length() > 0)
+  if (mFind && mEditor && mEditor->length() > 0)
     mFind->showAndSetFocus();
 }
 
-void BlameEditor::findNext() { mFind->find(); }
+void BlameEditor::findNext() {
+  if (mFind)
+    mFind->find();
+}
 
-void BlameEditor::findPrevious() { mFind->find(FindWidget::Backward); }
+void BlameEditor::findPrevious() {
+  if (mFind)
+    mFind->find(FindWidget::Backward);
+}
 
 void BlameEditor::adjustLineMarginWidth() {
+  if (!mEditor)
+    return;
   // Enable dynamic line margin width by tracking document changes.
   QByteArray lines = QByteArray::number(static_cast<int>(mEditor->lineCount()));
   int width = mEditor->textWidth(STYLE_LINENUMBER, lines.constData());

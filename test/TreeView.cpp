@@ -9,6 +9,7 @@
 #include "ui/TreeView.h"
 #include "ui/TreeProxy.h"
 #include "ui/FileContextMenu.h"
+#include "ui/ToolBar.h"
 #include "conf/Settings.h"
 #include "editor/TextEditor.h"
 
@@ -354,6 +355,11 @@ void TestTreeView::committedFileInspection() {
   QTimer::singleShot(0, [&eventLoopAdvanced] { eventLoopAdvanced = true; });
   QVERIFY(QMetaObject::invokeMethod(committedFiles, "fileSelectionRequested"));
   QCOMPARE(primaryView->currentWidget(), fileInspection);
+  QVERIFY(!window.isSideBarVisible());
+  auto *sidebarButton =
+      window.toolBar()->findChild<QToolButton *>("RepositorySidebarButton");
+  QVERIFY(sidebarButton);
+  QVERIFY(!sidebarButton->isEnabled());
   QVERIFY(!diffView->widget()->findChild<FileWidget *>());
   QTRY_VERIFY(eventLoopAdvanced);
   QPointer<FileWidget> initialFile;
@@ -370,12 +376,18 @@ void TestTreeView::committedFileInspection() {
 
   doubleTree->closeFileInspection();
   QVERIFY(!repoView->isFileInspectionVisible());
+  QVERIFY(window.isSideBarVisible());
+  QVERIFY(sidebarButton->isEnabled());
+  window.setSideBarVisible(false);
+  QVERIFY(!window.isSideBarVisible());
   QVERIFY(initialFile);
   committedFiles->selectionModel()->setCurrentIndex(
       committedFileIndexes.first(),
       QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
   QVERIFY(QMetaObject::invokeMethod(committedFiles, "fileSelectionRequested"));
   QVERIFY(repoView->isFileInspectionVisible());
+  QVERIFY(!window.isSideBarVisible());
+  QVERIFY(!sidebarButton->isEnabled());
   eventLoopAdvanced = false;
   QTimer::singleShot(0, [&eventLoopAdvanced] {
     QTimer::singleShot(0, [&eventLoopAdvanced] { eventLoopAdvanced = true; });
@@ -403,6 +415,9 @@ void TestTreeView::committedFileInspection() {
   QVERIFY(blameButton);
   QVERIFY(blameEditor);
   QVERIFY(diffBlameEditor);
+  QVERIFY(diffBlameEditor->findChildren<TextEditor *>().isEmpty());
+  QVERIFY(diffBlameEditor->mapTo(fileInspection, QPoint()).x() <
+          diffView->mapTo(fileInspection, QPoint()).x());
   const QString selectedFile =
       committedFileIndexes.first().data(Qt::EditRole).toString();
   QVERIFY(blameButton->isEnabled());

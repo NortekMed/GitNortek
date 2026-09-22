@@ -13,6 +13,7 @@
 #include "git/Id.h"
 #include "git/Blame.h"
 #include <QTimer>
+#include <QPointer>
 #include <QWidget>
 
 class TextEditor;
@@ -26,6 +27,8 @@ class BlameMargin : public QWidget {
 
 public:
   BlameMargin(TextEditor *editor, QWidget *parent = nullptr);
+
+  void setEditor(TextEditor *editor);
 
   void startBlame(const QString &name);
   void setBlame(const git::Repository &repo, const git::Blame &blame);
@@ -51,7 +54,7 @@ private:
   QString name(int index) const;
 
   QString mName;
-  TextEditor *mEditor;
+  QPointer<TextEditor> mEditor;
 
   git::Blame mBlame;
   git::Blame mSource;

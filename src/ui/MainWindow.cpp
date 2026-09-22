@@ -70,7 +70,7 @@ QString canonicalPath(const QString &path) {
   QFileInfo info(path);
   QString canonical = info.canonicalFilePath();
   return QDir::cleanPath(canonical.isEmpty() ? info.absoluteFilePath()
-                                              : canonical);
+                                             : canonical);
 }
 
 QString repositoryPath(const git::Repository &repo) {
@@ -210,14 +210,12 @@ MainWindow::MainWindow(const git::Repository &repo, QWidget *parent,
   connect(mTabs, QOverload<>::of(&TabWidget::tabRemoved), this,
           &MainWindow::updateTabNames);
 
-  mRepositorySplitter->addWidget(
-      new SideBar(mTabs, this, mRepositorySplitter));
+  mRepositorySplitter->addWidget(new SideBar(mTabs, this, mRepositorySplitter));
   mRepositorySplitter->addWidget(mTabs);
   mRepositorySplitter->setCollapsible(1, false);
   mRepositorySplitter->setStretchFactor(1, 1);
 
-  mLocalRepositoryManagement =
-      new LocalRepositoryManagement(mCentralStack);
+  mLocalRepositoryManagement = new LocalRepositoryManagement(mCentralStack);
   connect(mLocalRepositoryManagement,
           &LocalRepositoryManagement::openRepositoryRequested, this,
           [this](const QString &path) { addTab(path); });
@@ -266,11 +264,11 @@ MainWindow::MainWindow(const git::Repository &repo, QWidget *parent,
     move(win->x() + 24, win->y() + 24);
 
   // Always start with the sidebar visible at its saved width.
-  int sidebarWidth = QSettings().value(kSidebarWidthKey,
-                                       mRepositorySplitter->widget(0)
-                                           ->sizeHint()
-                                           .width())
-                         .toInt();
+  int sidebarWidth =
+      QSettings()
+          .value(kSidebarWidthKey,
+                 mRepositorySplitter->widget(0)->sizeHint().width())
+          .toInt();
   mRepositorySplitter->setSizes({qBound(220, sidebarWidth, 520), 1});
   mIsSideBarVisible = true;
 
@@ -288,8 +286,8 @@ void MainWindow::setSideBarVisible(bool visible) {
 
   // Animate sidebar sliding in or out.
   QWidget *sidebar = mRepositorySplitter->widget(0);
-  int storedWidth = QSettings().value(kSidebarWidthKey,
-                                      sidebar->sizeHint().width()).toInt();
+  int storedWidth =
+      QSettings().value(kSidebarWidthKey, sidebar->sizeHint().width()).toInt();
   int pos = visible ? qBound(220, storedWidth, 520)
                     : mRepositorySplitter->sizes().first();
 
@@ -308,14 +306,35 @@ void MainWindow::setSideBarVisible(bool visible) {
   timeline->start();
 }
 
+void MainWindow::updateFileInspectionSidebar() {
+  RepoView *view = currentView();
+  const bool inspectionVisible = view && view->isFileInspectionVisible();
+
+  if (inspectionVisible) {
+    if (!mFileInspectionSidebarStateSaved) {
+      mSidebarVisibleBeforeFileInspection = mIsSideBarVisible;
+      mFileInspectionSidebarStateSaved = true;
+    }
+    setSideBarVisible(false);
+    mToolBar->setRepositorySidebarButtonEnabled(false);
+    return;
+  }
+
+  mToolBar->setRepositorySidebarButtonEnabled(true);
+  if (mFileInspectionSidebarStateSaved) {
+    const bool visible = mSidebarVisibleBeforeFileInspection;
+    mFileInspectionSidebarStateSaved = false;
+    setSideBarVisible(visible);
+  }
+}
+
 bool MainWindow::isLocalRepositoryManagementVisible() const {
   return mCentralStack->currentWidget() == mLocalRepositoryManagement;
 }
 
 void MainWindow::setLocalRepositoryManagementVisible(bool visible) {
-  QWidget *page =
-      visible ? static_cast<QWidget *>(mLocalRepositoryManagement)
-              : static_cast<QWidget *>(mRepositorySplitter);
+  QWidget *page = visible ? static_cast<QWidget *>(mLocalRepositoryManagement)
+                          : static_cast<QWidget *>(mRepositorySplitter);
   if (mCentralStack->currentWidget() != page)
     mCentralStack->setCurrentWidget(page);
   if (visible)
@@ -445,9 +464,9 @@ RepoView *MainWindow::addTab(const git::Repository &repo,
   mAddingTab = false;
 
   QTimer::singleShot(0, view, [view, repo, updateSubmodules] {
-    const QList<git::Submodule> submodules =
-        updateSubmodules.value_or(false) ? repo.submodules()
-                                         : QList<git::Submodule>();
+    const QList<git::Submodule> submodules = updateSubmodules.value_or(false)
+                                                 ? repo.submodules()
+                                                 : QList<git::Submodule>();
     if (!submodules.isEmpty()) {
       // The submodule update refreshes after it completes.
       view->updateSubmodules(submodules, true, true, false, nullptr);
@@ -837,8 +856,8 @@ void MainWindow::updateTabNames() {
 
     if (ids.count() == 1) {
       const int id = ids.first();
-      const QString path = QDir::toNativeSeparators(
-          repositoryPath(view(id)->repo()));
+      const QString path =
+          QDir::toNativeSeparators(repositoryPath(view(id)->repo()));
       const QString tooltip =
           QStringLiteral("<qt>%1<br><img src=\":/open.png\" width=\"16\" "
                          "height=\"16\"> %2</qt>")
@@ -872,6 +891,7 @@ void MainWindow::updateInterface() {
 
   updateWindowTitle(ahead, behind);
   mToolBar->updateButtons(ahead, behind);
+  updateFileInspectionSidebar();
 }
 
 void MainWindow::updateWindowTitle(int ahead, int behind) {

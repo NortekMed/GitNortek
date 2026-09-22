@@ -775,10 +775,12 @@ ToolBar::ToolBar(MainWindow *parent) : QToolBar(parent) {
   addWidget(new Spacer(4, this));
 
   SidebarButton *sidebarButton = new SidebarButton(SidebarButton::Left, this);
+  mRepositorySidebarButton = sidebarButton;
+  mRepositorySidebarButton->setObjectName("RepositorySidebarButton");
   sidebarButton->setToolTip(tr("Show repository sidebar"));
   addWidget(sidebarButton);
   connect(sidebarButton, &QAbstractButton::clicked,
-           [parent] { parent->setSideBarVisible(!parent->isSideBarVisible()); });
+          [parent] { parent->setSideBarVisible(!parent->isSideBarVisible()); });
 
   addWidget(new Spacer(4, this));
 
@@ -1057,6 +1059,10 @@ ToolBar::ToolBar(MainWindow *parent) : QToolBar(parent) {
   });
 }
 
+void ToolBar::setRepositorySidebarButtonEnabled(bool enabled) {
+  mRepositorySidebarButton->setEnabled(enabled);
+}
+
 void ToolBar::updateButtons(int ahead, int behind) {
   updateRemote(ahead, behind);
   updateHistory();
@@ -1084,14 +1090,12 @@ void ToolBar::updateFastIssueAccess() {
                                          accessToken))
     return;
 
-  GitHub *github =
-      GitHub::createRequestClient(username, accessToken, this);
+  GitHub *github = GitHub::createRequestClient(username, accessToken, this);
   QPointer<ToolBar> toolbar(this);
   QPointer<GitHub> account(github);
   github->requestOrganizationMembership(
-      kFastIssueOrganization,
-      [toolbar, account, generation](bool success, bool active,
-                                     const QString &) {
+      kFastIssueOrganization, [toolbar, account, generation](
+                                  bool success, bool active, const QString &) {
         if (!account)
           return;
         if (!toolbar || generation != toolbar->mFastIssueGeneration ||

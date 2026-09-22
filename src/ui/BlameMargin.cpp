@@ -37,21 +37,35 @@ const QString kStyleSheet = "BlameMargin {"
 } // namespace
 
 BlameMargin::BlameMargin(TextEditor *editor, QWidget *parent)
-    : QWidget(parent), mEditor(editor), mIndex(-1), mProgress(0) {
+    : QWidget(parent), mEditor(nullptr), mIndex(-1), mProgress(0) {
   setStyleSheet(kStyleSheet);
 
-  // Can't connect directly because of different parameter types.
-  QScrollBar *sb = editor->verticalScrollBar();
-  connect(sb, &QScrollBar::valueChanged, [this] { update(); });
-
-  // Update blame when lines are added or removed.
-  connect(mEditor, &TextEditor::linesAdded, this, &BlameMargin::updateBlame);
+  if (editor) {
+    mEditor = editor;
+    if (QScrollBar *scrollBar = mEditor->verticalScrollBar())
+      connect(scrollBar, &QScrollBar::valueChanged, [this] { update(); });
+    connect(mEditor, &TextEditor::linesAdded, this, &BlameMargin::updateBlame);
+  }
 
   // Connect progress timer.
   connect(&mTimer, &QTimer::timeout, [this] {
     ++mProgress;
     update();
   });
+}
+
+void BlameMargin::setEditor(TextEditor *editor) {
+  if (mEditor == editor)
+    return;
+  mEditor = editor;
+  if (!mEditor)
+    return;
+
+  // Can't connect directly because of different parameter types.
+  if (QScrollBar *scrollBar = mEditor->verticalScrollBar())
+    connect(scrollBar, &QScrollBar::valueChanged, [this] { update(); });
+  connect(mEditor, &TextEditor::linesAdded, this, &BlameMargin::updateBlame);
+  updateGeometry();
 }
 
 void BlameMargin::startBlame(const QString &name) {
@@ -186,6 +200,9 @@ void BlameMargin::paintEvent(QPaintEvent *event) {
 
   // Draw items.
   painter.setRenderHints(QPainter::Antialiasing);
+
+  if (!mEditor)
+    return;
 
   int size = mEditor->styleFont(STYLE_DEFAULT).pointSize();
   QFont regular = font();
@@ -358,11 +375,14 @@ void BlameMargin::paintEvent(QPaintEvent *event) {
 
 void BlameMargin::wheelEvent(QWheelEvent *event) {
   // Forward to the editor.
-  mEditor->wheelEvent(event);
+  if (mEditor)
+    mEditor->wheelEvent(event);
+  else
+    QWidget::wheelEvent(event);
 }
 
 void BlameMargin::updateBlame() {
-  if (!mSource.isValid())
+  if (!mEditor || !mSource.isValid())
     return;
 
 #if 0
@@ -376,6 +396,8 @@ void BlameMargin::updateBlame() {
 }
 
 int BlameMargin::index(int y) const {
+  if (!mEditor)
+    return -1;
   int line = mEditor->firstVisibleLine() + (y / mEditor->textHeight(0));
   return (line < mEditor->lineCount()) ? mBlame.index(line + 1) : -1;
 }

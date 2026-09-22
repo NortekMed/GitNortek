@@ -41,13 +41,13 @@ public:
 
   bool isSideBarVisible() const;
   void setSideBarVisible(bool visible);
+  void updateFileInspectionSidebar();
 
   bool isLocalRepositoryManagementVisible() const;
   void setLocalRepositoryManagementVisible(bool visible);
 
   TabWidget *tabWidget() const;
-  RepoView *addTab(const QString &path,
-                   OpenSource source = OpenSource::Other,
+  RepoView *addTab(const QString &path, OpenSource source = OpenSource::Other,
                    const QString &tabContext = QString(),
                    std::optional<bool> updateSubmodules = std::nullopt,
                    bool submoduleTab = false);
@@ -76,10 +76,9 @@ public:
                           OpenSource source = OpenSource::Other,
                           std::optional<bool> updateSubmodules = std::nullopt,
                           bool submoduleTab = false);
-  static MainWindow *open(
-      const git::Repository &repo = git::Repository(),
-      std::optional<bool> updateSubmodules = std::nullopt,
-      bool submoduleTab = false);
+  static MainWindow *open(const git::Repository &repo = git::Repository(),
+                          std::optional<bool> updateSubmodules = std::nullopt,
+                          bool submoduleTab = false);
 
   // Save window settings on close.
   static void setSaveWindowSettings(bool enabled);
@@ -117,6 +116,8 @@ private:
 
   bool mFullPath = false;
   bool mIsSideBarVisible = true;
+  bool mFileInspectionSidebarStateSaved = false;
+  bool mSidebarVisibleBeforeFileInspection = true;
 
   bool mShown = false;
   bool mFirstPaintTraced = false;

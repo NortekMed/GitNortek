@@ -30,6 +30,8 @@ public:
 
   SearchField *searchField() const { return mSearchField; }
 
+  void setRepositorySidebarButtonEnabled(bool enabled);
+
 private:
   void updateButtons(int ahead, int behind);
   void updateRemote(int ahead, int behind);
@@ -46,6 +48,7 @@ private:
   QToolButton *mPrevButton;
   QToolButton *mNextButton;
   QToolButton *mLocalRepoButton;
+  QToolButton *mRepositorySidebarButton;
 
   QToolButton *mFetchButton;
   QToolButton *mPullButton;

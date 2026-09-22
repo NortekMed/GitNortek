@@ -753,6 +753,8 @@ void RepoView::setFileInspectionVisible(bool visible) {
       detailSplitterMaximize(false);
   }
   mPrimaryView->setCurrentWidget(visible ? mFileInspectionWidget : mSideBar);
+  if (MainWindow *mainWindow = qobject_cast<MainWindow *>(window()))
+    mainWindow->updateFileInspectionSidebar();
 }
 
 bool RepoView::isFileInspectionVisible() const {
