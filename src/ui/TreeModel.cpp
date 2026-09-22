@@ -13,6 +13,7 @@
 #include "git/Diff.h"
 #include "git/RevWalk.h"
 #include "git/Submodule.h"
+#include <QFileInfo>
 #include <QStringBuilder>
 #include <QUrl>
 
@@ -169,7 +170,13 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const {
       for (int i = 0; i < mDiff.count(); ++i) {
         QString name = mDiff.name(i);
         if (containsPath(name, prefix)) {
-          QChar ch = git::Diff::statusChar(mDiff.status(i));
+          const bool ignoredIndexRemoval =
+              mDiff.isStatusDiff() && mDiff.status(i) == GIT_DELTA_DELETED &&
+              QFileInfo(mRepo.workdir().filePath(name)).exists() &&
+              mRepo.isIgnored(name);
+          QChar ch = ignoredIndexRemoval
+                         ? QChar('I')
+                         : git::Diff::statusChar(mDiff.status(i));
           if (!status.contains(ch))
             status.append(ch);
         }
@@ -244,9 +251,9 @@ TreeModel::Node *TreeModel::node(const QModelIndex &index) const {
   return index.isValid() ? static_cast<Node *>(index.internalPointer()) : mRoot;
 }
 
-//#############################################################################
-//######     Treemodel::Node     ##############################################
-//#############################################################################
+// #############################################################################
+// ######     Treemodel::Node     ##############################################
+//  #############################################################################
 
 TreeModel::Node::Node(const QString &name, const git::Object &obj, Node *parent)
     : mName(name), mObject(obj), mParent(parent) {}

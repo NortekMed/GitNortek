@@ -17,6 +17,7 @@
 #include "git/Submodule.h"
 #include "git/Patch.h"
 #include "util/PerformanceTrace.h"
+#include <QFileInfo>
 #include <QStringBuilder>
 #include <QUrl>
 #include <qobjectdefs.h>
@@ -46,13 +47,14 @@ git::Index::StagedState stageState(const git::WorkingTreeStatusEntry &entry) {
 }
 
 QString statusText(const git::WorkingTreeStatusEntry &entry,
+                   const git::Repository &repo,
                    const QSet<QString> &ignoredPaths) {
   if (entry.isConflicted())
     return QStringLiteral("!");
 
-  if (ignoredPaths.contains(entry.path) &&
-      entry.indexStatus == GIT_DELTA_DELETED &&
-      entry.workdirStatus != GIT_DELTA_DELETED)
+  if (entry.indexStatus == GIT_DELTA_DELETED &&
+      entry.workdirStatus != GIT_DELTA_DELETED &&
+      (ignoredPaths.contains(entry.path) || repo.isIgnored(entry.path)))
     return QStringLiteral("I");
 
   QString status;
@@ -65,6 +67,16 @@ QString statusText(const git::WorkingTreeStatusEntry &entry,
       status.append(ch);
   }
   return status;
+}
+
+bool isIgnoredIndexRemoval(const git::Repository &repo, const git::Diff &diff,
+                           int patchIndex) {
+  if (!diff.isStatusDiff() || diff.status(patchIndex) != GIT_DELTA_DELETED)
+    return false;
+
+  const QString path = diff.name(patchIndex);
+  return QFileInfo(repo.workdir().filePath(path)).exists() &&
+         repo.isIgnored(path);
 }
 
 } // namespace
@@ -429,9 +441,12 @@ QVariant DiffTreeModel::data(const QModelIndex &index, int role) const {
       for (auto patchIndex : patchIndices) {
         const QString chars =
             mStatusSnapshotMode
-                ? statusText(mStatusSnapshot.entries().at(patchIndex),
+                ? statusText(mStatusSnapshot.entries().at(patchIndex), mRepo,
                              mIgnoredPaths)
-                : QString(git::Diff::statusChar(mDiff.status(patchIndex)));
+                : (isIgnoredIndexRemoval(mRepo, mDiff, patchIndex)
+                       ? QStringLiteral("I")
+                       : QString(
+                             git::Diff::statusChar(mDiff.status(patchIndex))));
         for (QChar ch : chars) {
           if (!status.contains(ch))
             status.append(ch);

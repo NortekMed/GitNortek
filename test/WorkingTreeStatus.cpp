@@ -6,6 +6,7 @@
 //
 
 #include "Test.h"
+#include "git/Reference.h"
 #include "git/WorkingTreeStatus.h"
 #include "ui/Badge.h"
 #include "ui/DiffTreeModel.h"
@@ -35,6 +36,23 @@ bool writeFile(const QString &path, const QByteArray &contents) {
   QFile file(path);
   return file.open(QIODevice::WriteOnly) &&
          file.write(contents) == contents.size();
+}
+
+QModelIndex findModelIndex(const QAbstractItemModel &model, const QString &path,
+                           const QModelIndex &parent = QModelIndex()) {
+  for (int row = 0; row < model.rowCount(parent); ++row) {
+    const QModelIndex index = model.index(row, 0, parent);
+    if (index.data(Qt::EditRole).toString() == path)
+      return index;
+
+    if (model.hasChildren(index)) {
+      const QModelIndex child = findModelIndex(model, path, index);
+      if (child.isValid())
+        return child;
+    }
+  }
+
+  return QModelIndex();
 }
 
 git::WorkingTreeStatusSnapshot scan(const git::Repository &repo) {
@@ -87,16 +105,73 @@ private slots:
     const QModelIndex index = model.index("tracked.txt");
     QVERIFY(index.isValid());
     QCOMPARE(model.data(index, DiffTreeModel::StatusRole).toString(),
-             QStringLiteral("D"));
+             QStringLiteral("I"));
     QCOMPARE(model.data(index, Qt::ToolTipRole).toString(),
              repo.workdir().filePath("tracked.txt"));
+  }
 
-    model.setIgnoredPaths({"tracked.txt"});
-    model.setStatusSnapshot(status);
-    const QModelIndex ignoredIndex = model.index("tracked.txt");
-    QVERIFY(ignoredIndex.isValid());
-    QCOMPARE(model.data(ignoredIndex, DiffTreeModel::StatusRole).toString(),
+  void treeModelStopTrackedStatusUsesIgnoredLabel() {
+    Test::ScratchRepository scratch;
+    git::Repository repo = scratch;
+    const QString path = repo.dir(false).path();
+    QVERIFY(writeFile(repo.workdir().filePath("tracked.txt"), "tracked\n"));
+    QVERIFY(runGit(path, {"add", "tracked.txt"}));
+    QVERIFY(runGit(path, {"commit", "-m", "initial"}));
+    QVERIFY(runGit(path, {"rm", "--cached", "tracked.txt"}));
+    QVERIFY(writeFile(repo.workdir().filePath(".gitignore"), "/tracked.txt\n"));
+
+    const git::Commit head = repo.head().target();
+    QVERIFY(head.isValid());
+    const git::Diff status = repo.status(repo.index(), nullptr);
+    QVERIFY(status.isValid());
+
+    TreeModel model(repo);
+    model.setTree(head.tree(), status);
+    const QModelIndex index = findModelIndex(model, "tracked.txt");
+    QVERIFY(index.isValid());
+    QCOMPARE(model.data(index, TreeModel::StatusRole).toString(),
              QStringLiteral("I"));
+  }
+
+  void stopTrackedStatusWithoutIgnoreUsesDeletedLabel() {
+    Test::ScratchRepository scratch;
+    git::Repository repo = scratch;
+    const QString path = repo.dir(false).path();
+    QVERIFY(writeFile(repo.workdir().filePath("tracked.txt"), "tracked\n"));
+    QVERIFY(runGit(path, {"add", "tracked.txt"}));
+    QVERIFY(runGit(path, {"commit", "-m", "initial"}));
+    QVERIFY(runGit(path, {"rm", "--cached", "tracked.txt"}));
+
+    const git::WorkingTreeStatusSnapshot status = scan(repo);
+    QVERIFY(status.isValid());
+
+    DiffTreeModel model(repo);
+    model.setStatusSnapshot(status);
+    const QModelIndex index = model.index("tracked.txt");
+    QVERIFY(index.isValid());
+    QCOMPARE(model.data(index, DiffTreeModel::StatusRole).toString(),
+             QStringLiteral("D"));
+  }
+
+  void deletedTrackedStatusUsesDeletedLabel() {
+    Test::ScratchRepository scratch;
+    git::Repository repo = scratch;
+    const QString path = repo.dir(false).path();
+    const QString filePath = repo.workdir().filePath("tracked.txt");
+    QVERIFY(writeFile(filePath, "tracked\n"));
+    QVERIFY(runGit(path, {"add", "tracked.txt"}));
+    QVERIFY(runGit(path, {"commit", "-m", "initial"}));
+    QVERIFY(QFile::remove(filePath));
+
+    const git::WorkingTreeStatusSnapshot status = scan(repo);
+    QVERIFY(status.isValid());
+
+    DiffTreeModel model(repo);
+    model.setStatusSnapshot(status);
+    const QModelIndex index = model.index("tracked.txt");
+    QVERIFY(index.isValid());
+    QCOMPARE(model.data(index, DiffTreeModel::StatusRole).toString(),
+             QStringLiteral("D"));
   }
 
   void statusBadgeTooltipsPreserveFilePathTooltip() {
