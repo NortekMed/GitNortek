@@ -69,7 +69,7 @@ private slots:
 
 private:
   enum View {
-    Blame,
+    File,
     Diff,
   };
 
@@ -108,6 +108,7 @@ private:
   QCheckBox *mUnresolvedOnly{nullptr};
   QToolButton *mPreviousConflict{nullptr};
   QToolButton *mNextConflict{nullptr};
+  QPushButton *mFileButton{nullptr};
   QPushButton *mBlameButton{nullptr};
   QPushButton *mDiffButton{nullptr};
 
@@ -129,12 +130,16 @@ private:
    */
   BlameEditor *mEditor{nullptr};
   /*!
+   * Shows the current/new file content with optional blame beside a diff.
+   */
+  BlameEditor *mDiffBlameEditor{nullptr};
+  /*!
    * Shows the diff of a file
    */
   DiffView *mDiffView{nullptr};
 
   /*!
-   * Shows BlameEditor or DiffView
+   * Shows File View or Diff View
    */
   QStackedWidget *mFileView{nullptr};
   bool mIgnoreSelectionChange{false};

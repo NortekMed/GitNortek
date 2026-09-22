@@ -63,6 +63,7 @@ private slots:
   void discardFiles();
   void fileMergeCrash();
   void committedFileInspection();
+  void unchangedCommittedFileInspection();
   void dirtySubmoduleAndStagedSubmodule();
   void conflictedAndStagedFile();
   void stageAllChangesButton();
@@ -326,6 +327,7 @@ void TestTreeView::committedFileInspection() {
   auto *diffView = repoView->findChild<DiffView *>();
   QVERIFY(diffView);
 
+  QTRY_VERIFY(commits->model()->rowCount() > 0);
   QModelIndex commitIndex;
   for (int row = 0; row < commits->model()->rowCount(); ++row) {
     QModelIndex candidate = commits->model()->index(row, 0);
@@ -390,20 +392,38 @@ void TestTreeView::committedFileInspection() {
   QVERIFY(hunkMode);
   QVERIFY(splitMode);
   QVERIFY(diffView);
+  auto *fileButton = doubleTree->mFileButton;
+  QVERIFY(fileButton);
   QVERIFY(diffButton->isChecked());
+  QVERIFY(!fileButton->isChecked());
   QVERIFY(inlineMode->isChecked());
   auto *blameButton = doubleTree->mBlameButton;
   auto *blameEditor = doubleTree->mEditor;
+  auto *diffBlameEditor = doubleTree->mDiffBlameEditor;
   QVERIFY(blameButton);
   QVERIFY(blameEditor);
+  QVERIFY(diffBlameEditor);
   const QString selectedFile =
       committedFileIndexes.first().data(Qt::EditRole).toString();
   QVERIFY(blameButton->isEnabled());
   QVERIFY(blameEditor->name() != selectedFile);
-  mouseClick(blameButton, Qt::LeftButton);
+  QVERIFY(!blameButton->isChecked());
+  mouseClick(fileButton, Qt::LeftButton);
   QTRY_COMPARE(doubleTree->mFileView->currentWidget(), blameEditor);
   QTRY_COMPARE(blameEditor->name(), selectedFile);
+  QVERIFY(!diffButton->isChecked());
+  QVERIFY(blameEditor->editor()->length() > 0);
+  mouseClick(blameButton, Qt::LeftButton);
+  QTRY_VERIFY(blameButton->isChecked());
+  QVERIFY(blameEditor->isBlameVisible());
   mouseClick(diffButton, Qt::LeftButton);
+  QTRY_COMPARE(doubleTree->mFileView->currentWidget(), diffView);
+  QTRY_VERIFY(diffBlameEditor->isVisible());
+  QTRY_COMPARE(diffBlameEditor->name(), selectedFile);
+  mouseClick(blameButton, Qt::LeftButton);
+  QTRY_VERIFY(!diffBlameEditor->isVisible());
+  mouseClick(blameButton, Qt::LeftButton);
+  QTRY_VERIFY(diffBlameEditor->isVisible());
   auto fileForEditor = [](QWidget *widget) {
     while (widget && !qobject_cast<FileWidget *>(widget))
       widget = widget->parentWidget();
@@ -453,6 +473,62 @@ void TestTreeView::committedFileInspection() {
   close->click();
   QVERIFY(primaryView->currentWidget() != fileInspection);
   QVERIFY(committedFiles->selectionModel()->selectedIndexes().isEmpty());
+}
+
+void TestTreeView::unchangedCommittedFileInspection() {
+  INIT_REPO("gitahead-test.zip", true);
+
+  QStackedWidget *primaryView =
+      repoView->findChild<QStackedWidget *>("RepositoryPrimaryView");
+  QWidget *fileInspection =
+      repoView->findChild<QWidget *>("FileInspectionView");
+  CommitList *commits = repoView->findChild<CommitList *>();
+  auto doubleTree = repoView->findChild<DoubleTreeWidget *>();
+  auto committedFiles = doubleTree->findChild<TreeView *>("Unstaged");
+  QVERIFY(primaryView);
+  QVERIFY(fileInspection);
+  QVERIFY(commits);
+  QVERIFY(doubleTree);
+  QVERIFY(committedFiles);
+
+  QTRY_VERIFY(commits->model()->rowCount() > 0);
+  QModelIndex commitIndex;
+  for (int row = 0; row < commits->model()->rowCount(); ++row) {
+    QModelIndex candidate = commits->model()->index(row, 0);
+    if (candidate.data(CommitList::CommitRole).isValid()) {
+      commitIndex = candidate;
+      break;
+    }
+  }
+  QVERIFY(commitIndex.isValid());
+  commits->selectionModel()->select(commitIndex,
+                                    QItemSelectionModel::ClearAndSelect);
+
+  if (!doubleTree->mShowAllFiles->isChecked())
+    doubleTree->mShowAllFiles->click();
+  QTRY_VERIFY(committedFiles->model()->rowCount() > 0);
+
+  const QModelIndexList unchangedFiles = committedFiles->model()->match(
+      committedFiles->model()->index(0, 0), Qt::EditRole, QString("README.md"),
+      1, Qt::MatchExactly | Qt::MatchRecursive);
+  QVERIFY(!unchangedFiles.isEmpty());
+  committedFiles->selectionModel()->select(unchangedFiles.first(),
+                                           QItemSelectionModel::ClearAndSelect);
+  QVERIFY(QMetaObject::invokeMethod(committedFiles, "fileSelectionRequested"));
+
+  QTRY_COMPARE(primaryView->currentWidget(), fileInspection);
+  QTRY_COMPARE(doubleTree->mFileView->currentWidget(), doubleTree->mEditor);
+  QTRY_COMPARE(doubleTree->mEditor->name(), QString("README.md"));
+  QVERIFY(doubleTree->mEditor->editor()->length() > 0);
+  QVERIFY(doubleTree->mFileButton->isChecked());
+  QVERIFY(!doubleTree->mDiffButton->isEnabled());
+  QVERIFY(doubleTree->mBlameButton->isEnabled());
+
+  doubleTree->mBlameButton->click();
+  QTRY_VERIFY(doubleTree->mBlameButton->isChecked());
+  QVERIFY(doubleTree->mEditor->isBlameVisible());
+
+  doubleTree->mShowAllFiles->setChecked(false);
 }
 
 void TestTreeView::dirtySubmoduleAndStagedSubmodule() {

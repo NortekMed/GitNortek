@@ -139,11 +139,17 @@ QAction *DoubleTreeWidget::setupAppearanceAction(const char *name,
 DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
     : ContentWidget(parent) {
   // first column
-  // top (Buttons to switch between Blame editor and DiffView)
+  // Top (primary file/diff view and optional blame controls).
   SegmentedButton *segmentedButton = new SegmentedButton(this);
+  mFileButton = new QPushButton(tr("File View"), this);
+  mFileButton->setObjectName("FileViewButton");
+  segmentedButton->addButton(mFileButton, tr("Show File View"), true);
+
   mBlameButton = new QPushButton(tr("Blame"), this);
   mBlameButton->setObjectName("BlameViewButton");
-  segmentedButton->addButton(mBlameButton, tr("Show Blame Editor"), true);
+  mBlameButton->setCheckable(true);
+  mBlameButton->setToolTip(tr("Show blame annotations"));
+
   mDiffButton = new QPushButton(tr("Diff"), this);
   mDiffButton->setObjectName("DiffViewButton");
   segmentedButton->addButton(mDiffButton, tr("Show Diff View"), true);
@@ -155,7 +161,7 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
 
   QToolButton *closeButton = new QToolButton(this);
   closeButton->setObjectName("CloseFileInspection");
-  closeButton->setAccessibleName(tr("Close Blame and Diff"));
+  closeButton->setAccessibleName(tr("Close File View and Diff"));
   closeButton->setToolTip(tr("Close"));
   closeButton->setAutoRaise(true);
   closeButton->setIcon(style()->standardIcon(QStyle::SP_TitleBarCloseButton));
@@ -229,6 +235,7 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   QHBoxLayout *buttonLayout = new QHBoxLayout();
   buttonLayout->addStretch();
   buttonLayout->addWidget(segmentedButton);
+  buttonLayout->addWidget(mBlameButton);
   buttonLayout->addStretch();
   buttonLayout->addWidget(diffModes);
   buttonLayout->addWidget(ignoreWhitespace);
@@ -236,16 +243,26 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   buttonLayout->addWidget(contextButton);
   buttonLayout->addWidget(closeButton);
 
-  // bottom (Stacked widget with Blame editor and DiffView)
+  // Bottom (stacked file/diff view with an optional blame panel).
   QVBoxLayout *fileViewLayout = new QVBoxLayout();
   mFileView = new QStackedWidget(this);
   mEditor = new BlameEditor(repo, this);
+  mEditor->setObjectName("FileViewEditor");
+  mEditor->setBlameVisible(false);
   mDiffView = new DiffView(repo, this);
+  mDiffBlameEditor = new BlameEditor(repo, this);
+  mDiffBlameEditor->setObjectName("DiffBlameEditor");
+  mDiffBlameEditor->setBlameVisible(false);
+  mDiffBlameEditor->setVisible(false);
   mFileView->addWidget(mEditor);
   mFileView->addWidget(mDiffView);
 
   fileViewLayout->addLayout(buttonLayout);
-  fileViewLayout->addWidget(mFileView);
+  QHBoxLayout *inspectionLayout = new QHBoxLayout();
+  inspectionLayout->setContentsMargins(0, 0, 0, 0);
+  inspectionLayout->addWidget(mFileView);
+  inspectionLayout->addWidget(mDiffBlameEditor);
+  fileViewLayout->addLayout(inspectionLayout);
   mFileView->setCurrentIndex(DoubleTreeWidget::Diff);
   mDiffButton->setChecked(true);
   mFileView->show();
@@ -258,6 +275,20 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   repoView->setFileInspectionWidget(fileView);
   connect(closeButton, &QToolButton::clicked, this,
           &DoubleTreeWidget::closeFileInspection);
+
+  connect(mBlameButton, &QPushButton::toggled, this, [this](bool checked) {
+    mEditor->setBlameVisible(checked);
+    mDiffBlameEditor->setBlameVisible(checked);
+
+    const bool showDiffBlame = checked && mFileView->currentIndex() == Diff &&
+                               mBlameButton->isEnabled();
+    mDiffBlameEditor->setVisible(showDiffBlame);
+    if (!checked)
+      mDiffBlameEditor->clear();
+
+    if (checked && RepoView::parentView(this)->isFileInspectionVisible())
+      scheduleEditorContentLoad();
+  });
 
   // second column
   // staged files
@@ -440,43 +471,46 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   setLayout(layout);
 
   const QButtonGroup *viewGroup = segmentedButton->buttonGroup();
-  connect(mFileView, &QStackedWidget::currentChanged, this, [this](int id) {
-    mBlameButton->setChecked(id == Blame);
-    mDiffButton->setChecked(id == Diff);
-  });
+  connect(mFileView, &QStackedWidget::currentChanged, this,
+          [this, diffModes](int id) {
+            mFileButton->setChecked(id == File);
+            mDiffButton->setChecked(id == Diff);
+            diffModes->setEnabled(id == Diff && mDiffButton->isEnabled());
+            mDiffView->enable(id == Diff);
+            mDiffBlameEditor->setVisible(id == Diff &&
+                                         mBlameButton->isChecked() &&
+                                         mBlameButton->isEnabled());
+
+            if (id == File)
+              mEditor->setBlameVisible(mBlameButton->isChecked());
+
+            stagedFiles->setSelectionMode(
+                id == File ? QAbstractItemView::SingleSelection
+                           : QAbstractItemView::ExtendedSelection);
+            unstagedFiles->setSelectionMode(
+                id == File ? QAbstractItemView::SingleSelection
+                           : QAbstractItemView::ExtendedSelection);
+          });
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
-  connect(
-      viewGroup, QOverload<int>::of(&QButtonGroup::idClicked), this,
-      [this](int id) {
-        mFileView->setCurrentIndex(id);
-        // Change selection mode.
-        if (id == Blame) {
-          stagedFiles->setSelectionMode(QAbstractItemView::SingleSelection);
-          unstagedFiles->setSelectionMode(QAbstractItemView::SingleSelection);
-        } else {
-          stagedFiles->setSelectionMode(QAbstractItemView::ExtendedSelection);
-          unstagedFiles->setSelectionMode(QAbstractItemView::ExtendedSelection);
-        }
-        if (RepoView::parentView(this)->isFileInspectionVisible())
-          scheduleEditorContentLoad();
-      });
+  connect(viewGroup, QOverload<int>::of(&QButtonGroup::idClicked), this,
+          [this](int id) {
+            if (id == Diff && !mDiffButton->isEnabled())
+              return;
+            mFileView->setCurrentIndex(id);
+            if (RepoView::parentView(this)->isFileInspectionVisible())
+              scheduleEditorContentLoad();
+          });
 #else
-  connect(
-      viewGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),
-      [this, viewGroup](QAbstractButton *button) {
-        const int id = viewGroup->id(button);
-        mFileView->setCurrentIndex(id);
-        // Change selection mode.
-        if (id == Blame) {
-          stagedFiles->setSelectionMode(QAbstractItemView::SingleSelection);
-          unstagedFiles->setSelectionMode(QAbstractItemView::SingleSelection);
-        } else {
-          stagedFiles->setSelectionMode(QAbstractItemView::ExtendedSelection);
-          unstagedFiles->setSelectionMode(QAbstractItemView::ExtendedSelection);
-        }
-        if (RepoView::parentView(this)->isFileInspectionVisible())
-          scheduleEditorContentLoad();
-      });
+  connect(viewGroup,
+          QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),
+          [this, viewGroup](QAbstractButton *button) {
+            const int id = viewGroup->id(button);
+            if (id == Diff && !mDiffButton->isEnabled())
+              return;
+            mFileView->setCurrentIndex(id);
+            if (RepoView::parentView(this)->isFileInspectionVisible())
+              scheduleEditorContentLoad();
+          });
 #endif
 
   connect(mDiffTreeModel, &DiffTreeModel::checkStateChanged, this,
@@ -773,8 +807,10 @@ void DoubleTreeWidget::setDiff(const git::Diff &diff, const QString &file,
   else
     unstagedFiles->collapseAll();
 
-  // Clear editor.
+  // Clear editors.
   mEditor->clear();
+  mDiffBlameEditor->clear();
+  mDiffBlameEditor->setVisible(false);
 
   mDiffView->setDiff(diff);
 
@@ -858,23 +894,44 @@ void DoubleTreeWidget::setWorkingTreeStatus(
   const bool inspectionVisible =
       RepoView::parentView(this)->isFileInspectionVisible();
   mEditor->clear();
+  mDiffBlameEditor->clear();
+  mDiffBlameEditor->setVisible(false);
   if (!inspectionVisible)
     mDiffView->setDiff(git::Diff());
 
   if (status.isDirty() && !mFileInspectionClosed && loadSelection() &&
-      inspectionVisible && mFileView->currentIndex() == Blame)
+      inspectionVisible &&
+      (mFileView->currentIndex() == File || mBlameButton->isChecked()))
     scheduleEditorContentLoad();
 
   mIgnoreSelectionChange = ignoreSelectionChange;
 }
 
-void DoubleTreeWidget::find() { mEditor->find(); }
+void DoubleTreeWidget::find() {
+  if (mFileView->currentIndex() == File)
+    mEditor->find();
+  else if (mDiffBlameEditor->isVisible())
+    mDiffBlameEditor->find();
+}
 
-void DoubleTreeWidget::findNext() { mEditor->findNext(); }
+void DoubleTreeWidget::findNext() {
+  if (mFileView->currentIndex() == File)
+    mEditor->findNext();
+  else if (mDiffBlameEditor->isVisible())
+    mDiffBlameEditor->findNext();
+}
 
-void DoubleTreeWidget::findPrevious() { mEditor->findPrevious(); }
+void DoubleTreeWidget::findPrevious() {
+  if (mFileView->currentIndex() == File)
+    mEditor->findPrevious();
+  else if (mDiffBlameEditor->isVisible())
+    mDiffBlameEditor->findPrevious();
+}
 
-void DoubleTreeWidget::cancelBackgroundTasks() { mEditor->cancelBlame(); }
+void DoubleTreeWidget::cancelBackgroundTasks() {
+  mEditor->cancelBlame();
+  mDiffBlameEditor->cancelBlame();
+}
 
 void DoubleTreeWidget::updateStageAllChangesButton() {
   RepoView *view = RepoView::parentView(this);
@@ -1254,6 +1311,8 @@ void DoubleTreeWidget::treeModelStateChanged(const QModelIndex &index,
 
   mDiffView->enable(false);
   mEditor->clear();
+  mDiffBlameEditor->clear();
+  mDiffBlameEditor->setVisible(false);
 }
 
 void DoubleTreeWidget::collapseCountChanged(int count) {
@@ -1273,7 +1332,8 @@ void DoubleTreeWidget::filesSelected(const QModelIndexList &indexes) {
       indexes.size() == 1 ? indexes.first().data(Qt::EditRole).toString()
                           : QString();
   const QList<FileWidget *> files =
-      mDiffView->widget()->findChildren<FileWidget *>();
+      mDiffView->widget() ? mDiffView->widget()->findChildren<FileWidget *>()
+                          : QList<FileWidget *>();
   for (auto it = files.crbegin(); it != files.crend(); ++it) {
     FileWidget *file = *it;
     if (!file->hasUnsavedConflictOutput() || file->name() == requestedName)
@@ -1313,11 +1373,46 @@ void DoubleTreeWidget::filesSelected(const QModelIndexList &indexes) {
   selected.append(unstagedFiles->selectionModel()->selectedIndexes());
   if (selected.isEmpty()) {
     ++mEditorLoadGeneration;
+    mFileButton->setEnabled(false);
+    mDiffButton->setEnabled(false);
+    mBlameButton->setEnabled(false);
+    mBlameButton->setChecked(false);
     mDiffView->enable(false);
     mEditor->clear();
+    mDiffBlameEditor->clear();
+    mDiffBlameEditor->setVisible(false);
     mFileInspectionClosed = true;
     RepoView::parentView(this)->setFileInspectionVisible(false);
     return;
+  }
+
+  const bool committedDiff = mDiff.isValid() && !mDiff.isStatusDiff();
+  const QString selectedName =
+      selected.size() == 1 ? selected.first().data(Qt::EditRole).toString()
+                           : QString();
+  const int selectedPatchIndex =
+      selected.size() == 1 ? mDiff.indexOf(selectedName) : -1;
+  const bool unchangedCommittedFile =
+      committedDiff && selected.size() == 1 && selectedPatchIndex < 0;
+  const bool diffAvailable =
+      selected.size() > 1 || !committedDiff || selectedPatchIndex >= 0;
+  const bool unresolvedConflict =
+      selectedPatchIndex >= 0 && mDiff.patch(selectedPatchIndex).isConflicted();
+
+  mFileButton->setEnabled(selected.size() == 1);
+  mDiffButton->setEnabled(diffAvailable);
+  mBlameButton->setEnabled(selected.size() == 1 && !unresolvedConflict);
+  if (unresolvedConflict)
+    mBlameButton->setChecked(false);
+
+  // Selecting a committed file chooses the useful presentation automatically.
+  // A user can still switch a modified file to File View explicitly.
+  if (unchangedCommittedFile || (selected.size() == 1 && diffAvailable &&
+                                 (mStatusSnapshotMode || mDiff.isStatusDiff() ||
+                                  mFileView->currentIndex() == File))) {
+    mFileView->setCurrentIndex(unchangedCommittedFile ? File : Diff);
+  } else if (selected.size() > 1 && mFileView->currentIndex() == File) {
+    mFileView->setCurrentIndex(Diff);
   }
 
   if (!RepoView::parentView(this)->isFileInspectionVisible())
@@ -1336,7 +1431,7 @@ void DoubleTreeWidget::openFileInspection() {
   const bool alreadyVisible = view->isFileInspectionVisible();
   mConflictAutoOpenEnabled = true;
   mFileInspectionClosed = false;
-  mBlameButton->setChecked(mFileView->currentIndex() == Blame);
+  mFileButton->setChecked(mFileView->currentIndex() == File);
   mDiffButton->setChecked(mFileView->currentIndex() == Diff);
   view->setFileInspectionVisible(true);
   if (!alreadyVisible)
@@ -1350,7 +1445,8 @@ void DoubleTreeWidget::closeFileInspection() {
       selected.isEmpty() ? QString()
                          : selected.first().data(Qt::EditRole).toString();
   const QList<FileWidget *> files =
-      mDiffView->widget()->findChildren<FileWidget *>();
+      mDiffView->widget() ? mDiffView->widget()->findChildren<FileWidget *>()
+                          : QList<FileWidget *>();
   for (auto it = files.crbegin(); it != files.crend(); ++it) {
     if ((*it)->name() != selectedName)
       continue;
@@ -1372,6 +1468,8 @@ void DoubleTreeWidget::closeFileInspection() {
   mSelectedFile.filename.clear();
   mFileInspectionClosed = true;
   mEditor->clear();
+  mDiffBlameEditor->clear();
+  mDiffBlameEditor->setVisible(false);
   mDiffView->enable(false);
   mIgnoreSelectionChange = ignoreSelectionChange;
   RepoView::parentView(this)->setFileInspectionVisible(false);
@@ -1393,38 +1491,65 @@ void DoubleTreeWidget::scheduleEditorContentLoad() {
 
 void DoubleTreeWidget::loadEditorContent(const QModelIndexList &indexes) {
   QString name;
+  int idx = -1;
   bool unresolvedConflict = false;
 
   if (indexes.count() == 1) {
     name = indexes.first().data(Qt::EditRole).toString();
-    int idx = mDiff.isValid() ? mDiff.indexOf(name) : -1;
+    idx = mDiff.isValid() ? mDiff.indexOf(name) : -1;
     unresolvedConflict = idx >= 0 && mDiff.patch(idx).isConflicted();
   }
 
+  const bool committedDiff = mDiff.isValid() && !mDiff.isStatusDiff();
+  const bool unchangedCommittedFile =
+      committedDiff && indexes.count() == 1 && idx < 0;
+  const bool diffAvailable = indexes.count() > 1 || !committedDiff || idx >= 0;
+
+  mFileButton->setEnabled(indexes.count() == 1);
+  mDiffButton->setEnabled(diffAvailable);
   const bool blameAvailable = indexes.count() == 1 && !unresolvedConflict;
   mBlameButton->setEnabled(blameAvailable);
   mBlameButton->setToolTip(unresolvedConflict
                                ? tr("Blame is unavailable until this conflict "
                                     "is resolved.")
-                               : tr("Show Blame Editor"));
-  if (!blameAvailable && mFileView->currentIndex() == Blame) {
-    mEditor->clear();
-    mFileView->setCurrentWidget(mDiffView);
-    mDiffButton->setChecked(true);
-    stagedFiles->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    unstagedFiles->setSelectionMode(QAbstractItemView::ExtendedSelection);
+                               : tr("Show blame annotations"));
+  if (!blameAvailable)
+    mBlameButton->setChecked(false);
+
+  if (unchangedCommittedFile && mFileView->currentIndex() == Diff)
+    mFileView->setCurrentWidget(mEditor);
+
+  RepoView *view = RepoView::parentView(this);
+  const QList<git::Commit> commits = view->commits();
+  git::Commit commit = !commits.isEmpty() ? commits.first() : git::Commit();
+  git::Blob blob;
+  if (indexes.count() == 1) {
+    if (idx < 0) {
+      blob = commit.blob(name);
+    } else if (mDiff.isValid()) {
+      blob = view->repo().lookupBlob(mDiff.id(idx, git::Diff::NewFile));
+    }
   }
 
-  if (mFileView->currentIndex() == Blame) {
-    RepoView *view = RepoView::parentView(this);
-    const QList<git::Commit> commits = view->commits();
-    git::Commit commit = !commits.isEmpty() ? commits.first() : git::Commit();
-    const int idx = mDiff.isValid() ? mDiff.indexOf(name) : -1;
-    git::Blob blob =
-        idx < 0 ? commit.blob(name)
-                : view->repo().lookupBlob(mDiff.id(idx, git::Diff::NewFile));
-    mEditor->load(name, blob, std::move(commit));
+  if (mFileView->currentIndex() == File) {
+    mDiffView->enable(false);
+    mDiffBlameEditor->clear();
+    mDiffBlameEditor->setVisible(false);
+    if (indexes.count() == 1)
+      mEditor->load(name, blob, std::move(commit));
+    else
+      mEditor->clear();
     return;
+  }
+
+  mEditor->clear();
+  if (mBlameButton->isChecked() && blameAvailable) {
+    mDiffBlameEditor->setBlameVisible(true);
+    mDiffBlameEditor->setVisible(true);
+    mDiffBlameEditor->load(name, blob, commit);
+  } else {
+    mDiffBlameEditor->clear();
+    mDiffBlameEditor->setVisible(false);
   }
 
   // The status snapshot is only a lightweight tree model. Keep the current
@@ -1439,7 +1564,6 @@ void DoubleTreeWidget::loadEditorContent(const QModelIndexList &indexes) {
     return;
   }
 
-  mEditor->clear();
   mDiffView->enable(true);
   mDiffView->updateFiles();
 }

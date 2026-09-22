@@ -91,7 +91,7 @@ BlameEditor::BlameEditor(const git::Repository &repo, QWidget *parent)
     if (future.resultCount() > 0) {
       git::Blame blame = future.result();
       mMargin->setBlame(mRepo, blame);
-      mMargin->setVisible(blame.isValid());
+      mMargin->setVisible(mBlameVisible && blame.isValid());
     }
   });
 
@@ -157,10 +157,11 @@ bool BlameEditor::load(const QString &name, const git::Blob &blob,
   mEditor->load(name, mRepo.isValid() ? mRepo.decode(content) : content);
   mEditor->setReadOnly(blob.isValid());
 
-  mMargin->setVisible(mRepo.isValid() && !content.isEmpty());
+  mBlameCommit = commit;
+  mMargin->setVisible(mBlameVisible && mRepo.isValid() && !content.isEmpty());
 
   // Calculate blame.
-  if (mRepo.isValid() && !content.isEmpty()) {
+  if (mBlameVisible && mRepo.isValid() && !content.isEmpty()) {
     mMargin->startBlame(name);
     mPendingBlameCommit = commit;
     if (mEditor->isVisible()) {
@@ -170,6 +171,29 @@ bool BlameEditor::load(const QString &name, const git::Blob &blob,
 
   return true;
 }
+
+void BlameEditor::setBlameVisible(bool visible) {
+  if (mBlameVisible == visible)
+    return;
+
+  mBlameVisible = visible;
+  if (!visible) {
+    cancelBlame();
+    mMargin->clear();
+    mMargin->setVisible(false);
+    return;
+  }
+
+  if (!mRepo.isValid() || mEditor->length() == 0 || mName.isEmpty())
+    return;
+
+  mMargin->setVisible(true);
+  mMargin->startBlame(mName);
+  mPendingBlameCommit = mBlameCommit;
+  if (mEditor->isVisible())
+    startBlame();
+}
+
 void BlameEditor::startBlame() {
   if (mPendingBlameCommit.has_value()) {
     mCallbacks = QSharedPointer<BlameCallbacks>::create();
@@ -239,6 +263,7 @@ void BlameEditor::clear() {
 
   mName = QString();
   mRevision = QString();
+  mBlameCommit = git::Commit();
 }
 
 void BlameEditor::find() {

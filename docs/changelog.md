@@ -45,6 +45,7 @@ Bug Fix and Feature release
 
 #### Changed
 
+* Open modified committed files in Diff view and unchanged committed files in File View, with optional blame annotations available in both modes
 * Make Save Selected Version as safe for popup-menu dismissal and support
   recursive folder exports
 * Make Stop Tracking and Ignore available for clean tracked files and folders

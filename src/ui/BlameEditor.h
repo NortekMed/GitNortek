@@ -39,6 +39,9 @@ public:
 
   bool load(const QString &name, const git::Blob &blob, git::Commit commit);
 
+  void setBlameVisible(bool visible);
+  bool isBlameVisible() const { return mBlameVisible; }
+
   void startBlame();
   void cancelBlame();
 
@@ -65,6 +68,8 @@ private:
 
   QString mName;
   QString mRevision;
+  git::Commit mBlameCommit;
+  bool mBlameVisible{true};
 
   QSharedPointer<git::Blame::Callbacks> mCallbacks;
   QFutureWatcher<git::Blame> mBlame;
