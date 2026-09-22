@@ -94,6 +94,11 @@ BlameEditor::BlameEditor(const git::Repository &repo, QWidget *parent,
 
   // Margin starts hidden by default.
   mMargin->setVisible(false);
+  if (mAnnotationOnly) {
+    const int width = mMargin->minimumSizeHint().width() * 3;
+    mMargin->setMinimumWidth(width);
+    mMargin->setMaximumWidth(width);
+  }
   connect(&mBlame, &QFutureWatcher<git::Blame>::finished, this,
           &BlameEditor::blameFinished);
 }

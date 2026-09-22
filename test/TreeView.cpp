@@ -2,6 +2,7 @@
 #include "ui/DiffView/DiffView.h"
 #include "ui/DiffView/FileWidget.h"
 #include "ui/BlameEditor.h"
+#include "ui/BlameMargin.h"
 #include "ui/CommitList.h"
 #include "ui/MainWindow.h"
 #include "ui/DoubleTreeWidget.h"
@@ -416,6 +417,10 @@ void TestTreeView::committedFileInspection() {
   QVERIFY(blameEditor);
   QVERIFY(diffBlameEditor);
   QVERIFY(diffBlameEditor->findChildren<TextEditor *>().isEmpty());
+  auto *blameMargin = diffBlameEditor->findChild<BlameMargin *>();
+  QVERIFY(blameMargin);
+  QCOMPARE(blameMargin->minimumWidth(),
+           blameMargin->minimumSizeHint().width() * 3);
   QVERIFY(diffBlameEditor->mapTo(fileInspection, QPoint()).x() <
           diffView->mapTo(fileInspection, QPoint()).x());
   const QString selectedFile =
