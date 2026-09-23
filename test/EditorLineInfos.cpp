@@ -1275,6 +1275,26 @@ void TestEditorLineInfo::completeFilePresentationModes() {
     QTRY_COMPARE(documentLineY(realBlocks.first()) - scrollBar->value(),
                  topAnchor);
 
+    const int firstLineHeight = realEditor->textHeight(realBlocks.first());
+    const int pastFirstLine =
+        qBound(scrollBar->minimum(), firstDocumentY + firstLineHeight,
+               scrollBar->maximum());
+    scrollBar->setValue(pastFirstLine);
+    QTRY_VERIFY(realPrevious->isEnabled());
+    QTRY_VERIFY(realNext->isEnabled());
+    realPrevious->click();
+    QTRY_COMPARE(realEditor->lineFromPosition(realEditor->currentPos()),
+                 realBlocks.first());
+
+    scrollBar->setValue(pastFirstLine);
+    QTRY_VERIFY(realNext->isEnabled());
+    realNext->click();
+    QTRY_COMPARE(realEditor->lineFromPosition(realEditor->currentPos()),
+                 realBlocks.at(1));
+    realPrevious->click();
+    QTRY_COMPARE(realEditor->lineFromPosition(realEditor->currentPos()),
+                 realBlocks.first());
+
     const QImage viewportImage = realContent->grab().toImage();
     const int railLeft = overviewRect.x();
     QVERIFY(containsColor(viewportImage, railLeft,

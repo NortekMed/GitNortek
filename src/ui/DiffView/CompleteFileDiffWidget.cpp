@@ -377,9 +377,15 @@ void CompleteFileDiffWidget::createOverview() {
 
   if (mView) {
     connect(mView->verticalScrollBar(), &QScrollBar::valueChanged, this,
-            [this] { updateOverviewGeometry(); });
+            [this] {
+              updateOverviewGeometry();
+              updateNavigationBlockForScroll();
+            });
     connect(mView->verticalScrollBar(), &QScrollBar::rangeChanged, this,
-            [this] { updateOverviewGeometry(); });
+            [this] {
+              updateOverviewGeometry();
+              updateNavigationBlockForScroll();
+            });
     connect(mView->horizontalScrollBar(), &QScrollBar::valueChanged, this,
             [this] { updateOverviewGeometry(); });
     connect(mView->horizontalScrollBar(), &QScrollBar::rangeChanged, this,
@@ -434,6 +440,9 @@ void CompleteFileDiffWidget::createNavigation() {
 void CompleteFileDiffWidget::updateModifiedBlocks() {
   mModifiedBlocks.clear();
   mCurrentBlock = -1;
+  mPreviousNavigationBlock = -1;
+  mNextNavigationBlock = -1;
+  mNavigationPositionKnown = false;
   updateLineNumberHighlight();
 
   int editorLine = 0;
@@ -470,8 +479,56 @@ void CompleteFileDiffWidget::updateModifiedBlocks() {
 void CompleteFileDiffWidget::updateNavigationButtons() {
   if (!mPreviousBlock || !mNextBlock)
     return;
-  mPreviousBlock->setEnabled(mCurrentBlock > 0);
-  mNextBlock->setEnabled(mCurrentBlock + 1 < mModifiedBlocks.size());
+  if (mCurrentBlock >= 0) {
+    mPreviousBlock->setEnabled(mCurrentBlock > 0);
+    mNextBlock->setEnabled(mCurrentBlock + 1 < mModifiedBlocks.size());
+  } else if (!mNavigationPositionKnown) {
+    mPreviousBlock->setEnabled(false);
+    mNextBlock->setEnabled(!mModifiedBlocks.isEmpty());
+  } else {
+    mPreviousBlock->setEnabled(mPreviousNavigationBlock >= 0);
+    mNextBlock->setEnabled(mNextNavigationBlock >= 0);
+  }
+}
+
+void CompleteFileDiffWidget::updateNavigationBlockForScroll() {
+  if (!mView || !mView->widget() || mModifiedBlocks.isEmpty()) {
+    updateNavigationButtons();
+    return;
+  }
+
+  Editor *editor = mInline ? mInline : mNew;
+  if (!editor)
+    return;
+
+  const int viewportTop = mView->verticalScrollBar()->value();
+  const int viewportBottom = viewportTop + mView->viewport()->height();
+  const int editorTop = editor->mapTo(mView->widget(), QPoint()).y();
+  int previousBlock = -1;
+  int nextBlock = -1;
+  bool currentBlockVisible = false;
+  for (int i = 0; i < mModifiedBlocks.size(); ++i) {
+    const int startLine = mModifiedBlocks.at(i).first;
+    const int startY =
+        editorTop +
+        editor->pointFromPosition(editor->positionFromLine(startLine)).y();
+    if (startY < viewportTop)
+      previousBlock = i;
+    else if (nextBlock < 0)
+      nextBlock = i;
+    if (i == mCurrentBlock && startY >= viewportTop &&
+        startY < viewportBottom)
+      currentBlockVisible = true;
+  }
+
+  if (mCurrentBlock >= 0 && !currentBlockVisible) {
+    mCurrentBlock = -1;
+    updateLineNumberHighlight();
+  }
+  mPreviousNavigationBlock = previousBlock;
+  mNextNavigationBlock = nextBlock;
+  mNavigationPositionKnown = true;
+  updateNavigationButtons();
 }
 
 void CompleteFileDiffWidget::updateLineNumberHighlight() {
@@ -646,11 +703,11 @@ void CompleteFileDiffWidget::navigateModifiedBlock(int direction) {
     return;
 
   const bool initialSelection = mCurrentBlock < 0;
-  int target = mCurrentBlock;
-  if (direction > 0)
-    target = target < 0 ? 0 : target + 1;
-  else
-    target = target - 1;
+  int target = initialSelection ? -1 : mCurrentBlock + direction;
+  if (initialSelection)
+    target = direction > 0
+                 ? (mNextNavigationBlock >= 0 ? mNextNavigationBlock : 0)
+                 : mPreviousNavigationBlock;
 
   if (target < 0 || target >= mModifiedBlocks.size())
     return;

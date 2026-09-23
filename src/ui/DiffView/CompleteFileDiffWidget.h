@@ -63,6 +63,7 @@ private:
   void updateLineNumberHighlight();
   void updateOverviewGeometry();
   void updateNavigationGeometry();
+  void updateNavigationBlockForScroll();
   void initializeModifiedBlockNavigation();
   void navigateOverview(qreal position);
   void navigateModifiedBlock(int direction);
@@ -87,6 +88,9 @@ private:
   QList<QPair<int, int>> mModifiedBlocks;
   bool mInitialNavigationPending{true};
   int mCurrentBlock{-1};
+  int mPreviousNavigationBlock{-1};
+  int mNextNavigationBlock{-1};
+  bool mNavigationPositionKnown{false};
   int mHighlightedLine{-1};
 };
 

@@ -64,6 +64,7 @@ Bug Fix and Feature release
 * Position the first modified block at the upper viewport anchor when opening complete-file views
 * Use the diff overview as the only visible scrollbar in complete-file views
 * Keep modified-block navigation within directional viewport margins instead of recentering each selected block
+* Base modified-block navigation on each block's first line so scrolling away from a block lets Up return to that block and Down advance to the next one
 * Keep the existing diff visible while replacing refreshed file content to prevent transient black editor panes
 * Allow GitNortek windows to fit Cinnamon's upper-half window tile
 * Disable tag push actions after confirming the tag is present on origin
