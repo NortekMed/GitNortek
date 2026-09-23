@@ -499,6 +499,18 @@ void TestTreeView::committedFileInspection() {
   QCOMPARE(fileForEditor(diffView->editors().first()), fileWidget);
   QTRY_VERIFY(hasVisiblePresentation("InlineFileDiff"));
 
+  const QModelIndexList secondFileIndexes = committedFiles->model()->match(
+      committedFiles->model()->index(0, 0), Qt::EditRole,
+      QString("folder1/file.txt"), 1, Qt::MatchExactly | Qt::MatchRecursive);
+  QVERIFY(!secondFileIndexes.isEmpty());
+  committedFiles->selectionModel()->setCurrentIndex(
+      secondFileIndexes.first(),
+      QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+  QTRY_COMPARE(diffBlameEditor->name(), QString("folder1/file.txt"));
+  QTRY_VERIFY(blameButton->isChecked());
+  QTRY_VERIFY(diffBlameEditor->isVisible());
+  QTRY_VERIFY(diffBlameMargin->isVisible());
+
   QToolButton *close =
       repoView->findChild<QToolButton *>("CloseFileInspection");
   QVERIFY(close);

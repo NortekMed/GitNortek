@@ -28,6 +28,7 @@
 #include <QScrollBar>
 #include <QShortcut>
 #include <QSplitter>
+#include <QTimer>
 #include <QTextStream>
 #include <QVBoxLayout>
 #include <QtConcurrent>
@@ -287,6 +288,7 @@ void BlameEditor::startBlame() {
       mMargin->setBlame(mRepo, mBlameCache.value(cacheKey));
       mLoadedBlameMinLine = firstLine;
       mLoadedBlameMaxLine = lastLine;
+      mLoadedEditorLineCount = mEditor->lineCount();
       mPendingBlameCommit = std::nullopt;
       return;
     }
@@ -304,6 +306,7 @@ void BlameEditor::startBlame() {
     mActiveBlameCacheKey = cacheKey;
     mActiveBlameMinLine = firstLine;
     mActiveBlameMaxLine = lastLine;
+    mActiveEditorLineCount = mEditor->lineCount();
     mBlame.setFuture(QtConcurrent::run([repo, name, commit, callbacks,
                                         firstLine, lastLine] {
       return repo.blame(name, commit, callbacks.data(), firstLine, lastLine);
@@ -335,8 +338,11 @@ void BlameEditor::blameFinished() {
 
   QFuture<git::Blame> future = mBlame.future();
   mActiveBlameGeneration = 0;
+  const bool editorGrew =
+      mEditor && mEditor->lineCount() > mActiveEditorLineCount;
   mLoadedBlameMinLine = mActiveBlameMinLine;
   mLoadedBlameMaxLine = mActiveBlameMaxLine;
+  mLoadedEditorLineCount = mEditor ? mEditor->lineCount() : 0;
   if (future.resultCount() == 0) {
     mMargin->clear();
     mMargin->setVisible(false);
@@ -351,15 +357,27 @@ void BlameEditor::blameFinished() {
   }
   mMargin->setBlame(mRepo, blame);
   mMargin->setVisible(mBlameVisible && blame.isValid());
+
+  if (editorGrew && mBlameVisible && mEditor && !mName.isEmpty()) {
+    QTimer::singleShot(0, this, [this] {
+      if (!mBlameVisible || !mEditor || mName.isEmpty() ||
+          mActiveBlameGeneration != 0)
+        return;
+      mPendingBlameCommit = mBlameCommit;
+      requestVisibleBlame();
+    });
+  }
 }
 
 void BlameEditor::editorLinesAdded() {
   if (!mAnnotationOnly || !mBlameVisible || !mEditor ||
       mEditor->length() == 0 || mName.isEmpty() ||
-      !mPendingBlameCommit.has_value())
+      mActiveBlameGeneration != 0 ||
+      mEditor->lineCount() <= mLoadedEditorLineCount)
     return;
 
   mMargin->setVisible(true);
+  mPendingBlameCommit = mBlameCommit;
   requestVisibleBlame();
 }
 
@@ -427,6 +445,8 @@ void BlameEditor::clear() {
   mBlameCommit = git::Commit();
   mLoadedBlameMinLine = 0;
   mLoadedBlameMaxLine = 0;
+  mLoadedEditorLineCount = 0;
+  mActiveEditorLineCount = 0;
 }
 
 void BlameEditor::find() {

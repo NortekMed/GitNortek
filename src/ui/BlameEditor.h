@@ -93,6 +93,8 @@ private:
   QString mActiveBlameCacheKey;
   int mLoadedBlameMinLine{0};
   int mLoadedBlameMaxLine{0};
+  int mLoadedEditorLineCount{0};
+  int mActiveEditorLineCount{0};
   int mActiveBlameMinLine{0};
   int mActiveBlameMaxLine{0};
 };
