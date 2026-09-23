@@ -1036,6 +1036,12 @@ void TestTreeView::externalRefreshKeepsEditorContent() {
   QVERIFY(QMetaObject::invokeMethod(unstagedFiles, "fileSelectionRequested"));
   QTRY_VERIFY(repoView->isFileInspectionVisible());
 
+  auto *blameButton = doubleTree->mBlameButton;
+  QVERIFY(blameButton);
+  blameButton->click();
+  QTRY_VERIFY(blameButton->isChecked());
+  QTRY_VERIFY(doubleTree->mDiffBlameEditor->isVisible());
+
   FileWidget *visibleFile = nullptr;
   QTRY_VERIFY((visibleFile = diffView->widget()->findChild<FileWidget *>()));
   QVERIFY(!visibleFile->editors().isEmpty());
@@ -1066,6 +1072,10 @@ void TestTreeView::externalRefreshKeepsEditorContent() {
   QCOMPARE(visibleFile->name(), QString("file.txt"));
   QVERIFY(!visibleFile->editors().isEmpty());
   QVERIFY(visibleFile->editors().first()->length() > 0);
+  QTRY_VERIFY(doubleTree->mDiffBlameEditor->isVisible());
+  QTRY_VERIFY(
+      doubleTree->mDiffBlameEditor->findChild<BlameMargin *>()->isVisible());
+  QVERIFY(blameButton->isChecked());
   QTRY_VERIFY([visibleFile] {
     const QList<TextEditor *> editors = visibleFile->editors();
     return std::any_of(

@@ -743,6 +743,10 @@ void DoubleTreeWidget::setDiff(const git::Diff &diff, const QString &file,
   // Remember selection.
   storeSelection();
 
+  const bool preserveDiffBlame =
+      mBlameButton->isChecked() && mFileView->currentIndex() == Diff &&
+      repoView->isFileInspectionVisible() && !mFileInspectionClosed;
+
   // Reset model.
   // because of this, the content in the view is shown.
   TreeProxy *proxy = static_cast<TreeProxy *>(unstagedFiles->model());
@@ -816,8 +820,10 @@ void DoubleTreeWidget::setDiff(const git::Diff &diff, const QString &file,
 
   // Clear editors.
   mEditor->clear();
-  mDiffBlameEditor->clear();
-  mDiffBlameEditor->setVisible(false);
+  if (!preserveDiffBlame) {
+    mDiffBlameEditor->clear();
+    mDiffBlameEditor->setVisible(false);
+  }
 
   mDiffView->setDiff(diff);
 
@@ -854,6 +860,11 @@ void DoubleTreeWidget::setWorkingTreeStatus(
   mStatusSnapshotMode = status.isValid();
 
   storeSelection();
+
+  const bool preserveDiffBlame =
+      mBlameButton->isChecked() && mFileView->currentIndex() == Diff &&
+      RepoView::parentView(this)->isFileInspectionVisible() &&
+      !mFileInspectionClosed;
 
   TreeProxy *proxy = static_cast<TreeProxy *>(unstagedFiles->model());
   DiffTreeModel *model = static_cast<DiffTreeModel *>(proxy->sourceModel());
@@ -901,8 +912,10 @@ void DoubleTreeWidget::setWorkingTreeStatus(
   const bool inspectionVisible =
       RepoView::parentView(this)->isFileInspectionVisible();
   mEditor->clear();
-  mDiffBlameEditor->clear();
-  mDiffBlameEditor->setVisible(false);
+  if (!preserveDiffBlame) {
+    mDiffBlameEditor->clear();
+    mDiffBlameEditor->setVisible(false);
+  }
   if (!inspectionVisible)
     mDiffView->setDiff(git::Diff());
 
