@@ -449,6 +449,14 @@ void TestTreeView::committedFileInspection() {
           diffBlameMargin->minimumSizeHint().width() * 3);
   QVERIFY(diffBlameMargin->height() > 0);
   QTRY_COMPARE(diffBlameEditor->name(), selectedFile);
+
+  const git::Commit externalCommit = repo.commit("External blame refresh");
+  QVERIFY(externalCommit.isValid());
+  QTRY_VERIFY(blameButton->isChecked());
+  QTRY_VERIFY(diffBlameEditor->isVisible());
+  QTRY_VERIFY(diffBlameEditor->revision() != QStringLiteral("Not Tracked"));
+  QTRY_VERIFY(diffBlameMargin->isVisible());
+
   mouseClick(blameButton, Qt::LeftButton);
   QTRY_VERIFY(!diffBlameEditor->isVisible());
   mouseClick(blameButton, Qt::LeftButton);

@@ -37,6 +37,7 @@ public:
   QString name() const;
   QString path() const;
   QString revision() const;
+  bool hasBlameFor(const QString &name, const git::Commit &commit) const;
 
   TextEditor *editor() const;
   QList<TextEditor *> editors() override;
@@ -81,6 +82,7 @@ private:
 
   QString mName;
   QString mRevision;
+  QString mBlameRevisionId;
   git::Commit mBlameCommit;
   bool mBlameVisible{true};
   bool mAnnotationOnly{false};

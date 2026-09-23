@@ -182,6 +182,17 @@ QString BlameEditor::revision() const {
   return !mRevision.isEmpty() ? mRevision : tr("Not Tracked");
 }
 
+bool BlameEditor::hasBlameFor(const QString &name,
+                              const git::Commit &commit) const {
+  if (mName != name || mBlameCommit.isValid() != commit.isValid())
+    return false;
+  if (commit.isValid())
+    return mBlameRevisionId == commit.id().toString();
+
+  const git::Commit head = mRepo.head().target();
+  return head.isValid() && mBlameRevisionId == head.id().toString();
+}
+
 bool BlameEditor::load(const QString &name, const git::Blob &blob,
                        git::Commit commit) {
   // Clear content.
@@ -193,6 +204,10 @@ bool BlameEditor::load(const QString &name, const git::Blob &blob,
   if (mAnnotationOnly) {
     mRevision = commit.isValid() ? commit.shortId() : tr("HEAD");
     mBlameCommit = commit;
+    const git::Commit revision =
+        commit.isValid() ? commit : mRepo.head().target();
+    mBlameRevisionId =
+        revision.isValid() ? revision.id().toString() : QString();
     if (mBlameVisible && mRepo.isValid() && mEditor) {
       mMargin->setVisible(mEditor->length() > 0);
       mPendingBlameCommit = commit;
@@ -234,6 +249,9 @@ bool BlameEditor::load(const QString &name, const git::Blob &blob,
   mEditor->setReadOnly(blob.isValid());
 
   mBlameCommit = commit;
+  const git::Commit revision =
+      commit.isValid() ? commit : mRepo.head().target();
+  mBlameRevisionId = revision.isValid() ? revision.id().toString() : QString();
   mMargin->setVisible(mBlameVisible && mRepo.isValid() && !content.isEmpty());
 
   // Calculate blame.
@@ -442,6 +460,7 @@ void BlameEditor::clear() {
 
   mName = QString();
   mRevision = QString();
+  mBlameRevisionId = QString();
   mBlameCommit = git::Commit();
   mLoadedBlameMinLine = 0;
   mLoadedBlameMaxLine = 0;

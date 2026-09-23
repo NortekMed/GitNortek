@@ -743,9 +743,15 @@ void DoubleTreeWidget::setDiff(const git::Diff &diff, const QString &file,
   // Remember selection.
   storeSelection();
 
-  const bool preserveDiffBlame =
+  const bool keepDiffBlamePanel =
       mBlameButton->isChecked() && mFileView->currentIndex() == Diff &&
       repoView->isFileInspectionVisible() && !mFileInspectionClosed;
+  const QList<git::Commit> commits = repoView->commits();
+  const git::Commit blameCommit =
+      !commits.isEmpty() ? commits.first() : git::Commit();
+  const bool preserveDiffBlame =
+      keepDiffBlamePanel &&
+      mDiffBlameEditor->hasBlameFor(mSelectedFile.filename, blameCommit);
 
   // Reset model.
   // because of this, the content in the view is shown.
@@ -822,7 +828,8 @@ void DoubleTreeWidget::setDiff(const git::Diff &diff, const QString &file,
   mEditor->clear();
   if (!preserveDiffBlame) {
     mDiffBlameEditor->clear();
-    mDiffBlameEditor->setVisible(false);
+    if (!keepDiffBlamePanel)
+      mDiffBlameEditor->setVisible(false);
   }
 
   mDiffView->setDiff(diff);
@@ -919,8 +926,8 @@ void DoubleTreeWidget::setWorkingTreeStatus(
   if (!inspectionVisible)
     mDiffView->setDiff(git::Diff());
 
-  if (status.isDirty() && !mFileInspectionClosed && loadSelection() &&
-      inspectionVisible &&
+  if ((status.isDirty() || preserveDiffBlame) && !mFileInspectionClosed &&
+      loadSelection() && inspectionVisible &&
       (mFileView->currentIndex() == File || mBlameButton->isChecked()))
     scheduleEditorContentLoad();
 
