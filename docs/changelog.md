@@ -6,6 +6,8 @@ Bug Fix and Feature release
 
 * Improve file inspection layout with blame beside the editor and automatic repository sidebar handling
 
+* Keep Diff View blame annotations visible and aligned while scrolling and rebuilding diff presentations
+
 * Calculate branch tracking status asynchronously so large repositories remain responsive
 * Distinguish local tags from tags advertised by origin and offer guarded tag pushes only when their target commit is available on origin
 * Show a loading indicator while repository data is loading

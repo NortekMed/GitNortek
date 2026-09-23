@@ -438,7 +438,16 @@ void TestTreeView::committedFileInspection() {
   QVERIFY(blameEditor->isBlameVisible());
   mouseClick(diffButton, Qt::LeftButton);
   QTRY_COMPARE(doubleTree->mFileView->currentWidget(), diffView);
+  QVERIFY(!blameButton->isChecked());
+  mouseClick(blameButton, Qt::LeftButton);
+  QTRY_VERIFY(blameButton->isChecked());
   QTRY_VERIFY(diffBlameEditor->isVisible());
+  auto *diffBlameMargin = diffBlameEditor->findChild<BlameMargin *>();
+  QVERIFY(diffBlameMargin);
+  QTRY_VERIFY(diffBlameMargin->isVisible());
+  QVERIFY(diffBlameEditor->width() >=
+          diffBlameMargin->minimumSizeHint().width() * 3);
+  QVERIFY(diffBlameMargin->height() > 0);
   QTRY_COMPARE(diffBlameEditor->name(), selectedFile);
   mouseClick(blameButton, Qt::LeftButton);
   QTRY_VERIFY(!diffBlameEditor->isVisible());
@@ -474,12 +483,15 @@ void TestTreeView::committedFileInspection() {
   verifySelection();
   QVERIFY(!diffView->editors().isEmpty());
   QCOMPARE(fileForEditor(diffView->editors().first()), fileWidget);
+  QTRY_VERIFY(diffBlameEditor->editor());
+  QTRY_VERIFY(diffBlameEditor->isVisible());
   mouseClick(splitMode, Qt::LeftButton);
   QCOMPARE(Settings::instance()->diffMode(), Settings::DiffMode::Split);
   verifySelection();
   QCOMPARE(diffView->editors().size(), 2);
   QCOMPARE(fileForEditor(diffView->editors().first()), fileWidget);
   QTRY_VERIFY(hasVisiblePresentation("SplitFileDiff"));
+  QTRY_VERIFY(diffBlameEditor->editor());
   mouseClick(inlineMode, Qt::LeftButton);
   QCOMPARE(Settings::instance()->diffMode(), Settings::DiffMode::Inline);
   verifySelection();

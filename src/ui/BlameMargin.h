@@ -49,6 +49,7 @@ protected:
 
 private:
   void updateBlame();
+  int editorTop() const;
 
   int index(int y) const;
   QString name(int index) const;

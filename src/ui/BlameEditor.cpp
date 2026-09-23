@@ -21,9 +21,11 @@
 #include "git/Index.h"
 #include "git/Repository.h"
 #include <QCloseEvent>
+#include <QAbstractScrollArea>
 #include <QFile>
 #include <QFileDialog>
 #include <QSaveFile>
+#include <QScrollBar>
 #include <QShortcut>
 #include <QSplitter>
 #include <QTextStream>
@@ -58,6 +60,9 @@ BlameEditor::BlameEditor(const git::Repository &repo, QWidget *parent,
     connect(mEditor, &TextEditor::settingsChanged, this,
             &BlameEditor::adjustLineMarginWidth);
     connect(mEditor, &TextEditor::onVisible, this, &BlameEditor::startBlame);
+    if (QScrollBar *scrollBar = mEditor->verticalScrollBar())
+      connect(scrollBar, &QScrollBar::valueChanged, this,
+              &BlameEditor::editorScrolled);
   }
 
   // Create blame margin.
@@ -98,6 +103,8 @@ BlameEditor::BlameEditor(const git::Repository &repo, QWidget *parent,
     const int width = mMargin->minimumSizeHint().width() * 3;
     mMargin->setMinimumWidth(width);
     mMargin->setMaximumWidth(width);
+    setMinimumWidth(width);
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
   }
   connect(&mBlame, &QFutureWatcher<git::Blame>::finished, this,
           &BlameEditor::blameFinished);
@@ -113,6 +120,7 @@ void BlameEditor::setEditor(TextEditor *editor) {
   mMargin->setEditor(editor);
   if (!mEditor)
     return;
+  updateAnnotationGeometry();
   connect(mEditor, &TextEditor::linesAdded, this,
           &BlameEditor::adjustLineMarginWidth, Qt::UniqueConnection);
   connect(mEditor, &TextEditor::linesAdded, this,
@@ -121,6 +129,30 @@ void BlameEditor::setEditor(TextEditor *editor) {
           &BlameEditor::adjustLineMarginWidth, Qt::UniqueConnection);
   connect(mEditor, &TextEditor::onVisible, this, &BlameEditor::startBlame,
           Qt::UniqueConnection);
+  if (QScrollBar *scrollBar = mEditor->verticalScrollBar())
+    connect(scrollBar, &QScrollBar::valueChanged, this,
+            &BlameEditor::editorScrolled, Qt::UniqueConnection);
+  QWidget *parent = mEditor->parentWidget();
+  while (parent && !qobject_cast<QAbstractScrollArea *>(parent))
+    parent = parent->parentWidget();
+  if (auto *scrollArea = qobject_cast<QAbstractScrollArea *>(parent))
+    connect(scrollArea->verticalScrollBar(), &QScrollBar::valueChanged, this,
+            &BlameEditor::updateAnnotationGeometry, Qt::UniqueConnection);
+}
+
+void BlameEditor::resizeEvent(QResizeEvent *event) {
+  QWidget::resizeEvent(event);
+  if (mAnnotationOnly)
+    updateAnnotationGeometry();
+}
+
+void BlameEditor::updateAnnotationGeometry() {
+  if (!mAnnotationOnly || !mEditor)
+    return;
+
+  // The margin is laid out as a normal panel.  Repaint it when the selected
+  // diff editor moves inside its scroll area.
+  mMargin->update();
 }
 
 TextEditor *BlameEditor::editor() const { return mEditor.data(); }
@@ -158,10 +190,8 @@ bool BlameEditor::load(const QString &name, const git::Blob &blob,
     mBlameCommit = commit;
     if (mBlameVisible && mRepo.isValid() && mEditor) {
       mMargin->setVisible(mEditor->length() > 0);
-      mMargin->startBlame(name);
       mPendingBlameCommit = commit;
-      if (mEditor->length() > 0)
-        startBlame();
+      requestVisibleBlame();
     }
     return true;
   }
@@ -203,9 +233,8 @@ bool BlameEditor::load(const QString &name, const git::Blob &blob,
 
   // Calculate blame.
   if (mBlameVisible && mRepo.isValid() && !content.isEmpty()) {
-    mMargin->startBlame(name);
     mPendingBlameCommit = commit;
-    startBlame();
+    requestVisibleBlame();
   }
 
   return true;
@@ -236,13 +265,31 @@ void BlameEditor::startBlame() {
   if (mPendingBlameCommit.has_value()) {
     const git::Commit commit = mPendingBlameCommit.value();
     const QString name = mName;
-    const QString cacheKey =
-        commit.isValid() ? name + QStringLiteral("\n") + commit.id().toString()
-                         : QString();
-    if (!cacheKey.isEmpty() && mBlameCache.contains(cacheKey)) {
-      mMargin->setBlame(mRepo, mBlameCache.value(cacheKey));
+    const int firstLine = qMax(1, mEditor->firstVisibleLine() + 1 - 200);
+    const int lastLine =
+        qMin(static_cast<int>(mEditor->lineCount()),
+             mEditor->firstVisibleLine() + mEditor->linesOnScreen() + 200);
+    if (firstLine <= mLoadedBlameMinLine && lastLine >= mLoadedBlameMaxLine &&
+        mLoadedBlameMinLine > 0) {
       mPendingBlameCommit = std::nullopt;
       return;
+    }
+    const QString cacheKey =
+        commit.isValid()
+            ? name + QStringLiteral("\n") + commit.id().toString() +
+                  QStringLiteral("\n%1-%2").arg(firstLine).arg(lastLine)
+            : QString();
+    if (!cacheKey.isEmpty() && mBlameCache.contains(cacheKey)) {
+      mMargin->setBlame(mRepo, mBlameCache.value(cacheKey));
+      mLoadedBlameMinLine = firstLine;
+      mLoadedBlameMaxLine = lastLine;
+      mPendingBlameCommit = std::nullopt;
+      return;
+    }
+
+    if (mActiveBlameGeneration != 0) {
+      cancelBlame();
+      mPendingBlameCommit = commit;
     }
 
     mCallbacks = QSharedPointer<BlameCallbacks>::create();
@@ -251,11 +298,31 @@ void BlameEditor::startBlame() {
     const int generation = ++mBlameGeneration;
     mActiveBlameGeneration = generation;
     mActiveBlameCacheKey = cacheKey;
-    mBlame.setFuture(QtConcurrent::run([repo, name, commit, callbacks] {
-      return repo.blame(name, commit, callbacks.data());
+    mActiveBlameMinLine = firstLine;
+    mActiveBlameMaxLine = lastLine;
+    mBlame.setFuture(QtConcurrent::run([repo, name, commit, callbacks,
+                                        firstLine, lastLine] {
+      return repo.blame(name, commit, callbacks.data(), firstLine, lastLine);
     }));
     mPendingBlameCommit = std::nullopt;
   }
+}
+
+void BlameEditor::requestVisibleBlame() {
+  if (!mBlameVisible || !mRepo.isValid() || !mEditor ||
+      mEditor->length() == 0 || mName.isEmpty())
+    return;
+
+  mMargin->setVisible(true);
+  mMargin->startBlame(mName);
+  startBlame();
+}
+
+void BlameEditor::editorScrolled() {
+  if (!mBlameVisible || mName.isEmpty())
+    return;
+  mPendingBlameCommit = mBlameCommit;
+  requestVisibleBlame();
 }
 
 void BlameEditor::blameFinished() {
@@ -264,8 +331,13 @@ void BlameEditor::blameFinished() {
 
   QFuture<git::Blame> future = mBlame.future();
   mActiveBlameGeneration = 0;
-  if (future.resultCount() == 0)
+  mLoadedBlameMinLine = mActiveBlameMinLine;
+  mLoadedBlameMaxLine = mActiveBlameMaxLine;
+  if (future.resultCount() == 0) {
+    mMargin->clear();
+    mMargin->setVisible(false);
     return;
+  }
 
   git::Blame blame = future.result();
   if (!mActiveBlameCacheKey.isEmpty()) {
@@ -284,7 +356,7 @@ void BlameEditor::editorLinesAdded() {
     return;
 
   mMargin->setVisible(true);
-  startBlame();
+  requestVisibleBlame();
 }
 
 void BlameEditor::cancelBlame() {
@@ -349,6 +421,8 @@ void BlameEditor::clear() {
   mName = QString();
   mRevision = QString();
   mBlameCommit = git::Commit();
+  mLoadedBlameMinLine = 0;
+  mLoadedBlameMaxLine = 0;
 }
 
 void BlameEditor::find() {

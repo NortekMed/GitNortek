@@ -225,7 +225,8 @@ public:
 
   // blame
   Blame blame(const QString &name, const Commit &from,
-              Blame::Callbacks *callbacks = nullptr) const;
+              Blame::Callbacks *callbacks = nullptr, size_t minLine = 0,
+              size_t maxLine = 0) const;
 
   // filter
   FilterList filters(const QString &path, const Blob &blob = Blob()) const;

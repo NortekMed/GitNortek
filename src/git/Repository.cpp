@@ -1292,11 +1292,16 @@ bool Repository::popStash(int index) {
 }
 
 Blame Repository::blame(const QString &name, const Commit &from,
-                        Blame::Callbacks *callbacks) const {
+                        Blame::Callbacks *callbacks, size_t minLine,
+                        size_t maxLine) const {
   git_blame *blame = nullptr;
   git_blame_options options = GIT_BLAME_OPTIONS_INIT;
   if (from.isValid()) // Set start commit.
     options.newest_commit = *git_commit_id(from);
+  if (minLine > 0)
+    options.min_line = minLine;
+  if (maxLine > 0)
+    options.max_line = maxLine;
 #ifndef USE_SYSTEM_LIBGIT2
   if (callbacks) {
     options.progress_cb = blame_progress;

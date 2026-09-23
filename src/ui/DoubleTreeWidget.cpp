@@ -186,6 +186,9 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
       diffModes->buttonGroup(), &QButtonGroup::idClicked, this, [this](int id) {
         Settings::instance()->setDiffMode(static_cast<Settings::DiffMode>(id));
         mDiffView->rebuildPresentations();
+        if (mBlameButton->isChecked() &&
+            RepoView::parentView(this)->isFileInspectionVisible())
+          scheduleEditorContentLoad();
       });
 
   QToolButton *ignoreWhitespace = new QToolButton(this);
@@ -198,6 +201,9 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   connect(ignoreWhitespace, &QToolButton::toggled, this, [this](bool checked) {
     Settings::instance()->setEdgeWhitespaceIgnored(checked);
     mDiffView->rebuildPresentations();
+    if (mBlameButton->isChecked() &&
+        RepoView::parentView(this)->isFileInspectionVisible())
+      scheduleEditorContentLoad();
   });
 
   QToolButton *wordWrap = new QToolButton(this);
@@ -477,12 +483,13 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
             mDiffButton->setChecked(id == Diff);
             diffModes->setEnabled(id == Diff && mDiffButton->isEnabled());
             mDiffView->enable(id == Diff);
+            if (mBlameButton->isChecked())
+              mBlameButton->setChecked(false);
             mDiffBlameEditor->setVisible(id == Diff &&
                                          mBlameButton->isChecked() &&
                                          mBlameButton->isEnabled());
 
-            if (id == File)
-              mEditor->setBlameVisible(mBlameButton->isChecked());
+            mEditor->setBlameVisible(false);
 
             stagedFiles->setSelectionMode(
                 id == File ? QAbstractItemView::SingleSelection

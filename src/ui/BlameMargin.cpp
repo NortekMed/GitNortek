@@ -91,6 +91,7 @@ void BlameMargin::setBlame(const git::Repository &repo,
 }
 
 void BlameMargin::clear() {
+  mTimer.stop();
   mName = QString();
   mBlame = git::Blame();
   mSource = git::Blame();
@@ -220,6 +221,7 @@ void BlameMargin::paintEvent(QPaintEvent *event) {
   int lc = mEditor->lineCount() + 1;
   int first = mEditor->firstVisibleLine() + 1;
   int last = first + mEditor->linesOnScreen();
+  const int top = editorTop();
 
   int count = mBlame.count();
   int index = mBlame.index(first);
@@ -255,7 +257,7 @@ void BlameMargin::paintEvent(QPaintEvent *event) {
 
     // Calculate outer rectangle.
     int next = (index + 1 < count) ? mBlame.line(index + 1) : lc;
-    QRectF rect(0, (line - first) * lh, width() - 1, (next - line) * lh);
+    QRectF rect(0, top + (line - first) * lh, width() - 1, (next - line) * lh);
 
     // Get short date.
     QString date;
@@ -398,8 +400,20 @@ void BlameMargin::updateBlame() {
 int BlameMargin::index(int y) const {
   if (!mEditor)
     return -1;
-  int line = mEditor->firstVisibleLine() + (y / mEditor->textHeight(0));
+  const int top = editorTop();
+  if (y < top || y >= top + mEditor->height())
+    return -1;
+  const int lineHeight = mEditor->textHeight(0);
+  if (lineHeight <= 0)
+    return -1;
+  int line = mEditor->firstVisibleLine() + ((y - top) / lineHeight);
   return (line < mEditor->lineCount()) ? mBlame.index(line + 1) : -1;
+}
+
+int BlameMargin::editorTop() const {
+  if (!mEditor)
+    return 0;
+  return mapFromGlobal(mEditor->mapToGlobal(QPoint())).y();
 }
 
 QString BlameMargin::name(int index) const {

@@ -61,10 +61,16 @@ signals:
   void saved();
   void linkActivated(const QString &link);
 
+protected:
+  void resizeEvent(QResizeEvent *event) override;
+
 private:
   void adjustLineMarginWidth();
   void editorLinesAdded();
+  void editorScrolled();
   void blameFinished();
+  void requestVisibleBlame();
+  void updateAnnotationGeometry();
 
   git::Repository mRepo;
 
@@ -85,6 +91,10 @@ private:
   int mBlameGeneration{0};
   int mActiveBlameGeneration{0};
   QString mActiveBlameCacheKey;
+  int mLoadedBlameMinLine{0};
+  int mLoadedBlameMaxLine{0};
+  int mActiveBlameMinLine{0};
+  int mActiveBlameMaxLine{0};
 };
 
 #endif
