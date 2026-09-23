@@ -31,7 +31,7 @@ public:
   BlameEditor(const git::Repository &repo = git::Repository(),
               QWidget *parent = nullptr, bool annotationOnly = false);
 
-  void setEditor(TextEditor *editor);
+  void setEditor(TextEditor *editor, bool preserveBlame = false);
   bool isAnnotationOnly() const { return mAnnotationOnly; }
 
   QString name() const;

@@ -110,12 +110,14 @@ BlameEditor::BlameEditor(const git::Repository &repo, QWidget *parent,
           &BlameEditor::blameFinished);
 }
 
-void BlameEditor::setEditor(TextEditor *editor) {
+void BlameEditor::setEditor(TextEditor *editor, bool preserveBlame) {
   if (!mAnnotationOnly || mEditor == editor)
     return;
-  cancelBlame();
-  mMargin->clear();
-  mMargin->setVisible(false);
+  if (!preserveBlame) {
+    cancelBlame();
+    mMargin->clear();
+    mMargin->setVisible(false);
+  }
   mEditor = editor;
   mMargin->setEditor(editor);
   if (!mEditor)
@@ -138,6 +140,8 @@ void BlameEditor::setEditor(TextEditor *editor) {
   if (auto *scrollArea = qobject_cast<QAbstractScrollArea *>(parent))
     connect(scrollArea->verticalScrollBar(), &QScrollBar::valueChanged, this,
             &BlameEditor::updateAnnotationGeometry, Qt::UniqueConnection);
+  if (preserveBlame && mBlameVisible && !mName.isEmpty())
+    mMargin->setVisible(true);
 }
 
 void BlameEditor::resizeEvent(QResizeEvent *event) {

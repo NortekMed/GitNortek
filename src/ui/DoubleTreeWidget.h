@@ -79,6 +79,7 @@ private:
   void filesSelected(const QModelIndexList &indexes);
   void openFileInspection();
   void scheduleEditorContentLoad();
+  void refreshDiffBlameEditor();
   void loadEditorContent(const QModelIndexList &indexes);
   void updateStageAllChangesButton();
   void promptToDiscardAllChanges();
