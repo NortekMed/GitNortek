@@ -895,29 +895,34 @@ void CompleteFileDiffWidget::loadEditor(Editor *editor, bool oldSide,
   editor->setUpdatesEnabled(false);
   QStringList content;
   QList<QList<Target>> editorTargets;
+  QVector<int> blameLines;
   content.reserve(rows.size());
   for (const Row &row : rows) {
     if (mMode == Settings::DiffMode::Inline) {
       if (row.deletion) {
         content.append(row.oldText);
         editorTargets.append({row.oldTarget});
+        blameLines.append(-1);
       }
       if (row.addition || !row.deletion) {
         content.append(row.newText);
         editorTargets.append(row.addition ? QList<Target>{row.newTarget}
                                           : QList<Target>());
+        blameLines.append(row.newLine);
       }
     } else {
       content.append(oldSide ? row.oldText : row.newText);
       const Target target = oldSide ? row.oldTarget : row.newTarget;
       editorTargets.append(target.first >= 0 ? QList<Target>{target}
                                              : QList<Target>());
+      blameLines.append(oldSide ? row.oldLine : row.newLine);
     }
   }
   mEditorTargets.insert(editor, editorTargets);
 
   editor->setReadOnly(false);
   editor->setText(content.join('\n'));
+  editor->setBlameLineMapping(blameLines);
   editor->markerDeleteAll(-1);
 
   int editorLine = 0;

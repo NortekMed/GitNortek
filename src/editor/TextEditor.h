@@ -18,6 +18,7 @@
 #include <SciLexer.h>
 #include "ScintillaIFace.h"
 #include <Platform.h>
+#include <QVector>
 
 class TextEditor : public Scintilla::ScintillaIFace {
   Q_OBJECT
@@ -92,6 +93,17 @@ public:
   QString lexer() const;
 
   void setLineCount(int lines);
+  void setBlameLineMapping(const QVector<int> &mapping) {
+    mBlameLineMapping = mapping;
+  }
+  bool hasBlameLineMapping() const { return !mBlameLineMapping.isEmpty(); }
+  int blameLine(int line) const {
+    if (mBlameLineMapping.isEmpty())
+      return line + 1;
+    return line >= 0 && line < mBlameLineMapping.size()
+               ? mBlameLineMapping.at(line)
+               : -1;
+  }
   void setLexer(const QString &path);
   void load(const QString &path, const QString &text);
   /*!
@@ -172,6 +184,7 @@ private:
 
   QString mPath;
   int mLineCount = -1;
+  QVector<int> mBlameLineMapping;
   /*!
    * statusDiff Flag which determines if in the contextmenu stage actions are
    * shown or not Because when checking out commits, it should not possible to

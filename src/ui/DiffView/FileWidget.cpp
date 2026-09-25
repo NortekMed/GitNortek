@@ -608,8 +608,10 @@ void FileWidget::updateHunks(git::Patch stagedPatch) {
   mStaged = stagedPatch;
   for (auto hunk : mHunks)
     hunk->load(stagedPatch, true);
-  if (mCompleteDiff)
+  if (mCompleteDiff) {
     mCompleteDiff->reload();
+    emit presentationChanged();
+  }
 }
 
 bool FileWidget::isEmpty() {
@@ -789,6 +791,7 @@ void FileWidget::rebuildPresentation(int generation) {
   if (!mPresentation || mPatch.isConflicted() || mPatch.isBinary() ||
       mPatch.isLfsPointer() || mHunks.isEmpty()) {
     updateCompleteFilePresentationState();
+    emit presentationChanged();
     return;
   }
 
@@ -798,6 +801,7 @@ void FileWidget::rebuildPresentation(int generation) {
   if (mode == Settings::DiffMode::Hunk) {
     mPresentation->setCurrentWidget(mHunkPage);
     updateCompleteFilePresentationState();
+    emit presentationChanged();
     return;
   }
 
@@ -822,6 +826,7 @@ void FileWidget::rebuildPresentation(int generation) {
     mCompleteDiffMessage->show();
     mPresentation->setCurrentWidget(mHunkPage);
     updateCompleteFilePresentationState();
+    emit presentationChanged();
     return;
   }
 
@@ -838,6 +843,7 @@ void FileWidget::rebuildPresentation(int generation) {
       mCompleteDiffIgnoresWhitespace == ignoreWhitespace) {
     mPresentation->setCurrentWidget(mCompleteDiff);
     updateCompleteFilePresentationState();
+    emit presentationChanged();
     return;
   }
 
@@ -858,6 +864,7 @@ void FileWidget::rebuildPresentation(int generation) {
   }
 
   updateCompleteFilePresentationState();
+  emit presentationChanged();
 }
 
 void FileWidget::updateCompleteFilePresentationState() {

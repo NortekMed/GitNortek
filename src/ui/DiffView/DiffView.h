@@ -113,6 +113,7 @@ public:
 
 signals:
   void diagnosticAdded(TextEditor::DiagnosticKind kind);
+  void editorsChanged();
   /*!
    * Emitted when in one of the FileWidgets the stageState was changed
    * \brief fileStageStateChanged

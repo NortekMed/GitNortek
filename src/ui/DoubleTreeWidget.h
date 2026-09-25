@@ -91,6 +91,7 @@ private:
   void selectAdjacentConflict(int direction);
   void toggleCollapseStagedFiles();
   void toggleCollapseUnstagedFiles();
+  void scheduleDiffBlameRefresh();
   QAction *setupAppearanceAction(const char *name, Setting::Id id,
                                  bool defaultValue = false);
 
@@ -146,6 +147,7 @@ private:
   bool mIgnoreSelectionChange{false};
   bool mFileInspectionClosed{false};
   bool mConflictAutoOpenEnabled{false};
+  bool mDiffBlameRefreshPending{false};
   int mEditorLoadGeneration{0};
 
   git::Diff mDiff;

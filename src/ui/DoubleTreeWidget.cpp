@@ -186,9 +186,7 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
       diffModes->buttonGroup(), &QButtonGroup::idClicked, this, [this](int id) {
         Settings::instance()->setDiffMode(static_cast<Settings::DiffMode>(id));
         mDiffView->rebuildPresentations();
-        if (mBlameButton->isChecked() &&
-            RepoView::parentView(this)->isFileInspectionVisible())
-          QTimer::singleShot(0, this, [this] { refreshDiffBlameEditor(); });
+        scheduleDiffBlameRefresh();
       });
 
   QToolButton *ignoreWhitespace = new QToolButton(this);
@@ -201,9 +199,7 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   connect(ignoreWhitespace, &QToolButton::toggled, this, [this](bool checked) {
     Settings::instance()->setEdgeWhitespaceIgnored(checked);
     mDiffView->rebuildPresentations();
-    if (mBlameButton->isChecked() &&
-        RepoView::parentView(this)->isFileInspectionVisible())
-      QTimer::singleShot(0, this, [this] { refreshDiffBlameEditor(); });
+    scheduleDiffBlameRefresh();
   });
 
   QToolButton *wordWrap = new QToolButton(this);
@@ -260,6 +256,8 @@ DoubleTreeWidget::DoubleTreeWidget(const git::Repository &repo, QWidget *parent)
   mDiffBlameEditor->setObjectName("DiffBlameEditor");
   mDiffBlameEditor->setBlameVisible(false);
   mDiffBlameEditor->setVisible(false);
+  connect(mDiffView, &DiffView::editorsChanged, this,
+          &DoubleTreeWidget::scheduleDiffBlameRefresh);
   mFileView->addWidget(mEditor);
   mFileView->addWidget(mDiffView);
 
@@ -1516,6 +1514,19 @@ void DoubleTreeWidget::scheduleEditorContentLoad() {
   });
 }
 
+void DoubleTreeWidget::scheduleDiffBlameRefresh() {
+  if (!mBlameButton->isChecked() ||
+      !RepoView::parentView(this)->isFileInspectionVisible() ||
+      mDiffBlameRefreshPending)
+    return;
+
+  mDiffBlameRefreshPending = true;
+  QTimer::singleShot(0, this, [this] {
+    mDiffBlameRefreshPending = false;
+    refreshDiffBlameEditor();
+  });
+}
+
 void DoubleTreeWidget::refreshDiffBlameEditor() {
   if (!mBlameButton->isChecked() || mFileView->currentIndex() != Diff ||
       !mBlameButton->isEnabled())
@@ -1525,13 +1536,14 @@ void DoubleTreeWidget::refreshDiffBlameEditor() {
   if (editors.isEmpty())
     return;
 
-  mDiffBlameEditor->setEditor(editors.first(), true);
+  if (mDiffBlameEditor->editor() == editors.first())
+    mDiffBlameEditor->refreshBlame();
+  else
+    mDiffBlameEditor->setEditor(editors.first(), true);
   mDiffBlameEditor->setVisible(true);
 }
 
 void DoubleTreeWidget::loadEditorContent(const QModelIndexList &indexes) {
-  mDiffBlameEditor->setEditor(nullptr);
-
   QString name;
   int idx = -1;
   bool unresolvedConflict = false;

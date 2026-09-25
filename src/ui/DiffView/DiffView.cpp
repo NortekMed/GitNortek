@@ -555,6 +555,8 @@ void DiffView::fetchMore(int fetchWidgets) {
       FileWidget *file = new FileWidget(this, mDiff, patch, staged, indices[i],
                                         name, path, submodule, content);
       file->setStageState(state);
+      connect(file, &FileWidget::presentationChanged, this,
+              &DiffView::editorsChanged);
       mFileWidgetLayout->addWidget(file);
       addedWidgets += file->hunks().count();
 

@@ -158,6 +158,9 @@ Id Diff::id(int index, File file) const {
 }
 
 int Diff::indexOf(const QString &name) const {
+  if (!isValid())
+    return -1;
+
   int count = this->count();
   for (int i = 0; i < count; ++i) {
     if (name == this->name(i))

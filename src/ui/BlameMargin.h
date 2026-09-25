@@ -33,6 +33,7 @@ public:
   void startBlame(const QString &name);
   void setBlame(const git::Repository &repo, const git::Blame &blame);
   void clear();
+  bool hasBlame() const { return mBlame.isValid(); }
 
   QSize minimumSizeHint() const override;
 

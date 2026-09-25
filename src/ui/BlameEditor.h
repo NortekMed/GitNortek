@@ -48,6 +48,7 @@ public:
   void setBlameVisible(bool visible);
   bool isBlameVisible() const { return mBlameVisible; }
 
+  void refreshBlame();
   void startBlame();
   void cancelBlame();
 
@@ -69,7 +70,7 @@ private:
   void adjustLineMarginWidth();
   void editorLinesAdded();
   void editorScrolled();
-  void blameFinished();
+  void blameFinished(QFutureWatcher<git::Blame> *watcher, int generation);
   void requestVisibleBlame();
   void updateAnnotationGeometry();
 
@@ -88,7 +89,7 @@ private:
   bool mAnnotationOnly{false};
 
   QSharedPointer<git::Blame::Callbacks> mCallbacks;
-  QFutureWatcher<git::Blame> mBlame;
+  QPointer<QFutureWatcher<git::Blame>> mBlameWatcher;
   QHash<QString, git::Blame> mBlameCache;
   int mBlameGeneration{0};
   int mActiveBlameGeneration{0};
@@ -99,6 +100,7 @@ private:
   int mActiveEditorLineCount{0};
   int mActiveBlameMinLine{0};
   int mActiveBlameMaxLine{0};
+  bool mForceBlameReload{false};
 };
 
 #endif

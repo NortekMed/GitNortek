@@ -6,7 +6,13 @@ Bug Fix and Feature release
 
 * Improve file inspection layout with blame beside the editor and automatic repository sidebar handling
 
-* Keep Diff View blame annotations visible and aligned while scrolling and rebuilding diff presentations
+* Keep Diff View blame annotations visible and aligned while scrolling and
+  rebuilding diff presentations, without overlapping the first visible line
+
+* Keep Inline Diff blame annotations synchronized when switching files and
+  asynchronous refreshes
+
+* Avoid a crash while selecting files during an asynchronous diff refresh
 
 * Calculate branch tracking status asynchronously so large repositories remain responsive
 * Distinguish local tags from tags advertised by origin and offer guarded tag pushes only when their target commit is available on origin

@@ -107,18 +107,29 @@ BlameEditor::BlameEditor(const git::Repository &repo, QWidget *parent,
     setMinimumWidth(width);
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
   }
-  connect(&mBlame, &QFutureWatcher<git::Blame>::finished, this,
-          &BlameEditor::blameFinished);
 }
 
 void BlameEditor::setEditor(TextEditor *editor, bool preserveBlame) {
-  if (!mAnnotationOnly || mEditor == editor)
+  if (!mAnnotationOnly)
     return;
-  if (!preserveBlame) {
-    cancelBlame();
+  if (mEditor == editor) {
+    if (preserveBlame)
+      refreshBlame();
+    return;
+  }
+
+  const bool keepBlame =
+      preserveBlame && mBlameVisible && !mName.isEmpty() && mMargin->hasBlame();
+  cancelBlame();
+  if (!keepBlame) {
     mMargin->clear();
     mMargin->setVisible(false);
   }
+  mLoadedBlameMinLine = 0;
+  mLoadedBlameMaxLine = 0;
+  mLoadedEditorLineCount = 0;
+  mActiveEditorLineCount = 0;
+
   mEditor = editor;
   mMargin->setEditor(editor);
   if (!mEditor)
@@ -141,8 +152,13 @@ void BlameEditor::setEditor(TextEditor *editor, bool preserveBlame) {
   if (auto *scrollArea = qobject_cast<QAbstractScrollArea *>(parent))
     connect(scrollArea->verticalScrollBar(), &QScrollBar::valueChanged, this,
             &BlameEditor::updateAnnotationGeometry, Qt::UniqueConnection);
-  if (preserveBlame && mBlameVisible && !mName.isEmpty())
+
+  if (preserveBlame && mBlameVisible && !mName.isEmpty() &&
+      mEditor->length() > 0) {
     mMargin->setVisible(true);
+    mPendingBlameCommit = mBlameCommit;
+    requestVisibleBlame();
+  }
 }
 
 void BlameEditor::resizeEvent(QResizeEvent *event) {
@@ -195,8 +211,18 @@ bool BlameEditor::hasBlameFor(const QString &name,
 
 bool BlameEditor::load(const QString &name, const git::Blob &blob,
                        git::Commit commit) {
-  // Clear content.
-  clear();
+  const bool preserveBlame = mAnnotationOnly && mEditor &&
+                             mMargin->hasBlame() && hasBlameFor(name, commit);
+  if (preserveBlame) {
+    mLoadedBlameMinLine = 0;
+    mLoadedBlameMaxLine = 0;
+    mLoadedEditorLineCount = 0;
+    mActiveEditorLineCount = 0;
+    mForceBlameReload = true;
+  } else {
+    // Clear content.
+    clear();
+  }
 
   // Remember name.
   mName = name;
@@ -272,6 +298,10 @@ void BlameEditor::setBlameVisible(bool visible) {
     cancelBlame();
     mMargin->clear();
     mMargin->setVisible(false);
+    mLoadedBlameMinLine = 0;
+    mLoadedBlameMaxLine = 0;
+    mLoadedEditorLineCount = 0;
+    mActiveEditorLineCount = 0;
     return;
   }
 
@@ -284,16 +314,45 @@ void BlameEditor::setBlameVisible(bool visible) {
   startBlame();
 }
 
+void BlameEditor::refreshBlame() {
+  if (!mAnnotationOnly || !mBlameVisible || !mEditor ||
+      mEditor->length() == 0 || mName.isEmpty())
+    return;
+
+  mForceBlameReload = true;
+  mPendingBlameCommit = mBlameCommit;
+  requestVisibleBlame();
+}
+
 void BlameEditor::startBlame() {
   if (mPendingBlameCommit.has_value()) {
     const git::Commit commit = mPendingBlameCommit.value();
     const QString name = mName;
-    const int firstLine = qMax(1, mEditor->firstVisibleLine() + 1 - 200);
-    const int lastLine =
-        qMin(static_cast<int>(mEditor->lineCount()),
+    const int firstDisplayLine = qMax(0, mEditor->firstVisibleLine() - 200);
+    const int lastDisplayLine =
+        qMin(mEditor->lineCount(),
              mEditor->firstVisibleLine() + mEditor->linesOnScreen() + 200);
+    int firstLine = mEditor->lineCount() + 1;
+    int lastLine = 0;
+    for (int displayLine = firstDisplayLine; displayLine < lastDisplayLine;
+         ++displayLine) {
+      const int blameLine = mEditor->blameLine(displayLine);
+      if (blameLine <= 0)
+        continue;
+      firstLine = qMin(firstLine, blameLine);
+      lastLine = qMax(lastLine, blameLine);
+    }
+    if (lastLine == 0) {
+      mPendingBlameCommit = std::nullopt;
+      mForceBlameReload = false;
+      return;
+    }
+    if (mActiveBlameGeneration != 0)
+      return;
+
+    const bool forceReload = mForceBlameReload;
     if (firstLine <= mLoadedBlameMinLine && lastLine >= mLoadedBlameMaxLine &&
-        mLoadedBlameMinLine > 0) {
+        mLoadedBlameMinLine > 0 && !forceReload) {
       mPendingBlameCommit = std::nullopt;
       return;
     }
@@ -308,12 +367,8 @@ void BlameEditor::startBlame() {
       mLoadedBlameMaxLine = lastLine;
       mLoadedEditorLineCount = mEditor->lineCount();
       mPendingBlameCommit = std::nullopt;
+      mForceBlameReload = false;
       return;
-    }
-
-    if (mActiveBlameGeneration != 0) {
-      cancelBlame();
-      mPendingBlameCommit = commit;
     }
 
     mCallbacks = QSharedPointer<BlameCallbacks>::create();
@@ -325,11 +380,19 @@ void BlameEditor::startBlame() {
     mActiveBlameMinLine = firstLine;
     mActiveBlameMaxLine = lastLine;
     mActiveEditorLineCount = mEditor->lineCount();
-    mBlame.setFuture(QtConcurrent::run([repo, name, commit, callbacks,
-                                        firstLine, lastLine] {
+    // Keep the watcher tied to this request. Reusing one watcher can deliver a
+    // queued finished signal for a canceled request after a new future is set.
+    auto *watcher = new QFutureWatcher<git::Blame>(this);
+    mBlameWatcher = watcher;
+    connect(
+        watcher, &QFutureWatcher<git::Blame>::finished, this,
+        [this, watcher, generation] { blameFinished(watcher, generation); });
+    mPendingBlameCommit = std::nullopt;
+    mForceBlameReload = false;
+    watcher->setFuture(QtConcurrent::run([repo, name, commit, callbacks,
+                                          firstLine, lastLine] {
       return repo.blame(name, commit, callbacks.data(), firstLine, lastLine);
     }));
-    mPendingBlameCommit = std::nullopt;
   }
 }
 
@@ -350,24 +413,43 @@ void BlameEditor::editorScrolled() {
   requestVisibleBlame();
 }
 
-void BlameEditor::blameFinished() {
-  if (mActiveBlameGeneration == 0 || mActiveBlameGeneration != mBlameGeneration)
+void BlameEditor::blameFinished(QFutureWatcher<git::Blame> *watcher,
+                                int generation) {
+  if (mBlameWatcher != watcher || mActiveBlameGeneration != generation ||
+      generation != mBlameGeneration)
     return;
 
-  QFuture<git::Blame> future = mBlame.future();
+  QFuture<git::Blame> future = watcher->future();
+  mBlameWatcher = nullptr;
+  watcher->deleteLater();
   mActiveBlameGeneration = 0;
+  const bool requestPending = mPendingBlameCommit.has_value();
   const bool editorGrew =
       mEditor && mEditor->lineCount() > mActiveEditorLineCount;
-  mLoadedBlameMinLine = mActiveBlameMinLine;
-  mLoadedBlameMaxLine = mActiveBlameMaxLine;
-  mLoadedEditorLineCount = mEditor ? mEditor->lineCount() : 0;
   if (future.resultCount() == 0) {
-    mMargin->clear();
-    mMargin->setVisible(false);
+    if (!mMargin->hasBlame()) {
+      mMargin->clear();
+      mMargin->setVisible(false);
+    }
+    if (requestPending)
+      QTimer::singleShot(0, this, [this] { requestVisibleBlame(); });
     return;
   }
 
   git::Blame blame = future.result();
+  if (!blame.isValid()) {
+    if (!mMargin->hasBlame()) {
+      mMargin->clear();
+      mMargin->setVisible(false);
+    }
+    if (requestPending)
+      QTimer::singleShot(0, this, [this] { requestVisibleBlame(); });
+    return;
+  }
+
+  mLoadedBlameMinLine = mActiveBlameMinLine;
+  mLoadedBlameMaxLine = mActiveBlameMaxLine;
+  mLoadedEditorLineCount = mEditor ? mEditor->lineCount() : 0;
   if (!mActiveBlameCacheKey.isEmpty()) {
     if (mBlameCache.size() >= 32)
       mBlameCache.erase(mBlameCache.begin());
@@ -376,7 +458,9 @@ void BlameEditor::blameFinished() {
   mMargin->setBlame(mRepo, blame);
   mMargin->setVisible(mBlameVisible && blame.isValid());
 
-  if (editorGrew && mBlameVisible && mEditor && !mName.isEmpty()) {
+  if (requestPending) {
+    QTimer::singleShot(0, this, [this] { requestVisibleBlame(); });
+  } else if (editorGrew && mBlameVisible && mEditor && !mName.isEmpty()) {
     QTimer::singleShot(0, this, [this] {
       if (!mBlameVisible || !mEditor || mName.isEmpty() ||
           mActiveBlameGeneration != 0)
@@ -390,7 +474,6 @@ void BlameEditor::blameFinished() {
 void BlameEditor::editorLinesAdded() {
   if (!mAnnotationOnly || !mBlameVisible || !mEditor ||
       mEditor->length() == 0 || mName.isEmpty() ||
-      mActiveBlameGeneration != 0 ||
       mEditor->lineCount() <= mLoadedEditorLineCount)
     return;
 
@@ -402,10 +485,16 @@ void BlameEditor::editorLinesAdded() {
 void BlameEditor::cancelBlame() {
   ++mBlameGeneration;
   mActiveBlameGeneration = 0;
+  mForceBlameReload = false;
   mActiveBlameCacheKey.clear();
   if (mCallbacks)
     static_cast<BlameCallbacks *>(mCallbacks.data())->setCanceled(true);
-  mBlame.setFuture(QFuture<git::Blame>());
+  if (mBlameWatcher) {
+    QFutureWatcher<git::Blame> *watcher = mBlameWatcher;
+    mBlameWatcher = nullptr;
+    watcher->cancel();
+    watcher->deleteLater();
+  }
   mCallbacks.reset();
   mPendingBlameCommit = std::nullopt;
 }

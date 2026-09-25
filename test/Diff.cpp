@@ -13,8 +13,10 @@
 using namespace QTest;
 
 class TestDiff : public QObject {
+  Q_OBJECT
+
 public:
-  TestDiff(){};
+  TestDiff() {};
 private slots:
   void testContainsPath1() {
     // /src/testfile.txt, /src/testfile.txt1 - path: /src/testfile.txt --> only
@@ -57,6 +59,13 @@ private slots:
     QString occurence("src/test.txt1");
     QVERIFY(!containsPath(str, occurence));
   }
+
+  void invalidDiffHasNoIndex() {
+    git::Diff diff;
+    QCOMPARE(diff.indexOf(QStringLiteral("file.txt")), -1);
+  }
 };
 
 TEST_MAIN(TestDiff)
+
+#include "Diff.moc"

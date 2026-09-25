@@ -382,8 +382,12 @@ void TestTreeView::committedFileInspection() {
   window.setSideBarVisible(false);
   QVERIFY(!window.isSideBarVisible());
   QVERIFY(initialFile);
+  const QModelIndexList firstFileIndexes = committedFiles->model()->match(
+      committedFiles->model()->index(0, 0), Qt::EditRole, QString("file.txt"),
+      1, Qt::MatchExactly | Qt::MatchRecursive);
+  QVERIFY(!firstFileIndexes.isEmpty());
   committedFiles->selectionModel()->setCurrentIndex(
-      committedFileIndexes.first(),
+      firstFileIndexes.first(),
       QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
   QVERIFY(QMetaObject::invokeMethod(committedFiles, "fileSelectionRequested"));
   QVERIFY(repoView->isFileInspectionVisible());
@@ -445,10 +449,50 @@ void TestTreeView::committedFileInspection() {
   auto *diffBlameMargin = diffBlameEditor->findChild<BlameMargin *>();
   QVERIFY(diffBlameMargin);
   QTRY_VERIFY(diffBlameMargin->isVisible());
+  QTRY_VERIFY(diffBlameMargin->hasBlame());
   QVERIFY(diffBlameEditor->width() >=
           diffBlameMargin->minimumSizeHint().width() * 3);
   QVERIFY(diffBlameMargin->height() > 0);
   QTRY_COMPARE(diffBlameEditor->name(), selectedFile);
+  auto visibleInlineDiff = [&] {
+    return diffView->widget() &&
+           !diffView->widget()
+                ->findChildren<QWidget *>("InlineFileDiff")
+                .isEmpty();
+  };
+  QTRY_VERIFY(visibleInlineDiff());
+
+  const QModelIndexList secondFileIndexes = committedFiles->model()->match(
+      committedFiles->model()->index(0, 0), Qt::EditRole,
+      QString("folder1/file.txt"), 1, Qt::MatchExactly | Qt::MatchRecursive);
+  QVERIFY(!secondFileIndexes.isEmpty());
+  committedFiles->selectionModel()->setCurrentIndex(
+      secondFileIndexes.first(),
+      QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+  QTRY_COMPARE(diffBlameEditor->name(), QString("folder1/file.txt"));
+  QTRY_VERIFY(blameButton->isChecked());
+  QTRY_VERIFY(diffBlameEditor->isVisible());
+  QTRY_VERIFY(diffBlameMargin->isVisible());
+  QTRY_VERIFY(diffBlameMargin->hasBlame());
+  QTRY_VERIFY(visibleInlineDiff());
+  QTRY_COMPARE(diffBlameEditor->editor(), diffView->editors().first());
+
+  const QModelIndexList firstFileIndexesAfterSwitch =
+      committedFiles->model()->match(committedFiles->model()->index(0, 0),
+                                     Qt::EditRole, QString("file.txt"), 1,
+                                     Qt::MatchExactly | Qt::MatchRecursive);
+  QVERIFY(!firstFileIndexesAfterSwitch.isEmpty());
+  committedFiles->selectionModel()->setCurrentIndex(
+      firstFileIndexesAfterSwitch.first(),
+      QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+  QTRY_COMPARE(diffBlameEditor->name(), selectedFile);
+  QTRY_VERIFY(blameButton->isChecked());
+  QTRY_VERIFY(diffBlameEditor->isVisible());
+  QTRY_VERIFY(diffBlameMargin->isVisible());
+  QTRY_VERIFY(diffBlameMargin->hasBlame());
+  QTRY_VERIFY(diffBlameEditor->editor());
+  QTRY_VERIFY(visibleInlineDiff());
+  QTRY_COMPARE(diffBlameEditor->editor(), diffView->editors().first());
 
   const git::Commit externalCommit = repo.commit("External blame refresh");
   QVERIFY(externalCommit.isValid());
@@ -456,6 +500,12 @@ void TestTreeView::committedFileInspection() {
   QTRY_VERIFY(diffBlameEditor->isVisible());
   QTRY_VERIFY(diffBlameEditor->revision() != QStringLiteral("Not Tracked"));
   QTRY_VERIFY(diffBlameMargin->isVisible());
+  QTRY_VERIFY(diffBlameMargin->hasBlame());
+
+  // Exercise repeated refreshes while the asynchronous blame request is busy.
+  for (int i = 0; i < 20; ++i)
+    doubleTree->refreshDiffBlameEditor();
+  QTRY_VERIFY(diffBlameMargin->hasBlame());
 
   mouseClick(blameButton, Qt::LeftButton);
   QTRY_VERIFY(!diffBlameEditor->isVisible());
@@ -491,8 +541,9 @@ void TestTreeView::committedFileInspection() {
   verifySelection();
   QVERIFY(!diffView->editors().isEmpty());
   QCOMPARE(fileForEditor(diffView->editors().first()), fileWidget);
-  QTRY_VERIFY(diffBlameEditor->editor());
+  QTRY_COMPARE(diffBlameEditor->editor(), diffView->editors().first());
   QTRY_VERIFY(diffBlameEditor->isVisible());
+  QTRY_VERIFY(diffBlameMargin->hasBlame());
   mouseClick(splitMode, Qt::LeftButton);
   QCOMPARE(Settings::instance()->diffMode(), Settings::DiffMode::Split);
   verifySelection();
@@ -500,24 +551,14 @@ void TestTreeView::committedFileInspection() {
   QCOMPARE(fileForEditor(diffView->editors().first()), fileWidget);
   QTRY_VERIFY(hasVisiblePresentation("SplitFileDiff"));
   QTRY_VERIFY(diffBlameEditor->editor());
+  QTRY_VERIFY(diffBlameMargin->hasBlame());
   mouseClick(inlineMode, Qt::LeftButton);
   QCOMPARE(Settings::instance()->diffMode(), Settings::DiffMode::Inline);
   verifySelection();
   QCOMPARE(diffView->editors().size(), 1);
   QCOMPARE(fileForEditor(diffView->editors().first()), fileWidget);
   QTRY_VERIFY(hasVisiblePresentation("InlineFileDiff"));
-
-  const QModelIndexList secondFileIndexes = committedFiles->model()->match(
-      committedFiles->model()->index(0, 0), Qt::EditRole,
-      QString("folder1/file.txt"), 1, Qt::MatchExactly | Qt::MatchRecursive);
-  QVERIFY(!secondFileIndexes.isEmpty());
-  committedFiles->selectionModel()->setCurrentIndex(
-      secondFileIndexes.first(),
-      QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-  QTRY_COMPARE(diffBlameEditor->name(), QString("folder1/file.txt"));
-  QTRY_VERIFY(blameButton->isChecked());
-  QTRY_VERIFY(diffBlameEditor->isVisible());
-  QTRY_VERIFY(diffBlameMargin->isVisible());
+  QTRY_VERIFY(diffBlameMargin->hasBlame());
 
   QToolButton *close =
       repoView->findChild<QToolButton *>("CloseFileInspection");
@@ -529,6 +570,8 @@ void TestTreeView::committedFileInspection() {
 
 void TestTreeView::unchangedCommittedFileInspection() {
   INIT_REPO("gitahead-test.zip", true);
+  window.resize(800, 360);
+  QCoreApplication::processEvents();
 
   QStackedWidget *primaryView =
       repoView->findChild<QStackedWidget *>("RepositoryPrimaryView");
@@ -579,6 +622,57 @@ void TestTreeView::unchangedCommittedFileInspection() {
   doubleTree->mBlameButton->click();
   QTRY_VERIFY(doubleTree->mBlameButton->isChecked());
   QVERIFY(doubleTree->mEditor->isBlameVisible());
+
+  auto *editor = doubleTree->mEditor->editor();
+  auto *margin = doubleTree->mEditor->findChild<BlameMargin *>();
+  QVERIFY(editor);
+  QVERIFY(margin);
+  QTRY_VERIFY(margin->hasBlame());
+
+  const git::Blame blame = repo.blame("README.md", repo.head().target());
+  QVERIFY(blame.isValid());
+  int boundaryLine = 0;
+  for (int i = 1; i < blame.count(); ++i) {
+    if (blame.line(i) - blame.line(i - 1) > 1) {
+      boundaryLine = blame.line(i);
+      break;
+    }
+  }
+  QVERIFY(boundaryLine > 2);
+
+  const int lineHeight = editor->textHeight(0);
+  QVERIFY(lineHeight > 0);
+  const int textTop = margin
+                          ->mapFromGlobal(editor->mapToGlobal(
+                              editor->textRectangle().topLeft()))
+                          .y();
+  QVERIFY(textTop >= 0);
+  QVERIFY(textTop + lineHeight * 2 <= margin->height());
+
+  auto renderMargin = [margin] {
+    QImage image(margin->size(), QImage::Format_ARGB32_Premultiplied);
+    image.fill(Qt::transparent);
+    margin->render(&image);
+    return image;
+  };
+
+  // Put the previous blame block on the first visible row. Its clipped
+  // message must not bleed into the following block's row.
+  const int previousBlockLastDisplayLine = boundaryLine - 2;
+  editor->setFirstVisibleLine(previousBlockLastDisplayLine);
+  QTRY_COMPARE(editor->firstVisibleLine(), previousBlockLastDisplayLine);
+  const QImage clippedBlock = renderMargin();
+
+  // Render the same following block with its first line at the top. The
+  // corresponding rows should be identical when the previous block is
+  // clipped correctly.
+  editor->setFirstVisibleLine(boundaryLine - 1);
+  QTRY_COMPARE(editor->firstVisibleLine(), boundaryLine - 1);
+  const QImage followingBlockAtTop = renderMargin();
+  QCOMPARE(clippedBlock.copy(0, textTop + lineHeight, clippedBlock.width(),
+                             lineHeight),
+           followingBlockAtTop.copy(0, textTop, followingBlockAtTop.width(),
+                                    lineHeight));
 
   doubleTree->mShowAllFiles->setChecked(false);
 }
@@ -1093,8 +1187,11 @@ void TestTreeView::externalRefreshKeepsEditorContent() {
   QVERIFY(!visibleFile->editors().isEmpty());
   QVERIFY(visibleFile->editors().first()->length() > 0);
   QTRY_VERIFY(doubleTree->mDiffBlameEditor->isVisible());
-  QTRY_VERIFY(
-      doubleTree->mDiffBlameEditor->findChild<BlameMargin *>()->isVisible());
+  auto *diffBlameMargin =
+      doubleTree->mDiffBlameEditor->findChild<BlameMargin *>();
+  QVERIFY(diffBlameMargin);
+  QTRY_VERIFY(diffBlameMargin->isVisible());
+  QTRY_VERIFY(diffBlameMargin->hasBlame());
   QVERIFY(blameButton->isChecked());
   QTRY_VERIFY([visibleFile] {
     const QList<TextEditor *> editors = visibleFile->editors();
@@ -1103,6 +1200,11 @@ void TestTreeView::externalRefreshKeepsEditorContent() {
           return editor->text().contains("Updated external refresh test");
         });
   }());
+
+  // Exercise repeated refreshes while the asynchronous blame request is busy.
+  for (int i = 0; i < 20; ++i)
+    doubleTree->refreshDiffBlameEditor();
+  QTRY_VERIFY(diffBlameMargin->hasBlame());
 
   QPointer<FileWidget> stableFile = visibleFile;
   detailRefreshes = 0;
