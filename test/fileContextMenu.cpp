@@ -1,16 +1,21 @@
 #include "Test.h"
 
 #include "ui/CommitList.h"
+#include "ui/DoubleTreeWidget.h"
 #include "ui/FileContextMenu.h"
 #include "ui/IgnoreDialog.h"
 #include "ui/MainWindow.h"
 #include "ui/RepoView.h"
 #include "ui/StopTrackingDialog.h"
+#include "ui/TreeView.h"
+#include "conf/Settings.h"
 #include "git/Reference.h"
 
 #include <QFileDialog>
+#include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QScopeGuard>
 #include <QTimer>
 
 #define INIT_REPO(repoPath, /* bool */ useTempDir)                             \
@@ -38,6 +43,7 @@ private slots:
   void testStopTrackingCommittedFolder();
   void testExportSelectedVersion();
   void testExportSelectedVersionAction();
+  void testSelectiveStash();
 };
 
 using namespace git;
@@ -150,6 +156,103 @@ void TestFileContextMenu::testDiscardFile() {
       QVERIFY2(file.readAll() == i.value(), qPrintable(i.key()));
     }
   }
+}
+
+void TestFileContextMenu::testSelectiveStash() {
+  Test::ScratchRepository scratch;
+  git::Repository repo = scratch;
+
+  auto write = [&repo](const QString &path, const QByteArray &contents) {
+    QFile file(repo.workdir().filePath(path));
+    return file.open(QIODevice::WriteOnly) &&
+           file.write(contents) == contents.size();
+  };
+
+  QVERIFY(write("selected.txt", "initial\n"));
+  QVERIFY(write("other.txt", "initial\n"));
+  QVERIFY(repo.index().setStaged({"selected.txt", "other.txt"}, true));
+  QVERIFY(repo.commit("initial").isValid());
+
+  QVERIFY(write("selected.txt", "selected change\n"));
+  QVERIFY(write("other.txt", "other change\n"));
+  QVERIFY(write("selected-new.txt", "selected untracked\n"));
+  QVERIFY(write("other-new.txt", "other untracked\n"));
+
+  Settings *settings = Settings::instance();
+  const bool promptStash = settings->prompt(Prompt::Kind::Stash);
+  auto restorePrompt = qScopeGuard([settings, promptStash] {
+    settings->setPrompt(Prompt::Kind::Stash, promptStash);
+  });
+  settings->setPrompt(Prompt::Kind::Stash, false);
+
+  MainWindow window(repo);
+  window.show();
+  QVERIFY(QTest::qWaitForWindowExposed(&window));
+  RepoView *repoView = window.currentView();
+  QVERIFY(repoView);
+  Test::refresh(repoView);
+
+  auto *doubleTree = repoView->findChild<DoubleTreeWidget *>();
+  auto *unstaged = doubleTree ? doubleTree->findChild<TreeView *>("Unstaged")
+                              : nullptr;
+  QVERIFY(doubleTree);
+  QVERIFY(unstaged);
+  QTRY_VERIFY(unstaged->model()->rowCount() > 0);
+
+  const QModelIndex selectedIndex = unstaged->model()->match(
+      unstaged->model()->index(0, 0), Qt::EditRole, QString("selected.txt"),
+      1, Qt::MatchExactly | Qt::MatchRecursive)
+                                        .value(0);
+  const QModelIndex selectedNewIndex = unstaged->model()->match(
+      unstaged->model()->index(0, 0), Qt::EditRole,
+      QString("selected-new.txt"), 1,
+      Qt::MatchExactly | Qt::MatchRecursive)
+                                            .value(0);
+  QVERIFY(selectedIndex.isValid());
+  QVERIFY(selectedNewIndex.isValid());
+
+  unstaged->selectionModel()->select(
+      selectedIndex, QItemSelectionModel::ClearAndSelect |
+                         QItemSelectionModel::Rows);
+  unstaged->selectionModel()->select(
+      selectedNewIndex,
+      QItemSelectionModel::Select | QItemSelectionModel::Rows);
+  QCOMPARE(unstaged->selectionModel()->selectedRows().size(), 2);
+  QVERIFY(!repoView->isFileInspectionVisible());
+
+  const QPoint contextMenuPos = unstaged->visualRect(selectedIndex).center();
+  QVERIFY(QMetaObject::invokeMethod(
+      unstaged, "customContextMenuRequested", Qt::DirectConnection,
+      Q_ARG(QPoint, contextMenuPos)));
+  QMenu *menu = qobject_cast<QMenu *>(QApplication::activePopupWidget());
+  QVERIFY(menu);
+
+  QAction *stash = findAction(menu, "StashSelectedAction");
+  QVERIFY(stash);
+  QVERIFY(stash->isEnabled());
+  stash->trigger();
+  menu->close();
+
+  QTRY_COMPARE(repo.stashes().size(), 1);
+  QVERIFY(!QFile::exists(repo.workdir().filePath("selected-new.txt")));
+
+  QFile selected(repo.workdir().filePath("selected.txt"));
+  QVERIFY(selected.open(QIODevice::ReadOnly));
+  QCOMPARE(selected.readAll(), QByteArray("initial\n"));
+  selected.close();
+
+  QFile other(repo.workdir().filePath("other.txt"));
+  QVERIFY(other.open(QIODevice::ReadOnly));
+  QCOMPARE(other.readAll(), QByteArray("other change\n"));
+  other.close();
+  QVERIFY(QFile::exists(repo.workdir().filePath("other-new.txt")));
+
+  QVERIFY(repo.applyStash(0));
+  QVERIFY(selected.open(QIODevice::ReadOnly));
+  QCOMPARE(selected.readAll(), QByteArray("selected change\n"));
+  selected.close();
+  QVERIFY(QFile::exists(repo.workdir().filePath("selected-new.txt")));
+  QVERIFY(repo.dropStash(0));
 }
 
 void TestFileContextMenu::testDiscardSubmodule() {

@@ -424,6 +424,18 @@ void FileContextMenu::handleUncommittedChanges(const git::Index &index,
   git::Diff diff = mView->diff();
   git::Repository repo = mView->repo();
   const auto view = mView;
+
+  if (mWorkingTreeContext) {
+    QAction *stash = addAction(tr("Stash Selected Files"),
+                               [view, files] {
+                                 view->promptToStash(true, files);
+                               });
+    stash->setObjectName("StashSelectedAction");
+    stash->setEnabled(view->repo().head().target().isValid() &&
+                      !files.isEmpty() && !view->isDiscardAllChangesActive());
+    addSeparator();
+  }
+
   if (index.isValid()) {
     // Stage/Unstage
     QAction *stage = addAction(tr("Stage"), [view, index, files] {

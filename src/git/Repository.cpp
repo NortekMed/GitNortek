@@ -1246,18 +1246,150 @@ QList<Commit> Repository::stashes() const {
   return commits;
 }
 
-Commit Repository::stash(const QString &message, bool includeUntracked) {
+Commit Repository::stash(const QString &message, bool includeUntracked,
+                         const QStringList &paths) {
   Signature signature = defaultSignature();
   if (!signature.isValid())
     return Commit();
 
-  git_oid id;
   QByteArray buffer = message.toUtf8();
   const char *msg = !buffer.isEmpty() ? buffer.constData() : nullptr;
-  git_stash_flags flags = includeUntracked ? GIT_STASH_INCLUDE_UNTRACKED
-                                           : GIT_STASH_DEFAULT;
-  if (git_stash_save(&id, d->repo, signature, msg, flags))
+
+  if (paths.isEmpty()) {
+    git_oid id;
+    git_stash_flags flags = includeUntracked ? GIT_STASH_INCLUDE_UNTRACKED
+                                             : GIT_STASH_DEFAULT;
+    if (git_stash_save(&id, d->repo, signature, msg, flags))
+      return Commit();
+
+    git_commit *commit = nullptr;
+    git_commit_lookup(&commit, d->repo, &id);
+    emit d->notifier->referenceUpdated(stashRef());
+    return Commit(commit);
+  }
+
+  // libgit2's path-aware stash save builds the selected worktree tree, but
+  // its normal cleanup path resets the complete worktree. Keep all changes
+  // during the save and explicitly clean only the selected paths below.
+  QStringList stashPaths;
+  QStringList untrackedPaths;
+  QStringList seenPaths;
+  git_index *index = nullptr;
+
+  for (const QString &input : paths) {
+    const QString path = QDir::cleanPath(QDir::fromNativeSeparators(input));
+    if (path.isEmpty() || path == "." || seenPaths.contains(path))
+      continue;
+
+    unsigned int status = 0;
+    if (git_status_file(&status, d->repo, path.toUtf8()))
+      return Commit();
+
+    const unsigned int changed =
+        status & (GIT_STATUS_INDEX_NEW | GIT_STATUS_INDEX_MODIFIED |
+                  GIT_STATUS_INDEX_DELETED | GIT_STATUS_INDEX_RENAMED |
+                  GIT_STATUS_INDEX_TYPECHANGE | GIT_STATUS_WT_NEW |
+                  GIT_STATUS_WT_MODIFIED | GIT_STATUS_WT_DELETED |
+                  GIT_STATUS_WT_RENAMED | GIT_STATUS_WT_TYPECHANGE |
+                  GIT_STATUS_CONFLICTED);
+    if (!changed)
+      continue;
+
+    const bool untracked =
+        (status & GIT_STATUS_WT_NEW) && !(status & GIT_STATUS_INDEX_NEW);
+    if (untracked && !includeUntracked)
+      continue;
+
+    seenPaths.append(path);
+    stashPaths.append(path);
+    if (untracked)
+      untrackedPaths.append(path);
+  }
+
+  if (stashPaths.isEmpty()) {
     return Commit();
+  }
+
+  if (!untrackedPaths.isEmpty() && git_repository_index(&index, d->repo))
+    return Commit();
+
+  const auto restoreTemporaryIndex = [&index, &untrackedPaths] {
+    if (!index || untrackedPaths.isEmpty())
+      return;
+
+    for (const QString &path : untrackedPaths)
+      git_index_remove_bypath(index, path.toUtf8());
+    git_index_write(index);
+    git_index_read(index, true);
+  };
+
+  for (const QString &path : untrackedPaths) {
+    if (git_index_add_bypath(index, path.toUtf8())) {
+      restoreTemporaryIndex();
+      if (index)
+        git_index_free(index);
+      return Commit();
+    }
+  }
+
+  if (index && git_index_write(index)) {
+    restoreTemporaryIndex();
+    git_index_free(index);
+    return Commit();
+  }
+
+  QVector<QByteArray> pathStorage;
+  QVector<char *> rawPaths;
+  pathStorage.reserve(stashPaths.size());
+  rawPaths.reserve(stashPaths.size());
+  for (const QString &path : stashPaths)
+    pathStorage.append(path.toUtf8());
+  for (QByteArray &path : pathStorage)
+    rawPaths.append(path.data());
+
+  git_stash_save_options options = GIT_STASH_SAVE_OPTIONS_INIT;
+  options.flags = GIT_STASH_KEEP_ALL;
+  options.stasher = signature;
+  options.message = msg;
+  options.paths.count = rawPaths.size();
+  options.paths.strings = rawPaths.data();
+
+  git_oid id;
+  if (git_stash_save_with_opts(&id, d->repo, &options)) {
+    restoreTemporaryIndex();
+    if (index)
+      git_index_free(index);
+    return Commit();
+  }
+
+  // Release the temporary index entries before checkout. Otherwise the
+  // in-memory index can overwrite the path-specific checkout changes when it
+  // is written back after checkout opens its own index.
+  if (index) {
+    restoreTemporaryIndex();
+    git_index_free(index);
+    index = nullptr;
+  }
+
+  // Reset only the selected paths to HEAD. The path list is exact so an
+  // unselected tracked or untracked path is not touched.
+  Reference headRef = head();
+  Commit headCommit = headRef.target();
+  if (!headCommit.isValid())
+    return Commit();
+
+  git_checkout_options checkout = GIT_CHECKOUT_OPTIONS_INIT;
+  checkout.checkout_strategy =
+      GIT_CHECKOUT_FORCE | GIT_CHECKOUT_REMOVE_UNTRACKED |
+      GIT_CHECKOUT_DISABLE_PATHSPEC_MATCH;
+  checkout.paths.count = rawPaths.size();
+  checkout.paths.strings = rawPaths.data();
+  git_commit *headObject = headCommit;
+  if (git_checkout_tree(d->repo, reinterpret_cast<git_object *>(headObject),
+                        &checkout))
+    return Commit();
+
+  emit d->notifier->indexChanged(stashPaths);
 
   git_commit *commit = nullptr;
   git_commit_lookup(&commit, d->repo, &id);

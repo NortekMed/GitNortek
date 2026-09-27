@@ -28,6 +28,8 @@ public:
   void setModel(QAbstractItemModel *model) override;
   bool eventFilter(QObject *obj, QEvent *event) override;
   void keyPressEvent(QKeyEvent *event) override;
+  void mousePressEvent(QMouseEvent *event) override;
+  void mouseMoveEvent(QMouseEvent *event) override;
   void mouseReleaseEvent(QMouseEvent *event) override;
   void deselectAll();
   /*!
@@ -99,6 +101,10 @@ private:
   void handleSelectionChange(const QItemSelection &selected,
                              const QItemSelection &deselected);
   bool suppressDeselectionHandling{false};
+  bool mClearSelectionOnClick{false};
+  bool mSelectionOnlyClick{false};
+  bool mMouseMoved{false};
+  QPoint mMousePressPosition;
   int mCollapseCount; // Counts the number of collapsed folders.
   bool mSupressItemExpandStateChanged{false};
 

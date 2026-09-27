@@ -12,6 +12,7 @@
 #include "ViewDelegate.h"
 #include "TreeModel.h"
 #include "Debug.h"
+#include <QApplication>
 #include <QFormLayout>
 #include <QItemDelegate>
 #include <QLabel>
@@ -184,12 +185,67 @@ void TreeView::keyPressEvent(QKeyEvent *event) {
   }
 }
 
+void TreeView::mousePressEvent(QMouseEvent *event) {
+  mClearSelectionOnClick = false;
+  mSelectionOnlyClick = false;
+  mMouseMoved = false;
+
+  if (event->button() == Qt::LeftButton) {
+    mMousePressPosition = event->position().toPoint();
+    mSelectionOnlyClick =
+        event->modifiers() & (Qt::ControlModifier | Qt::MetaModifier);
+
+    const QModelIndex index = indexAt(mMousePressPosition);
+    const bool checkClicked =
+        index.isValid() && checkRect(index).contains(event->pos());
+    const bool multipleSelected =
+        selectionModel() && selectionModel()->selectedRows().size() > 1;
+    mClearSelectionOnClick =
+        multipleSelected && !mSelectionOnlyClick && !checkClicked;
+    if (mClearSelectionOnClick) {
+      selectionModel()->clearSelection();
+      return;
+    }
+  }
+
+  QTreeView::mousePressEvent(event);
+}
+
+void TreeView::mouseMoveEvent(QMouseEvent *event) {
+  if (event->buttons() & Qt::LeftButton &&
+      (event->position().toPoint() - mMousePressPosition).manhattanLength() >=
+          QApplication::startDragDistance()) {
+    mMouseMoved = true;
+  }
+
+  if (!mClearSelectionOnClick)
+    QTreeView::mouseMoveEvent(event);
+}
+
 void TreeView::mouseReleaseEvent(QMouseEvent *event) {
   QModelIndex index = indexAt(event->position().toPoint());
   bool checkClicked = index.isValid() && checkRect(index).contains(event->pos());
+
+  if (mClearSelectionOnClick) {
+    mClearSelectionOnClick = false;
+    mSelectionOnlyClick = false;
+    mMouseMoved = false;
+    return;
+  }
+
   QTreeView::mouseReleaseEvent(event);
-  if (event->button() == Qt::LeftButton && index.isValid() && !checkClicked)
+
+  const bool selectionOnly =
+      mSelectionOnlyClick ||
+      (event->modifiers() & (Qt::ControlModifier | Qt::MetaModifier));
+  const bool singleSelection =
+      selectionModel() && selectionModel()->selectedRows().size() == 1;
+  if (event->button() == Qt::LeftButton && index.isValid() && !checkClicked &&
+      !selectionOnly && !mMouseMoved && singleSelection)
     emit fileSelectionRequested();
+
+  mSelectionOnlyClick = false;
+  mMouseMoved = false;
 }
 
 void TreeView::handleSelectionChange(const QItemSelection &selected,

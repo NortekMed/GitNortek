@@ -17,6 +17,7 @@ Bug Fix and Feature release
 * Calculate branch tracking status asynchronously so large repositories remain responsive
 * Distinguish local tags from tags advertised by origin and offer guarded tag pushes only when their target commit is available on origin
 * Show a loading indicator while repository data is loading
+* Select multiple uncommitted files with Ctrl/Command-click and stash only the selected files from their context menu
 * Add local repository workspaces with persistent organization, directory synchronization, asynchronous origin checks with pending, failure, and live status, branch and upstream status, uncommitted file summaries, README previews, search, and full repository management
 * Preserve paused workspace synchronization settings and support selecting multiple repository folders with Ctrl/Command or Shift, including typed local or network paths
 * Refine workspace interactions with responsive title-click expansion, double-click editing, preserved expansion after repository removal, confirmation before opening all repositories, and terminal or file-manager actions for the selected repository

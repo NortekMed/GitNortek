@@ -218,7 +218,8 @@ public:
   Reference stashRef() const;
   QList<Commit> stashes() const;
   Commit stash(const QString &message = QString(),
-               bool includeUntracked = false);
+               bool includeUntracked = false,
+               const QStringList &paths = QStringList());
   bool applyStash(int index = 0);
   bool dropStash(int index = 0);
   bool popStash(int index = 0);

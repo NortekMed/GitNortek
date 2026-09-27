@@ -3333,13 +3333,13 @@ void RepoView::addPushTagToOriginAction(QMenu *menu,
           });
 }
 
-void RepoView::promptToStash(bool includeUntracked) {
+void RepoView::promptToStash(bool includeUntracked, const QStringList &paths) {
   if (isDiscardAllChangesActive())
     return;
 
   // Prompt to edit stash commit message.
   if (!Settings::instance()->prompt(Prompt::Kind::Stash)) {
-    stash(QString(), includeUntracked);
+    stash(QString(), includeUntracked, paths);
     return;
   }
 
@@ -3354,22 +3354,26 @@ void RepoView::promptToStash(bool includeUntracked) {
           : tr("WIP on %1").arg(ref);
   CommitDialog *dialog = new CommitDialog(msg, Prompt::Kind::Stash, this);
   connect(dialog, &QDialog::accepted, this,
-          [this, msg, dialog, includeUntracked] {
+          [this, msg, dialog, includeUntracked, paths] {
             QString userMsg = dialog->message();
-            stash(msg != userMsg ? userMsg : QString(), includeUntracked);
+            stash(msg != userMsg ? userMsg : QString(), includeUntracked,
+                  paths);
           });
 
   dialog->open();
 }
 
-bool RepoView::stash(const QString &message, bool includeUntracked) {
+bool RepoView::stash(const QString &message, bool includeUntracked,
+                     const QStringList &paths) {
   if (isDiscardAllChangesActive())
     return false;
 
-  QString text = tr("<i>working directory</i>");
+  QString text = paths.isEmpty()
+                     ? tr("<i>working directory</i>")
+                     : tr("%1 selected file(s)").arg(paths.size());
   LogEntry *entry = addLogEntry(text, tr("Stash"));
 
-  git::Commit commit = mRepo.stash(message, includeUntracked);
+  git::Commit commit = mRepo.stash(message, includeUntracked, paths);
   if (!commit.isValid()) {
     error(entry, tr("stash"), text);
     return false;

@@ -20,6 +20,7 @@
 #include <QFile>
 #include <QImage>
 #include <QLabel>
+#include <QMouseEvent>
 #include <QMessageBox>
 #include <QPointer>
 #include <QPushButton>
@@ -74,6 +75,7 @@ private slots:
   void externalRefreshPreservesSelection();
   void externalRefreshKeepsEditorContent();
   void externalRefreshPreservesViewport();
+  void ctrlClickSelectsFilesWithoutInspection();
 
 private:
 };
@@ -135,6 +137,93 @@ void TestTreeView::restoreStagedFileAfterCommit() {
   view->commit();
 
   // The application should not crash!
+}
+
+void TestTreeView::ctrlClickSelectsFilesWithoutInspection() {
+  Test::ScratchRepository scratch;
+  git::Repository repo = scratch;
+
+  auto write = [&repo](const QString &path, const QByteArray &contents) {
+    QFile file(repo.workdir().filePath(path));
+    return file.open(QIODevice::WriteOnly) &&
+           file.write(contents) == contents.size();
+  };
+
+  QVERIFY(write("first.txt", "initial\n"));
+  QVERIFY(write("second.txt", "initial\n"));
+  QVERIFY(write("third.txt", "initial\n"));
+  QVERIFY(repo.index().setStaged(
+      {"first.txt", "second.txt", "third.txt"}, true));
+  QVERIFY(repo.commit("initial").isValid());
+  QVERIFY(write("first.txt", "first change\n"));
+  QVERIFY(write("second.txt", "second change\n"));
+  QVERIFY(write("third.txt", "third change\n"));
+
+  MainWindow window(repo);
+  window.show();
+  QVERIFY(QTest::qWaitForWindowExposed(&window));
+  RepoView *view = window.currentView();
+  QVERIFY(view);
+  Test::refresh(view);
+
+  auto *doubleTree = view->findChild<DoubleTreeWidget *>();
+  auto *unstaged = doubleTree ? doubleTree->findChild<TreeView *>("Unstaged")
+                              : nullptr;
+  QVERIFY(doubleTree);
+  QVERIFY(unstaged);
+  QTRY_VERIFY(unstaged->model()->rowCount() > 0);
+  unstaged->expandAll();
+
+  const QModelIndex first = unstaged->model()->match(
+      unstaged->model()->index(0, 0), Qt::EditRole, QString("first.txt"), 1,
+      Qt::MatchExactly | Qt::MatchRecursive)
+                                .value(0);
+  const QModelIndex second = unstaged->model()->match(
+      unstaged->model()->index(0, 0), Qt::EditRole, QString("second.txt"), 1,
+      Qt::MatchExactly | Qt::MatchRecursive)
+                                 .value(0);
+  const QModelIndex third = unstaged->model()->match(
+      unstaged->model()->index(0, 0), Qt::EditRole, QString("third.txt"), 1,
+      Qt::MatchExactly | Qt::MatchRecursive)
+                                .value(0);
+  QVERIFY(first.isValid());
+  QVERIFY(second.isValid());
+  QVERIFY(third.isValid());
+
+  unstaged->selectionModel()->clearSelection();
+  const QPoint firstPosition = unstaged->visualRect(first).center();
+  const QPoint secondPosition = unstaged->visualRect(second).center();
+  QTest::mousePress(unstaged->viewport(), Qt::LeftButton, Qt::NoModifier,
+                    firstPosition);
+  QMouseEvent move(QEvent::MouseMove, secondPosition, secondPosition,
+                   unstaged->viewport()->mapToGlobal(secondPosition),
+                   Qt::NoButton, Qt::LeftButton, Qt::NoModifier);
+  QApplication::sendEvent(unstaged->viewport(), &move);
+  QTest::mouseRelease(unstaged->viewport(), Qt::LeftButton, Qt::NoModifier,
+                      secondPosition);
+  QVERIFY(unstaged->selectionModel()->selectedRows().size() > 1);
+  QVERIFY(!view->isFileInspectionVisible());
+
+  unstaged->selectionModel()->clearSelection();
+  mouseClick(unstaged->viewport(), Qt::LeftButton, Qt::ControlModifier,
+             firstPosition);
+  mouseClick(unstaged->viewport(), Qt::LeftButton, Qt::ControlModifier,
+             secondPosition);
+
+  QCOMPARE(unstaged->selectionModel()->selectedRows().size(), 2);
+  QVERIFY(!view->isFileInspectionVisible());
+
+  // A plain click clears a multi-selection without selecting or inspecting
+  // the clicked file. The following single click is a normal file selection.
+  mouseClick(unstaged->viewport(), Qt::LeftButton, Qt::NoModifier,
+             unstaged->visualRect(third).center());
+  QCOMPARE(unstaged->selectionModel()->selectedRows().size(), 0);
+  QVERIFY(!view->isFileInspectionVisible());
+
+  mouseClick(unstaged->viewport(), Qt::LeftButton, Qt::NoModifier,
+             unstaged->visualRect(third).center());
+  QCOMPARE(unstaged->selectionModel()->selectedRows().size(), 1);
+  QTRY_VERIFY(view->isFileInspectionVisible());
 }
 
 void TestTreeView::discardFiles() {

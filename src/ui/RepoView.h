@@ -315,8 +315,10 @@ public:
   void addPushTagToOriginAction(QMenu *menu, const git::Reference &tag);
 
   // stash
-  void promptToStash(bool includeUntracked = false);
-  bool stash(const QString &message = QString(), bool includeUntracked = false);
+  void promptToStash(bool includeUntracked = false,
+                     const QStringList &paths = QStringList());
+  bool stash(const QString &message = QString(), bool includeUntracked = false,
+             const QStringList &paths = QStringList());
   void applyStash(int index = 0);
   void dropStash(int index = 0);
   void popStash(int index = 0);
