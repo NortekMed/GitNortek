@@ -135,9 +135,6 @@ static Hotkey toggleLogHotkey =
 static Hotkey toggleMaximizeHotkey = HotkeyManager::registerHotkey(
     "Ctrl+M", "view/toggleMaximize", "View/Toggle Maximize");
 
-static Hotkey toggleViewHotkey = HotkeyManager::registerHotkey(
-    nullptr, "view/toggleView", "View/Toggle Tree View");
-
 static Hotkey toggleMenuBarHotkey = HotkeyManager::registerHotkey(
     "Ctrl+B", "view/toggleMenuBar", "View/Toggle Menu Bar");
 
@@ -528,14 +525,6 @@ MenuBar::MenuBar(QWidget *parent) : QMenuBar(parent) {
     for (auto repo : repos) {
       repo->detailSplitterMaximize(maximize, widget);
     }
-  });
-
-  mToggleView = viewMenu->addAction(tr("Show Tree View"));
-  toggleViewHotkey.use(mToggleView);
-  connect(mToggleView, &QAction::triggered, [this] {
-    RepoView *view = this->view();
-    bool diff = (view->viewMode() == RepoView::DoubleTree);
-    view->setViewMode(diff ? RepoView::Tree : RepoView::DoubleTree);
   });
 
   mToggleMenuBar = viewMenu->addAction(tr("Hide Menu Bar"));
@@ -1051,16 +1040,12 @@ void MenuBar::updateView() {
   mRefresh->setEnabled(view);
   mRepositoryDiagnostics->setEnabled(view);
   mToggleLog->setEnabled(view);
-  mToggleView->setEnabled(view);
   mToggleMaximize->setEnabled(view);
 
   if (!view)
     return;
 
-  bool diff = (view->viewMode() == RepoView::DoubleTree);
   mToggleLog->setText(view->isLogVisible() ? tr("Hide Log") : tr("Show Log"));
-  mToggleView->setText(diff ? tr("Show Tree View")
-                            : tr("Show Double Tree View"));
 }
 
 void MenuBar::updateRepository() {

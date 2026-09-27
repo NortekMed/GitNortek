@@ -3920,11 +3920,6 @@ Exemplos
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1063"/>
-        <source>Show Double Tree View</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Ctrl+E</source>
         <translation type="vanished">Ctrl+E</translation>
     </message>
@@ -3953,12 +3948,6 @@ Exemplos
         <location filename="../src/ui/MenuBar.cpp" line="514"/>
         <source>Maximize</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/MenuBar.cpp" line="533"/>
-        <location filename="../src/ui/MenuBar.cpp" line="1062"/>
-        <source>Show Tree View</source>
-        <translation>Mostrar árvore</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="541"/>
@@ -8012,18 +8001,8 @@ x (number) determines the number of maximum files shown</source>
         <translation>Mostrar diário</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="1001"/>
-        <source>Double Tree View</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Diff View</source>
         <translation type="vanished">Vista de comparação</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/ToolBar.cpp" line="1006"/>
-        <source>Tree View</source>
-        <translation>Vista em árvore</translation>
     </message>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="1019"/>
@@ -8124,24 +8103,6 @@ x (number) determines the number of maximum files shown</source>
         <location filename="../src/ui/TreeView.cpp" line="123"/>
         <source>discard</source>
         <translation type="unfinished">descartar</translation>
-    </message>
-</context>
-<context>
-    <name>TreeWidget</name>
-    <message>
-        <location filename="../src/ui/TreeWidget.cpp" line="54"/>
-        <source>Search:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/TreeWidget.cpp" line="57"/>
-        <source>Regex</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/TreeWidget.cpp" line="59"/>
-        <source>Case Sensitive</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -46,11 +46,6 @@ to be able to switch fast between repositories
 Staging and unstaging changes, viewing Blame
 > Screenshot needed: GitNortek displaying a representative text diff.
 
-### Tree View
-To visit the blame with its history for unchanged files
-
-> Screenshot needed: GitNortek displaying the repository tree view.
-
 ### Blame View
 See blame of the current version with an integrated timeline to see who changed which line
 

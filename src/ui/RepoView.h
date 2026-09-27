@@ -77,12 +77,6 @@ public:
     }
   };
 
-  enum ViewMode {
-    DoubleTree,
-    // Diff,
-    Tree,
-  };
-
   enum MergeFlag {
     Default = 0x0,
     Merge = 0x1,
@@ -129,10 +123,6 @@ public:
   bool isStageEnabled() const;
   void unstage();
   bool isUnstageEnabled() const;
-
-  // mode
-  ViewMode viewMode() const;
-  void setViewMode(ViewMode mode);
 
   void setFileInspectionWidget(QWidget *widget);
   void setFileInspectionVisible(bool visible);

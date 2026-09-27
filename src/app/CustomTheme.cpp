@@ -224,12 +224,6 @@ QString CustomTheme::styleSheet() const {
                  "  background: %4"
                  "}"
 
-                 "TreeWidget QColumnView {"
-                 "  border-top: 1px solid palette(window);"
-                 "  border-right: 1px solid palette(base);"
-                 "  border-bottom: 1px solid palette(window)"
-                 "}"
-
                  "CommitDetail QToolButton,"
                  "HunkWidget QToolButton {"
                  "  border: 1px solid palette(shadow);"

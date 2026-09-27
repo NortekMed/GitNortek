@@ -3744,11 +3744,6 @@ Examples
         <translation>தேடலைப் பயன்படுத்தவும்</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="1063"/>
-        <source>Show Double Tree View</source>
-        <translation>இரட்டை மரக் காட்சியைக் காட்டு</translation>
-    </message>
-    <message>
         <location filename="../src/ui/MenuBar.cpp" line="494"/>
         <source>View</source>
         <translation>பார்வை</translation>
@@ -3778,12 +3773,6 @@ Examples
         <location filename="../src/ui/MenuBar.cpp" line="514"/>
         <source>Maximize</source>
         <translation>அதிகப்படுத்து</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/MenuBar.cpp" line="533"/>
-        <location filename="../src/ui/MenuBar.cpp" line="1062"/>
-        <source>Show Tree View</source>
-        <translation>மரக் காட்சியைக் காட்டு</translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="541"/>
@@ -7735,16 +7724,6 @@ x (எண்) காட்டப்படும் அதிகபட்ச க�
         <translation>பதிவைக் காட்டு</translation>
     </message>
     <message>
-        <location filename="../src/ui/ToolBar.cpp" line="1001"/>
-        <source>Double Tree View</source>
-        <translation>இரட்டை மரக் காட்சி</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/ToolBar.cpp" line="1006"/>
-        <source>Tree View</source>
-        <translation>மரக் காட்சி</translation>
-    </message>
-    <message>
         <location filename="../src/ui/ToolBar.cpp" line="1019"/>
         <source>Show Starred Commits</source>
         <translation>நட்சத்திரமிட்ட உறுதிமொழிகளைக் காட்டு</translation>
@@ -7843,24 +7822,6 @@ x (எண்) காட்டப்படும் அதிகபட்ச க�
         <location filename="../src/ui/TreeView.cpp" line="123"/>
         <source>discard</source>
         <translation>நிராகரிக்கவும்</translation>
-    </message>
-</context>
-<context>
-    <name>TreeWidget</name>
-    <message>
-        <location filename="../src/ui/TreeWidget.cpp" line="54"/>
-        <source>Search:</source>
-        <translation>தேடல்:</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/TreeWidget.cpp" line="57"/>
-        <source>Regex</source>
-        <translation>வழக்கவெளி</translation>
-    </message>
-    <message>
-        <location filename="../src/ui/TreeWidget.cpp" line="59"/>
-        <source>Case Sensitive</source>
-        <translation>கேச் சென்சிட்டிவ்</translation>
     </message>
 </context>
 <context>

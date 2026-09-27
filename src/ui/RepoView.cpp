@@ -421,28 +421,6 @@ RepoView::RepoView(const git::Repository &repo, MainWindow *parent)
           parent->findChild<RepositoryNavigator *>())
     navigator->setBodyFont(bodyFont);
 
-  // Respond to diff/tree mode change.
-  connect(mDetails, &DetailView::viewModeChanged, this,
-          [this](ViewMode mode, bool spontaneous) {
-            if (mode != DoubleTree) {
-              if (mMaximized && !mDetails->isVisible()) {
-                MenuBar *menuBar = MenuBar::instance(this);
-                if (menuBar && menuBar->isMaximized())
-                  menuBar->setMaximized(false);
-                else
-                  detailSplitterMaximize(false);
-              }
-              setFileInspectionVisible(false);
-            }
-
-            // Update interface.
-            this->toolBar()->updateView();
-            MenuBar::instance(this)->updateView();
-
-            // Fake a commit list selection change.
-            mCommits->resetSelection(spontaneous);
-          });
-
   // Respond to commit list selection change.
   connect(mCommits, &CommitList::diffSelected, this, &RepoView::diffSelected,
           Qt::ConnectionType::DirectConnection);
@@ -658,10 +636,8 @@ RepoView::~RepoView() {
   cancelIndexing();
   mIndexer.disconnect();
 
-  // Work around crash caused by clearing focus from the commit list
-  // when it's destroyed. If it gets destroyed after the detail view
-  // then the focus change may trigger the menu bar to query the mode
-  // index from the already destroyed detail view.
+  // Work around a crash caused by clearing focus from the commit list when it
+  // is destroyed.
   mCommits->clearFocus();
 }
 
@@ -728,10 +704,6 @@ void RepoView::unstage() {
 bool RepoView::isUnstageEnabled() const {
   return !isDiscardAllChangesActive() && mDetails->isUnstageEnabled();
 }
-
-RepoView::ViewMode RepoView::viewMode() const { return mDetails->viewMode(); }
-
-void RepoView::setViewMode(ViewMode mode) { mDetails->setViewMode(mode, true); }
 
 void RepoView::setFileInspectionWidget(QWidget *widget) {
   if (!widget || mFileInspectionWidget)
@@ -1464,12 +1436,10 @@ Location RepoView::location() const {
     return Location();
 
   QString name = ref.qualifiedName();
-  RepoView::ViewMode mode = mDetails->viewMode();
-  return Location(mode, name, mCommits->selectedRange(), mDetails->file());
+  return Location(name, mCommits->selectedRange(), mDetails->file());
 }
 
 void RepoView::setLocation(const Location &location) {
-  mDetails->setViewMode(location.mode(), false);
   mCommits->selectRange(location.id(), location.file());
 
   if (git::Reference ref = mRepo.lookupRef(location.ref())) {

@@ -29,7 +29,6 @@
 #include <QDesktopServices>
 #include <QFileInfo>
 #include <QSaveFile>
-#include <QTimer>
 #include <qfileinfo.h>
 
 namespace {
@@ -618,7 +617,6 @@ void FileContextMenu::handleCommits(const QList<git::Commit> &commits,
     if (view->isDiscardAllChangesActive())
       return;
     view->checkout(commit, files);
-    view->setViewMode(RepoView::DoubleTree);
   });
 
   // Checkout to ...
@@ -641,8 +639,6 @@ void FileContextMenu::handleCommits(const QList<git::Commit> &commits,
               view->error(saveFile, tr("save file"), file,
                           tr("Unable to export selected version."));
           }
-          QTimer::singleShot(
-              0, view, [view] { view->setViewMode(RepoView::DoubleTree); });
         }
       });
 

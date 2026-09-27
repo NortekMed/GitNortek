@@ -14,9 +14,8 @@
 
 Location::Location() {}
 
-Location::Location(RepoView::ViewMode mode, const QString &ref,
-                   const QString &id, const QString &file)
-    : mMode(mode), mRef(ref), mId(id), mFile(file), mValid(true) {}
+Location::Location(const QString &ref, const QString &id, const QString &file)
+    : mRef(ref), mId(id), mFile(file), mValid(true) {}
 
 QString Location::toString(const git::Repository &repo) const {
   QString fmt = tr("%1 | %2");
@@ -29,6 +28,5 @@ QString Location::toString(const git::Repository &repo) const {
 }
 
 bool Location::operator==(const Location &rhs) const {
-  return (mMode == rhs.mode() && mRef == rhs.ref() && mId == rhs.id() &&
-          mFile == rhs.file());
+  return (mRef == rhs.ref() && mId == rhs.id() && mFile == rhs.file());
 }

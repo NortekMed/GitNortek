@@ -56,6 +56,8 @@ Bug Fix and Feature release
 
 #### Changed
 
+* Make Double Tree View the only repository file view and open it by default
+
 * Allow the Tags sidebar section to sort by name or creation date in ascending
   or descending order, with the preference remembered across repositories
 

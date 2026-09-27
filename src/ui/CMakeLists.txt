@@ -63,7 +63,6 @@ add_library(
   DiffTreeModel.cpp
   TreeProxy.cpp
   TreeView.cpp
-  TreeWidget.cpp
   ViewDelegate.cpp
   ConfigKeys.cpp)
 

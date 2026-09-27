@@ -119,6 +119,7 @@ void TestInitRepo::addFile() {
   RepoView *view = mWindow->currentView();
   auto doubleTree = view->findChild<DoubleTreeWidget *>();
   QVERIFY(doubleTree);
+  QCOMPARE(view->findChildren<DoubleTreeWidget *>().size(), 1);
 
   auto files = doubleTree->findChild<TreeView *>("Unstaged");
   QVERIFY(files);
@@ -170,16 +171,6 @@ void TestInitRepo::addFile() {
 
   close->setFocus();
   QTRY_VERIFY(close->hasFocus());
-  menuBar->setMaximized(true);
-  QVERIFY(view->detailsMaximized());
-  QVERIFY(menuBar->isMaximized());
-  view->setViewMode(RepoView::Tree);
-  QVERIFY(!view->detailsMaximized());
-  QVERIFY(!menuBar->isMaximized());
-  view->setViewMode(RepoView::DoubleTree);
-  QVERIFY(primaryView->currentWidget() != fileInspection);
-  QVERIFY(QMetaObject::invokeMethod(files, "fileSelectionRequested"));
-  QCOMPARE(primaryView->currentWidget(), fileInspection);
 
   close->click();
   QVERIFY(primaryView->currentWidget() != fileInspection);
@@ -296,8 +287,9 @@ void TestInitRepo::editFile() {
   DiffView *diff = view->findChild<DiffView *>();
   QVERIFY(diff);
 
-  QToolButton *edit = diff->findChild<QToolButton *>("EditButton");
-  QVERIFY(edit);
+  QToolButton *edit = nullptr;
+  QTRY_VERIFY_WITH_TIMEOUT(
+      (edit = diff->findChild<QToolButton *>("EditButton")), 10000);
 
   // Set up timer to dismiss the popup.
   QTimer::singleShot(500, [] {

@@ -510,83 +510,6 @@ public:
   }
 };
 
-class ModeButton : public Button {
-public:
-  ModeButton(RepoView::ViewMode mode, QWidget *parent = nullptr)
-      : Button(parent), mMode(mode) {}
-
-  void paintEvent(QPaintEvent *event) override {
-    Button::paintEvent(event);
-
-    QStyleOptionToolButton opt;
-    initStyleOption(&opt);
-
-    QPainter painter(this);
-    Theme *theme = Application::theme();
-    QColor color = (isEnabled() && isActiveWindow() && isChecked())
-                       ? theme->buttonChecked()
-                       : opt.palette.color(QPalette::ButtonText);
-    painter.setPen(QPen(color, 1.25));
-    painter.setRenderHint(QPainter::Antialiasing);
-
-    qreal x = width() / 2.0;
-    qreal y = height() / 2.0;
-
-    if (mMode == RepoView::DoubleTree) {
-      // Subtract a diagonal rectangle from the clip area.
-      QPainterPath clip;
-      clip.addRect(rect());
-
-      QPainterPath path;
-      path.moveTo(x - 3, y - 4);
-      path.lineTo(x + 5, y + 2);
-      path.lineTo(x + 3, y + 4);
-      path.lineTo(x - 5, y - 2);
-      path.closeSubpath();
-
-      painter.setClipPath(clip.subtracted(path));
-
-      QPainterPath path1;
-      path1.addEllipse(x + 4, y - 7, 4, 4);
-      path1.addEllipse(x - 8, y + 3, 4, 4);
-
-      path1.moveTo(x - 4, y + 3);
-      path1.lineTo(x + 4, y - 3);
-      painter.drawPath(path1);
-
-      painter.setClipping(false);
-
-      QPainterPath path2;
-      path2.addEllipse(x - 8, y - 7, 4, 4);
-      path2.addEllipse(x + 4, y + 3, 4, 4);
-
-      path2.moveTo(x - 4, y - 3);
-      path2.lineTo(x + 4, y + 3);
-      painter.drawPath(path2);
-
-    } else {
-      QPainterPath path;
-      path.addEllipse(x - 8, y - 7, 4, 4);
-      path.addEllipse(x, y - 7, 4, 4);
-      path.addEllipse(x, y + 3, 4, 4);
-
-      path.moveTo(x - 3, y - 5);
-      path.lineTo(x - 1, y - 5);
-      path.moveTo(x + 5, y - 5);
-      path.lineTo(x + 8, y - 5);
-
-      path.moveTo(x + 2, y - 2);
-      path.lineTo(x + 2, y + 2);
-      path.moveTo(x + 5, y + 5);
-      path.lineTo(x + 8, y + 5);
-      painter.drawPath(path);
-    }
-  }
-
-private:
-  RepoView::ViewMode mMode;
-};
-
 class SettingsButton : public Button {
 public:
   SettingsButton(QWidget *parent = nullptr) : Button(parent) {}
@@ -989,32 +912,6 @@ ToolBar::ToolBar(MainWindow *parent) : QToolBar(parent) {
     view->setLogVisible(!view->isLogVisible());
   });
 
-  SegmentedButton *mode = new SegmentedButton(this);
-  mModeGroup = mode->buttonGroup();
-
-  //  ModeButton *diff = new ModeButton(RepoView::Diff, mode);
-  //  mode->addButton(diff, tr("Diff View"), true);
-  //  diff->setEnabled(false);
-  //  diff->setToolTip("Forever Disabled View");
-
-  // The order must match with the Index in RepoView::ViewMode!
-  // Index 0
-  ModeButton *alternativeTree = new ModeButton(RepoView::DoubleTree, mode);
-  mode->addButton(alternativeTree, tr("Double Tree View"), true);
-  alternativeTree->setChecked(true);
-
-  // Index 1
-  ModeButton *tree = new ModeButton(RepoView::Tree, mode);
-  mode->addButton(tree, tr("Tree View"), true);
-
-  addWidget(mode);
-
-  using Signal = void (QButtonGroup::*)(int);
-  auto signal = static_cast<Signal>(&QButtonGroup::idClicked);
-  connect(mModeGroup, signal, [this](int index) {
-    currentView()->setViewMode(static_cast<RepoView::ViewMode>(index));
-  });
-
   addWidget(new Spacer(4, this));
 
   mStarButton = new StarButton(this);
@@ -1164,14 +1061,10 @@ void ToolBar::updateView() {
   mFileManagerButton->setEnabled(externalToolTarget);
   mRepoConfigAction->setEnabled(view);
   mLogButton->setEnabled(view);
-  // mModeGroup->button(RepoView::Diff)->setEnabled(view);
-  mModeGroup->button(RepoView::Tree)->setEnabled(view);
-  mModeGroup->button(RepoView::DoubleTree)->setEnabled(view);
 
   if (view) {
     bool visible = view->isLogVisible();
     mLogButton->setToolTip(visible ? tr("Hide Log") : tr("Show Log"));
-    mModeGroup->button(view->viewMode())->setChecked(true);
   }
 }
 

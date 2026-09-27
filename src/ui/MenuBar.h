@@ -91,7 +91,6 @@ private:
   QAction *mRefresh;
   QAction *mRepositoryDiagnostics;
   QAction *mToggleLog;
-  QAction *mToggleView;
   QAction *mToggleMenuBar;
   StateAction *mToggleMaximize;
 

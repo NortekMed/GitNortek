@@ -10,8 +10,7 @@
 #ifndef LOCATION_H
 #define LOCATION_H
 
-#include "RepoView.h"
-#include <QByteArray>
+#include <QCoreApplication>
 #include <QString>
 
 namespace git {
@@ -23,13 +22,11 @@ class Location {
 
 public:
   Location();
-  Location(RepoView::ViewMode mode, const QString &ref, const QString &id,
-           const QString &file);
+  Location(const QString &ref, const QString &id, const QString &file);
 
   bool isValid() const { return mValid; }
   bool isUncommitted() const { return mId.isEmpty(); }
 
-  RepoView::ViewMode mode() const { return mMode; }
   QString ref() const { return mRef; }
   QString id() const { return mId; }
   QString file() const { return mFile; }
@@ -39,7 +36,6 @@ public:
   bool operator==(const Location &rhs) const;
 
 private:
-  RepoView::ViewMode mMode = RepoView::DoubleTree;
   QString mRef;
   QString mId;
   QString mFile;

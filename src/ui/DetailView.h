@@ -68,10 +68,6 @@ public:
   void unstage();
   bool isUnstageEnabled() const;
 
-  // mode
-  RepoView::ViewMode viewMode() const;
-  void setViewMode(RepoView::ViewMode mode, bool spontaneous);
-
   QString file() const;
 
   QString commitMessage() const;
@@ -90,16 +86,11 @@ public:
   QString overrideUser() const;
   QString overrideEmail() const;
 
-signals:
-  void viewModeChanged(RepoView::ViewMode mode, bool spontaneous = false);
-
 private:
   enum DetailIndex { CommitIndex, EditorIndex };
 
-  enum ContentIndex { DiffIndex, TreeIndex };
-
   QStackedWidget *mDetail;
-  QStackedWidget *mContent;
+  ContentWidget *mContent;
   QLabel *mAuthorLabel;
   QString mOverrideUser;
   QString mOverrideEmail;

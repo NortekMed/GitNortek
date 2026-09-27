@@ -12,9 +12,7 @@
 #include "Badge.h"
 #include "CommitAvatarProvider.h"
 #include "MenuBar.h"
-#include "TreeWidget.h"
 #include "DoubleTreeWidget.h"
-#include "TreeWidget.h"
 #include "CommitEditor.h"
 #include "git/Commit.h"
 #include "git/Config.h"
@@ -24,7 +22,6 @@
 #include "util/PerformanceTrace.h"
 #include <QAbstractTextDocumentLayout>
 #include <QApplication>
-#include <QActionGroup>
 #include <QClipboard>
 #include <QDateTime>
 #include <QDialog>
@@ -524,11 +521,8 @@ DetailView::DetailView(const git::Repository &repo,
 
   mDetail->addWidget(editorFrame);
 
-  mContent = new QStackedWidget(this);
+  mContent = new DoubleTreeWidget(repo, this);
   layout->addWidget(mContent, 1);
-
-  mContent->addWidget(new DoubleTreeWidget(repo, this));
-  mContent->addWidget(new TreeWidget(repo, this));
 }
 
 DetailView::~DetailView() {}
@@ -573,23 +567,8 @@ bool DetailView::isUnstageEnabled() const {
           mCommitEditor->isUnstageEnabled());
 }
 
-RepoView::ViewMode DetailView::viewMode() const {
-  return static_cast<RepoView::ViewMode>(mContent->currentIndex());
-}
-
-void DetailView::setViewMode(RepoView::ViewMode mode, bool spontaneous) {
-  if (mode == mContent->currentIndex())
-    return;
-
-  mContent->setCurrentIndex(mode);
-
-  // Emit own signal so that the view can respond *after* index change.
-  emit viewModeChanged(mode, spontaneous);
-}
-
 QString DetailView::file() const {
-  return static_cast<ContentWidget *>(mContent->currentWidget())
-      ->selectedFile();
+  return mContent->selectedFile();
 }
 
 void DetailView::setCommitMessage(const QString &message) {
@@ -612,8 +591,7 @@ void DetailView::setDiff(const git::Diff &diff, const QString &file,
     static_cast<CommitDetail *>(mDetail->currentWidget())->setCommits(commits);
   }
 
-  ContentWidget *cw = static_cast<ContentWidget *>(mContent->currentWidget());
-  cw->setDiff(diff, file, pathspec);
+  mContent->setDiff(diff, file, pathspec);
 
   // Update menu actions.
   MenuBar::instance(this)->updateRepository();
@@ -626,8 +604,7 @@ void DetailView::setWorkingTreeStatus(
   mDetail->setVisible(status.isValid() && status.isDirty());
   mCommitEditor->setDiff(git::Diff());
 
-  ContentWidget *cw = static_cast<ContentWidget *>(mContent->currentWidget());
-  cw->setWorkingTreeStatus(status, file);
+  mContent->setWorkingTreeStatus(status, file);
 
   // Update menu actions.
   MenuBar::instance(this)->updateRepository();
@@ -637,20 +614,19 @@ void DetailView::cancelBackgroundTasks() {
   CommitDetail *cd = static_cast<CommitDetail *>(mDetail->widget(CommitIndex));
   cd->cancelBackgroundTasks();
 
-  ContentWidget *cw = static_cast<ContentWidget *>(mContent->currentWidget());
-  cw->cancelBackgroundTasks();
+  mContent->cancelBackgroundTasks();
 }
 
 void DetailView::find() {
-  static_cast<ContentWidget *>(mContent->currentWidget())->find();
+  mContent->find();
 }
 
 void DetailView::findNext() {
-  static_cast<ContentWidget *>(mContent->currentWidget())->findNext();
+  mContent->findNext();
 }
 
 void DetailView::findPrevious() {
-  static_cast<ContentWidget *>(mContent->currentWidget())->findPrevious();
+  mContent->findPrevious();
 }
 
 QString DetailView::overrideUser() const { return mOverrideUser; }

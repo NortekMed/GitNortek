@@ -19,7 +19,6 @@ class History;
 class MainWindow;
 class RepoView;
 class SearchField;
-class QButtonGroup;
 class QToolButton;
 
 class ToolBar : public QToolBar {
@@ -75,7 +74,6 @@ private:
   QToolButton *mTerminalButton;
   QToolButton *mFileManagerButton;
   QToolButton *mLogButton;
-  const QButtonGroup *mModeGroup;
 
   QToolButton *mStarButton;
   SearchField *mSearchField;
