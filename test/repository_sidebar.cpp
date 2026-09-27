@@ -45,6 +45,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QProcess>
+#include <QProcessEnvironment>
 #include <QPushButton>
 #include <QScopeGuard>
 #include <QScrollBar>
@@ -244,9 +245,15 @@ bool isGreenBranchColor(const QColor &color) {
   return hue >= 75 && hue <= 175 && hsv.hsvSaturation() >= 20;
 }
 
-int runGit(const git::Repository &repo, const QStringList &arguments) {
+int runGit(const git::Repository &repo, const QStringList &arguments,
+           const QString &committerDate = QString()) {
   QProcess git;
   git.setWorkingDirectory(repo.workdir().path());
+  if (!committerDate.isEmpty()) {
+    QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
+    environment.insert("GIT_COMMITTER_DATE", committerDate);
+    git.setProcessEnvironment(environment);
+  }
   git.start(GIT_EXECUTABLE, arguments);
   if (!git.waitForFinished())
     return -1;
@@ -278,6 +285,7 @@ private slots:
   void initTestCase();
   void sidebarVisibility();
   void navigatorModel();
+  void tagSorting();
   void navigatorView();
   void submoduleExpansionSizing();
   void githubIssuesModel();
@@ -396,6 +404,10 @@ void TestRepositorySideBar::navigatorModel() {
   QVERIFY(head.isValid());
   QVERIFY(mRepo->createBranch("feature", head).isValid());
   QVERIFY(mRepo->createTag(head, "v1").isValid());
+  QVERIFY(runGit(mRepo, {"tag", "-a", "z-old", "-m", "old", "HEAD"},
+                 "2020-01-01T00:00:00+0000") == 0);
+  QVERIFY(runGit(mRepo, {"tag", "-a", "a-new", "-m", "new", "HEAD"},
+                 "2021-01-01T00:00:00+0000") == 0);
 
   QVERIFY(file.open(QIODevice::Append));
   QCOMPARE(file.write("change\n"), qint64(7));
@@ -498,9 +510,33 @@ void TestRepositorySideBar::navigatorModel() {
 
   QModelIndex tags =
       model.sectionIndex(RepositoryNavigatorModel::Section::Tags);
-  QCOMPARE(model.rowCount(tags), 1);
+  QCOMPARE(model.rowCount(tags), 3);
   QVERIFY(tags.data(RepositoryNavigatorModel::AvailableRole).toBool());
-  QCOMPARE(model.index(0, 0, tags).data().toString(), QString("v1"));
+  auto tagNames = [&model] {
+    QModelIndex section =
+        model.sectionIndex(RepositoryNavigatorModel::Section::Tags);
+    QStringList names;
+    for (int row = 0; row < model.rowCount(section); ++row)
+      names.append(model.index(row, 0, section).data().toString());
+    return names;
+  };
+  QCOMPARE(tagNames(), QStringList({"v1", "a-new", "z-old"}));
+
+  model.setTagSort(RepositoryNavigatorModel::TagSortKey::Name,
+                   Qt::AscendingOrder);
+  QCOMPARE(tagNames(), QStringList({"a-new", "v1", "z-old"}));
+
+  model.setTagSort(RepositoryNavigatorModel::TagSortKey::Name,
+                   Qt::DescendingOrder);
+  QCOMPARE(tagNames(), QStringList({"z-old", "v1", "a-new"}));
+
+  model.setTagSort(RepositoryNavigatorModel::TagSortKey::Date,
+                   Qt::AscendingOrder);
+  QCOMPARE(tagNames(), QStringList({"z-old", "a-new", "v1"}));
+
+  model.setTagSort(RepositoryNavigatorModel::TagSortKey::Date,
+                   Qt::DescendingOrder);
+  QCOMPARE(tagNames(), QStringList({"v1", "a-new", "z-old"}));
 
   QModelIndex submodules =
       model.sectionIndex(RepositoryNavigatorModel::Section::Submodules);
@@ -531,6 +567,76 @@ void TestRepositorySideBar::navigatorModel() {
   QCOMPARE(emptyModel.rowCount(emptyWorktrees), 1);
   QVERIFY(
       emptyWorktrees.data(RepositoryNavigatorModel::AvailableRole).toBool());
+}
+
+void TestRepositorySideBar::tagSorting() {
+  const QString sortKey = "sidebar/repositoryNavigator/tags/sortKey";
+  const QString sortOrder = "sidebar/repositoryNavigator/tags/sortOrder";
+  QSettings settings;
+  const QStringList keys = {sortKey, sortOrder};
+  QSet<QString> existingKeys;
+  QHash<QString, QVariant> existingValues;
+  for (const QString &key : keys) {
+    if (settings.contains(key)) {
+      existingKeys.insert(key);
+      existingValues.insert(key, settings.value(key));
+    }
+  }
+  auto restoreSettings = qScopeGuard([existingKeys, existingValues, keys] {
+    QSettings settings;
+    for (const QString &key : keys) {
+      if (existingKeys.contains(key))
+        settings.setValue(key, existingValues.value(key));
+      else
+        settings.remove(key);
+    }
+  });
+
+  Test::ScratchRepository repo;
+  git::Commit initial = repo->commit("initial");
+  QVERIFY(initial.isValid());
+  QVERIFY(repo->createTag(initial, "v1").isValid());
+
+  settings.setValue(
+      sortKey, static_cast<int>(RepositoryNavigatorModel::TagSortKey::Name));
+  settings.setValue(sortOrder, static_cast<int>(Qt::AscendingOrder));
+
+  RepositoryNavigator navigator;
+  navigator.setRepository(repo);
+  RepositoryNavigatorModel *model = navigator.model();
+  QCOMPARE(model->tagSortKey(), RepositoryNavigatorModel::TagSortKey::Name);
+  QCOMPARE(model->tagSortOrder(), Qt::AscendingOrder);
+
+  QToolButton *sortButton = navigator.findChild<QToolButton *>(
+      "RepositoryNavigationTagsSort");
+  QVERIFY(sortButton);
+  QVERIFY(sortButton->menu());
+
+  QAction *sortByDate = nullptr;
+  QAction *descending = nullptr;
+  for (QAction *action : sortButton->menu()->actions()) {
+    if (action->text() == "Sort by Date")
+      sortByDate = action;
+    else if (action->text() == "Descending")
+      descending = action;
+  }
+  QVERIFY(sortByDate);
+  QVERIFY(descending);
+
+  sortByDate->trigger();
+  descending->trigger();
+  QCOMPARE(model->tagSortKey(), RepositoryNavigatorModel::TagSortKey::Date);
+  QCOMPARE(model->tagSortOrder(), Qt::DescendingOrder);
+  QCOMPARE(settings.value(sortKey).toInt(),
+           static_cast<int>(RepositoryNavigatorModel::TagSortKey::Date));
+  QCOMPARE(settings.value(sortOrder).toInt(),
+           static_cast<int>(Qt::DescendingOrder));
+
+  RepositoryNavigator restored;
+  restored.setRepository(repo);
+  QCOMPARE(restored.model()->tagSortKey(),
+           RepositoryNavigatorModel::TagSortKey::Date);
+  QCOMPARE(restored.model()->tagSortOrder(), Qt::DescendingOrder);
 }
 
 void TestRepositorySideBar::navigatorView() {

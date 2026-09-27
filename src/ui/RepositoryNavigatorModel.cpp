@@ -7,8 +7,11 @@
 
 #include "RepositoryNavigatorModel.h"
 #include "git/Branch.h"
+#include "git/Signature.h"
+#include "git/Tag.h"
 #include "git/TagRef.h"
 #include "git/Worktree.h"
+#include <QDateTime>
 #include <QUrl>
 #include <QtConcurrent>
 #include <algorithm>
@@ -66,6 +69,31 @@ bool RepositoryNavigatorModel::lessThan(
   return QString::localeAwareCompare(lhs.display, rhs.display) < 0;
 }
 
+bool RepositoryNavigatorModel::lessThanTag(
+    const RepositoryNavigatorModel::Row &lhs,
+    const RepositoryNavigatorModel::Row &rhs) const {
+  if (mTagSortKey == TagSortKey::Name) {
+    const int comparison =
+        QString::localeAwareCompare(lhs.display, rhs.display);
+    return mTagSortOrder == Qt::AscendingOrder ? comparison < 0
+                                                : comparison > 0;
+  }
+
+  const bool lhsHasDate = lhs.sortDate.isValid();
+  const bool rhsHasDate = rhs.sortDate.isValid();
+  if (lhsHasDate != rhsHasDate)
+    return lhsHasDate;
+
+  if (lhsHasDate && lhs.sortDate != rhs.sortDate) {
+    if (mTagSortOrder == Qt::AscendingOrder)
+      return lhs.sortDate < rhs.sortDate;
+    return lhs.sortDate > rhs.sortDate;
+  }
+
+  // Keep equal or unavailable dates deterministic.
+  return QString::localeAwareCompare(lhs.display, rhs.display) < 0;
+}
+
 RepositoryNavigatorModel::RepositoryNavigatorModel(QObject *parent)
     : QAbstractItemModel(parent) {
   mRefreshTimer.setSingleShot(true);
@@ -73,6 +101,33 @@ RepositoryNavigatorModel::RepositoryNavigatorModel(QObject *parent)
   connect(&mRefreshTimer, &QTimer::timeout, this,
           &RepositoryNavigatorModel::refresh);
   rebuild();
+}
+
+void RepositoryNavigatorModel::setTagSort(TagSortKey key, Qt::SortOrder order) {
+  if (mTagSortKey == key && mTagSortOrder == order)
+    return;
+
+  mTagSortKey = key;
+  mTagSortOrder = order;
+
+  const int section = static_cast<int>(Section::Tags);
+  if (section >= mSections.size())
+    return;
+
+  beginResetModel();
+  std::sort(
+      mSections[section].rows.begin(), mSections[section].rows.end(),
+      [this](const Row &lhs, const Row &rhs) { return lessThanTag(lhs, rhs); });
+  endResetModel();
+}
+
+RepositoryNavigatorModel::TagSortKey
+RepositoryNavigatorModel::tagSortKey() const {
+  return mTagSortKey;
+}
+
+Qt::SortOrder RepositoryNavigatorModel::tagSortOrder() const {
+  return mTagSortOrder;
 }
 
 void RepositoryNavigatorModel::setRepository(const git::Repository &repo) {
@@ -577,9 +632,21 @@ void RepositoryNavigatorModel::rebuild() {
     row.reference = tag;
     row.display = tag.name();
     row.tooltip = tag.qualifiedName();
+    git::Tag annotatedTag = tag.tag();
+    if (annotatedTag.isValid()) {
+      if (git::Signature tagger = annotatedTag.tagger())
+        row.sortDate = tagger.date();
+    }
+    if (!row.sortDate.isValid()) {
+      git::Commit target = tag.target();
+      if (target.isValid())
+        row.sortDate = target.committer().date();
+    }
     tags.rows.append(row);
   }
-  std::sort(tags.rows.begin(), tags.rows.end(), lessThan);
+  std::sort(
+      tags.rows.begin(), tags.rows.end(),
+      [this](const Row &lhs, const Row &rhs) { return lessThanTag(lhs, rhs); });
   tags.available = !tags.rows.isEmpty();
 
   SectionData &submodules = mSections[static_cast<int>(Section::Submodules)];

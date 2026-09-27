@@ -55,6 +55,9 @@ Bug Fix and Feature release
 
 #### Changed
 
+* Allow the Tags sidebar section to sort by name or creation date in ascending
+  or descending order, with the preference remembered across repositories
+
 * Distinguish ignored index removals from files deleted on disk in working-tree status badges
 * Open modified committed files in Diff view and unchanged committed files in File View, with optional blame annotations available in both modes
 * Make Save Selected Version as safe for popup-menu dismissal and support

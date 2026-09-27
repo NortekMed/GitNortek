@@ -14,6 +14,7 @@
 #include "git/Submodule.h"
 #include "host/GitHub.h"
 #include <QAbstractItemModel>
+#include <QDateTime>
 #include <QFutureWatcher>
 #include <QHash>
 #include <QTimer>
@@ -54,6 +55,12 @@ public:
 
   enum class OriginState { Hidden, Pending, Failed, Ready };
   Q_ENUM(OriginState)
+
+  enum class TagSortKey { Name, Date };
+
+  void setTagSort(TagSortKey key, Qt::SortOrder order);
+  TagSortKey tagSortKey() const;
+  Qt::SortOrder tagSortOrder() const;
 
   enum Role {
     SectionRole = Qt::UserRole + 1,
@@ -130,6 +137,7 @@ private:
     bool available = true;
     bool current = false;
     bool mainWorktree = false;
+    QDateTime sortDate;
     int ahead = -1;
     int behind = -1;
     int pinnedAhead = -1;
@@ -151,6 +159,7 @@ private:
   };
 
   static bool lessThan(const Row &lhs, const Row &rhs);
+  bool lessThanTag(const Row &lhs, const Row &rhs) const;
   bool isSection(const QModelIndex &index) const;
   bool isItem(const QModelIndex &index) const;
   const SectionData *sectionData(const QModelIndex &index) const;
@@ -178,6 +187,8 @@ private:
   QFutureWatcher<QList<BranchComparison>> *mBranchComparisonWatcher = nullptr;
   quint64 mBranchComparisonGeneration = 0;
   bool mBranchComparisonPending = false;
+  TagSortKey mTagSortKey = TagSortKey::Date;
+  Qt::SortOrder mTagSortOrder = Qt::DescendingOrder;
   bool mGitHubIssuesAvailable = false;
   LoadState mGitHubIssuesState = LoadState::Unavailable;
   GitHub::Issues mGitHubIssues;

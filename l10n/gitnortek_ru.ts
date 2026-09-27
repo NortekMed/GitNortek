@@ -6878,6 +6878,32 @@ The submodule will be removed from this project. Its working files and cached lo
         <source>%1 - %2/%3</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="624"/>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="625"/>
+        <source>Sort tags</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="633"/>
+        <source>Sort by Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="636"/>
+        <source>Sort by Date</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="644"/>
+        <source>Ascending</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/RepositoryNavigator.cpp" line="647"/>
+        <source>Descending</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>RepositoryNavigatorModel</name>

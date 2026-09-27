@@ -22,6 +22,7 @@
 #include "host/Accounts.h"
 #include "host/Repository.h"
 #include <QApplication>
+#include <QActionGroup>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDateTime>
@@ -59,6 +60,8 @@
 namespace {
 
 const QString kExpandedGroup = "sidebar/repositoryNavigator/expanded";
+const QString kTagSortKey = "sidebar/repositoryNavigator/tags/sortKey";
+const QString kTagSortOrder = "sidebar/repositoryNavigator/tags/sortOrder";
 const QString kIssuesRemoteKey = "sidebar.githubIssues.remote";
 constexpr qint64 kIssuesCacheLifetimeMs = 5 * 60 * 1000;
 constexpr qint64 kIssuesManualRefreshIntervalMs = 10 * 1000;
@@ -78,6 +81,34 @@ struct WorktreeCreationResult {
 QString sectionKey(RepositoryNavigatorModel::Section section) {
   QMetaEnum meta = QMetaEnum::fromType<RepositoryNavigatorModel::Section>();
   return QString::fromLatin1(meta.valueToKey(static_cast<int>(section)));
+}
+
+RepositoryNavigatorModel::TagSortKey tagSortKeyFromSettings() {
+  QSettings settings;
+  const int value =
+      settings
+          .value(kTagSortKey,
+                 static_cast<int>(RepositoryNavigatorModel::TagSortKey::Date))
+          .toInt();
+  return value == static_cast<int>(RepositoryNavigatorModel::TagSortKey::Name)
+             ? RepositoryNavigatorModel::TagSortKey::Name
+             : RepositoryNavigatorModel::TagSortKey::Date;
+}
+
+Qt::SortOrder tagSortOrderFromSettings() {
+  QSettings settings;
+  const int value =
+      settings.value(kTagSortOrder, static_cast<int>(Qt::DescendingOrder))
+          .toInt();
+  return value == static_cast<int>(Qt::AscendingOrder) ? Qt::AscendingOrder
+                                                       : Qt::DescendingOrder;
+}
+
+void storeTagSort(RepositoryNavigatorModel::TagSortKey key,
+                  Qt::SortOrder order) {
+  QSettings settings;
+  settings.setValue(kTagSortKey, static_cast<int>(key));
+  settings.setValue(kTagSortOrder, static_cast<int>(order));
 }
 
 bool hasScrollingBody(RepositoryNavigatorModel::Section section) {
@@ -519,6 +550,7 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
   setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
 
   mModel = new RepositoryNavigatorModel(this);
+  mModel->setTagSort(tagSortKeyFromSettings(), tagSortOrderFromSettings());
   connect(&mSubmoduleSpinnerTimer, &QTimer::timeout, this, [this] {
     ++mSubmoduleSpinnerProgress;
     if (QTreeView *view = sectionView(RepositoryNavigatorModel::Section::Submodules))
@@ -586,6 +618,56 @@ RepositoryNavigator::RepositoryNavigator(QWidget *parent,
       mWorktreeAdd = action;
       connect(action, &QToolButton::clicked, this,
               &RepositoryNavigator::promptToCreateWorktree);
+    } else if (section == RepositoryNavigatorModel::Section::Tags) {
+      action = new QToolButton(header);
+      action->setObjectName("RepositoryNavigationTagsSort");
+      action->setAccessibleName(tr("Sort tags"));
+      action->setToolTip(tr("Sort tags"));
+      action->setText(QString::fromUtf8("↕"));
+      action->setAutoRaise(true);
+      action->setPopupMode(QToolButton::InstantPopup);
+
+      QMenu *sortMenu = new QMenu(action);
+      QActionGroup *keyGroup = new QActionGroup(sortMenu);
+      keyGroup->setExclusive(true);
+      QAction *sortByName = sortMenu->addAction(tr("Sort by Name"));
+      sortByName->setCheckable(true);
+      keyGroup->addAction(sortByName);
+      QAction *sortByDate = sortMenu->addAction(tr("Sort by Date"));
+      sortByDate->setCheckable(true);
+      keyGroup->addAction(sortByDate);
+
+      sortMenu->addSeparator();
+
+      QActionGroup *orderGroup = new QActionGroup(sortMenu);
+      orderGroup->setExclusive(true);
+      QAction *ascending = sortMenu->addAction(tr("Ascending"));
+      ascending->setCheckable(true);
+      orderGroup->addAction(ascending);
+      QAction *descending = sortMenu->addAction(tr("Descending"));
+      descending->setCheckable(true);
+      orderGroup->addAction(descending);
+
+      sortByName->setChecked(mModel->tagSortKey() ==
+                             RepositoryNavigatorModel::TagSortKey::Name);
+      sortByDate->setChecked(mModel->tagSortKey() ==
+                             RepositoryNavigatorModel::TagSortKey::Date);
+      ascending->setChecked(mModel->tagSortOrder() == Qt::AscendingOrder);
+      descending->setChecked(mModel->tagSortOrder() == Qt::DescendingOrder);
+
+      auto applyTagSort = [this, sortByName, ascending](QAction *) {
+        const auto key = sortByName->isChecked()
+                             ? RepositoryNavigatorModel::TagSortKey::Name
+                             : RepositoryNavigatorModel::TagSortKey::Date;
+        const Qt::SortOrder order =
+            ascending->isChecked() ? Qt::AscendingOrder : Qt::DescendingOrder;
+        mModel->setTagSort(key, order);
+        storeTagSort(key, order);
+      };
+      connect(keyGroup, &QActionGroup::triggered, this, applyTagSort);
+      connect(orderGroup, &QActionGroup::triggered, this, applyTagSort);
+
+      action->setMenu(sortMenu);
     }
 
     QHBoxLayout *headerLayout = new QHBoxLayout(header);
@@ -1076,10 +1158,15 @@ void RepositoryNavigator::updatePanels() {
     panel.toggle->setEnabled(available && panel.view);
     panel.icon->setEnabled(available);
     panel.title->setEnabled(available);
-    if (panel.action)
-      panel.action->setEnabled(mModel->repository().isValid() &&
-                               !mModel->repository().isBare() &&
-                               !mCreatingWorktree);
+    if (panel.action) {
+      bool actionEnabled = mModel->repository().isValid() &&
+                           !mCreatingWorktree;
+      if (panel.section == RepositoryNavigatorModel::Section::Worktrees)
+        actionEnabled = actionEnabled && !mModel->repository().isBare();
+      else if (panel.section == RepositoryNavigatorModel::Section::Tags)
+        actionEnabled = actionEnabled && available;
+      panel.action->setEnabled(actionEnabled);
+    }
     if (panel.view) {
       panel.view->setRootIndex(index);
       panel.view->setEnabled(available);
