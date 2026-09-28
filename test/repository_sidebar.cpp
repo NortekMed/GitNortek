@@ -292,6 +292,7 @@ private slots:
   void githubIssuesRemoteFilter();
   void activeRepositoryBinding();
   void checkoutKeepsNonConflictingChanges();
+  void checkoutConflictAfterNavigation();
   void checkoutConflictStash();
   void checkoutConflictCommit();
   void branchGraphColors();
@@ -1513,6 +1514,57 @@ void TestRepositorySideBar::checkoutKeepsNonConflictingChanges() {
   QFile kept(repo->workdir().filePath("kept.txt"));
   QVERIFY(kept.open(QIODevice::ReadOnly));
   QCOMPARE(kept.readAll(), QByteArray("uncommitted but safe\n"));
+}
+
+void TestRepositorySideBar::checkoutConflictAfterNavigation() {
+  Test::ScratchRepository repo;
+  QVERIFY(writeFile(repo, "tracked.txt", "base\n"));
+  QCOMPARE(runGit(repo, {"add", "tracked.txt"}), 0);
+  QCOMPARE(runGit(repo, {"commit", "-m", "base"}), 0);
+  const QString mainBranch = repo->head().name();
+
+  QCOMPARE(runGit(repo, {"checkout", "-b", "navigation-target"}), 0);
+  QVERIFY(writeFile(repo, "tracked.txt", "target\n"));
+  QCOMPARE(runGit(repo, {"add", "tracked.txt"}), 0);
+  QCOMPARE(runGit(repo, {"commit", "-m", "target changes"}), 0);
+  QCOMPARE(runGit(repo, {"checkout", mainBranch}), 0);
+
+  QVERIFY(writeFile(repo, "tracked.txt",
+                    "<<<<<<< HEAD\nmain\n=======\ntarget\n"
+                    ">>>>>>> navigation-target\n"));
+
+  MainWindow window(repo);
+  RepoView *view = window.currentView();
+  QVERIFY(view);
+  CommitList *commits = view->findChild<CommitList *>();
+  QVERIFY(commits);
+  QTRY_VERIFY(view->workingTreeStatus().isDirty());
+
+  const git::Reference target = repo->lookupRef("refs/heads/navigation-target");
+  QVERIFY(target.isValid());
+  view->navigateToReference(target);
+  QVERIFY(commits->selectedRange() != QStringLiteral("status"));
+
+  view->checkoutFromNavigator(target);
+
+  QPointer<QMessageBox> dialog;
+  QTRY_VERIFY(dialog =
+                  view->findChild<QMessageBox *>("CheckoutConflictsDialog"));
+  QVERIFY(dialog);
+  QCOMPARE(repo->head().name(), mainBranch);
+  QCOMPARE(view->reference().qualifiedName(), repo->head().qualifiedName());
+
+  QLabel *paths = dialog->findChild<QLabel *>("CheckoutConflictPaths");
+  QVERIFY(paths);
+  QVERIFY(paths->isVisible());
+  QVERIFY(paths->height() > 0);
+  QVERIFY(paths->text().contains("tracked.txt"));
+  QVERIFY(dialog->detailedText().contains("tracked.txt"));
+  QTRY_COMPARE(commits->selectedRange(), QString("status"));
+  QVERIFY(view->workingTreeStatus().isDirty());
+
+  dialog->reject();
+  QTRY_VERIFY(!dialog);
 }
 
 void TestRepositorySideBar::checkoutConflictCommit() {

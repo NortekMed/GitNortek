@@ -10,6 +10,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFileSystemWatcher>
+#include <QSet>
 #include <QSettings>
 #include <QTimer>
 #include <QUuid>
@@ -42,6 +43,14 @@ bool repositoryRoot(const QString &path, QString *root) {
   return true;
 }
 
+QString normalizedDirectoryPath(const QString &path) {
+  QFileInfo directory(path);
+  QString normalized = directory.canonicalFilePath();
+  if (normalized.isEmpty())
+    normalized = directory.absoluteFilePath();
+  return QDir::cleanPath(normalized);
+}
+
 QStringList normalizedRepositories(const QStringList &repositories) {
   QStringList result;
   for (const QString &path : repositories) {
@@ -65,6 +74,45 @@ QStringList manualRepositories(const LocalWorkspace &workspace) {
   return result;
 }
 
+void walkSynchronizedDirectory(const QString &path, bool syncDirectory,
+                               QStringList *repositories,
+                               QStringList *watchedDirectories,
+                               QSet<QString> *visited) {
+  const QString normalized = normalizedDirectoryPath(path);
+  if (normalized.isEmpty())
+    return;
+
+  const QString key = util::pathCompareKey(normalized);
+  if (visited->contains(key))
+    return;
+  visited->insert(key);
+
+  if (syncDirectory && watchedDirectories &&
+      !containsPath(*watchedDirectories, normalized))
+    watchedDirectories->append(normalized);
+
+  // Do not descend into repository trees. This also excludes submodules and
+  // avoids traversing Git metadata.
+  QString root;
+  if (repositoryRoot(path, &root)) {
+    if (!syncDirectory && util::pathsEqual(normalized, root) && repositories &&
+        !containsPath(*repositories, root))
+      repositories->append(root);
+    return;
+  }
+
+  if (!syncDirectory && watchedDirectories &&
+      !containsPath(*watchedDirectories, normalized))
+    watchedDirectories->append(normalized);
+
+  const QFileInfoList children = QDir(path).entryInfoList(
+      QDir::Dirs | QDir::Hidden | QDir::NoDotAndDotDot,
+      QDir::Name | QDir::IgnoreCase);
+  for (const QFileInfo &child : children)
+    walkSynchronizedDirectory(child.absoluteFilePath(), false, repositories,
+                              watchedDirectories, visited);
+}
+
 bool scanSynchronizedDirectory(const QString &path, QStringList *repositories,
                                QString *error) {
   QDir syncDirectory(path);
@@ -76,20 +124,8 @@ bool scanSynchronizedDirectory(const QString &path, QStringList *repositories,
   }
 
   repositories->clear();
-  const QFileInfoList children = syncDirectory.entryInfoList(
-      QDir::Dirs | QDir::Hidden | QDir::NoDotAndDotDot,
-      QDir::Name | QDir::IgnoreCase);
-  for (const QFileInfo &child : children) {
-    QString root;
-    if (!repositoryRoot(child.absoluteFilePath(), &root))
-      continue;
-
-    QString childPath = child.canonicalFilePath();
-    if (childPath.isEmpty())
-      childPath = child.absoluteFilePath();
-    if (util::pathsEqual(QDir::cleanPath(childPath), root))
-      repositories->append(root);
-  }
+  QSet<QString> visited;
+  walkSynchronizedDirectory(path, true, repositories, nullptr, &visited);
   return true;
 }
 
@@ -492,6 +528,7 @@ void LocalWorkspaces::updateWatchedDirectories() {
     mWatcher->removePaths(watched);
 
   QStringList directories;
+  QSet<QString> visited;
   for (const LocalWorkspace &workspace : std::as_const(mWorkspaces)) {
     if (!workspace.syncEnabled || workspace.syncDirectory.isEmpty())
       continue;
@@ -504,14 +541,8 @@ void LocalWorkspaces::updateWatchedDirectories() {
     QDir syncDirectory(workspace.syncDirectory);
     if (!syncDirectory.exists())
       continue;
-    if (!containsPath(directories, workspace.syncDirectory))
-      directories.append(workspace.syncDirectory);
-    const QFileInfoList children = syncDirectory.entryInfoList(
-        QDir::Dirs | QDir::Hidden | QDir::NoDotAndDotDot);
-    for (const QFileInfo &child : children) {
-      if (!containsPath(directories, child.absoluteFilePath()))
-        directories.append(child.absoluteFilePath());
-    }
+    walkSynchronizedDirectory(workspace.syncDirectory, true, nullptr,
+                              &directories, &visited);
   }
   if (!directories.isEmpty())
     mWatcher->addPaths(directories);

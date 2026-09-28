@@ -69,6 +69,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFrame>
+#include <QGridLayout>
 #include <QHBoxLayout>
 #include <QJsonObject>
 #include <QLabel>
@@ -2971,6 +2972,39 @@ void RepoView::checkoutFromNavigator(const git::Reference &ref) {
     return;
   }
 
+  // The navigator may have been used to inspect the target before checkout.
+  // Switch the view back to the real HEAD so the working-tree row (and its
+  // files) remains available while the user decides how to resolve the
+  // conflict. This is UI-only; the checkout above was a safe dry run.
+  const git::Reference head = mRepo.head();
+  mSelectingPendingCheckoutStatus = true;
+  toolBar()->searchField()->clear();
+  mPathspec->setPathspec(QString());
+
+  // Keep the reference and commit-list updates separate. In particular,
+  // this still restores the commit list when a detached or unborn HEAD cannot
+  // be selected in the reference widget.
+  mRefs->select(head);
+  mCommits->setReference(head);
+  if (head.isValid())
+    mCommits->selectReference(head);
+
+  const bool selected = mCommits->selectRange("status", QString(), true) &&
+                        mCommits->selectedRange() == QStringLiteral("status");
+  if (!selected) {
+    connect(
+        mCommits, &CommitList::statusChanged, this,
+        [this](bool) {
+          const bool selecting = mSelectingPendingCheckoutStatus;
+          mSelectingPendingCheckoutStatus = true;
+          mCommits->selectRange("status", QString(), true);
+          mSelectingPendingCheckoutStatus = selecting;
+        },
+        Qt::SingleShotConnection);
+    refresh(false);
+  }
+  mSelectingPendingCheckoutStatus = false;
+
   promptForCheckoutConflicts(ref, callbacks.conflicts());
 }
 
@@ -2987,12 +3021,26 @@ void RepoView::promptForCheckoutConflicts(const git::Reference &ref,
       tr("Stash or commit the conflicting changes before checking out this "
          "branch."));
   dialog->setDetailedText(conflicts.join('\n'));
+  QLabel *conflictPaths = new QLabel(
+      tr("Conflicting files:\n%1").arg(conflicts.join('\n')), dialog);
+  conflictPaths->setObjectName("CheckoutConflictPaths");
+  conflictPaths->setTextFormat(Qt::PlainText);
+  conflictPaths->setTextInteractionFlags(Qt::TextSelectableByMouse);
+  conflictPaths->setWordWrap(true);
+  if (QGridLayout *layout = qobject_cast<QGridLayout *>(dialog->layout())) {
+    layout->addWidget(conflictPaths, layout->rowCount(), 0, 1,
+                      layout->columnCount());
+  } else {
+    dialog->layout()->addWidget(conflictPaths);
+  }
 
   QPushButton *stashButton =
-      dialog->addButton(tr("Stash and Checkout"), QMessageBox::AcceptRole);
-  connect(stashButton, &QPushButton::clicked, this, [this, ref] {
-    if (stash(QString(), true))
+      dialog->addButton(tr("Stash and Checkout"), QMessageBox::ActionRole);
+  connect(stashButton, &QPushButton::clicked, this, [this, ref, dialog] {
+    if (stash(QString(), true)) {
+      dialog->accept();
       checkoutFromNavigator(ref);
+    }
   });
 
   QPushButton *commitButton =
@@ -3001,7 +3049,9 @@ void RepoView::promptForCheckoutConflicts(const git::Reference &ref,
     mSelectingPendingCheckoutStatus = true;
     mPendingCheckoutRef = ref.qualifiedName();
     toolBar()->searchField()->clear();
-    const bool selected = mCommits->selectRange("status", QString(), true);
+    mPathspec->setPathspec(QString());
+    const bool selected = mCommits->selectRange("status", QString(), true) &&
+                          mCommits->selectedRange() == QStringLiteral("status");
     mSelectingPendingCheckoutStatus = false;
     if (selected)
       return;

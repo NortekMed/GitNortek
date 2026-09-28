@@ -89,6 +89,7 @@ Bug Fix and Feature release
 * Run package artifact downloads on the Node.js 24 Actions runtime
 * Show active repository work with a spinner in the corresponding tab instead of a global busy cursor
 * Show active submodule checks and updates with a spinner at the end of the matching navigator row
+* Discover repositories recursively in Local Repository Management synchronized directories while skipping repository subtrees and submodules
 * Trigger package and prerelease automation consistently for valid prerelease tags
 * Show repository-open diagnostics in invalid repository and unavailable recent repository dialogs
 * Stop the repository loading indicator and wait cursor reliably after cloning a repository
@@ -107,6 +108,7 @@ Bug Fix and Feature release
 * Size repository tabs to their titles, elide crowded titles, and show full repository details on hover
 * Wrap crowded repository tabs across up to four rows and provide searchable overflow for additional tabs
 * Distinguish local and linked-worktree tabs, require a double-click to open worktrees, and protect branch checkout from overwriting uncommitted changes
+* Show conflicting working-tree paths and restore the working-tree view when checkout is blocked
 * Keep navigator selection on worktrees when switching tabs and prevent empty navigator sections from expanding
 * Expand Local and focus the checked-out branch when opening a repository, with navigator lists matching the surrounding panel background
 * Size expanded navigator lists for up to five visible items, separate menus with visible dividers and spacing, and prioritize newly opened sections when vertical space is limited

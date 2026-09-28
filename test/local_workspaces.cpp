@@ -9,6 +9,7 @@
 #include "dialogs/DirectorySelectionDialog.h"
 #include "dialogs/LocalWorkspaceDialog.h"
 #include "git/Reference.h"
+#include "git/Submodule.h"
 #include "ui/LocalRepositoryManagement.h"
 #include "ui/LocalWorkspaceModel.h"
 #include <QAbstractItemModelTester>
@@ -191,8 +192,26 @@ void TestLocalWorkspaces::synchronizedDirectory() {
   git::Repository direct = git::Repository::init(directory.filePath("direct"));
   git::Repository nested =
       git::Repository::init(directory.filePath("outer/nested"));
+  QVERIFY(directory.mkdir("project"));
+  git::Repository project =
+      git::Repository::init(directory.filePath("project"));
   QVERIFY(direct.isValid());
   QVERIFY(nested.isValid());
+  QVERIFY(project.isValid());
+
+  Test::initRepo(project);
+  Test::ScratchRepository submodule;
+  QVERIFY(writeFile(submodule->workdir().filePath("submodule.txt"),
+                    "submodule\n"));
+  QVERIFY(runGit(submodule->workdir().path(), {"add", "submodule.txt"}));
+  QVERIFY(runGit(submodule->workdir().path(), {"commit", "-m", "submodule"}));
+  const QString projectPath = project.dir(false).path();
+  QVERIFY(runGit(projectPath,
+                 {"-c", "protocol.file.allow=always", "submodule", "add",
+                  submodule->workdir().path(), "submodule"}));
+  QVERIFY(runGit(projectPath, {"commit", "-m", "add submodule"}));
+  QCOMPARE(project.submodules().size(), 1);
+  const QString submodulePath = QDir(projectPath).filePath("submodule");
 
   LocalWorkspace workspace;
   workspace.name = "Synchronized";
@@ -206,10 +225,12 @@ void TestLocalWorkspaces::synchronizedDirectory() {
 
   const LocalWorkspace *stored = workspaces->workspace(workspace.id);
   QVERIFY(stored);
-  QCOMPARE(stored->repositories, QStringList({direct.dir(false).path()}));
+  QCOMPARE(stored->repositories,
+           QStringList({direct.dir(false).path(), nested.dir(false).path(),
+                        projectPath}));
   QCOMPARE(stored->synchronizedRepositories, stored->repositories);
   QVERIFY(stored->manualRepositories.isEmpty());
-  QVERIFY(!stored->repositories.contains(nested.dir(false).path()));
+  QVERIFY(!stored->repositories.contains(submodulePath));
 
   QStringList invalid;
   QStringList duplicates;
@@ -242,9 +263,9 @@ void TestLocalWorkspaces::synchronizedDirectory() {
   moveMouseTo(tree, proxyRemove);
   QVERIFY(tree->viewport()->cursor().shape() != Qt::PointingHandCursor);
 
-  QVERIFY(directory.mkdir("created-later"));
-  git::Repository createdLater =
-      git::Repository::init(directory.filePath("created-later"));
+  QVERIFY(directory.mkpath("created-later/group"));
+  git::Repository createdLater = git::Repository::init(
+      directory.filePath("created-later/group/repository"));
   QVERIFY(createdLater.isValid());
   const QString createdLaterPath = createdLater.dir(false).path();
   QTRY_VERIFY_WITH_TIMEOUT(
