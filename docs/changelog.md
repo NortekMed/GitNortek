@@ -26,6 +26,7 @@ Bug Fix and Feature release
 * Add more information about the credential stores to give the user the possibility to easily see the tradeoffs of every credential store
 * Add GitNortek package artifact workflows for Linux RPM and Windows installers
 * Add submodule creation, update checks, and modification dialog support
+* Add a submodule action to deinitialize and clear a stale cached repository
 * Add a toggle for the committed file tree
 * Add Ptyxis terminal auto-detection on Linux
 * Add Tamil translation
@@ -55,6 +56,9 @@ Bug Fix and Feature release
 * Add asynchronous Stop Tracking and Ignore actions for tracked files and folders with protected repository paths and optional deletion
 
 #### Changed
+
+* Explain and block deletion attempts for local branches checked out in linked
+  worktrees instead of failing silently
 
 * Make Double Tree View the only repository file view and open it by default
 

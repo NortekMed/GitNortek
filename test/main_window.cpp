@@ -17,6 +17,7 @@
 #include "dialogs/RenameBranchDialog.h"
 #include "editor/TextEditor.h"
 #include "git/Config.h"
+#include "git/Result.h"
 #include "host/GitHub.h"
 #include "ui/CommitList.h"
 #include "ui/DetailView.h"
@@ -31,6 +32,7 @@
 #include "ui/TabBar.h"
 #include "ui/TabWidget.h"
 #include "ui/ToolBar.h"
+#include <QDir>
 #include <QFile>
 #include <QGuiApplication>
 #include <QLineEdit>
@@ -78,6 +80,7 @@ private slots:
   void pushTrackedBranchWithoutPrompt();
   void renameRemoteBranch();
   void deleteRemoteBranch();
+  void deleteCheckedOutBranch();
   void forcePushResetBranch();
   void closeTab();
   void recentRepositoryLimit();
@@ -290,8 +293,7 @@ void TestMainWindow::fastIssueAccess() {
   QTRY_VERIFY(button->isVisible());
 
   QTest::mouseClick(button, Qt::LeftButton);
-  QPointer<FastIssueDialog> dialog =
-      mWindow->findChild<FastIssueDialog *>();
+  QPointer<FastIssueDialog> dialog = mWindow->findChild<FastIssueDialog *>();
   QVERIFY(dialog);
   QVERIFY(dialog->isVisible());
   dialog->close();
@@ -341,8 +343,8 @@ void TestMainWindow::localRepositoryManagement() {
   QVERIFY(fileManager);
   QVERIFY(terminal->isEnabled());
   QVERIFY(fileManager->isEnabled());
-  QSignalSpy originCheckStarted(
-      management, &LocalRepositoryManagement::originCheckStarted);
+  QSignalSpy originCheckStarted(management,
+                                &LocalRepositoryManagement::originCheckStarted);
 
   button->click();
   QTRY_COMPARE(originCheckStarted.count(), 1);
@@ -355,11 +357,12 @@ void TestMainWindow::localRepositoryManagement() {
   QVERIFY(!terminal->isEnabled());
   QVERIFY(!fileManager->isEnabled());
 
-  QTreeView *tree = management->findChild<QTreeView *>(
-      "LocalRepositoryManagementTree");
+  QTreeView *tree =
+      management->findChild<QTreeView *>("LocalRepositoryManagementTree");
   QVERIFY(tree);
   const QModelIndex workspaceIndex = tree->model()->index(0, 0);
-  const QModelIndex repositoryIndex = tree->model()->index(0, 0, workspaceIndex);
+  const QModelIndex repositoryIndex =
+      tree->model()->index(0, 0, workspaceIndex);
   tree->setCurrentIndex(repositoryIndex);
   QTRY_VERIFY(terminal->isEnabled());
   QVERIFY(fileManager->isEnabled());
@@ -454,9 +457,8 @@ void TestMainWindow::consistentBodyFontSize() {
   for (QWidget *widget : details->findChildren<QWidget *>()) {
     if (widget->inherits("QScrollBar"))
       continue;
-    const QString message =
-        QString("%1 (%2)")
-            .arg(widget->metaObject()->className(), widget->objectName());
+    const QString message = QString("%1 (%2)").arg(
+        widget->metaObject()->className(), widget->objectName());
     QVERIFY2(FontUtils::pointSize(widget->font()) == pointSize,
              qPrintable(message));
   }
@@ -484,8 +486,7 @@ void TestMainWindow::toggleLogPanel() {
   RepoView *view = mWindow->currentView();
   QWidget *panel = view->findChild<QWidget *>("RepositoryLogPanel");
   QWidget *header = view->findChild<QWidget *>("RepositoryLogHeader");
-  QToolButton *toggle =
-      view->findChild<QToolButton *>("RepositoryLogToggle");
+  QToolButton *toggle = view->findChild<QToolButton *>("RepositoryLogToggle");
   QVERIFY(panel);
   QVERIFY(header);
   QVERIFY(toggle);
@@ -563,7 +564,8 @@ void TestMainWindow::tabActivationPreservesCommitSelection() {
   RepoView *secondView = mWindow->addTab(mSecondRepo);
   QVERIFY(secondView);
   QSignalSpy activatedStatus(firstView, &RepoView::statusChanged);
-  mWindow->tabWidget()->setCurrentIndex(mWindow->tabWidget()->indexOf(firstView));
+  mWindow->tabWidget()->setCurrentIndex(
+      mWindow->tabWidget()->indexOf(firstView));
   QTRY_VERIFY(!activatedStatus.isEmpty());
   QCOMPARE(commits->selectedRange(), selected.id().toString());
 
@@ -789,12 +791,83 @@ void TestMainWindow::deleteRemoteBranch() {
   QVERIFY(remove);
   remove->click();
 
-  QTRY_VERIFY_WITH_TIMEOUT(!published.lookupRef(qualifiedName).isValid(), 10000);
+  QTRY_VERIFY_WITH_TIMEOUT(!published.lookupRef(qualifiedName).isValid(),
+                           10000);
   QTRY_VERIFY_WITH_TIMEOUT(
       !mRepo->lookupBranch("origin/delete-on-origin", GIT_BRANCH_REMOTE)
            .isValid(),
       10000);
   QVERIFY(mRepo->lookupBranch("delete-on-origin", GIT_BRANCH_LOCAL).isValid());
+}
+
+void TestMainWindow::deleteCheckedOutBranch() {
+  RepoView *view = mWindow->currentView();
+  const QString branchName = "delete-from-linked-worktree";
+  git::Branch branch = mRepo->createBranch(branchName, mRepo->head().target());
+  QVERIFY(branch.isValid());
+
+  const QString root = mRepo->workdir().path() + ".worktrees";
+  QVERIFY(QDir().mkpath(root));
+  const QString linkedPath = QDir(root).filePath(branchName);
+  git::Result result;
+  git::Repository linked =
+      mRepo->createWorktree(branchName, linkedPath, branch, QString(), &result);
+  QVERIFY2(result, qPrintable(result.errorString()));
+  QVERIFY(linked.isValid());
+  QVERIFY(branch.isCheckedOut());
+
+  view->promptToDeleteBranch(branch);
+  QTRY_VERIFY(view->findChild<QMessageBox *>());
+  QMessageBox *dialog = view->findChild<QMessageBox *>();
+  QVERIFY(dialog);
+  QCOMPARE(dialog->windowTitle(), QString("Delete Branch?"));
+  QVERIFY(
+      dialog->informativeText().contains("checked out in another worktree"));
+
+  QPushButton *remove = nullptr;
+  for (QPushButton *button : dialog->findChildren<QPushButton *>()) {
+    if (button->text() == "Delete") {
+      remove = button;
+      break;
+    }
+  }
+  QVERIFY(remove);
+  QVERIFY(!remove->isEnabled());
+  QCOMPARE(dialog->defaultButton(), dialog->button(QMessageBox::Cancel));
+  dialog->button(QMessageBox::Cancel)->click();
+  QTRY_VERIFY(!view->findChild<QMessageBox *>());
+  QVERIFY(mRepo->lookupBranch(branchName, GIT_BRANCH_LOCAL).isValid());
+
+  git::Worktree worktree;
+  for (const git::Worktree &candidate : mRepo->worktrees()) {
+    if (candidate.name() == branchName) {
+      worktree = candidate;
+      break;
+    }
+  }
+  QVERIFY(worktree.isValid());
+  result = mRepo->removeWorktree(worktree);
+  QVERIFY2(result, qPrintable(result.errorString()));
+
+  branch = mRepo->lookupBranch(branchName, GIT_BRANCH_LOCAL);
+  QVERIFY(branch.isValid());
+  QVERIFY(!branch.isCheckedOut());
+  view->promptToDeleteBranch(branch);
+  QTRY_VERIFY(view->findChild<QMessageBox *>());
+  dialog = view->findChild<QMessageBox *>();
+  QVERIFY(dialog);
+  remove = nullptr;
+  for (QPushButton *button : dialog->findChildren<QPushButton *>()) {
+    if (button->text() == "Delete") {
+      remove = button;
+      break;
+    }
+  }
+  QVERIFY(remove);
+  QVERIFY(remove->isEnabled());
+  remove->click();
+  QTRY_VERIFY(!view->findChild<QMessageBox *>());
+  QVERIFY(!mRepo->lookupBranch(branchName, GIT_BRANCH_LOCAL).isValid());
 }
 
 void TestMainWindow::forcePushResetBranch() {
@@ -953,8 +1026,8 @@ void TestMainWindow::invalidRecentRepository() {
   };
 
   clickButton("Keep");
-  QVERIFY(!MainWindow::open(path, true,
-                            MainWindow::OpenSource::RecentRepository));
+  QVERIFY(
+      !MainWindow::open(path, true, MainWindow::OpenSource::RecentRepository));
   QVERIFY(contains());
 
   clickButton("OK");
@@ -962,8 +1035,8 @@ void TestMainWindow::invalidRecentRepository() {
   QVERIFY(contains());
 
   clickButton("Remove From Recent");
-  QVERIFY(!MainWindow::open(path, true,
-                            MainWindow::OpenSource::RecentRepository));
+  QVERIFY(
+      !MainWindow::open(path, true, MainWindow::OpenSource::RecentRepository));
   QVERIFY(!contains());
 }
 

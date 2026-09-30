@@ -2711,6 +2711,7 @@ void TestRepositorySideBar::submoduleInteraction() {
       contextMenuItems(submodulesView, submodule);
   QCOMPARE(menuTexts(cleanMenu),
            QStringList({"Open", "Commit Changes", "Check for Updates", "Update",
+                        "Deinitialize and Clear Cached Repository...",
                         "Modify...", "Delete Submodule..."}));
   QVERIFY(!cleanMenu.at(1).second);
   QVERIFY(cleanMenu.at(2).second);
@@ -2960,6 +2961,7 @@ void TestRepositorySideBar::submoduleInteraction() {
       contextMenuItems(submodulesView, submodule);
   QCOMPARE(menuTexts(menu),
            QStringList({"Open", "Commit Changes", "Check for Updates", "Update",
+                        "Deinitialize and Clear Cached Repository...",
                         "Modify...", "Delete Submodule..."}));
   for (int i = 0; i < menu.size(); ++i)
     QCOMPARE(menu.at(i).second, i != 2);
@@ -3025,6 +3027,9 @@ void TestRepositorySideBar::submoduleInteraction() {
            QString("%1 / child").arg(parent->workdir().dirName()));
 
   window.tabWidget()->setCurrentIndex(0);
+  QVERIFY(window.tabWidget()->closeTab(1));
+  QTRY_COMPARE(window.count(), 1);
+
   selected = parentView->repo().lookupSubmodule("child");
   selected.deinitialize();
   parentView->repo().invalidateSubmoduleCache();
@@ -3036,8 +3041,54 @@ void TestRepositorySideBar::submoduleInteraction() {
   menu = contextMenuItems(submodulesView, submodule);
   QCOMPARE(menuTexts(menu),
            QStringList({"Initialize", "Initialize All Uninitialized", "Open",
-                        "Commit Changes", "Check for Updates", "Modify...",
-                        "Delete Submodule..."}));
+                        "Commit Changes", "Check for Updates",
+                        "Deinitialize and Clear Cached Repository...",
+                        "Modify...", "Delete Submodule..."}));
+
+  const QString cachePath = parent->commonDir().filePath("modules/child");
+  const QString worktreePath = parent->workdir().filePath("child");
+  QVERIFY(QFileInfo::exists(cachePath));
+  QVERIFY(QFileInfo::exists(worktreePath));
+
+  QVERIFY(
+      triggerContextMenuItem(submodulesView, submodule,
+                             "Deinitialize and Clear Cached Repository..."));
+  QTRY_VERIFY(QApplication::activeModalWidget());
+  confirmation = qobject_cast<QMessageBox *>(QApplication::activeModalWidget());
+  QVERIFY(confirmation);
+  QCOMPARE(confirmation->windowTitle(), QString("Deinitialize Submodule?"));
+  QVERIFY(confirmation->text().contains("cached local repository"));
+  QVERIFY(confirmation->defaultButton() ==
+          confirmation->button(QMessageBox::Cancel));
+  confirmation->button(QMessageBox::Cancel)->click();
+  QVERIFY(QFileInfo::exists(cachePath));
+  QVERIFY(QFileInfo::exists(worktreePath));
+
+  QVERIFY(
+      triggerContextMenuItem(submodulesView, submodule,
+                             "Deinitialize and Clear Cached Repository..."));
+  QTRY_VERIFY(QApplication::activeModalWidget());
+  confirmation = qobject_cast<QMessageBox *>(QApplication::activeModalWidget());
+  QVERIFY(confirmation);
+  QPushButton *deinitialize =
+      messageButton(confirmation, "Deinitialize and Clear Cache");
+  QVERIFY(deinitialize);
+  deinitialize->click();
+  QTRY_VERIFY(!QFileInfo::exists(cachePath));
+  QTRY_VERIFY(!parentView->repo().lookupSubmodule("child").isInitialized());
+
+  submodules = navigator->model()->sectionIndex(
+      RepositoryNavigatorModel::Section::Submodules);
+  submodule = navigator->model()->index(0, 0, submodules);
+  menu = contextMenuItems(submodulesView, submodule);
+  QVERIFY(menuTexts(menu).contains("Initialize"));
+  QVERIFY(
+      !menuTexts(menu).contains("Deinitialize and Clear Cached Repository..."));
+
+  QSignalSpy reinitialized(parentView, &RepoView::submodulesChanged);
+  QVERIFY(triggerContextMenuItem(submodulesView, submodule, "Initialize"));
+  QTRY_VERIFY(!reinitialized.isEmpty());
+  QTRY_VERIFY(parentView->repo().lookupSubmodule("child").isInitialized());
 }
 
 void TestRepositorySideBar::submoduleInitialization() {

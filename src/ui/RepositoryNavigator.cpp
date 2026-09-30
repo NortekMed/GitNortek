@@ -1336,6 +1336,14 @@ void RepositoryNavigator::showContextMenu(const QPoint &point) {
             view->updateSubmodules({submodule});
         });
       }
+      if (initialized || submodule.hasCachedRepository()) {
+        menu.addAction(
+            tr("Deinitialize and Clear Cached Repository..."), mRepoView,
+            [view = mRepoView, submodule] {
+              if (view)
+                view->promptToDeinitializeSubmodule(submodule);
+            });
+      }
       menu.addSeparator();
       menu.addAction(tr("Modify..."), mRepoView, [view = mRepoView, submodule] {
         if (view)

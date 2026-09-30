@@ -52,8 +52,10 @@ public:
   explicit operator bool() const { return isValid(); }
 
   bool isInitialized() const;
+  bool hasCachedRepository() const;
   void initialize() const;
   void deinitialize() const;
+  Result deinitializeAndClearCache() const;
 
   QString name() const;
   QString path() const;
@@ -84,6 +86,8 @@ public:
 private:
   Submodule(git_submodule *submodule);
   operator git_submodule *() const;
+  Result cachedRepositoryPath(QString *path) const;
+  Result deinitializeWorktree() const;
 
   QSharedPointer<git_submodule> d;
 

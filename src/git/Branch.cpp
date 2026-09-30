@@ -122,9 +122,9 @@ Branch Branch::rename(const QString &name) {
   return branch;
 }
 
-void Branch::remove(bool force) {
-  if (isCheckedOut())
-    return;
+bool Branch::remove(bool force) {
+  if (!isValid() || isCheckedOut())
+    return false;
 
   // Remember name.
   QString name = this->name();
@@ -132,12 +132,16 @@ void Branch::remove(bool force) {
   Repository repo = this->repo();
   emit repo.notifier()->referenceAboutToBeRemoved(*this);
 
-  if (force ? git_reference_delete(d.data()) : git_branch_delete(d.data()))
+  const int error =
+      force ? git_reference_delete(d.data()) : git_branch_delete(d.data());
+  if (!error)
     d.clear(); // Invalidate this branch.
 
   // We have to notify even if removal failed and the branch is still valid.
   // Clients can check this branch to see if the branch was really removed.
   emit repo.notifier()->referenceRemoved(name);
+
+  return !error;
 }
 
 bool Branch::isRebase() const {

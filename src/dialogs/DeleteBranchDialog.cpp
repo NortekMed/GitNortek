@@ -67,8 +67,11 @@ DeleteBranchDialog::DeleteBranchDialog(const git::Branch &branch,
                   QString err = result.errorString();
                   QString fmt = tr("Unable to push to %1 - %2");
                   entry->addEntry(LogEntry::Error, fmt.arg(remoteName, err));
-                } else if (!callbacks->wasRejected()) {
-                  git::Branch(branch).remove();
+                } else if (!callbacks->wasRejected() &&
+                           !git::Branch(branch).remove()) {
+                  entry->addEntry(
+                      LogEntry::Error,
+                      tr("Unable to update the local remote-tracking branch."));
                 }
 
                 watcher->deleteLater();
@@ -91,9 +94,32 @@ DeleteBranchDialog::DeleteBranchDialog(const git::Branch &branch,
   }
 
   QPushButton *remove = addButton(tr("Delete"), QMessageBox::AcceptRole);
+  const bool checkedOut = branch.isCheckedOut();
+  if (checkedOut) {
+    setInformativeText(tr(
+        "The branch is checked out in another worktree. Switch that worktree "
+        "to another branch before deleting this one."));
+    setDefaultButton(QMessageBox::Cancel);
+    remove->setEnabled(false);
+    button(QMessageBox::Cancel)->setFocus();
+  }
+
   connect(remove, &QPushButton::clicked, [this, branch, upstream] {
+    RepoView *view = RepoView::parentView(this);
+    const QString name = branch.name();
+    LogEntry *entry = view->addLogEntry(name, tr("Delete Branch"));
+
+    if (!git::Branch(branch).remove()) {
+      const QString reason =
+          git::Branch(branch).isCheckedOut()
+              ? tr("The branch is checked out in another worktree.")
+              : tr("The branch may not be fully merged or could not be "
+                   "deleted.");
+      view->error(entry, tr("delete branch"), name, reason);
+      return;
+    }
+
     if (upstream.isValid() && checkBox()->isChecked()) {
-      RepoView *view = RepoView::parentView(this);
       git::Repository repo = view->repo();
 
       QString name = upstream.name().section('/', 1);
@@ -131,13 +157,12 @@ DeleteBranchDialog::DeleteBranchDialog(const git::Branch &branch,
                 watcher->deleteLater();
               });
     }
-
-    git::Branch(branch).remove();
   });
 
-  remove->setFocus();
+  if (!checkedOut)
+    remove->setFocus();
 
-  if (!branch.isMerged()) {
+  if (!checkedOut && !branch.isMerged()) {
     setInformativeText(tr("The branch is not fully merged. Deleting "
                           "it may cause some commits to be lost."));
     setDefaultButton(QMessageBox::Cancel);

@@ -103,11 +103,14 @@ void TestWorktree::localWorktree() {
 
   QVERIFY(!repo.createBranch("feature/with-slash", commit, true).isValid());
   QVERIFY(!feature.rename("renamed-feature").isValid());
-  feature.remove(true);
+  QVERIFY(!feature.remove(true));
   QVERIFY(repo.lookupBranch("feature/with-slash", GIT_BRANCH_LOCAL).isValid());
 
   QVERIFY(repo.setHeadDetached(commit));
   QVERIFY(linked.setHeadDetached(commit));
+  QVERIFY(!feature.isCheckedOut());
+  QVERIFY(feature.remove(true));
+  QVERIFY(!repo.lookupBranch("feature/with-slash", GIT_BRANCH_LOCAL).isValid());
   const QString detachedName = repo.head().name();
   QVERIFY(detachedName.startsWith("HEAD detached at "));
   QList<git::Worktree> detachedWorktrees = repo.worktrees();
@@ -197,8 +200,8 @@ void TestWorktree::removeWorktree() {
   QVERIFY(feature.isValid());
   const QString linkedPath = QDir(root).filePath("feature");
   git::Result result;
-  git::Repository linked = repo.createWorktree(
-      "feature", linkedPath, feature, QString(), &result);
+  git::Repository linked =
+      repo.createWorktree("feature", linkedPath, feature, QString(), &result);
   QVERIFY2(result, qPrintable(result.errorString()));
   QVERIFY(linked.isValid());
   QVERIFY(!linked.hasWorkdirChanges(&statusResult));
@@ -226,8 +229,8 @@ void TestWorktree::removeWorktree() {
   git::Branch second = repo.createBranch("second", commit);
   QVERIFY(second.isValid());
   const QString secondPath = QDir(root).filePath("second");
-  linked = repo.createWorktree("second", secondPath, second, QString(),
-                               &result);
+  linked =
+      repo.createWorktree("second", secondPath, second, QString(), &result);
   QVERIFY2(result, qPrintable(result.errorString()));
   worktree = repo.worktrees().last();
   result = repo.removeWorktree(worktree);

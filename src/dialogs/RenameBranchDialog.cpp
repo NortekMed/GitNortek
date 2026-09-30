@@ -148,7 +148,11 @@ RenameBranchDialog::RenameBranchDialog(const git::Repository &repo,
 
                       if (deleted) {
                         deleteCallbacks->storeDeferredCredentials();
-                        git::Branch(branch).remove();
+                        if (!git::Branch(branch).remove())
+                          entry->addEntry(
+                              LogEntry::Error,
+                              tr("Unable to update the local remote-tracking "
+                                 "branch."));
                       } else {
                         QString fmt =
                             tr("Remote branch '%1/%2' was created, but '%1/%3' "

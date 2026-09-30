@@ -21,8 +21,10 @@
 #include "ui/TreeView.h"
 #include "watcher/RepositoryWatcher.h"
 
-#include <QToolButton>
+#include <QDir>
+#include <QFileInfo>
 #include <QMenu>
+#include <QToolButton>
 #include <QWizard>
 #include <QLineEdit>
 #include <QtConcurrent>
@@ -70,6 +72,7 @@ private slots:
   void updateSubmoduleClone();
   void noUpdateSubmoduleClone();
   void openDoesNotInitializeSubmodules();
+  void deinitializeAndClearCache();
   void discardFile();
   void canceledStatusIsDiscarded();
   void cleanAfterBranchRename();
@@ -237,6 +240,72 @@ void TestSubmodule::openDoesNotInitializeSubmodules() {
   QVERIFY(worktree.entryList(QDir::AllEntries | QDir::Hidden |
                              QDir::NoDotAndDotDot)
               .isEmpty());
+}
+
+void TestSubmodule::deinitializeAndClearCache() {
+  ScratchRepository child;
+  QVERIFY(writeFile(child->workdir().filePath("child.txt"), "child\n"));
+  QVERIFY(runGit(child->workdir().path(), {"add", "child.txt"}));
+  QVERIFY(runGit(child->workdir().path(), {"commit", "-m", "child"}));
+
+  ScratchRepository parent;
+  QVERIFY(runGit(parent->workdir().path(),
+                 {"-c", "protocol.file.allow=always", "submodule", "add",
+                  child->workdir().path(), "child"}));
+  QVERIFY(runGit(parent->workdir().path(), {"commit", "-m", "add child"}));
+
+  git::Submodule submodule = parent->submodules().first();
+  const QString worktree = parent->workdir().filePath("child");
+  const QString cache = parent->commonDir().filePath("modules/child");
+  const QString modulesFile = parent->workdir().filePath(".gitmodules");
+  QFile modules(modulesFile);
+  QVERIFY(modules.open(QIODevice::ReadOnly));
+  const QByteArray originalModules = modules.readAll();
+  modules.close();
+
+  QVERIFY(submodule.hasCachedRepository());
+  QVERIFY(QFileInfo::exists(worktree));
+  QVERIFY(QFileInfo::exists(cache));
+
+  QFile gitFile(QDir(worktree).filePath(".git"));
+  QVERIFY(gitFile.open(QIODevice::ReadOnly));
+  const QByteArray originalGitFile = gitFile.readAll();
+  gitFile.close();
+  const QString outsideCache = QDir::temp().filePath("gitnortek-outside-cache");
+  QVERIFY(writeFile(gitFile.fileName(),
+                    QString("gitdir: %1\n").arg(outsideCache).toUtf8()));
+
+  git::Result result = submodule.deinitializeAndClearCache();
+  QVERIFY(!result);
+  QVERIFY(result.errorString().contains("outside .git/modules"));
+  QVERIFY(QFileInfo::exists(worktree));
+  QVERIFY(QFileInfo::exists(cache));
+
+  QVERIFY(writeFile(gitFile.fileName(), originalGitFile));
+  result = submodule.deinitializeAndClearCache();
+  QVERIFY2(result, qPrintable(result.errorString()));
+  QVERIFY(QFileInfo::exists(worktree));
+  QVERIFY(QDir(worktree).entryList(QDir::AllEntries | QDir::Hidden |
+                                   QDir::NoDotAndDotDot)
+              .isEmpty());
+  QVERIFY(!QFileInfo::exists(cache));
+
+  QFile modulesAfter(modulesFile);
+  QVERIFY(modulesAfter.open(QIODevice::ReadOnly));
+  QCOMPARE(modulesAfter.readAll(), originalModules);
+
+  QProcess git;
+  git.setWorkingDirectory(parent->workdir().path());
+  git.start(GIT_EXECUTABLE, {"ls-files", "--stage", "--", "child"});
+  QVERIFY(git.waitForFinished());
+  QCOMPARE(git.exitCode(), 0);
+  QVERIFY(QString::fromUtf8(git.readAllStandardOutput()).startsWith("160000 "));
+
+  parent->invalidateSubmoduleCache();
+  submodule = parent->lookupSubmodule("child");
+  QVERIFY(submodule.isValid());
+  QVERIFY(!submodule.isInitialized());
+  QVERIFY(parent->gitConfig().value<QString>("submodule.child.url").isEmpty());
 }
 
 void TestSubmodule::discardFile() {

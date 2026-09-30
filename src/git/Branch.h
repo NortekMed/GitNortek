@@ -41,8 +41,8 @@ public:
   // Valid for local branches.
   Branch rename(const QString &name);
 
-  // Valid for local and remote branches.
-  void remove(bool force = false);
+  // Valid for local and remote branches. Returns true when removal succeeds.
+  bool remove(bool force = false);
 
   bool isRebase() const;
   void setRebase(bool checked);

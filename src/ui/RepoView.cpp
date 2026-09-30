@@ -56,6 +56,7 @@
 #include "git/Signature.h"
 #include "git2/merge.h"
 #include "util/PerformanceTrace.h"
+#include "util/Path.h"
 #include "host/Accounts.h"
 #include "index/Index.h"
 #include "log/LogEntry.h"
@@ -129,6 +130,26 @@ QString submoduleUpdateStateText(git::Submodule::UpdateStatus::State state) {
 
 QString shortId(const git::Id &id) {
   return id.isValid() ? id.shortId() : QString();
+}
+
+bool submoduleIsOpenInAnotherTab(const RepoView *owner,
+                                 const git::Submodule &submodule) {
+  if (!owner || !submodule.isValid())
+    return false;
+
+  const QString submodulePath =
+      owner->repo().workdir().filePath(submodule.path());
+  for (MainWindow *window : MainWindow::windows()) {
+    for (int i = 0; i < window->count(); ++i) {
+      RepoView *view = window->view(i);
+      if (view == owner || !view)
+        continue;
+      if (util::pathsEqual(submodulePath, view->repo().workdir().path()))
+        return true;
+    }
+  }
+
+  return false;
 }
 
 class CheckoutCallbacks : public QObject,
@@ -3290,7 +3311,10 @@ void RepoView::populateReferenceContextMenu(QMenu *menu,
       else
         promptToDeleteBranch(ref);
     });
-    remove->setEnabled(ref.isTag() || !git::Branch(ref).isCheckedOut());
+    // Let branches checked out in another worktree open the delete dialog so
+    // the blocked operation can be explained. The current HEAD branch remains
+    // disabled because it cannot be deleted from this worktree.
+    remove->setEnabled(ref.isTag() || !ref.isHead());
   }
 
   if (ref.isTag())
@@ -3388,9 +3412,8 @@ bool RepoView::stash(const QString &message, bool includeUntracked,
   if (isDiscardAllChangesActive())
     return false;
 
-  QString text = paths.isEmpty()
-                     ? tr("<i>working directory</i>")
-                     : tr("%1 selected file(s)").arg(paths.size());
+  QString text = paths.isEmpty() ? tr("<i>working directory</i>")
+                                 : tr("%1 selected file(s)").arg(paths.size());
   LogEntry *entry = addLogEntry(text, tr("Stash"));
 
   git::Commit commit = mRepo.stash(message, includeUntracked, paths);
@@ -4320,6 +4343,69 @@ void RepoView::promptToDeleteSubmodule(const git::Submodule &submodule) {
       entry->addEntry(tr("Submodule deleted."));
       clearSubmoduleUpdateStatuses();
     }
+    emit submodulesChanged();
+    refresh(true);
+  });
+  message->open();
+}
+
+void RepoView::promptToDeinitializeSubmodule(const git::Submodule &submodule) {
+  if (isDiscardAllChangesActive())
+    return;
+
+  if (!submodule.isValid())
+    return;
+
+  if (submoduleIsOpenInAnotherTab(this, submodule)) {
+    QMessageBox::warning(
+        this, tr("Submodule Is Open"),
+        tr("Close the open tab for submodule '%1' before deinitializing it.")
+            .arg(submodule.name()));
+    return;
+  }
+
+  QString text =
+      tr("Deinitialize submodule '%1' at '%2'?\n\nThe submodule working "
+         "files and cached local repository will be permanently deleted. "
+         "Any unpublished commits will be lost. The submodule will remain "
+         "in this project and can be initialized again later.")
+          .arg(submodule.name(), submodule.path());
+  QMessageBox *message =
+      new QMessageBox(QMessageBox::Warning, tr("Deinitialize Submodule?"), text,
+                      QMessageBox::Cancel, this);
+  message->setAttribute(Qt::WA_DeleteOnClose);
+
+  if (GIT_SUBMODULE_STATUS_IS_WD_DIRTY(mRepo.submoduleStatus(submodule.name())))
+    message->setInformativeText(
+        tr("The submodule working directory contains uncommitted changes "
+           "that will be permanently lost."));
+
+  QPushButton *deinitialize = message->addButton(
+      tr("Deinitialize and Clear Cache"), QMessageBox::DestructiveRole);
+  message->setDefaultButton(QMessageBox::Cancel);
+  message->setEscapeButton(QMessageBox::Cancel);
+  connect(deinitialize, &QPushButton::clicked, this, [this, submodule] {
+    if (isDiscardAllChangesActive())
+      return;
+
+    if (submoduleIsOpenInAnotherTab(this, submodule)) {
+      QMessageBox::warning(
+          this, tr("Submodule Is Open"),
+          tr("Close the open tab for submodule '%1' before deinitializing it.")
+              .arg(submodule.name()));
+      return;
+    }
+
+    const QString name = submodule.name();
+    LogEntry *entry = addLogEntry(name, tr("Deinitialize Submodule"));
+    git::Result result = submodule.deinitializeAndClearCache();
+    if (!result) {
+      error(entry, tr("deinitialize submodule"), name, result.errorString());
+    } else {
+      entry->addEntry(tr("Submodule deinitialized and cache cleared."));
+      clearSubmoduleUpdateStatuses();
+    }
+    mRepo.invalidateSubmoduleCache();
     emit submodulesChanged();
     refresh(true);
   });

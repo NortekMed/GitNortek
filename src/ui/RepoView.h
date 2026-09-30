@@ -352,6 +352,7 @@ public:
                        const QString &newBranch);
   void promptToModifySubmodule(const git::Submodule &submodule);
   void promptToDeleteSubmodule(const git::Submodule &submodule);
+  void promptToDeinitializeSubmodule(const git::Submodule &submodule);
   bool canCommitSubmoduleChanges(const git::Submodule &submodule) const;
   void commitSubmoduleChanges(const git::Submodule &submodule);
   bool openSubmodule(const git::Submodule &submodule);
