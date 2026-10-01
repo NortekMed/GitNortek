@@ -42,6 +42,19 @@ namespace {
 const QString kNameFmt = "<p>%1</p>";
 const QString kLabelFmt = "<p style='color: gray; font-weight: bold'>%1</p>";
 
+bool isFileIndex(const QModelIndex &index) {
+  // PatchIndexRole is -1 for both folders and unchanged committed files.
+  return index.isValid() && !index.model()->hasChildren(index);
+}
+
+bool hasFileSelection(const QModelIndexList &indexes) {
+  for (const QModelIndex &index : indexes) {
+    if (isFileIndex(index))
+      return true;
+  }
+  return false;
+}
+
 } // namespace
 
 TreeView::TreeView(QWidget *parent, const QString &name)
@@ -177,7 +190,7 @@ void TreeView::keyPressEvent(QKeyEvent *event) {
   case Qt::Key_PageDown:
   case Qt::Key_Enter:
   case Qt::Key_Return:
-    if (!selectionModel()->selectedIndexes().isEmpty())
+    if (hasFileSelection(selectionModel()->selectedIndexes()))
       emit fileSelectionRequested();
     break;
   default:
@@ -241,7 +254,7 @@ void TreeView::mouseReleaseEvent(QMouseEvent *event) {
   const bool singleSelection =
       selectionModel() && selectionModel()->selectedRows().size() == 1;
   if (event->button() == Qt::LeftButton && index.isValid() && !checkClicked &&
-      !selectionOnly && !mMouseMoved && singleSelection)
+      !selectionOnly && !mMouseMoved && singleSelection && isFileIndex(index))
     emit fileSelectionRequested();
 
   mSelectionOnlyClick = false;

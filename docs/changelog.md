@@ -57,6 +57,9 @@ Bug Fix and Feature release
 
 #### Changed
 
+* Do not open File Inspection when selecting folders in the staged or unstaged
+  file tree
+
 * Explain and block deletion attempts for local branches checked out in linked
   worktrees instead of failing silently
 

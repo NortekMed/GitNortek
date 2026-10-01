@@ -76,6 +76,7 @@ private slots:
   void externalRefreshKeepsEditorContent();
   void externalRefreshPreservesViewport();
   void ctrlClickSelectsFilesWithoutInspection();
+  void folderSelectionDoesNotOpenFileInspection();
 
 private:
 };
@@ -224,6 +225,119 @@ void TestTreeView::ctrlClickSelectsFilesWithoutInspection() {
              unstaged->visualRect(third).center());
   QCOMPARE(unstaged->selectionModel()->selectedRows().size(), 1);
   QTRY_VERIFY(view->isFileInspectionVisible());
+}
+
+void TestTreeView::folderSelectionDoesNotOpenFileInspection() {
+  Test::ScratchRepository scratch;
+  git::Repository repo = scratch;
+
+  QVERIFY(repo.workdir().mkpath("nested"));
+  QFile file(repo.workdir().filePath("nested/modified.txt"));
+  QVERIFY(file.open(QFile::WriteOnly | QFile::Truncate));
+  QVERIFY(file.write("initial\n") > 0);
+  file.close();
+  QVERIFY(repo.index().setStaged({"nested/modified.txt"}, true));
+  QVERIFY(repo.commit("initial").isValid());
+
+  QVERIFY(file.open(QFile::WriteOnly | QFile::Truncate));
+  QVERIFY(file.write("modified\n") > 0);
+  file.close();
+
+  MainWindow window(repo);
+  window.show();
+  QVERIFY(QTest::qWaitForWindowExposed(&window));
+  RepoView *view = window.currentView();
+  QVERIFY(view);
+  Test::refresh(view);
+
+  auto *doubleTree = view->findChild<DoubleTreeWidget *>();
+  auto *unstaged =
+      doubleTree ? doubleTree->findChild<TreeView *>("Unstaged") : nullptr;
+  QVERIFY(doubleTree);
+  QVERIFY(unstaged);
+  disableListView(*unstaged, *view);
+  QTRY_VERIFY(unstaged->model()->rowCount() > 0);
+  unstaged->expandAll();
+
+  QTRY_VERIFY(!unstaged->model()
+                   ->match(unstaged->model()->index(0, 0), Qt::EditRole,
+                           QString("nested"), 1,
+                           Qt::MatchExactly | Qt::MatchRecursive)
+                   .isEmpty());
+  const QModelIndex folder =
+      unstaged->model()
+          ->match(unstaged->model()->index(0, 0), Qt::EditRole,
+                  QString("nested"), 1, Qt::MatchExactly | Qt::MatchRecursive)
+          .value(0);
+  const QModelIndex fileIndex =
+      unstaged->model()
+          ->match(unstaged->model()->index(0, 0), Qt::EditRole,
+                  QString("nested/modified.txt"), 1,
+                  Qt::MatchExactly | Qt::MatchRecursive)
+          .value(0);
+  QVERIFY(folder.isValid());
+  QVERIFY(fileIndex.isValid());
+
+  QSignalSpy fileSelectionRequested(unstaged,
+                                    &TreeView::fileSelectionRequested);
+  unstaged->selectionModel()->clearSelection();
+  QVERIFY(!view->isFileInspectionVisible());
+
+  mouseClick(unstaged->viewport(), Qt::LeftButton, Qt::NoModifier,
+             unstaged->visualRect(folder).center());
+  QCOMPARE(fileSelectionRequested.count(), 0);
+  QVERIFY(!view->isFileInspectionVisible());
+
+  mouseClick(unstaged->viewport(), Qt::LeftButton, Qt::NoModifier,
+             unstaged->visualRect(fileIndex).center());
+  QTRY_COMPARE(fileSelectionRequested.count(), 1);
+  QTRY_VERIFY(view->isFileInspectionVisible());
+
+  doubleTree->closeFileInspection();
+  fileSelectionRequested.clear();
+  unstaged->selectionModel()->setCurrentIndex(
+      folder, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+  unstaged->setFocus();
+  keyClick(unstaged, Qt::Key_Return);
+  QCOMPARE(fileSelectionRequested.count(), 0);
+  QVERIFY(!view->isFileInspectionVisible());
+
+  unstaged->selectionModel()->setCurrentIndex(
+      fileIndex,
+      QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+  keyClick(unstaged, Qt::Key_Return);
+  QTRY_COMPARE(fileSelectionRequested.count(), 1);
+  QTRY_VERIFY(view->isFileInspectionVisible());
+
+  doubleTree->closeFileInspection();
+  QVERIFY(!view->isFileInspectionVisible());
+  QVERIFY(repo.index().setStaged({"nested/modified.txt"}, true));
+  Test::refresh(view);
+
+  auto *staged = doubleTree->findChild<TreeView *>("Staged");
+  QVERIFY(staged);
+  QTRY_VERIFY(staged->model()->rowCount() > 0);
+  staged->expandAll();
+  QTRY_VERIFY(!staged->model()
+                   ->match(staged->model()->index(0, 0), Qt::EditRole,
+                           QString("nested"), 1,
+                           Qt::MatchExactly | Qt::MatchRecursive)
+                   .isEmpty());
+  const QModelIndex stagedFolder =
+      staged->model()
+          ->match(staged->model()->index(0, 0), Qt::EditRole, QString("nested"),
+                  1, Qt::MatchExactly | Qt::MatchRecursive)
+          .value(0);
+  QVERIFY(stagedFolder.isValid());
+
+  QSignalSpy stagedFileSelectionRequested(staged,
+                                          &TreeView::fileSelectionRequested);
+  staged->selectionModel()->clearSelection();
+  QVERIFY(!view->isFileInspectionVisible());
+  mouseClick(staged->viewport(), Qt::LeftButton, Qt::NoModifier,
+             staged->visualRect(stagedFolder).center());
+  QCOMPARE(stagedFileSelectionRequested.count(), 0);
+  QVERIFY(!view->isFileInspectionVisible());
 }
 
 void TestTreeView::discardFiles() {
@@ -432,18 +546,24 @@ void TestTreeView::committedFileInspection() {
                                     QItemSelectionModel::ClearAndSelect);
 
   QTRY_VERIFY(committedFiles->model()->rowCount() > 0);
+  committedFiles->expandAll();
   QVERIFY(primaryView->currentWidget() != fileInspection);
   const QModelIndexList committedFileIndexes = committedFiles->model()->match(
       committedFiles->model()->index(0, 0), Qt::EditRole, QString("file.txt"),
       1, Qt::MatchExactly | Qt::MatchRecursive);
   QVERIFY(!committedFileIndexes.isEmpty());
+  QSignalSpy fileSelectionRequested(committedFiles,
+                                    &TreeView::fileSelectionRequested);
   committedFiles->selectionModel()->clearSelection();
-  committedFiles->selectionModel()->select(committedFileIndexes.first(),
-                                           QItemSelectionModel::Select);
-  QVERIFY(primaryView->currentWidget() != fileInspection);
+  committedFiles->scrollTo(committedFileIndexes.first());
+  mouseClick(committedFiles->viewport(), Qt::LeftButton, Qt::NoModifier,
+             committedFiles->visualRect(committedFileIndexes.first()).center());
+  QTRY_COMPARE(fileSelectionRequested.count(), 1);
   bool eventLoopAdvanced = false;
   QTimer::singleShot(0, [&eventLoopAdvanced] { eventLoopAdvanced = true; });
-  QVERIFY(QMetaObject::invokeMethod(committedFiles, "fileSelectionRequested"));
+  mouseClick(committedFiles->viewport(), Qt::LeftButton, Qt::NoModifier,
+             committedFiles->visualRect(committedFileIndexes.first()).center());
+  QTRY_COMPARE(fileSelectionRequested.count(), 2);
   QCOMPARE(primaryView->currentWidget(), fileInspection);
   QVERIFY(!window.isSideBarVisible());
   auto *sidebarButton =
@@ -459,7 +579,9 @@ void TestTreeView::committedFileInspection() {
   QTimer::singleShot(0, [&eventLoopAdvanced] {
     QTimer::singleShot(0, [&eventLoopAdvanced] { eventLoopAdvanced = true; });
   });
-  QVERIFY(QMetaObject::invokeMethod(committedFiles, "fileSelectionRequested"));
+  mouseClick(committedFiles->viewport(), Qt::LeftButton, Qt::NoModifier,
+             committedFiles->visualRect(committedFileIndexes.first()).center());
+  QTRY_COMPARE(fileSelectionRequested.count(), 3);
   QTRY_VERIFY(eventLoopAdvanced);
   QVERIFY(initialFile);
   QVERIFY(!initialFile->isHidden());
@@ -478,7 +600,9 @@ void TestTreeView::committedFileInspection() {
   committedFiles->selectionModel()->setCurrentIndex(
       firstFileIndexes.first(),
       QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-  QVERIFY(QMetaObject::invokeMethod(committedFiles, "fileSelectionRequested"));
+  committedFiles->setFocus();
+  keyClick(committedFiles, Qt::Key_Return);
+  QTRY_COMPARE(fileSelectionRequested.count(), 4);
   QVERIFY(repoView->isFileInspectionVisible());
   QVERIFY(!window.isSideBarVisible());
   QVERIFY(!sidebarButton->isEnabled());
@@ -691,14 +815,19 @@ void TestTreeView::unchangedCommittedFileInspection() {
   if (!doubleTree->mShowAllFiles->isChecked())
     doubleTree->mShowAllFiles->click();
   QTRY_VERIFY(committedFiles->model()->rowCount() > 0);
+  committedFiles->expandAll();
 
   const QModelIndexList unchangedFiles = committedFiles->model()->match(
       committedFiles->model()->index(0, 0), Qt::EditRole, QString("README.md"),
       1, Qt::MatchExactly | Qt::MatchRecursive);
   QVERIFY(!unchangedFiles.isEmpty());
-  committedFiles->selectionModel()->select(unchangedFiles.first(),
-                                           QItemSelectionModel::ClearAndSelect);
-  QVERIFY(QMetaObject::invokeMethod(committedFiles, "fileSelectionRequested"));
+  QSignalSpy fileSelectionRequested(committedFiles,
+                                    &TreeView::fileSelectionRequested);
+  committedFiles->selectionModel()->clearSelection();
+  committedFiles->scrollTo(unchangedFiles.first());
+  mouseClick(committedFiles->viewport(), Qt::LeftButton, Qt::NoModifier,
+             committedFiles->visualRect(unchangedFiles.first()).center());
+  QTRY_COMPARE(fileSelectionRequested.count(), 1);
 
   QTRY_COMPARE(primaryView->currentWidget(), fileInspection);
   QTRY_COMPARE(doubleTree->mFileView->currentWidget(), doubleTree->mEditor);
