@@ -1454,7 +1454,27 @@ void TestTreeView::externalRefreshKeepsEditorContent() {
 }
 
 void TestTreeView::externalRefreshPreservesViewport() {
-  INIT_REPO("TestRepository.zip", true);
+  constexpr int historyCommitCount = 8;
+  Test::ScratchRepository scratch;
+  git::Repository repo = scratch;
+
+  QFile historyFile(repo.workdir().filePath("viewport-history.txt"));
+  for (int commit = 0; commit < historyCommitCount; ++commit) {
+    const QByteArray contents = QByteArray("Viewport history commit ") +
+                                QByteArray::number(commit) + '\n';
+    QVERIFY(historyFile.open(QFile::WriteOnly | QFile::Truncate));
+    QVERIFY(historyFile.write(contents) == contents.size());
+    historyFile.close();
+    QVERIFY(repo.index().setStaged({"viewport-history.txt"}, true));
+    QVERIFY(repo.commit(QString("Viewport history commit %1").arg(commit))
+                .isValid());
+  }
+
+  MainWindow window(repo);
+  window.show();
+  QVERIFY(QTest::qWaitForWindowExposed(&window));
+  RepoView *repoView = window.currentView();
+  QVERIFY(repoView);
 
   auto *commits = repoView->findChild<CommitList *>();
   QVERIFY(commits);
@@ -1466,6 +1486,18 @@ void TestTreeView::externalRefreshPreservesViewport() {
   commits->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
   while (commits->model()->canFetchMore(QModelIndex()))
     commits->model()->fetchMore(QModelIndex());
+  auto validCommitRows = [commits] {
+    int count = 0;
+    for (int row = 0; row < commits->model()->rowCount(); ++row) {
+      if (commits->model()
+              ->index(row, 0)
+              .data(CommitList::CommitRole)
+              .isValid())
+        ++count;
+    }
+    return count;
+  };
+  QTRY_VERIFY(validCommitRows() >= historyCommitCount);
   QTRY_VERIFY(commits->verticalScrollBar()->maximum() > 0);
 
   QModelIndex selectedIndex;
