@@ -490,7 +490,9 @@ MenuBar::MenuBar(QWidget *parent) : QMenuBar(parent) {
   // View
   QMenu *viewMenu = addMenu(tr("View"));
 
-  mRefresh = viewMenu->addAction(tr("Refresh"));
+  mRefresh = viewMenu->addAction(tr("Refresh Local State"));
+  mRefresh->setToolTip(
+      tr("Refresh local state (does not fetch remote updates)"));
   refreshHotkey.use(mRefresh);
   connect(mRefresh, &QAction::triggered, [this] { view()->refreshAll(); });
 

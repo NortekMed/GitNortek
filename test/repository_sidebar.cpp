@@ -1297,16 +1297,24 @@ void TestRepositorySideBar::activeRepositoryBinding() {
   QCOMPARE(navigator->model()->repository().dir(false).path(),
            mRepo->dir(false).path());
 
+  QToolButton *refreshButton =
+      window.findChild<QToolButton *>("RefreshButton");
+  QVERIFY(refreshButton);
+  QCOMPARE(refreshButton->toolTip(),
+           QString("Refresh local state (does not fetch remote updates)"));
+
   QSignalSpy generalRefresh(window.currentView(),
                             &RepoView::manualRefreshRequested);
   QAction *refreshAction = nullptr;
   for (QAction *action : window.findChildren<QAction *>()) {
-    if (action->text() == "Refresh") {
+    if (action->text() == "Refresh Local State") {
       refreshAction = action;
       break;
     }
   }
   QVERIFY(refreshAction);
+  QCOMPARE(refreshAction->toolTip(),
+           QString("Refresh local state (does not fetch remote updates)"));
   refreshAction->trigger();
   QCOMPARE(generalRefresh.count(), 1);
 

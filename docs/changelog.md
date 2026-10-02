@@ -57,6 +57,9 @@ Bug Fix and Feature release
 
 #### Changed
 
+* Clarify that Refresh updates local state only and that Fetch retrieves remote
+  updates
+
 * Do not open File Inspection when selecting folders in the staged or unstaged
   file tree
 

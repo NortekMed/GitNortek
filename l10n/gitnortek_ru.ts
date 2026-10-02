@@ -3898,9 +3898,14 @@ Examples
         <translation>Вид</translation>
     </message>
     <message>
-        <location filename="../src/ui/MenuBar.cpp" line="496"/>
-        <source>Refresh</source>
-        <translation>Обновить</translation>
+        <location filename="../src/ui/MenuBar.cpp" line="493"/>
+        <source>Refresh Local State</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/MenuBar.cpp" line="495"/>
+        <source>Refresh local state (does not fetch remote updates)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/MenuBar.cpp" line="501"/>
@@ -4939,8 +4944,8 @@ Would you like to fix the merge conflict and continue?</source>
     <name>RefreshButton</name>
     <message>
         <location filename="../src/ui/ToolBar.cpp" line="367"/>
-        <source>Refresh</source>
-        <translation>Обновить</translation>
+        <source>Refresh local state (does not fetch remote updates)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

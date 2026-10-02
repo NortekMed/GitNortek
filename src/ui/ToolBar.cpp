@@ -364,7 +364,7 @@ class RefreshButton : public Button {
 public:
   RefreshButton(QWidget *parent = nullptr) : Button(parent) {
     setObjectName("RefreshButton");
-    setToolTip(tr("Refresh"));
+    setToolTip(tr("Refresh local state (does not fetch remote updates)"));
   }
 
   void paintEvent(QPaintEvent *event) override {
