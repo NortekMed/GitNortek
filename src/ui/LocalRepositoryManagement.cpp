@@ -1038,12 +1038,8 @@ bool LocalRepositoryManagement::eventFilter(QObject *watched, QEvent *event) {
           return false;
         clearPendingWorkspaceClick(mPendingWorkspaceClick == index);
         mIgnoreNextWorkspaceRelease = true;
-        const QString id =
-            index.data(LocalWorkspaceModel::WorkspaceIdRole).toString();
-        QTimer::singleShot(0, this, [this, id] {
-          editWorkspace(id);
-          mIgnoreNextWorkspaceRelease = false;
-        });
+        QTimer::singleShot(0, this,
+                           [this] { mIgnoreNextWorkspaceRelease = false; });
         return true;
       }
       activate(index);

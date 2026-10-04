@@ -609,17 +609,20 @@ void TestLocalWorkspaces::managementInteraction() {
                     workspacePosition);
   QVERIFY(tree->isExpanded(workspaceIndex));
   bool editOpened = false;
+  bool editCheckComplete = false;
   QTimer::singleShot(50, [&] {
-    LocalWorkspaceDialog *dialog =
-        qobject_cast<LocalWorkspaceDialog *>(QApplication::activeModalWidget());
-    if (!dialog)
-      return;
-    editOpened = true;
-    dialog->reject();
+    if (LocalWorkspaceDialog *dialog =
+            qobject_cast<LocalWorkspaceDialog *>(
+                QApplication::activeModalWidget())) {
+      editOpened = true;
+      dialog->reject();
+    }
+    editCheckComplete = true;
   });
   QTest::mouseDClick(tree->viewport(), Qt::LeftButton, Qt::NoModifier,
                      workspacePosition);
-  QTRY_VERIFY(editOpened);
+  QTRY_VERIFY(editCheckComplete);
+  QVERIFY(!editOpened);
   QVERIFY(!tree->isExpanded(workspaceIndex));
   QTest::mouseClick(expansion, Qt::LeftButton);
   QTRY_VERIFY(tree->isExpanded(workspaceIndex));
@@ -629,21 +632,52 @@ void TestLocalWorkspaces::managementInteraction() {
                     workspacePosition);
   QVERIFY(!tree->isExpanded(workspaceIndex));
   editOpened = false;
+  editCheckComplete = false;
   QTimer::singleShot(50, [&] {
-    LocalWorkspaceDialog *dialog =
-        qobject_cast<LocalWorkspaceDialog *>(QApplication::activeModalWidget());
-    if (!dialog)
-      return;
-    editOpened = true;
-    dialog->reject();
+    if (LocalWorkspaceDialog *dialog =
+            qobject_cast<LocalWorkspaceDialog *>(
+                QApplication::activeModalWidget())) {
+      editOpened = true;
+      dialog->reject();
+    }
+    editCheckComplete = true;
   });
   QTest::mouseDClick(tree->viewport(), Qt::LeftButton, Qt::NoModifier,
                      workspacePosition);
-  QTRY_VERIFY(editOpened);
+  QTRY_VERIFY(editCheckComplete);
+  QVERIFY(!editOpened);
   QVERIFY(tree->isExpanded(workspaceIndex));
   QTest::mouseClick(expansion, Qt::LeftButton);
   QTRY_VERIFY(!tree->isExpanded(workspaceIndex));
   QCOMPARE(expansion->text(), QString("Expand"));
+
+  bool editActionFound = false;
+  bool editOpenedFromContextMenu = false;
+  QTimer::singleShot(0, [&] {
+    QMenu *menu = qobject_cast<QMenu *>(QApplication::activePopupWidget());
+    QVERIFY(menu);
+    for (QAction *action : menu->actions()) {
+      if (action->text() != QString("Edit Workspace"))
+        continue;
+      editActionFound = true;
+      QTimer::singleShot(0, [&] {
+        if (LocalWorkspaceDialog *dialog =
+                qobject_cast<LocalWorkspaceDialog *>(
+                    QApplication::activeModalWidget())) {
+          editOpenedFromContextMenu = true;
+          dialog->reject();
+        }
+      });
+      action->trigger();
+      break;
+    }
+    menu->close();
+  });
+  QMetaObject::invokeMethod(tree, "customContextMenuRequested",
+                            Qt::DirectConnection,
+                            Q_ARG(QPoint, workspacePosition));
+  QVERIFY(editActionFound);
+  QTRY_VERIFY(editOpenedFromContextMenu);
 
   const QModelIndex remoteIndex = tree->model()->index(
       0, LocalWorkspaceModel::RemoteColumn, workspaceIndex);
