@@ -8,7 +8,15 @@ add_library(
   RecentRepositories.cpp
   RecentRepository.cpp)
 
-target_link_libraries(conf lua git Qt6::Core Qt6::Gui translation gitnortekUtil)
+target_link_libraries(
+  conf
+  lua
+  git
+  Qt6::Core
+  Qt6::Concurrent
+  Qt6::Gui
+  translation
+  gitnortekUtil)
 
 # SRC_ definitions point to the source directly
 target_compile_definitions(

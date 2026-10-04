@@ -95,6 +95,7 @@ class TestLocalWorkspaces : public QObject {
 
 private slots:
   void initTestCase();
+  void deferredInitialSynchronization();
   void persistenceAndModel();
   void synchronizedDirectory();
   void manualRepositorySurvivesSynchronization();
@@ -128,6 +129,42 @@ void TestLocalWorkspaces::initTestCase() {
     mStoredManagementSettings.insert(key, settings.value(key));
   settings.remove(QString());
   settings.endGroup();
+}
+
+void TestLocalWorkspaces::deferredInitialSynchronization() {
+  QTemporaryDir root;
+  QVERIFY(root.isValid());
+
+  QDir directory(root.path());
+  QVERIFY(directory.mkdir("repository"));
+  git::Repository repository =
+      git::Repository::init(directory.filePath("repository"));
+  QVERIFY(repository.isValid());
+
+  const QString id = "deferred-initial-synchronization";
+  QVariantMap stored;
+  stored.insert("id", id);
+  stored.insert("name", "Deferred");
+  stored.insert("syncDirectory", root.path());
+  stored.insert("syncEnabled", true);
+  stored.insert("repositories", QStringList());
+  stored.insert("manualRepositories", QStringList());
+  stored.insert("synchronizedRepositories", QStringList());
+  QSettings().setValue("localWorkspaces", QVariantList({stored}));
+
+  LocalWorkspaces *workspaces = LocalWorkspaces::instance();
+  const LocalWorkspace *initial = workspaces->workspace(id);
+  QVERIFY(initial);
+  QVERIFY(initial->repositories.isEmpty());
+
+  QSignalSpy changed(workspaces, &LocalWorkspaces::workspacesChanged);
+  QTRY_VERIFY_WITH_TIMEOUT(
+      workspaces->workspace(id)->repositories.contains(
+          repository.dir(false).path()),
+      5000);
+  QCOMPARE(changed.count(), 1);
+  QCOMPARE(workspaces->workspace(id)->synchronizedRepositories,
+           QStringList({repository.dir(false).path()}));
 }
 
 void TestLocalWorkspaces::persistenceAndModel() {

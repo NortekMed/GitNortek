@@ -7,8 +7,11 @@
 #define LOCALWORKSPACES_H
 
 #include "LocalWorkspace.h"
+#include <QFutureWatcher>
 #include <QList>
 #include <QObject>
+#include <atomic>
+#include <memory>
 
 class QFileSystemWatcher;
 class QTimer;
@@ -17,6 +20,8 @@ class LocalWorkspaces : public QObject {
   Q_OBJECT
 
 public:
+  ~LocalWorkspaces() override;
+
   int count() const;
   const LocalWorkspace *workspace(int index) const;
   const LocalWorkspace *workspace(const QString &id) const;
@@ -42,17 +47,33 @@ signals:
   void workspacesChanged();
 
 private:
+  struct InitialScanResult {
+    QString id;
+    QString directory;
+    QStringList repositories;
+    QStringList watchedDirectories;
+    QString error;
+    bool success = false;
+  };
+
   LocalWorkspaces(QObject *parent = nullptr);
 
   LocalWorkspace *find(const QString &id);
   void load();
   void store() const;
   void changed();
+  void startInitialSynchronization();
+  void finishInitialSynchronization();
+  void setWatchedDirectories(const QStringList &directories);
   void updateWatchedDirectories();
 
   QList<LocalWorkspace> mWorkspaces;
   QFileSystemWatcher *mWatcher;
   QTimer *mRescanTimer;
+  QFutureWatcher<QList<InitialScanResult>> *mInitialScanWatcher;
+  std::shared_ptr<std::atomic_bool> mInitialScanCancel;
+  quint64 mInitialScanGeneration = 0;
+  quint64 mInitialScanRunGeneration = 0;
 };
 
 #endif

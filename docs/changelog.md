@@ -57,6 +57,9 @@ Bug Fix and Feature release
 
 #### Changed
 
+* Keep startup responsive by discovering synchronized local-workspace
+  repositories outside the GUI thread
+
 * Clarify that Refresh updates local state only and that Fetch retrieves remote
   updates
 

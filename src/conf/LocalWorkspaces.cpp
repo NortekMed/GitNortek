@@ -5,6 +5,7 @@
 
 #include "LocalWorkspaces.h"
 #include "git/Repository.h"
+#include "util/PerformanceTrace.h"
 #include "util/Path.h"
 #include <QCoreApplication>
 #include <QDir>
@@ -16,6 +17,8 @@
 #include <QUuid>
 #include <QVariantList>
 #include <QVariantMap>
+#include <QtConcurrent>
+#include <atomic>
 
 namespace {
 
@@ -77,7 +80,11 @@ QStringList manualRepositories(const LocalWorkspace &workspace) {
 void walkSynchronizedDirectory(const QString &path, bool syncDirectory,
                                QStringList *repositories,
                                QStringList *watchedDirectories,
-                               QSet<QString> *visited) {
+                               QSet<QString> *visited,
+                               const std::atomic_bool *cancelled = nullptr) {
+  if (cancelled && cancelled->load())
+    return;
+
   const QString normalized = normalizedDirectoryPath(path);
   if (normalized.isEmpty())
     return;
@@ -105,27 +112,44 @@ void walkSynchronizedDirectory(const QString &path, bool syncDirectory,
       !containsPath(*watchedDirectories, normalized))
     watchedDirectories->append(normalized);
 
-  const QFileInfoList children = QDir(path).entryInfoList(
-      QDir::Dirs | QDir::Hidden | QDir::NoDotAndDotDot,
-      QDir::Name | QDir::IgnoreCase);
+  const QFileInfoList children =
+      QDir(path).entryInfoList(QDir::Dirs | QDir::Hidden | QDir::NoDotAndDotDot,
+                               QDir::Name | QDir::IgnoreCase);
   for (const QFileInfo &child : children)
     walkSynchronizedDirectory(child.absoluteFilePath(), false, repositories,
-                              watchedDirectories, visited);
+                              watchedDirectories, visited, cancelled);
 }
 
 bool scanSynchronizedDirectory(const QString &path, QStringList *repositories,
-                               QString *error) {
+                               QString *error,
+                               QStringList *watchedDirectories = nullptr,
+                               const std::atomic_bool *cancelled = nullptr) {
+  if (watchedDirectories)
+    watchedDirectories->clear();
+
+  QFileInfo syncInfo(path);
+  const QString parent = syncInfo.dir().absolutePath();
+  if (watchedDirectories && QDir(parent).exists())
+    watchedDirectories->append(parent);
+
+  if (cancelled && cancelled->load())
+    return false;
+
   QDir syncDirectory(path);
   if (!syncDirectory.exists()) {
-    setError(error, LocalWorkspaces::tr(
-                        "Synchronized directory does not exist: %1")
-                        .arg(path));
+    setError(error,
+             LocalWorkspaces::tr("Synchronized directory does not exist: %1")
+                 .arg(path));
     return false;
   }
 
   repositories->clear();
   QSet<QString> visited;
-  walkSynchronizedDirectory(path, true, repositories, nullptr, &visited);
+  walkSynchronizedDirectory(path, true, repositories, watchedDirectories,
+                            &visited, cancelled);
+  if (cancelled && cancelled->load())
+    return false;
+
   return true;
 }
 
@@ -160,9 +184,9 @@ QString cleanOptionalPath(const QString &path) {
 
 LocalWorkspaces::LocalWorkspaces(QObject *parent)
     : QObject(parent), mWatcher(new QFileSystemWatcher(this)),
-      mRescanTimer(new QTimer(this)) {
+      mRescanTimer(new QTimer(this)),
+      mInitialScanWatcher(new QFutureWatcher<QList<InitialScanResult>>(this)) {
   load();
-  updateWatchedDirectories();
   mRescanTimer->setSingleShot(true);
   mRescanTimer->setInterval(300);
   connect(mWatcher, &QFileSystemWatcher::directoryChanged, this,
@@ -178,13 +202,20 @@ LocalWorkspaces::LocalWorkspaces(QObject *parent)
       rescanSynchronizedDirectory(id);
   });
 
-  QStringList synchronizedIds;
-  for (const LocalWorkspace &workspace : std::as_const(mWorkspaces)) {
-    if (workspace.syncEnabled && !workspace.syncDirectory.isEmpty())
-      synchronizedIds.append(workspace.id);
-  }
-  for (const QString &id : std::as_const(synchronizedIds))
-    rescanSynchronizedDirectory(id);
+  connect(mInitialScanWatcher,
+          &QFutureWatcher<QList<InitialScanResult>>::finished, this,
+          &LocalWorkspaces::finishInitialSynchronization);
+
+  // Do not discover persisted synchronized workspaces while a main window is
+  // being constructed. The scan can walk a large or unavailable filesystem.
+  QTimer::singleShot(0, this, &LocalWorkspaces::startInitialSynchronization);
+}
+
+LocalWorkspaces::~LocalWorkspaces() {
+  if (mInitialScanCancel)
+    mInitialScanCancel->store(true);
+  if (mInitialScanWatcher && mInitialScanWatcher->isRunning())
+    mInitialScanWatcher->waitForFinished();
 }
 
 int LocalWorkspaces::count() const { return mWorkspaces.size(); }
@@ -517,16 +548,107 @@ void LocalWorkspaces::store() const {
 }
 
 void LocalWorkspaces::changed() {
+  ++mInitialScanGeneration;
   store();
   updateWatchedDirectories();
   emit workspacesChanged();
 }
 
-void LocalWorkspaces::updateWatchedDirectories() {
+void LocalWorkspaces::startInitialSynchronization() {
+  if (mInitialScanWatcher->isRunning())
+    return;
+
+  QList<InitialScanResult> requests;
+  for (const LocalWorkspace &workspace : std::as_const(mWorkspaces)) {
+    if (!workspace.syncEnabled || workspace.syncDirectory.isEmpty())
+      continue;
+
+    InitialScanResult request;
+    request.id = workspace.id;
+    request.directory = workspace.syncDirectory;
+    requests.append(request);
+  }
+
+  if (requests.isEmpty())
+    return;
+
+  const quint64 generation = ++mInitialScanGeneration;
+  mInitialScanRunGeneration = generation;
+  mInitialScanCancel = std::make_shared<std::atomic_bool>(false);
+  const std::shared_ptr<std::atomic_bool> cancelled = mInitialScanCancel;
+
+  mInitialScanWatcher->setFuture(QtConcurrent::run([requests, cancelled] {
+    QList<InitialScanResult> results;
+    results.reserve(requests.size());
+
+    for (const InitialScanResult &request : requests) {
+      if (cancelled->load())
+        break;
+
+      InitialScanResult result = request;
+      PerformanceTrace::Span span(
+          "workspace", "initial synchronized directory scan", result.directory);
+      result.success = scanSynchronizedDirectory(
+          result.directory, &result.repositories, &result.error,
+          &result.watchedDirectories, cancelled.get());
+      results.append(result);
+    }
+
+    return results;
+  }));
+}
+
+void LocalWorkspaces::finishInitialSynchronization() {
+  const QList<InitialScanResult> results = mInitialScanWatcher->result();
+  mInitialScanCancel.reset();
+
+  if (mInitialScanRunGeneration != mInitialScanGeneration)
+    return;
+
+  QStringList watchedDirectories;
+  bool workspacesChanged = false;
+  for (const InitialScanResult &result : results) {
+    LocalWorkspace *workspace = find(result.id);
+    if (!workspace || !workspace->syncEnabled ||
+        workspace->syncDirectory != result.directory)
+      continue;
+
+    for (const QString &directory : result.watchedDirectories) {
+      if (!containsPath(watchedDirectories, directory))
+        watchedDirectories.append(directory);
+    }
+
+    if (!result.success)
+      continue;
+
+    if (workspace->synchronizedRepositories != result.repositories) {
+      workspace->synchronizedRepositories = result.repositories;
+      workspacesChanged = true;
+    }
+
+    QStringList repositories = workspace->repositories;
+    updateRepositories(workspace);
+    if (repositories != workspace->repositories)
+      workspacesChanged = true;
+  }
+
+  setWatchedDirectories(watchedDirectories);
+
+  if (workspacesChanged) {
+    store();
+    emit this->workspacesChanged();
+  }
+}
+
+void LocalWorkspaces::setWatchedDirectories(const QStringList &directories) {
   const QStringList watched = mWatcher->directories();
   if (!watched.isEmpty())
     mWatcher->removePaths(watched);
+  if (!directories.isEmpty())
+    mWatcher->addPaths(directories);
+}
 
+void LocalWorkspaces::updateWatchedDirectories() {
   QStringList directories;
   QSet<QString> visited;
   for (const LocalWorkspace &workspace : std::as_const(mWorkspaces)) {
@@ -544,6 +666,5 @@ void LocalWorkspaces::updateWatchedDirectories() {
     walkSynchronizedDirectory(workspace.syncDirectory, true, nullptr,
                               &directories, &visited);
   }
-  if (!directories.isEmpty())
-    mWatcher->addPaths(directories);
+  setWatchedDirectories(directories);
 }
