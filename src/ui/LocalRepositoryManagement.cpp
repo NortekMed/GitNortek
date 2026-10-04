@@ -509,6 +509,64 @@ LocalRepositoryManagement::LocalRepositoryManagement(QWidget *parent)
       QStringLiteral("LocalRepositoryManagementOriginCheckPool"));
   mOriginCheckPool->setMaxThreadCount(4);
 
+  connect(mWorkspaces, &LocalWorkspaces::workspaceAdded, this,
+          [this](const QString &id, bool success, const QString &error) {
+            if (mPendingWorkspaceOperation != WorkspaceOperation::Add ||
+                id != mPendingWorkspaceOperationId)
+              return;
+            mPendingWorkspaceOperation = WorkspaceOperation::None;
+            mPendingWorkspaceOperationId.clear();
+            if (!success)
+              showError(error);
+          });
+  connect(mWorkspaces, &LocalWorkspaces::workspaceUpdated, this,
+          [this](const QString &id, bool success, const QString &error) {
+            if (mPendingWorkspaceOperation != WorkspaceOperation::Update ||
+                id != mPendingWorkspaceOperationId)
+              return;
+            mPendingWorkspaceOperation = WorkspaceOperation::None;
+            mPendingWorkspaceOperationId.clear();
+            if (!success)
+              showError(error);
+          });
+  connect(mWorkspaces, &LocalWorkspaces::repositoriesAdded, this,
+          [this](const QString &id, bool success, const QStringList &invalid,
+                 const QStringList &duplicates, const QString &error) {
+            if (mPendingWorkspaceOperation !=
+                    WorkspaceOperation::AddRepositories ||
+                id != mPendingWorkspaceOperationId)
+              return;
+            mPendingWorkspaceOperation = WorkspaceOperation::None;
+            mPendingWorkspaceOperationId.clear();
+            if (!success) {
+              showError(error);
+              return;
+            }
+
+            QStringList skipped;
+            if (!invalid.isEmpty())
+              skipped.append(tr("Not Git repositories:\n%1")
+                                 .arg(invalid.join('\n')));
+            if (!duplicates.isEmpty())
+              skipped.append(tr("Already in the workspace:\n%1")
+                                 .arg(duplicates.join('\n')));
+            if (!skipped.isEmpty())
+              QMessageBox::warning(
+                  this, tr("Some Folders Were Skipped"),
+                  tr("Some selected folders were skipped.\n\n%1")
+                      .arg(skipped.join(QStringLiteral("\n\n"))));
+          });
+  connect(mWorkspaces, &LocalWorkspaces::synchronizedDirectoryRescanned, this,
+          [this](const QString &id, bool success, const QString &error) {
+            if (mPendingWorkspaceOperation != WorkspaceOperation::Rescan ||
+                id != mPendingWorkspaceOperationId)
+              return;
+            mPendingWorkspaceOperation = WorkspaceOperation::None;
+            mPendingWorkspaceOperationId.clear();
+            if (!success)
+              showError(error);
+          });
+
   QLabel *title = new QLabel(tr("Local Repository Management"), this);
   title->setObjectName(QStringLiteral("LocalRepositoryManagementTitle"));
   QFont titleFont = title->font();
@@ -1148,15 +1206,13 @@ void LocalRepositoryManagement::showContextMenu(const QPoint &position) {
 
 void LocalRepositoryManagement::createWorkspace() {
   LocalWorkspaceDialog dialog(this);
-  while (dialog.exec() == QDialog::Accepted) {
-    const LocalWorkspace workspace = dialog.workspace();
-    QString error;
-    if (!mWorkspaces->add(workspace, &error)) {
-      showError(error);
-      continue;
-    }
+  if (dialog.exec() != QDialog::Accepted)
     return;
-  }
+
+  const LocalWorkspace workspace = dialog.workspace();
+  mPendingWorkspaceOperation = WorkspaceOperation::Add;
+  mPendingWorkspaceOperationId = workspace.id;
+  mWorkspaces->addAsync(workspace);
 }
 
 void LocalRepositoryManagement::editWorkspace(const QString &id) {
@@ -1165,15 +1221,13 @@ void LocalRepositoryManagement::editWorkspace(const QString &id) {
     return;
   const LocalWorkspace workspace = *stored;
   LocalWorkspaceDialog dialog(workspace, this);
-  while (dialog.exec() == QDialog::Accepted) {
-    QString error;
-    const LocalWorkspace updated = dialog.workspace();
-    if (!mWorkspaces->update(updated, &error)) {
-      showError(error);
-      continue;
-    }
+  if (dialog.exec() != QDialog::Accepted)
     return;
-  }
+
+  const LocalWorkspace updated = dialog.workspace();
+  mPendingWorkspaceOperation = WorkspaceOperation::Update;
+  mPendingWorkspaceOperationId = updated.id;
+  mWorkspaces->updateAsync(updated);
 }
 
 void LocalRepositoryManagement::deleteWorkspace(const QString &id) {
@@ -1197,25 +1251,9 @@ void LocalRepositoryManagement::addRepository(const QString &id) {
   if (paths.isEmpty())
     return;
 
-  QStringList invalid;
-  QStringList duplicates;
-  QString error;
-  if (!mWorkspaces->addRepositories(id, paths, &invalid, &duplicates, &error)) {
-    showError(error);
-    return;
-  }
-
-  QStringList skipped;
-  if (!invalid.isEmpty())
-    skipped.append(tr("Not Git repositories:\n%1").arg(invalid.join('\n')));
-  if (!duplicates.isEmpty())
-    skipped.append(
-        tr("Already in the workspace:\n%1").arg(duplicates.join('\n')));
-  if (!skipped.isEmpty())
-    QMessageBox::warning(
-        this, tr("Some Folders Were Skipped"),
-        tr("Some selected folders were skipped.\n\n%1")
-            .arg(skipped.join(QStringLiteral("\n\n"))));
+  mPendingWorkspaceOperation = WorkspaceOperation::AddRepositories;
+  mPendingWorkspaceOperationId = id;
+  mWorkspaces->addRepositoriesAsync(id, paths);
 }
 
 void LocalRepositoryManagement::removeRepository(const QString &id,
@@ -1252,9 +1290,9 @@ void LocalRepositoryManagement::openWorkspace(const QString &id) {
 }
 
 void LocalRepositoryManagement::rescanWorkspace(const QString &id) {
-  QString error;
-  if (!mWorkspaces->rescanSynchronizedDirectory(id, &error))
-    showError(error);
+  mPendingWorkspaceOperation = WorkspaceOperation::Rescan;
+  mPendingWorkspaceOperationId = id;
+  mWorkspaces->rescanSynchronizedDirectoryAsync(id);
 }
 
 void LocalRepositoryManagement::deleteCurrentItem() {

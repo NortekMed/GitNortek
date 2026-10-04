@@ -18,6 +18,8 @@
 #include <QFutureWatcher>
 #include <QHash>
 #include <QTimer>
+#include <atomic>
+#include <memory>
 
 class RepositoryNavigatorModel : public QAbstractItemModel {
   Q_OBJECT
@@ -93,6 +95,7 @@ public:
   };
 
   explicit RepositoryNavigatorModel(QObject *parent = nullptr);
+  ~RepositoryNavigatorModel() override;
 
   void setRepository(const git::Repository &repo);
   void clear();
@@ -167,6 +170,15 @@ private:
   void disconnectRepository();
   void connectRepository();
   void rebuild();
+  void scheduleRebuild();
+  void finishRebuild();
+  static QList<SectionData> emptySections();
+  static QList<SectionData> buildSections(
+      const QString &repositoryPath,
+      const QHash<QString, git::Submodule::UpdateStatus> &updateStatuses,
+      TagSortKey tagSortKey, Qt::SortOrder tagSortOrder,
+      const std::shared_ptr<std::atomic_bool> &cancelled,
+      git::Repository *repository);
   void rebuildGitHubIssuesSection();
   void requestBranchComparisons();
 
@@ -178,12 +190,26 @@ private:
     int behind = -1;
   };
 
+  struct RebuildResult {
+    quint64 generation = 0;
+    git::Repository repository;
+    QList<SectionData> sections;
+  };
+
   git::Repository mRepo;
+  // Keeps the repository that owns references and objects returned by the
+  // worker alive after the worker has finished. libgit2 references retain an
+  // owner pointer but do not own that repository themselves.
+  git::Repository mNavigatorRepository;
   QHash<QString, git::Submodule::UpdateStatus> mSubmoduleUpdateStatuses;
   QStringList mBusySubmodulePaths;
   QList<SectionData> mSections;
   QList<QMetaObject::Connection> mConnections;
   QTimer mRefreshTimer;
+  QFutureWatcher<RebuildResult> *mRebuildWatcher = nullptr;
+  std::shared_ptr<std::atomic_bool> mRebuildCancel;
+  quint64 mRebuildGeneration = 0;
+  bool mRebuildPending = false;
   QFutureWatcher<QList<BranchComparison>> *mBranchComparisonWatcher = nullptr;
   quint64 mBranchComparisonGeneration = 0;
   bool mBranchComparisonPending = false;

@@ -15,6 +15,7 @@
 #include "git/Repository.h"
 #include "git/Result.h"
 #include "util/Path.h"
+#include "util/PerformanceTrace.h"
 
 #include <QFileInfo>
 #include <QIcon>
@@ -35,9 +36,11 @@ QString stateKey(const QString &path) { return util::pathCompareKey(path); }
 
 LocalWorkspaceModel::LocalWorkspaceModel(QObject *parent)
     : QAbstractItemModel(parent), mWorkspaces(LocalWorkspaces::instance()),
+      mReloadWatcher(new QFutureWatcher<ReloadResult>(this)),
       mRefreshWatcher(
           new QFutureWatcher<QHash<QString, RepositoryState>>(this)) {
-  reload();
+  connect(mReloadWatcher, &QFutureWatcher<ReloadResult>::finished, this,
+          &LocalWorkspaceModel::finishReload);
   connect(mRefreshWatcher,
           &QFutureWatcher<QHash<QString, RepositoryState>>::finished, this,
           [this] {
@@ -50,15 +53,16 @@ LocalWorkspaceModel::LocalWorkspaceModel(QObject *parent)
             }
           });
   connect(mWorkspaces, &LocalWorkspaces::workspacesChanged, this, [this] {
-    beginResetModel();
     reload();
-    endResetModel();
-    refreshRepositories();
   });
-  refreshRepositories();
+  reload();
 }
 
 LocalWorkspaceModel::~LocalWorkspaceModel() {
+  if (mReloadCancel)
+    mReloadCancel->store(true);
+  if (mReloadWatcher->isRunning())
+    mReloadWatcher->waitForFinished();
   if (mRefreshWatcher->isRunning())
     mRefreshWatcher->waitForFinished();
 }
@@ -566,33 +570,88 @@ void LocalWorkspaceModel::applyRepositoryStates(
   }
 }
 
-LocalWorkspaceModel::RepositoryState
-LocalWorkspaceModel::repositoryState(const QString &path) const {
-  RepositoryState state;
-  const git::Repository repository = git::Repository::open(path, true);
-  state.available = repository.isValid();
-  if (state.available) {
-    const git::Reference head = repository.head();
-    state.branch =
-        head.isValid() ? head.name() : repository.unbornHeadName();
-  }
-  return state;
-}
-
 void LocalWorkspaceModel::reload() {
-  mSnapshot.clear();
-  mRepositoryStates.clear();
+  QList<LocalWorkspace> requested;
+  for (int i = 0; i < mWorkspaces->count(); ++i)
+    requested.append(*mWorkspaces->workspace(i));
+
+  QHash<QString, RepositoryState> previousStates = mRepositoryStates;
   QSet<QString> currentPaths;
-  for (int i = 0; i < mWorkspaces->count(); ++i) {
-    const LocalWorkspace workspace = *mWorkspaces->workspace(i);
-    mSnapshot.append(workspace);
-    for (const QString &path : workspace.repositories) {
+  for (const LocalWorkspace &workspace : requested) {
+    for (const QString &path : workspace.repositories)
       currentPaths.insert(stateKey(path));
-      mRepositoryStates.insert(stateKey(path), repositoryState(path));
-    }
   }
+
+  // Update the tree structure immediately from the in-memory workspace
+  // configuration. Git inspection is performed by the worker below, so the
+  // GUI never waits for Repository::open/head while the model is rebuilt.
+  beginResetModel();
+  mSnapshot = requested;
+  mRepositoryStates.clear();
+  for (const QString &key : currentPaths)
+    mRepositoryStates.insert(key, previousStates.value(key));
   mActiveOriginFetches.intersect(currentPaths);
   mFreshOriginChecks.intersect(currentPaths);
   mFailedOriginChecks.intersect(currentPaths);
   mInitialPendingOrigins.intersect(currentPaths);
+  endResetModel();
+
+  if (mReloadWatcher->isRunning()) {
+    mReloadPending = true;
+    ++mReloadGeneration;
+    if (mReloadCancel)
+      mReloadCancel->store(true);
+    return;
+  }
+
+  mReloadPending = false;
+  const quint64 generation = ++mReloadGeneration;
+  mReloadRunGeneration = generation;
+  mReloadCancel = std::make_shared<std::atomic_bool>(false);
+  const std::shared_ptr<std::atomic_bool> cancelled = mReloadCancel;
+
+  mReloadWatcher->setFuture(QtConcurrent::run(
+      [requested, generation, cancelled] {
+        ReloadResult result;
+        result.generation = generation;
+        result.snapshot = requested;
+        PerformanceTrace::Span span("workspace", "workspace model reload");
+        for (const LocalWorkspace &workspace : requested) {
+          for (const QString &path : workspace.repositories) {
+            if (cancelled->load())
+              return result;
+
+            RepositoryState state;
+            const git::Repository repository = git::Repository::open(path, true);
+            state.available = repository.isValid();
+            if (state.available) {
+              const git::Reference head = repository.head();
+              state.branch = head.isValid() ? head.name()
+                                            : repository.unbornHeadName();
+            }
+            result.states.insert(stateKey(path), state);
+          }
+        }
+        return result;
+      }));
+}
+
+void LocalWorkspaceModel::finishReload() {
+  const ReloadResult result = mReloadWatcher->result();
+  mReloadCancel.reset();
+
+  if (result.generation != mReloadGeneration) {
+    if (mReloadPending) {
+      mReloadPending = false;
+      reload();
+    }
+    return;
+  }
+
+  applyRepositoryStates(result.states);
+  refreshRepositories();
+  if (mReloadPending) {
+    mReloadPending = false;
+    reload();
+  }
 }

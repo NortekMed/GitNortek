@@ -8,6 +8,7 @@
 
 #include "conf/LocalWorkspace.h"
 #include <QDialog>
+#include <QFutureWatcher>
 #include <optional>
 
 class QCheckBox;
@@ -30,9 +31,16 @@ public:
   LocalWorkspace workspace() const;
 
 private:
+  struct RepositorySelectionResult {
+    QStringList roots;
+    QStringList invalid;
+    QStringList duplicates;
+  };
+
   void browseRepository();
   void browseSyncDirectory();
   void chooseColor();
+  void finishRepositorySelection();
   void updateColorButton();
   void updateState();
 
@@ -43,10 +51,12 @@ private:
   QPlainTextEdit *mDescription;
   QListWidget *mRepositories;
   QPushButton *mRemoveRepository;
+  QPushButton *mBrowseRepositories;
   QCheckBox *mSync;
   QLineEdit *mSyncDirectory;
   QPushButton *mBrowseSyncDirectory;
   QPushButton *mSave;
+  QFutureWatcher<RepositorySelectionResult> *mRepositorySelectionWatcher;
 };
 
 #endif

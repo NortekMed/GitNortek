@@ -55,6 +55,8 @@ protected:
   bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
+  enum class WorkspaceOperation { None, Add, Update, AddRepositories, Rescan };
+
   struct OriginCheckRequest {
     QString path;
     qsizetype callbackIndex = -1;
@@ -126,6 +128,8 @@ private:
   bool mIgnoreNextWorkspaceRelease = false;
   bool mPendingWorkspaceWasExpanded = false;
   bool mDetailsInitialized = false;
+  WorkspaceOperation mPendingWorkspaceOperation = WorkspaceOperation::None;
+  QString mPendingWorkspaceOperationId;
 };
 
 #endif

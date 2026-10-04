@@ -95,12 +95,27 @@ bool RepositoryNavigatorModel::lessThanTag(
 }
 
 RepositoryNavigatorModel::RepositoryNavigatorModel(QObject *parent)
-    : QAbstractItemModel(parent) {
+    : QAbstractItemModel(parent),
+      mRebuildWatcher(new QFutureWatcher<RebuildResult>(this)) {
   mRefreshTimer.setSingleShot(true);
   mRefreshTimer.setInterval(50);
   connect(&mRefreshTimer, &QTimer::timeout, this,
           &RepositoryNavigatorModel::refresh);
+  connect(mRebuildWatcher, &QFutureWatcher<RebuildResult>::finished, this,
+          &RepositoryNavigatorModel::finishRebuild);
+  mSections = emptySections();
+  mNavigatorRepository = git::Repository();
+  rebuildGitHubIssuesSection();
   rebuild();
+}
+
+RepositoryNavigatorModel::~RepositoryNavigatorModel() {
+  if (mRebuildCancel)
+    mRebuildCancel->store(true);
+  if (mRebuildWatcher->isRunning())
+    mRebuildWatcher->waitForFinished();
+  if (mBranchComparisonWatcher && mBranchComparisonWatcher->isRunning())
+    mBranchComparisonWatcher->waitForFinished();
 }
 
 void RepositoryNavigatorModel::setTagSort(TagSortKey key, Qt::SortOrder order) {
@@ -119,6 +134,7 @@ void RepositoryNavigatorModel::setTagSort(TagSortKey key, Qt::SortOrder order) {
       mSections[section].rows.begin(), mSections[section].rows.end(),
       [this](const Row &lhs, const Row &rhs) { return lessThanTag(lhs, rhs); });
   endResetModel();
+  rebuild();
 }
 
 RepositoryNavigatorModel::TagSortKey
@@ -132,20 +148,26 @@ Qt::SortOrder RepositoryNavigatorModel::tagSortOrder() const {
 
 void RepositoryNavigatorModel::setRepository(const git::Repository &repo) {
   mRefreshTimer.stop();
+  ++mRebuildGeneration;
+  mRebuildPending = false;
+  if (mRebuildCancel)
+    mRebuildCancel->store(true);
   ++mBranchComparisonGeneration;
   mBranchComparisonPending = false;
   disconnectRepository();
   beginResetModel();
   mRepo = repo;
+  mNavigatorRepository = git::Repository();
   mSubmoduleUpdateStatuses.clear();
   mGitHubIssuesAvailable = false;
   mGitHubIssuesState = LoadState::Unavailable;
   mGitHubIssues.clear();
   mGitHubIssuesError.clear();
-  rebuild();
+  mSections = emptySections();
+  rebuildGitHubIssuesSection();
   endResetModel();
   connectRepository();
-  requestBranchComparisons();
+  rebuild();
 }
 
 void RepositoryNavigatorModel::setGitHubIssuesAvailable(bool available) {
@@ -217,9 +239,8 @@ void RepositoryNavigatorModel::setSubmoduleUpdateStatuses(
 
   beginResetModel();
   mSubmoduleUpdateStatuses = updated;
-  rebuild();
   endResetModel();
-  requestBranchComparisons();
+  scheduleRebuild();
 }
 
 void RepositoryNavigatorModel::setBusySubmodulePaths(const QStringList &paths) {
@@ -397,10 +418,7 @@ Qt::ItemFlags RepositoryNavigatorModel::flags(const QModelIndex &index) const {
 }
 
 void RepositoryNavigatorModel::refresh() {
-  beginResetModel();
   rebuild();
-  endResetModel();
-  requestBranchComparisons();
 }
 
 bool RepositoryNavigatorModel::isSection(const QModelIndex &index) const {
@@ -465,23 +483,14 @@ void RepositoryNavigatorModel::requestBranchComparisons() {
     return;
   }
 
-  QList<BranchComparison> comparisons;
+  QStringList localBranchNames;
   const SectionData &local = mSections[static_cast<int>(Section::Local)];
   for (const Row &row : local.rows) {
-    git::Branch branch = row.reference;
-    git::Branch upstream = branch.upstream();
-    if (!upstream.isValid())
-      continue;
-
-    BranchComparison comparison;
-    comparison.name = branch.qualifiedName();
-    comparison.local = branch.target().id();
-    comparison.upstream = upstream.target().id();
-    if (comparison.local.isValid() && comparison.upstream.isValid())
-      comparisons.append(comparison);
+    if (!row.display.isEmpty())
+      localBranchNames.append(row.display);
   }
 
-  if (comparisons.isEmpty())
+  if (localBranchNames.isEmpty())
     return;
 
   const QString repoPath = mRepo.dir(false).path();
@@ -500,7 +509,7 @@ void RepositoryNavigatorModel::requestBranchComparisons() {
               for (const BranchComparison &comparison : comparisons) {
                 for (int row = 0; row < local.rows.size(); ++row) {
                   Row &item = local.rows[row];
-                  if (item.reference.qualifiedName() != comparison.name)
+                  if (item.display != comparison.name)
                     continue;
                   item.ahead = comparison.ahead;
                   item.behind = comparison.behind;
@@ -518,25 +527,98 @@ void RepositoryNavigatorModel::requestBranchComparisons() {
                                  &RepositoryNavigatorModel::requestBranchComparisons);
             }
           });
-  watcher->setFuture(QtConcurrent::run([repoPath, comparisons] {
-    QList<BranchComparison> results = comparisons;
+  watcher->setFuture(QtConcurrent::run([repoPath, localBranchNames] {
+    QList<BranchComparison> results;
     git::Repository repo = git::Repository::open(repoPath);
     if (!repo.isValid())
       return results;
-    for (BranchComparison &comparison : results) {
+
+    for (const QString &branchName : localBranchNames) {
+      git::Branch branch = repo.lookupBranch(branchName, GIT_BRANCH_LOCAL);
+      if (!branch.isValid())
+        continue;
+      git::Branch upstream = branch.upstream();
+      if (!upstream.isValid())
+        continue;
+
+      BranchComparison comparison;
+      comparison.name = branchName;
+      comparison.local = branch.target().id();
+      comparison.upstream = upstream.target().id();
+      if (!comparison.local.isValid() || !comparison.upstream.isValid())
+        continue;
+
       const git::Repository::AheadBehind counts =
           repo.aheadBehind(comparison.local, comparison.upstream);
       if (counts.error.isEmpty()) {
         comparison.ahead = counts.ahead;
         comparison.behind = counts.behind;
       }
+      results.append(comparison);
     }
     return results;
   }));
 }
 
-void RepositoryNavigatorModel::rebuild() {
-  mSections = {
+void RepositoryNavigatorModel::rebuild() { scheduleRebuild(); }
+
+void RepositoryNavigatorModel::scheduleRebuild() {
+  if (mRebuildWatcher->isRunning()) {
+    mRebuildPending = true;
+    ++mRebuildGeneration;
+    if (mRebuildCancel)
+      mRebuildCancel->store(true);
+    return;
+  }
+
+  mRebuildPending = false;
+  const quint64 generation = ++mRebuildGeneration;
+  const QString repositoryPath =
+      mRepo.isValid() ? mRepo.dir(false).path() : QString();
+  const QHash<QString, git::Submodule::UpdateStatus> updateStatuses =
+      mSubmoduleUpdateStatuses;
+  const TagSortKey tagSortKey = mTagSortKey;
+  const Qt::SortOrder tagSortOrder = mTagSortOrder;
+  mRebuildCancel = std::make_shared<std::atomic_bool>(false);
+  const std::shared_ptr<std::atomic_bool> cancelled = mRebuildCancel;
+
+  mRebuildWatcher->setFuture(QtConcurrent::run(
+      [repositoryPath, updateStatuses, tagSortKey, tagSortOrder, cancelled,
+       generation] {
+        RebuildResult result;
+        result.generation = generation;
+        git::Repository repository;
+        result.sections = buildSections(repositoryPath, updateStatuses,
+                                        tagSortKey, tagSortOrder, cancelled,
+                                        &repository);
+        if (!cancelled->load())
+          result.repository = repository;
+        return result;
+      }));
+}
+
+void RepositoryNavigatorModel::finishRebuild() {
+  const RebuildResult result = mRebuildWatcher->result();
+  mRebuildCancel.reset();
+
+  if (result.generation == mRebuildGeneration && !mRebuildPending) {
+    beginResetModel();
+    mNavigatorRepository = result.repository;
+    mSections = result.sections;
+    rebuildGitHubIssuesSection();
+    endResetModel();
+    requestBranchComparisons();
+  }
+
+  if (mRebuildPending) {
+    mRebuildPending = false;
+    scheduleRebuild();
+  }
+}
+
+QList<RepositoryNavigatorModel::SectionData>
+RepositoryNavigatorModel::emptySections() {
+  return {
       {Section::Local, tr("Local"), QString(), false, {}},
       {Section::Remote, tr("Remote"), QString(), false, {}},
       {Section::Worktrees, tr("Worktrees"), QString(), false, {}},
@@ -551,14 +633,29 @@ void RepositoryNavigatorModel::rebuild() {
        false, {}},
       {Section::Tags, tr("Tags"), QString(), false, {}},
       {Section::Submodules, tr("Submodules"), QString(), false, {}}};
+}
 
-  rebuildGitHubIssuesSection();
+QList<RepositoryNavigatorModel::SectionData>
+RepositoryNavigatorModel::buildSections(
+    const QString &repositoryPath,
+    const QHash<QString, git::Submodule::UpdateStatus> &updateStatuses,
+    TagSortKey tagSortKey, Qt::SortOrder tagSortOrder,
+    const std::shared_ptr<std::atomic_bool> &cancelled,
+    git::Repository *repository) {
+  QList<SectionData> sections = emptySections();
+  if (repositoryPath.isEmpty() || (cancelled && cancelled->load()))
+    return sections;
 
-  if (!mRepo.isValid())
-    return;
+  const git::Repository repo = git::Repository::open(repositoryPath);
+  if (!repo.isValid())
+    return sections;
+  if (repository)
+    *repository = repo;
 
-  SectionData &local = mSections[static_cast<int>(Section::Local)];
-  for (const git::Branch &branch : mRepo.branches(GIT_BRANCH_LOCAL)) {
+  SectionData &local = sections[static_cast<int>(Section::Local)];
+  for (const git::Branch &branch : repo.branches(GIT_BRANCH_LOCAL)) {
+    if (cancelled && cancelled->load())
+      return sections;
     Row row;
     row.reference = branch;
     row.display = branch.name();
@@ -574,8 +671,10 @@ void RepositoryNavigatorModel::rebuild() {
   std::sort(local.rows.begin(), local.rows.end(), lessThan);
   local.available = !local.rows.isEmpty();
 
-  SectionData &remote = mSections[static_cast<int>(Section::Remote)];
-  for (const git::Branch &branch : mRepo.branches(GIT_BRANCH_REMOTE)) {
+  SectionData &remote = sections[static_cast<int>(Section::Remote)];
+  for (const git::Branch &branch : repo.branches(GIT_BRANCH_REMOTE)) {
+    if (cancelled && cancelled->load())
+      return sections;
     if (branch.isRemoteHead())
       continue;
     Row row;
@@ -587,9 +686,11 @@ void RepositoryNavigatorModel::rebuild() {
   std::sort(remote.rows.begin(), remote.rows.end(), lessThan);
   remote.available = !remote.rows.isEmpty();
 
-  SectionData &worktrees = mSections[static_cast<int>(Section::Worktrees)];
-  if (!mRepo.isBare()) {
-    for (const git::Worktree &worktree : mRepo.worktrees()) {
+  SectionData &worktrees = sections[static_cast<int>(Section::Worktrees)];
+  if (!repo.isBare()) {
+    for (const git::Worktree &worktree : repo.worktrees()) {
+      if (cancelled && cancelled->load())
+        return sections;
       Row row;
       row.kind = ItemKind::Worktree;
       row.worktree = worktree;
@@ -612,8 +713,8 @@ void RepositoryNavigatorModel::rebuild() {
   }
   worktrees.available = !worktrees.rows.isEmpty();
 
-  SectionData &stashes = mSections[static_cast<int>(Section::Stashes)];
-  const QList<git::Commit> commits = mRepo.stashes();
+  SectionData &stashes = sections[static_cast<int>(Section::Stashes)];
+  const QList<git::Commit> commits = repo.stashes();
   for (int i = 0; i < commits.size(); ++i) {
     Row row;
     row.kind = ItemKind::Stash;
@@ -626,8 +727,10 @@ void RepositoryNavigatorModel::rebuild() {
   }
   stashes.available = !stashes.rows.isEmpty();
 
-  SectionData &tags = mSections[static_cast<int>(Section::Tags)];
-  for (const git::TagRef &tag : mRepo.tags()) {
+  SectionData &tags = sections[static_cast<int>(Section::Tags)];
+  for (const git::TagRef &tag : repo.tags()) {
+    if (cancelled && cancelled->load())
+      return sections;
     Row row;
     row.reference = tag;
     row.display = tag.name();
@@ -644,13 +747,32 @@ void RepositoryNavigatorModel::rebuild() {
     }
     tags.rows.append(row);
   }
-  std::sort(
-      tags.rows.begin(), tags.rows.end(),
-      [this](const Row &lhs, const Row &rhs) { return lessThanTag(lhs, rhs); });
+  std::sort(tags.rows.begin(), tags.rows.end(),
+            [tagSortKey, tagSortOrder](const Row &lhs, const Row &rhs) {
+              if (tagSortKey == TagSortKey::Name) {
+                const int comparison =
+                    QString::localeAwareCompare(lhs.display, rhs.display);
+                return tagSortOrder == Qt::AscendingOrder ? comparison < 0
+                                                          : comparison > 0;
+              }
+
+              const bool lhsHasDate = lhs.sortDate.isValid();
+              const bool rhsHasDate = rhs.sortDate.isValid();
+              if (lhsHasDate != rhsHasDate)
+                return lhsHasDate;
+              if (lhsHasDate && lhs.sortDate != rhs.sortDate) {
+                if (tagSortOrder == Qt::AscendingOrder)
+                  return lhs.sortDate < rhs.sortDate;
+                return lhs.sortDate > rhs.sortDate;
+              }
+              return QString::localeAwareCompare(lhs.display, rhs.display) < 0;
+            });
   tags.available = !tags.rows.isEmpty();
 
-  SectionData &submodules = mSections[static_cast<int>(Section::Submodules)];
-  for (const git::Submodule &submodule : mRepo.submodules()) {
+  SectionData &submodules = sections[static_cast<int>(Section::Submodules)];
+  for (const git::Submodule &submodule : repo.submodules()) {
+    if (cancelled && cancelled->load())
+      return sections;
     Row row;
     row.kind = ItemKind::Submodule;
     row.submodule = submodule;
@@ -661,9 +783,9 @@ void RepositoryNavigatorModel::rebuild() {
     row.initialized = submodule.isInitialized();
     QStringList tooltip{tr("Path: %1").arg(row.path)};
     git::Id pinnedId = submodule.indexId();
-    auto status = mSubmoduleUpdateStatuses.constFind(row.display);
+    auto status = updateStatuses.constFind(row.display);
     bool matchingStatus =
-        status != mSubmoduleUpdateStatuses.cend() && status->path == row.path &&
+        status != updateStatuses.cend() && status->path == row.path &&
         (status->url == row.url || QUrl(row.url).isRelative()) &&
         status->branch == row.branch;
     if (!row.branch.isEmpty()) {
@@ -671,12 +793,12 @@ void RepositoryNavigatorModel::rebuild() {
           matchingStatus ? OriginState::Failed : OriginState::Pending;
     }
     if (row.initialized) {
-      git::Repository repo = submodule.open();
-      git::Id checkoutId = submodule.workdirId();
-      if (repo.isValid() && checkoutId.isValid()) {
+       git::Repository submoduleRepo = submodule.open();
+       git::Id checkoutId = submodule.workdirId();
+       if (submoduleRepo.isValid() && checkoutId.isValid()) {
         tooltip.append(tr("Local checkout: %1").arg(checkoutId.shortId()));
         if (pinnedId.isValid()) {
-          compareCommits(repo, checkoutId, pinnedId, row.pinnedAhead,
+           compareCommits(submoduleRepo, checkoutId, pinnedId, row.pinnedAhead,
                          row.pinnedBehind);
           QString reference =
               tr("the commit recorded by the parent repository");
@@ -692,7 +814,7 @@ void RepositoryNavigatorModel::rebuild() {
         }
 
         if (matchingStatus && status->targetId.isValid()) {
-          if (compareCommits(repo, checkoutId, status->targetId,
+           if (compareCommits(submoduleRepo, checkoutId, status->targetId,
                              row.originAhead, row.originBehind)) {
             row.originState = OriginState::Ready;
             row.originTarget = status->targetId;
@@ -772,6 +894,7 @@ void RepositoryNavigatorModel::rebuild() {
   }
   submodules.available = !submodules.rows.isEmpty();
   std::sort(submodules.rows.begin(), submodules.rows.end(), lessThan);
+  return sections;
 }
 
 void RepositoryNavigatorModel::rebuildGitHubIssuesSection() {

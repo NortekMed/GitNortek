@@ -11,6 +11,8 @@
 #include <QFutureWatcher>
 #include <QHash>
 #include <QSet>
+#include <atomic>
+#include <memory>
 
 class LocalWorkspaces;
 
@@ -98,13 +100,19 @@ private:
     bool statusError = false;
   };
 
+  struct ReloadResult {
+    quint64 generation = 0;
+    QList<LocalWorkspace> snapshot;
+    QHash<QString, RepositoryState> states;
+  };
+
   bool statesEqual(const RepositoryState &lhs,
                    const RepositoryState &rhs) const;
   void applyRepositoryStates(const QHash<QString, RepositoryState> &states);
-  RepositoryState repositoryState(const QString &path) const;
   void setPathState(QSet<QString> &paths, const QString &path, bool enabled,
                     int role);
   void reload();
+  void finishReload();
 
   LocalWorkspaces *mWorkspaces;
   QList<LocalWorkspace> mSnapshot;
@@ -113,7 +121,12 @@ private:
   QSet<QString> mFreshOriginChecks;
   QSet<QString> mFailedOriginChecks;
   QSet<QString> mInitialPendingOrigins;
+  QFutureWatcher<ReloadResult> *mReloadWatcher;
   QFutureWatcher<QHash<QString, RepositoryState>> *mRefreshWatcher;
+  std::shared_ptr<std::atomic_bool> mReloadCancel;
+  quint64 mReloadGeneration = 0;
+  quint64 mReloadRunGeneration = 0;
+  bool mReloadPending = false;
   bool mRefreshPending = false;
 };
 

@@ -125,7 +125,7 @@ public:
               uint32_t mask = (IN_CREATE | IN_ISDIR);
               if ((event->mask & mask) == mask)
                 watchGitDirectory(QDir(path), true);
-            } else if (!gitMetadata && !mRepo.isIgnored(path)) {
+            } else if (!gitMetadata && !isIgnoredWorkdirPath(path)) {
               ignored = false;
 
               // Start watching new directories.
@@ -167,12 +167,27 @@ public:
     if (!watchDirectory(dir, false))
       return;
 
+    const QString relative =
+        QDir(mRepo.workdir().path()).relativeFilePath(dir.path());
+    if (relative != QStringLiteral(".") &&
+        (mRepo.lookupSubmodule(QDir::cleanPath(relative)).isValid() ||
+         QFileInfo(dir.filePath(QStringLiteral(".git"))).exists()))
+      return;
+
     // Watch subdirs.
     foreach (const QString &name, dir.entryList(kFilters)) {
       QString path = dir.filePath(name);
-      if (!mRepo.isIgnored(path))
+      if (!isIgnoredWorkdirPath(path))
         watchWorkdir(path);
     }
+  }
+
+  bool isIgnoredWorkdirPath(const QString &path) const {
+    const QString relative =
+        QDir(mRepo.workdir().path()).relativeFilePath(path);
+    if (relative == QStringLiteral("."))
+      return false;
+    return mRepo.isIgnored(QDir::cleanPath(relative));
   }
 
   void watchGitDirectory(const QDir &dir, bool recursive) {

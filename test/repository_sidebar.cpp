@@ -448,7 +448,7 @@ void TestRepositorySideBar::navigatorModel() {
 
   QModelIndex local =
       model.sectionIndex(RepositoryNavigatorModel::Section::Local);
-  QCOMPARE(model.rowCount(local), 2);
+  QTRY_COMPARE(model.rowCount(local), 2);
   QVERIFY(local.data(RepositoryNavigatorModel::AvailableRole).toBool());
   int current = 0;
   bool foundTracking = false;
@@ -459,8 +459,8 @@ void TestRepositorySideBar::navigatorModel() {
                 .isValid());
     current += branch.data(RepositoryNavigatorModel::CurrentRole).toBool();
     if (branch.data().toString() == main.name()) {
-      QCOMPARE(branch.data(RepositoryNavigatorModel::AheadRole).toInt(), 0);
-      QCOMPARE(branch.data(RepositoryNavigatorModel::BehindRole).toInt(), 0);
+      QTRY_COMPARE(branch.data(RepositoryNavigatorModel::AheadRole).toInt(), 0);
+      QTRY_COMPARE(branch.data(RepositoryNavigatorModel::BehindRole).toInt(), 0);
       foundTracking = true;
     } else {
       QVERIFY(!branch.data(RepositoryNavigatorModel::AheadRole).isValid());
@@ -501,7 +501,7 @@ void TestRepositorySideBar::navigatorModel() {
 
   QModelIndex stashes =
       model.sectionIndex(RepositoryNavigatorModel::Section::Stashes);
-  QCOMPARE(model.rowCount(stashes), 1);
+  QTRY_COMPARE(model.rowCount(stashes), 1);
   QVERIFY(stashes.data(RepositoryNavigatorModel::AvailableRole).toBool());
   QModelIndex stash = model.index(0, 0, stashes);
   QCOMPARE(stash.data(RepositoryNavigatorModel::StashIndexRole).toInt(), 0);
@@ -511,7 +511,7 @@ void TestRepositorySideBar::navigatorModel() {
 
   QModelIndex tags =
       model.sectionIndex(RepositoryNavigatorModel::Section::Tags);
-  QCOMPARE(model.rowCount(tags), 3);
+  QTRY_COMPARE(model.rowCount(tags), 3);
   QVERIFY(tags.data(RepositoryNavigatorModel::AvailableRole).toBool());
   auto tagNames = [&model] {
     QModelIndex section =
@@ -541,7 +541,7 @@ void TestRepositorySideBar::navigatorModel() {
 
   QModelIndex submodules =
       model.sectionIndex(RepositoryNavigatorModel::Section::Submodules);
-  QCOMPARE(model.rowCount(submodules), 0);
+  QTRY_COMPARE(model.rowCount(submodules), 0);
   QVERIFY(!submodules.data(RepositoryNavigatorModel::AvailableRole).toBool());
 
   model.clear();
@@ -565,7 +565,7 @@ void TestRepositorySideBar::navigatorModel() {
   }
   QModelIndex emptyWorktrees =
       emptyModel.sectionIndex(RepositoryNavigatorModel::Section::Worktrees);
-  QCOMPARE(emptyModel.rowCount(emptyWorktrees), 1);
+  QTRY_COMPARE(emptyModel.rowCount(emptyWorktrees), 1);
   QVERIFY(
       emptyWorktrees.data(RepositoryNavigatorModel::AvailableRole).toBool());
 }
@@ -769,7 +769,7 @@ void TestRepositorySideBar::navigatorView() {
     QVERIFY(localRepo.createBranch(QString("branch-%1").arg(branch), initial)
                 .isValid());
   navigator.setRepository(localRepo);
-  QVERIFY(expandCollapseAll->isEnabled());
+  QTRY_VERIFY(expandCollapseAll->isEnabled());
   QCOMPARE(expandCollapseAll->text(), QString("Collapse all"));
   for (const QString &section :
        QStringList({"Remote", "Stashes", "CloudPatches", "PullRequests",
@@ -833,7 +833,7 @@ void TestRepositorySideBar::navigatorView() {
       navigator.sectionView(RepositoryNavigatorModel::Section::Local);
   QVERIFY(localView);
   QModelIndex localRoot = localView->rootIndex();
-  QCOMPARE(navigator.model()->rowCount(localRoot), 5);
+  QTRY_COMPARE(navigator.model()->rowCount(localRoot), 5);
   QTRY_COMPARE(localView->verticalScrollBar()->maximum(), 0);
   QModelIndex fifthBranch = navigator.model()->index(4, 0, localRoot);
   QTRY_VERIFY(localView->visualRect(fifthBranch).bottom() <=
@@ -879,7 +879,7 @@ void TestRepositorySideBar::navigatorView() {
   QVERIFY(localRepo.createBranch("branch-5", initial).isValid());
   navigator.setRepository(localRepo);
   localRoot = localView->rootIndex();
-  QCOMPARE(navigator.model()->rowCount(localRoot), 6);
+  QTRY_COMPARE(navigator.model()->rowCount(localRoot), 6);
   QTRY_COMPARE(localView->height(), fiveRowHeight);
   QTRY_VERIFY(localView->verticalScrollBar()->maximum() > 0);
   for (const QString &section : QStringList(
@@ -949,7 +949,7 @@ void TestRepositorySideBar::navigatorView() {
   QVERIFY(writeFile(stashedRepo, "tracked.txt", "stashed\n"));
   QVERIFY(stashedRepo->stash("navigator stash").isValid());
   navigator.setRepository(stashedRepo);
-  QVERIFY(stashesToggle->isEnabled());
+  QTRY_VERIFY(stashesToggle->isEnabled());
   QVERIFY(stashedRepo->dropStash(0));
   QTRY_VERIFY(!stashesToggle->isEnabled());
   QVERIFY(!stashesToggle->isChecked());
@@ -961,7 +961,7 @@ void TestRepositorySideBar::navigatorView() {
 
   navigator.setRepository(mRepo);
   QVERIFY(!localToggle->isChecked());
-  QVERIFY(worktreeAdd->isEnabled());
+  QTRY_VERIFY(worktreeAdd->isEnabled());
 
   QSignalSpy openSpy(&navigator, &RepositoryNavigator::openRepositoryRequested);
   QSignalSpy selectSpy(&navigator,
@@ -970,7 +970,9 @@ void TestRepositorySideBar::navigatorView() {
       navigator.sectionView(RepositoryNavigatorModel::Section::Worktrees);
   QVERIFY(worktreeView);
   QCOMPARE(worktreeView->verticalScrollBarPolicy(), Qt::ScrollBarAsNeeded);
-  QModelIndex home = model->index(0, 0, worktreeView->rootIndex());
+  QModelIndex worktreeRoot = worktreeView->rootIndex();
+  QTRY_COMPARE(model->rowCount(worktreeRoot), 1);
+  QModelIndex home = model->index(0, 0, worktreeRoot);
   QVERIFY(QMetaObject::invokeMethod(
       worktreeView, "clicked", Qt::DirectConnection, Q_ARG(QModelIndex, home)));
   QCOMPARE(selectSpy.count(), 1);
@@ -1030,10 +1032,11 @@ void TestRepositorySideBar::submoduleExpansionSizing() {
   QVERIFY(splitter);
   QVERIFY(actionBar);
   submodulesToggle->setChecked(false);
+  QTRY_VERIFY(submodulesToggle->isEnabled());
   submodulesToggle->setChecked(true);
 
   QModelIndex root = submodulesView->rootIndex();
-  QCOMPARE(navigator.model()->rowCount(root), 6);
+  QTRY_COMPARE(navigator.model()->rowCount(root), 6);
   QModelIndex last = navigator.model()->index(5, 0, root);
   QTRY_COMPARE(submodulesView->verticalScrollBar()->maximum(), 0);
   QTRY_VERIFY(submodulesView->visualRect(last).bottom() <=
@@ -1327,6 +1330,7 @@ void TestRepositorySideBar::activeRepositoryBinding() {
   QVERIFY(remoteView);
   QModelIndex local =
       model->sectionIndex(RepositoryNavigatorModel::Section::Local);
+  QTRY_VERIFY(model->rowCount(local) >= 2);
   QModelIndex current;
   QModelIndex other;
   for (int row = 0; row < model->rowCount(local); ++row) {
@@ -1739,7 +1743,7 @@ void TestRepositorySideBar::branchGraphColors() {
   QCOMPARE(graphNodeColor(sideIndex, CommitList::GraphColorRole), sideBase);
   QCOMPARE(graphNodeColor(senderIndex, CommitList::GraphBaseColorRole),
            mainBase);
-  QCOMPARE(branchBadgeColor(commitList, header, mainIndex), headColor);
+   QCOMPARE(branchBadgeColor(commitList, header, mainIndex), headColor);
   const QColor sideBadge = branchBadgeColor(commitList, header, sideIndex);
   const QColor senderBadge = branchBadgeColor(commitList, header, senderIndex);
   QVERIFY(sideBadge.isValid());
@@ -1784,7 +1788,7 @@ void TestRepositorySideBar::branchGraphColors() {
   senderIndex = commitIndex(model, sender.target().id());
   QVERIFY(mainIndex.isValid());
   QVERIFY(senderIndex.isValid());
-  QCOMPARE(branchBadgeColor(commitList, header, mainIndex), headColor);
+   QTRY_COMPARE(branchBadgeColor(commitList, header, mainIndex), headColor);
   QCOMPARE(branchBadgeColor(commitList, header, senderIndex), senderBadge);
   config.setValue(ConfigKeys::kGraphKey, true);
   commitList->resetSettings();
@@ -2687,7 +2691,7 @@ void TestRepositorySideBar::submoduleInteraction() {
   QTreeView *submodulesView =
       navigator->sectionView(RepositoryNavigatorModel::Section::Submodules);
   QVERIFY(submodulesView);
-  QCOMPARE(navigator->model()->rowCount(submodules), 1);
+  QTRY_COMPARE(navigator->model()->rowCount(submodules), 1);
   QModelIndex submodule = navigator->model()->index(0, 0, submodules);
   QCOMPARE(submodule.data(RepositoryNavigatorModel::PathRole).toString(),
            QString("child"));
@@ -2737,6 +2741,11 @@ void TestRepositorySideBar::submoduleInteraction() {
   navigator->model()->setSubmoduleUpdateStatuses({synchronized});
   submodules = navigator->model()->sectionIndex(
       RepositoryNavigatorModel::Section::Submodules);
+  QTRY_COMPARE(
+      navigator->model()->index(0, 0, submodules)
+          .data(RepositoryNavigatorModel::OriginStateRole)
+          .value<RepositoryNavigatorModel::OriginState>(),
+      RepositoryNavigatorModel::OriginState::Ready);
   submodule = navigator->model()->index(0, 0, submodules);
   navigator->model()->setBusySubmodulePaths({selected.path()});
   QVERIFY(submodule.data(RepositoryNavigatorModel::SubmoduleBusyRole).toBool());
@@ -2761,13 +2770,13 @@ void TestRepositorySideBar::submoduleInteraction() {
   submodules = navigator->model()->sectionIndex(
       RepositoryNavigatorModel::Section::Submodules);
   submodule = navigator->model()->index(0, 0, submodules);
-  QCOMPARE(submodule.data(RepositoryNavigatorModel::OriginAheadRole).toInt(),
-           0);
-  QCOMPARE(submodule.data(RepositoryNavigatorModel::OriginBehindRole).toInt(),
-           1);
-  QCOMPARE(submodule.data(RepositoryNavigatorModel::OriginStateRole)
-               .value<RepositoryNavigatorModel::OriginState>(),
-           RepositoryNavigatorModel::OriginState::Ready);
+  QTRY_COMPARE(submodule.data(RepositoryNavigatorModel::OriginAheadRole).toInt(),
+               0);
+  QTRY_COMPARE(
+      submodule.data(RepositoryNavigatorModel::OriginBehindRole).toInt(), 1);
+  QTRY_COMPARE(submodule.data(RepositoryNavigatorModel::OriginStateRole)
+                   .value<RepositoryNavigatorModel::OriginState>(),
+               RepositoryNavigatorModel::OriginState::Ready);
 
   git::Submodule::UpdateStatus failed;
   failed.name = "child";
@@ -2781,9 +2790,9 @@ void TestRepositorySideBar::submoduleInteraction() {
   submodules = navigator->model()->sectionIndex(
       RepositoryNavigatorModel::Section::Submodules);
   submodule = navigator->model()->index(0, 0, submodules);
-  QCOMPARE(submodule.data(RepositoryNavigatorModel::OriginStateRole)
-               .value<RepositoryNavigatorModel::OriginState>(),
-           RepositoryNavigatorModel::OriginState::Failed);
+  QTRY_COMPARE(submodule.data(RepositoryNavigatorModel::OriginStateRole)
+                   .value<RepositoryNavigatorModel::OriginState>(),
+               RepositoryNavigatorModel::OriginState::Failed);
   QVERIFY(submodule.data(Qt::ToolTipRole)
               .toString()
               .contains("comparison failed - test failure"));
@@ -3148,6 +3157,7 @@ void TestRepositorySideBar::submoduleInitialization() {
     return QModelIndex();
   };
 
+  QTRY_VERIFY(submoduleIndex("child-one").isValid());
   QModelIndex uninitialized = submoduleIndex("child-one");
   QModelIndex secondUninitialized = submoduleIndex("child-two");
   QVERIFY(uninitialized.isValid());
@@ -3225,10 +3235,12 @@ void TestRepositorySideBar::worktreeSubmoduleInitialization() {
     QVERIFY(uninitializedNavigator);
     QModelIndex submodules = uninitializedNavigator->model()->sectionIndex(
         RepositoryNavigatorModel::Section::Submodules);
-    QModelIndex submodule =
-        uninitializedNavigator->model()->index(0, 0, submodules);
     QTreeView *submodulesView = uninitializedNavigator->sectionView(
         RepositoryNavigatorModel::Section::Submodules);
+    QTRY_VERIFY(
+        uninitializedNavigator->model()->index(0, 0, submodules).isValid());
+    QModelIndex submodule =
+        uninitializedNavigator->model()->index(0, 0, submodules);
     QVERIFY(submodule.isValid());
     QVERIFY(submodulesView);
     QStringList menu = menuTexts(contextMenuItems(submodulesView, submodule));
@@ -3309,8 +3321,9 @@ void TestRepositorySideBar::worktreeDeletion() {
     return QModelIndex();
   };
 
-  QModelIndex home = worktreeIndex("Home");
-  QModelIndex featureIndex = worktreeIndex("feature");
+   QTRY_VERIFY(worktreeIndex("Home").isValid());
+   QModelIndex home = worktreeIndex("Home");
+   QModelIndex featureIndex = worktreeIndex("feature");
   QVERIFY(home.isValid());
   QVERIFY(featureIndex.isValid());
   const QList<QPair<QString, bool>> homeMenu{{"Delete Worktree...", false}};
@@ -3412,7 +3425,7 @@ void TestRepositorySideBar::worktreeTabs() {
   model.setRepository(repo);
   QModelIndex worktrees =
       model.sectionIndex(RepositoryNavigatorModel::Section::Worktrees);
-  QCOMPARE(model.rowCount(worktrees), 2);
+  QTRY_COMPARE(model.rowCount(worktrees), 2);
   QModelIndex home = model.index(0, 0, worktrees);
   QModelIndex tree = model.index(1, 0, worktrees);
   QCOMPARE(home.data().toString(), repo.head().name());

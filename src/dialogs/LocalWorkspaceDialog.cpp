@@ -23,6 +23,7 @@
 #include <QPushButton>
 #include <QUuid>
 #include <QVBoxLayout>
+#include <QtConcurrent>
 
 namespace {
 
@@ -38,6 +39,12 @@ LocalWorkspaceDialog::LocalWorkspaceDialog(QWidget *parent)
 LocalWorkspaceDialog::LocalWorkspaceDialog(
     std::optional<LocalWorkspace> workspace, QWidget *parent)
     : QDialog(parent), mWorkspace(workspace.value_or(LocalWorkspace())) {
+  mRepositorySelectionWatcher =
+      new QFutureWatcher<RepositorySelectionResult>(this);
+  connect(mRepositorySelectionWatcher,
+          &QFutureWatcher<RepositorySelectionResult>::finished, this,
+          &LocalWorkspaceDialog::finishRepositorySelection);
+
   const bool editing = workspace.has_value();
   if (mWorkspace.id.isEmpty())
     mWorkspace.id = QUuid::createUuid().toString(QUuid::WithoutBraces);
@@ -101,9 +108,9 @@ LocalWorkspaceDialog::LocalWorkspaceDialog(
                   containsPath(mWorkspace.manualRepositories, path));
   }
 
-  QPushButton *browseRepositories =
+  mBrowseRepositories =
       new QPushButton(tr("Browse Repositories..."), this);
-  browseRepositories->setObjectName(
+  mBrowseRepositories->setObjectName(
       QStringLiteral("LocalWorkspaceBrowseRepositories"));
   mRemoveRepository = new QPushButton(tr("Remove Selected"), this);
   mRemoveRepository->setObjectName(
@@ -111,7 +118,7 @@ LocalWorkspaceDialog::LocalWorkspaceDialog(
   mRemoveRepository->setEnabled(false);
 
   QHBoxLayout *repositoryActions = new QHBoxLayout;
-  repositoryActions->addWidget(browseRepositories);
+  repositoryActions->addWidget(mBrowseRepositories);
   repositoryActions->addWidget(mRemoveRepository);
   repositoryActions->addStretch();
 
@@ -152,7 +159,7 @@ LocalWorkspaceDialog::LocalWorkspaceDialog(
           &LocalWorkspaceDialog::updateState);
   connect(mColor, &QPushButton::clicked, this,
           &LocalWorkspaceDialog::chooseColor);
-  connect(browseRepositories, &QPushButton::clicked, this,
+  connect(mBrowseRepositories, &QPushButton::clicked, this,
           &LocalWorkspaceDialog::browseRepository);
   connect(mRemoveRepository, &QPushButton::clicked, this, [this] {
     delete mRepositories->takeItem(mRepositories->currentRow());
@@ -190,49 +197,65 @@ LocalWorkspace LocalWorkspaceDialog::workspace() const {
 }
 
 void LocalWorkspaceDialog::browseRepository() {
+  if (mRepositorySelectionWatcher->isRunning())
+    return;
+
   const QStringList paths = DirectorySelectionDialog::getExistingDirectories(
       this, tr("Select Git Repositories"));
   if (paths.isEmpty())
     return;
 
-  QStringList invalid;
-  QStringList duplicates;
-  for (const QString &path : paths) {
-    const git::Repository repository = git::Repository::open(path, true);
-    if (!repository.isValid()) {
-      invalid.append(path);
-      continue;
-    }
+  QStringList existing;
+  for (int i = 0; i < mRepositories->count(); ++i)
+    existing.append(mRepositories->item(i)->text());
 
-    const QString root = repository.dir(false).path();
-    bool duplicate = false;
-    for (int i = 0; i < mRepositories->count(); ++i) {
-      if (util::pathsEqual(mRepositories->item(i)->text(), root)) {
-        duplicate = true;
-        break;
-      }
-    }
-    if (duplicate) {
-      duplicates.append(root);
-      continue;
-    }
+  mBrowseRepositories->setEnabled(false);
+  mSave->setEnabled(false);
+  mRepositorySelectionWatcher->setFuture(QtConcurrent::run(
+      [paths, existing] {
+        RepositorySelectionResult result;
+        for (const QString &path : paths) {
+          const git::Repository repository = git::Repository::open(path, true);
+          if (!repository.isValid()) {
+            result.invalid.append(path);
+            continue;
+          }
 
+          const QString root = repository.dir(false).path();
+          if (util::containsPath(existing, root) ||
+              util::containsPath(result.roots, root)) {
+            result.duplicates.append(root);
+            continue;
+          }
+          result.roots.append(root);
+        }
+        return result;
+      }));
+}
+
+void LocalWorkspaceDialog::finishRepositorySelection() {
+  const RepositorySelectionResult result =
+      mRepositorySelectionWatcher->result();
+  for (const QString &root : result.roots) {
     QListWidgetItem *item = new QListWidgetItem(root, mRepositories);
     item->setData(Qt::UserRole, false);
     item->setData(Qt::UserRole + 1, true);
   }
 
   QStringList skipped;
-  if (!invalid.isEmpty())
-    skipped.append(tr("Not Git repositories:\n%1").arg(invalid.join('\n')));
-  if (!duplicates.isEmpty())
+  if (!result.invalid.isEmpty())
     skipped.append(
-        tr("Already in the workspace:\n%1").arg(duplicates.join('\n')));
+        tr("Not Git repositories:\n%1").arg(result.invalid.join('\n')));
+  if (!result.duplicates.isEmpty())
+    skipped.append(tr("Already in the workspace:\n%1")
+                       .arg(result.duplicates.join('\n')));
   if (!skipped.isEmpty())
     QMessageBox::warning(
         this, tr("Some Folders Were Skipped"),
         tr("Some selected folders were skipped.\n\n%1")
             .arg(skipped.join(QStringLiteral("\n\n"))));
+
+  mBrowseRepositories->setEnabled(true);
   updateState();
 }
 

@@ -180,31 +180,213 @@ QString cleanOptionalPath(const QString &path) {
   return path.isEmpty() ? QString() : QDir::cleanPath(path);
 }
 
+enum class PreparedOperationKind { Add, Update, AddRepositories, Rescan };
+
+struct PreparedOperation {
+  PreparedOperationKind kind = PreparedOperationKind::Add;
+  QString id;
+  LocalWorkspace workspace;
+  QStringList watchedDirectories;
+  QStringList invalidPaths;
+  QStringList duplicatePaths;
+  QString error;
+  bool success = false;
+};
+
+const LocalWorkspace *findWorkspace(const QList<LocalWorkspace> &workspaces,
+                                    const QString &id) {
+  for (const LocalWorkspace &workspace : workspaces) {
+    if (workspace.id == id)
+      return &workspace;
+  }
+  return nullptr;
+}
+
+bool validateWorkspaceBasics(const LocalWorkspace &workspace,
+                             const QList<LocalWorkspace> &existing,
+                             bool updating, QString *error) {
+  if (workspace.id.isEmpty()) {
+    setError(error, LocalWorkspaces::tr("Workspace ID must not be empty."));
+    return false;
+  }
+  if (!updating && findWorkspace(existing, workspace.id)) {
+    setError(error,
+             LocalWorkspaces::tr("A workspace with this ID already exists."));
+    return false;
+  }
+  if (!findWorkspace(existing, workspace.id) && updating) {
+    setError(error, LocalWorkspaces::tr("Workspace not found."));
+    return false;
+  }
+  if (workspace.name.trimmed().isEmpty()) {
+    setError(error, LocalWorkspaces::tr("Workspace name must not be empty."));
+    return false;
+  }
+  if (workspace.syncEnabled && workspace.syncDirectory.isEmpty()) {
+    setError(error,
+             LocalWorkspaces::tr("Select a directory to enable synchronization."));
+    return false;
+  }
+  if (workspace.syncEnabled && !QDir(workspace.syncDirectory).exists()) {
+    setError(error, LocalWorkspaces::tr("Synchronized directory does not exist: %1")
+                         .arg(workspace.syncDirectory));
+    return false;
+  }
+  for (const LocalWorkspace &candidate : existing) {
+    if (candidate.id != workspace.id &&
+        namesMatch(candidate.name, workspace.name)) {
+      setError(error,
+               LocalWorkspaces::tr("A workspace with this name already exists."));
+      return false;
+    }
+  }
+  return true;
+}
+
+PreparedOperation prepareAdd(const LocalWorkspace &request,
+                             const QList<LocalWorkspace> &existing) {
+  PreparedOperation result;
+  result.kind = PreparedOperationKind::Add;
+  result.id = request.id;
+  if (!validateWorkspaceBasics(request, existing, false, &result.error))
+    return result;
+
+  LocalWorkspace added = request;
+  added.name = added.name.trimmed();
+  added.syncDirectory = cleanOptionalPath(added.syncDirectory);
+  added.manualRepositories.clear();
+  added.synchronizedRepositories.clear();
+  added.repositories.clear();
+  for (const QString &path : request.repositories) {
+    QString root;
+    if (!repositoryRoot(path, &root)) {
+      result.error = LocalWorkspaces::tr("Not a valid Git repository: %1")
+                         .arg(path);
+      return result;
+    }
+    if (!containsPath(added.manualRepositories, root))
+      added.manualRepositories.append(root);
+  }
+
+  if (added.syncEnabled &&
+      !scanSynchronizedDirectory(added.syncDirectory,
+                                 &added.synchronizedRepositories,
+                                 &result.error, &result.watchedDirectories))
+    return result;
+
+  updateRepositories(&added);
+  result.workspace = added;
+  result.success = true;
+  return result;
+}
+
+PreparedOperation prepareUpdate(const LocalWorkspace &request,
+                                const QList<LocalWorkspace> &existing) {
+  PreparedOperation result;
+  result.kind = PreparedOperationKind::Update;
+  result.id = request.id;
+  if (!validateWorkspaceBasics(request, existing, true, &result.error))
+    return result;
+
+  LocalWorkspace updated = request;
+  updated.name = updated.name.trimmed();
+  updated.syncDirectory = cleanOptionalPath(updated.syncDirectory);
+  updated.manualRepositories = manualRepositories(request);
+  if (updated.syncEnabled) {
+    updated.synchronizedRepositories.clear();
+    if (!scanSynchronizedDirectory(updated.syncDirectory,
+                                   &updated.synchronizedRepositories,
+                                   &result.error, &result.watchedDirectories))
+      return result;
+  }
+  updateRepositories(&updated);
+  result.workspace = updated;
+  result.success = true;
+  return result;
+}
+
+PreparedOperation prepareAddRepositories(const QString &id,
+                                         const QStringList &paths,
+                                         const QList<LocalWorkspace> &existing) {
+  PreparedOperation result;
+  result.kind = PreparedOperationKind::AddRepositories;
+  result.id = id;
+  const LocalWorkspace *stored = findWorkspace(existing, id);
+  if (!stored) {
+    result.error = LocalWorkspaces::tr("Workspace not found.");
+    return result;
+  }
+
+  LocalWorkspace updated = *stored;
+  for (const QString &path : paths) {
+    QString root;
+    if (!repositoryRoot(path, &root)) {
+      result.invalidPaths.append(path);
+      continue;
+    }
+    if (containsPath(updated.manualRepositories, root)) {
+      result.duplicatePaths.append(root);
+      continue;
+    }
+    updated.manualRepositories.append(root);
+    if (!containsPath(updated.repositories, root))
+      updated.repositories.append(root);
+  }
+  result.workspace = updated;
+  result.success = true;
+  return result;
+}
+
+PreparedOperation prepareRescan(const QString &id,
+                                const QList<LocalWorkspace> &existing) {
+  PreparedOperation result;
+  result.kind = PreparedOperationKind::Rescan;
+  result.id = id;
+  const LocalWorkspace *stored = findWorkspace(existing, id);
+  if (!stored) {
+    result.error = LocalWorkspaces::tr("Workspace not found.");
+    return result;
+  }
+  if (!stored->syncEnabled || stored->syncDirectory.isEmpty()) {
+    result.error = LocalWorkspaces::tr("Workspace has no synchronized directory.");
+    return result;
+  }
+
+  LocalWorkspace updated = *stored;
+  if (!scanSynchronizedDirectory(updated.syncDirectory,
+                                 &updated.synchronizedRepositories,
+                                 &result.error, &result.watchedDirectories))
+    return result;
+  updateRepositories(&updated);
+  result.workspace = updated;
+  result.success = true;
+  return result;
+}
+
 } // namespace
 
 LocalWorkspaces::LocalWorkspaces(QObject *parent)
     : QObject(parent), mWatcher(new QFileSystemWatcher(this)),
       mRescanTimer(new QTimer(this)),
-      mInitialScanWatcher(new QFutureWatcher<QList<InitialScanResult>>(this)) {
+      mInitialScanWatcher(new QFutureWatcher<QList<InitialScanResult>>(this)),
+      mRescanWatcher(new QFutureWatcher<QList<InitialScanResult>>(this)),
+      mOperationWatcher(new QFutureWatcher<OperationResult>(this)) {
   load();
   mRescanTimer->setSingleShot(true);
   mRescanTimer->setInterval(300);
   connect(mWatcher, &QFileSystemWatcher::directoryChanged, this,
           [this] { mRescanTimer->start(); });
-  connect(mRescanTimer, &QTimer::timeout, this, [this] {
-    updateWatchedDirectories();
-    QStringList ids;
-    for (const LocalWorkspace &workspace : std::as_const(mWorkspaces)) {
-      if (workspace.syncEnabled && !workspace.syncDirectory.isEmpty())
-        ids.append(workspace.id);
-    }
-    for (const QString &id : std::as_const(ids))
-      rescanSynchronizedDirectory(id);
-  });
+  connect(mRescanTimer, &QTimer::timeout, this,
+          &LocalWorkspaces::startRescanSynchronization);
 
   connect(mInitialScanWatcher,
           &QFutureWatcher<QList<InitialScanResult>>::finished, this,
           &LocalWorkspaces::finishInitialSynchronization);
+  connect(mRescanWatcher,
+          &QFutureWatcher<QList<InitialScanResult>>::finished, this,
+          &LocalWorkspaces::finishRescanSynchronization);
+  connect(mOperationWatcher, &QFutureWatcher<OperationResult>::finished, this,
+          &LocalWorkspaces::finishOperation);
 
   // Do not discover persisted synchronized workspaces while a main window is
   // being constructed. The scan can walk a large or unavailable filesystem.
@@ -214,8 +396,14 @@ LocalWorkspaces::LocalWorkspaces(QObject *parent)
 LocalWorkspaces::~LocalWorkspaces() {
   if (mInitialScanCancel)
     mInitialScanCancel->store(true);
+  if (mRescanCancel)
+    mRescanCancel->store(true);
   if (mInitialScanWatcher && mInitialScanWatcher->isRunning())
     mInitialScanWatcher->waitForFinished();
+  if (mRescanWatcher && mRescanWatcher->isRunning())
+    mRescanWatcher->waitForFinished();
+  if (mOperationWatcher && mOperationWatcher->isRunning())
+    mOperationWatcher->waitForFinished();
 }
 
 int LocalWorkspaces::count() const { return mWorkspaces.size(); }
@@ -336,6 +524,54 @@ bool LocalWorkspaces::update(const LocalWorkspace &workspace, QString *error) {
   return true;
 }
 
+void LocalWorkspaces::addAsync(const LocalWorkspace &workspace) {
+  if (mOperationWatcher->isRunning()) {
+    emit workspaceAdded(workspace.id, false,
+                        tr("Another workspace operation is already running."));
+    return;
+  }
+
+  const quint64 generation = ++mOperationGeneration;
+  const QList<LocalWorkspace> existing = mWorkspaces;
+  mOperationWatcher->setFuture(QtConcurrent::run(
+      [workspace, existing, generation] {
+        const PreparedOperation prepared = prepareAdd(workspace, existing);
+        OperationResult result;
+        result.kind = OperationResult::Kind::Add;
+        result.generation = generation;
+        result.id = workspace.id;
+        result.workspace = prepared.workspace;
+        result.watchedDirectories = prepared.watchedDirectories;
+        result.error = prepared.error;
+        result.success = prepared.success;
+        return result;
+      }));
+}
+
+void LocalWorkspaces::updateAsync(const LocalWorkspace &workspace) {
+  if (mOperationWatcher->isRunning()) {
+    emit workspaceUpdated(workspace.id, false,
+                          tr("Another workspace operation is already running."));
+    return;
+  }
+
+  const quint64 generation = ++mOperationGeneration;
+  const QList<LocalWorkspace> existing = mWorkspaces;
+  mOperationWatcher->setFuture(QtConcurrent::run(
+      [workspace, existing, generation] {
+        const PreparedOperation prepared = prepareUpdate(workspace, existing);
+        OperationResult result;
+        result.kind = OperationResult::Kind::Update;
+        result.generation = generation;
+        result.id = workspace.id;
+        result.workspace = prepared.workspace;
+        result.watchedDirectories = prepared.watchedDirectories;
+        result.error = prepared.error;
+        result.success = prepared.success;
+        return result;
+      }));
+}
+
 bool LocalWorkspaces::remove(const QString &id, QString *error) {
   setError(error, {});
   for (int i = 0; i < mWorkspaces.size(); ++i) {
@@ -399,6 +635,34 @@ bool LocalWorkspaces::addRepositories(const QString &id,
   if (changedWorkspace)
     changed();
   return true;
+}
+
+void LocalWorkspaces::addRepositoriesAsync(const QString &id,
+                                           const QStringList &paths) {
+  if (mOperationWatcher->isRunning()) {
+    emit repositoriesAdded(
+        id, false, {}, {},
+        tr("Another workspace operation is already running."));
+    return;
+  }
+
+  const quint64 generation = ++mOperationGeneration;
+  const QList<LocalWorkspace> existing = mWorkspaces;
+  mOperationWatcher->setFuture(QtConcurrent::run(
+      [id, paths, existing, generation] {
+        const PreparedOperation prepared =
+            prepareAddRepositories(id, paths, existing);
+        OperationResult result;
+        result.kind = OperationResult::Kind::AddRepositories;
+        result.generation = generation;
+        result.id = id;
+        result.workspace = prepared.workspace;
+        result.invalidPaths = prepared.invalidPaths;
+        result.duplicatePaths = prepared.duplicatePaths;
+        result.error = prepared.error;
+        result.success = prepared.success;
+        return result;
+      }));
 }
 
 bool LocalWorkspaces::removeRepository(const QString &id, const QString &path,
@@ -471,6 +735,30 @@ bool LocalWorkspaces::rescanSynchronizedDirectory(const QString &id,
     changed();
   }
   return true;
+}
+
+void LocalWorkspaces::rescanSynchronizedDirectoryAsync(const QString &id) {
+  if (mOperationWatcher->isRunning()) {
+    emit synchronizedDirectoryRescanned(
+        id, false, tr("Another workspace operation is already running."));
+    return;
+  }
+
+  const quint64 generation = ++mOperationGeneration;
+  const QList<LocalWorkspace> existing = mWorkspaces;
+  mOperationWatcher->setFuture(QtConcurrent::run(
+      [id, existing, generation] {
+        const PreparedOperation prepared = prepareRescan(id, existing);
+        OperationResult result;
+        result.kind = OperationResult::Kind::Rescan;
+        result.generation = generation;
+        result.id = id;
+        result.workspace = prepared.workspace;
+        result.watchedDirectories = prepared.watchedDirectories;
+        result.error = prepared.error;
+        result.success = prepared.success;
+        return result;
+      }));
 }
 
 LocalWorkspaces *LocalWorkspaces::instance() {
@@ -549,9 +837,72 @@ void LocalWorkspaces::store() const {
 
 void LocalWorkspaces::changed() {
   ++mInitialScanGeneration;
+  ++mOperationGeneration;
   store();
-  updateWatchedDirectories();
+  scheduleRescanSynchronization();
   emit workspacesChanged();
+}
+
+void LocalWorkspaces::finishOperation() {
+  const OperationResult result = mOperationWatcher->result();
+  if (result.generation != mOperationGeneration)
+    return;
+
+  switch (result.kind) {
+  case OperationResult::Kind::Add:
+    if (result.success && !find(result.id)) {
+      mWorkspaces.append(result.workspace);
+      changed();
+    }
+    emit workspaceAdded(result.id, result.success && result.error.isEmpty(),
+                        result.error);
+    break;
+
+  case OperationResult::Kind::Update: {
+    LocalWorkspace *workspace = find(result.id);
+    bool success = result.success && workspace;
+    if (success && !equal(*workspace, result.workspace)) {
+      *workspace = result.workspace;
+      changed();
+    }
+    emit workspaceUpdated(result.id, success, success ? QString() : result.error);
+    break;
+  }
+
+  case OperationResult::Kind::AddRepositories: {
+    LocalWorkspace *workspace = find(result.id);
+    bool success = result.success && workspace;
+    if (success && !equal(*workspace, result.workspace)) {
+      *workspace = result.workspace;
+      changed();
+    }
+    emit repositoriesAdded(result.id, success, result.invalidPaths,
+                           result.duplicatePaths, success ? QString()
+                                                           : result.error);
+    break;
+  }
+
+  case OperationResult::Kind::Rescan: {
+    LocalWorkspace *workspace = find(result.id);
+    bool success = result.success && workspace;
+    if (success && workspace->syncDirectory == result.workspace.syncDirectory &&
+        workspace->syncEnabled) {
+      const bool modified = !equal(*workspace, result.workspace);
+      *workspace = result.workspace;
+      setWatchedDirectories(result.watchedDirectories);
+      if (modified) {
+        ++mInitialScanGeneration;
+        store();
+        emit workspacesChanged();
+      }
+    } else if (success) {
+      success = false;
+    }
+    emit synchronizedDirectoryRescanned(result.id, success,
+                                         success ? QString() : result.error);
+    break;
+  }
+  }
 }
 
 void LocalWorkspaces::startInitialSynchronization() {
@@ -637,6 +988,113 @@ void LocalWorkspaces::finishInitialSynchronization() {
   if (workspacesChanged) {
     store();
     emit this->workspacesChanged();
+  }
+}
+
+void LocalWorkspaces::scheduleRescanSynchronization() {
+  if (mRescanWatcher->isRunning()) {
+    ++mRescanGeneration;
+    mRescanPending = true;
+    if (mRescanCancel)
+      mRescanCancel->store(true);
+    return;
+  }
+
+  startRescanSynchronization();
+}
+
+void LocalWorkspaces::startRescanSynchronization() {
+  if (mRescanWatcher->isRunning()) {
+    mRescanPending = true;
+    return;
+  }
+
+  QList<InitialScanResult> requests;
+  for (const LocalWorkspace &workspace : std::as_const(mWorkspaces)) {
+    if (!workspace.syncEnabled || workspace.syncDirectory.isEmpty())
+      continue;
+
+    InitialScanResult request;
+    request.id = workspace.id;
+    request.directory = workspace.syncDirectory;
+    requests.append(request);
+  }
+
+  if (requests.isEmpty()) {
+    setWatchedDirectories({});
+    return;
+  }
+
+  mRescanPending = false;
+  const quint64 generation = ++mRescanGeneration;
+  mRescanRunGeneration = generation;
+  mRescanCancel = std::make_shared<std::atomic_bool>(false);
+  const std::shared_ptr<std::atomic_bool> cancelled = mRescanCancel;
+
+  mRescanWatcher->setFuture(QtConcurrent::run([requests, cancelled] {
+    QList<InitialScanResult> results;
+    results.reserve(requests.size());
+
+    for (const InitialScanResult &request : requests) {
+      if (cancelled->load())
+        break;
+
+      InitialScanResult result = request;
+      PerformanceTrace::Span span(
+          "workspace", "synchronized directory rescan", result.directory);
+      result.success = scanSynchronizedDirectory(
+          result.directory, &result.repositories, &result.error,
+          &result.watchedDirectories, cancelled.get());
+      results.append(result);
+    }
+
+    return results;
+  }));
+}
+
+void LocalWorkspaces::finishRescanSynchronization() {
+  const QList<InitialScanResult> results = mRescanWatcher->result();
+  mRescanCancel.reset();
+
+  if (mRescanRunGeneration == mRescanGeneration) {
+    QStringList watchedDirectories;
+    bool workspacesModified = false;
+    for (const InitialScanResult &result : results) {
+      LocalWorkspace *workspace = find(result.id);
+      if (!workspace || !workspace->syncEnabled ||
+          workspace->syncDirectory != result.directory)
+        continue;
+
+      for (const QString &directory : result.watchedDirectories) {
+        if (!containsPath(watchedDirectories, directory))
+          watchedDirectories.append(directory);
+      }
+
+      if (!result.success)
+        continue;
+
+      if (workspace->synchronizedRepositories != result.repositories) {
+        workspace->synchronizedRepositories = result.repositories;
+        workspacesModified = true;
+      }
+
+      const QStringList repositories = workspace->repositories;
+      updateRepositories(workspace);
+      if (repositories != workspace->repositories)
+        workspacesModified = true;
+    }
+
+    setWatchedDirectories(watchedDirectories);
+    if (workspacesModified) {
+      ++mInitialScanGeneration;
+      store();
+      emit workspacesChanged();
+    }
+  }
+
+  if (mRescanPending) {
+    mRescanPending = false;
+    startRescanSynchronization();
   }
 }
 
