@@ -55,6 +55,25 @@ LocalWorkspaceModel::LocalWorkspaceModel(QObject *parent)
   connect(mWorkspaces, &LocalWorkspaces::workspacesChanged, this, [this] {
     reload();
   });
+  connect(mWorkspaces, &LocalWorkspaces::workspaceScanStarted, this,
+          [this](const QString &id, quint64 generation) {
+            setWorkspaceScanActive(id, generation);
+          });
+  connect(mWorkspaces, &LocalWorkspaces::workspaceRepositoryDiscovered, this,
+          [this](const QString &id, quint64 generation, const QString &path) {
+            addDiscoveredRepository(id, generation, path);
+          });
+  connect(mWorkspaces, &LocalWorkspaces::workspaceScanFinished, this,
+          [this](const QString &id, quint64 generation, bool, const QString &) {
+            finishWorkspaceScan(id, generation);
+          });
+  for (int i = 0; i < mWorkspaces->count(); ++i) {
+    const LocalWorkspace *workspace = mWorkspaces->workspace(i);
+    const quint64 generation =
+        workspace ? mWorkspaces->workspaceScanGeneration(workspace->id) : 0;
+    if (generation)
+      mWorkspaceScanGenerations.insert(workspace->id, generation);
+  }
   reload();
 }
 
@@ -123,6 +142,11 @@ QVariant LocalWorkspaceModel::data(const QModelIndex &index, int role) const {
   const LocalWorkspace *workspace = &mSnapshot.at(workspaceRow);
 
   if (!repositoryItem) {
+    if (role == WorkspaceScanningRole)
+      return mWorkspaceScanGenerations.contains(workspace->id);
+    if (role == Qt::ToolTipRole &&
+        mWorkspaceScanGenerations.contains(workspace->id))
+      return tr("Scanning synchronized directory...");
     if (index.column() != RepositoryColumn)
       return {};
     switch (role) {
@@ -363,6 +387,7 @@ QHash<int, QByteArray> LocalWorkspaceModel::roleNames() const {
   roles.insert(OriginCheckFreshRole, "originCheckFresh");
   roles.insert(OriginCheckFailedRole, "originCheckFailed");
   roles.insert(OriginInitialPendingRole, "originInitialPending");
+  roles.insert(WorkspaceScanningRole, "workspaceScanning");
   return roles;
 }
 
@@ -447,6 +472,84 @@ void LocalWorkspaceModel::setPathState(QSet<QString> &paths,
           index(repositoryRow, RemoteColumn, workspaceIndex);
       emit dataChanged(remote, remote, {role, Qt::ToolTipRole});
     }
+  }
+}
+
+void LocalWorkspaceModel::setWorkspaceScanActive(const QString &id,
+                                                 quint64 generation) {
+  mWorkspaceScanGenerations.insert(id, generation);
+  notifyWorkspaceChanged(id, {WorkspaceScanningRole, Qt::ToolTipRole});
+}
+
+void LocalWorkspaceModel::addDiscoveredRepository(const QString &id,
+                                                  quint64 generation,
+                                                  const QString &path) {
+  if (mWorkspaceScanGenerations.value(id, 0) != generation)
+    return;
+
+  int workspaceRow = -1;
+  for (int row = 0; row < mSnapshot.size(); ++row) {
+    if (mSnapshot.at(row).id == id) {
+      workspaceRow = row;
+      break;
+    }
+  }
+  if (workspaceRow < 0)
+    return;
+
+  LocalWorkspace &workspace = mSnapshot[workspaceRow];
+  const bool newlySynchronized =
+      !util::containsPath(workspace.synchronizedRepositories, path);
+  if (newlySynchronized)
+    workspace.synchronizedRepositories.append(path);
+
+  int repositoryRow = -1;
+  for (int row = 0; row < workspace.repositories.size(); ++row) {
+    if (util::pathsEqual(workspace.repositories.at(row), path)) {
+      repositoryRow = row;
+      break;
+    }
+  }
+
+  if (repositoryRow >= 0) {
+    if (newlySynchronized) {
+      const QModelIndex parent = index(workspaceRow, RepositoryColumn);
+      emit dataChanged(index(repositoryRow, RepositoryColumn, parent),
+                       index(repositoryRow, RemoveColumn, parent),
+                       {SynchronizedRole});
+    }
+    return;
+  }
+
+  const QModelIndex parent = index(workspaceRow, RepositoryColumn);
+  repositoryRow = workspace.repositories.size();
+  const QString key = stateKey(path);
+  const bool needsRefresh = !mRepositoryStates.contains(key);
+  beginInsertRows(parent, repositoryRow, repositoryRow);
+  workspace.repositories.append(path);
+  if (needsRefresh)
+    mRepositoryStates.insert(key, RepositoryState{});
+  endInsertRows();
+  emit dataChanged(parent, parent, {Qt::DisplayRole});
+  if (needsRefresh)
+    refreshRepositories();
+}
+
+void LocalWorkspaceModel::finishWorkspaceScan(const QString &id,
+                                              quint64 generation) {
+  if (mWorkspaceScanGenerations.value(id, 0) != generation)
+    return;
+  mWorkspaceScanGenerations.remove(id);
+  notifyWorkspaceChanged(id, {WorkspaceScanningRole, Qt::ToolTipRole});
+}
+
+void LocalWorkspaceModel::notifyWorkspaceChanged(const QString &id,
+                                                 const QList<int> &roles) {
+  for (int row = 0; row < mSnapshot.size(); ++row) {
+    if (mSnapshot.at(row).id != id)
+      continue;
+    emit dataChanged(index(row, 0), index(row, ColumnCount - 1), roles);
+    return;
   }
 }
 

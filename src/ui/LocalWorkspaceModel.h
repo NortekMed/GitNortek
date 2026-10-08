@@ -56,7 +56,8 @@ public:
     OriginCheckEligibleRole,
     OriginCheckFreshRole,
     OriginCheckFailedRole,
-    OriginInitialPendingRole
+    OriginInitialPendingRole,
+    WorkspaceScanningRole
   };
 
   explicit LocalWorkspaceModel(QObject *parent = nullptr);
@@ -111,6 +112,11 @@ private:
   void applyRepositoryStates(const QHash<QString, RepositoryState> &states);
   void setPathState(QSet<QString> &paths, const QString &path, bool enabled,
                     int role);
+  void setWorkspaceScanActive(const QString &id, quint64 generation);
+  void addDiscoveredRepository(const QString &id, quint64 generation,
+                               const QString &path);
+  void finishWorkspaceScan(const QString &id, quint64 generation);
+  void notifyWorkspaceChanged(const QString &id, const QList<int> &roles);
   void reload();
   void finishReload();
 
@@ -121,6 +127,7 @@ private:
   QSet<QString> mFreshOriginChecks;
   QSet<QString> mFailedOriginChecks;
   QSet<QString> mInitialPendingOrigins;
+  QHash<QString, quint64> mWorkspaceScanGenerations;
   QFutureWatcher<ReloadResult> *mReloadWatcher;
   QFutureWatcher<QHash<QString, RepositoryState>> *mRefreshWatcher;
   std::shared_ptr<std::atomic_bool> mReloadCancel;

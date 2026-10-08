@@ -113,11 +113,13 @@ private:
   QPointer<QFutureWatcher<OriginCheckEvent>> mOriginCheckWatcher;
   QTimer *mOriginCooldownTimer;
   QTimer *mOriginAnimationTimer;
+  QTimer *mWorkspaceAnimationTimer;
   QTimer *mWorkspaceClickTimer;
   QList<RemoteCallbacks *> mOriginCallbacks;
   QSet<QString> mActiveOriginFetches;
   QSet<QString> mUntrustedOriginFetches;
   QSet<QString> mExpandedWorkspaceIds;
+  QSet<QString> mActiveWorkspaceScans;
   QString mSelectedRepositoryPath;
   QPersistentModelIndex mPendingWorkspaceClick;
   QDateTime mOriginCooldownDeadline;

@@ -43,8 +43,8 @@ void moveMouseTo(QTreeView *tree, const QModelIndex &index) {
   QWidget *viewport = tree->viewport();
   const QPoint position = tree->visualRect(index).center();
   QMouseEvent event(QEvent::MouseMove, position,
-                    viewport->mapToGlobal(position), Qt::NoButton,
-                    Qt::NoButton, Qt::NoModifier);
+                    viewport->mapToGlobal(position), Qt::NoButton, Qt::NoButton,
+                    Qt::NoModifier);
   QApplication::sendEvent(viewport, &event);
 }
 
@@ -53,13 +53,15 @@ bool runGit(const QString &path, const QStringList &arguments) {
   QStringList command = {QStringLiteral("-C"), path};
   command.append(arguments);
   process.start(QStringLiteral("git"), command);
-  return process.waitForFinished() && process.exitStatus() == QProcess::NormalExit &&
+  return process.waitForFinished() &&
+         process.exitStatus() == QProcess::NormalExit &&
          process.exitCode() == 0;
 }
 
 bool writeFile(const QString &path, const QByteArray &contents) {
   QFile file(path);
-  return file.open(QIODevice::WriteOnly) && file.write(contents) == contents.size();
+  return file.open(QIODevice::WriteOnly) &&
+         file.write(contents) == contents.size();
 }
 
 QString originCacheKey(const QString &path) {
@@ -97,6 +99,10 @@ private slots:
   void initTestCase();
   void deferredInitialSynchronization();
   void persistenceAndModel();
+  void asyncCreationPublishesWorkspaceShell();
+  void synchronizedRepositoriesAreDiscoveredIncrementally();
+  void unavailableSynchronizedDirectoryFailsAsync();
+  void asyncAddRetainsRepositoriesOnManualError();
   void synchronizedDirectory();
   void manualRepositorySurvivesSynchronization();
   void addMultipleRepositories();
@@ -136,11 +142,19 @@ void TestLocalWorkspaces::deferredInitialSynchronization() {
   QVERIFY(root.isValid());
 
   QDir directory(root.path());
-  QVERIFY(directory.mkdir("repository"));
-  git::Repository repository =
-      git::Repository::init(directory.filePath("repository"));
-  QVERIFY(repository.isValid());
+  QVERIFY(directory.mkdir("alpha"));
+  QVERIFY(directory.mkdir("zeta"));
+  const git::Repository alpha =
+      git::Repository::init(directory.filePath("alpha"));
+  const git::Repository zeta =
+      git::Repository::init(directory.filePath("zeta"));
+  QVERIFY(alpha.isValid());
+  QVERIFY(zeta.isValid());
+  const QStringList expectedPaths = {alpha.dir(false).path(),
+                                     zeta.dir(false).path()};
 
+  // Keep a populated cache alongside the empty shell to check that loaded
+  // repository rows are available before startup reconciliation begins.
   const QString id = "deferred-initial-synchronization";
   QVariantMap stored;
   stored.insert("id", id);
@@ -150,21 +164,252 @@ void TestLocalWorkspaces::deferredInitialSynchronization() {
   stored.insert("repositories", QStringList());
   stored.insert("manualRepositories", QStringList());
   stored.insert("synchronizedRepositories", QStringList());
-  QSettings().setValue("localWorkspaces", QVariantList({stored}));
+  const QString cachedId = "cached-initial-synchronization";
+  QVariantMap cached;
+  cached.insert("id", cachedId);
+  cached.insert("name", "Cached");
+  cached.insert("syncDirectory", root.path());
+  cached.insert("syncEnabled", true);
+  cached.insert("repositories", QStringList({expectedPaths.first()}));
+  cached.insert("manualRepositories", QStringList());
+  cached.insert("synchronizedRepositories",
+                QStringList({expectedPaths.first()}));
+  QSettings settings;
+  settings.setValue("localWorkspaces", QVariantList({stored, cached}));
+  settings.sync();
 
   LocalWorkspaces *workspaces = LocalWorkspaces::instance();
   const LocalWorkspace *initial = workspaces->workspace(id);
   QVERIFY(initial);
   QVERIFY(initial->repositories.isEmpty());
 
+  LocalWorkspaceModel model;
+  auto modelWorkspaceIndex = [&model](const QString &workspaceId) {
+    for (int row = 0; row < model.rowCount(); ++row) {
+      const QModelIndex index = model.index(row, 0);
+      if (index.data(LocalWorkspaceModel::WorkspaceIdRole).toString() ==
+          workspaceId)
+        return index;
+    }
+    return QModelIndex();
+  };
+  const QModelIndex emptyWorkspaceIndex = modelWorkspaceIndex(id);
+  const QModelIndex cachedWorkspaceIndex = modelWorkspaceIndex(cachedId);
+  QVERIFY(emptyWorkspaceIndex.isValid());
+  QVERIFY(cachedWorkspaceIndex.isValid());
+  QCOMPARE(model.rowCount(emptyWorkspaceIndex), 0);
+  QCOMPARE(model.rowCount(cachedWorkspaceIndex), 1);
+  QCOMPARE(model.index(0, 0, cachedWorkspaceIndex)
+               .data(LocalWorkspaceModel::PathRole)
+               .toString(),
+           expectedPaths.first());
+  QVERIFY(!cachedWorkspaceIndex.data(LocalWorkspaceModel::WorkspaceScanningRole)
+               .toBool());
+
+  QSignalSpy scanStarted(workspaces, &LocalWorkspaces::workspaceScanStarted);
+  QSignalSpy discovered(workspaces,
+                        &LocalWorkspaces::workspaceRepositoryDiscovered);
+  QSignalSpy scanFinished(workspaces, &LocalWorkspaces::workspaceScanFinished);
   QSignalSpy changed(workspaces, &LocalWorkspaces::workspacesChanged);
-  QTRY_VERIFY_WITH_TIMEOUT(
-      workspaces->workspace(id)->repositories.contains(
-          repository.dir(false).path()),
-      5000);
-  QCOMPARE(changed.count(), 1);
-  QCOMPARE(workspaces->workspace(id)->synchronizedRepositories,
-           QStringList({repository.dir(false).path()}));
+  QHash<QString, quint64> generationsAtStart;
+  QHash<QString, bool> generationActiveAtStart;
+  connect(workspaces, &LocalWorkspaces::workspaceScanStarted, &model,
+          [&generationsAtStart, &generationActiveAtStart,
+           workspaces](const QString &workspaceId, quint64 generation) {
+            generationsAtStart.insert(workspaceId, generation);
+            generationActiveAtStart.insert(
+                workspaceId,
+                generation > 0 && workspaces->workspaceScanGeneration(
+                                      workspaceId) == generation);
+          });
+
+  int startupScanStartCount = 0;
+  bool pauseAttempted = false;
+  bool bothScansActiveWhenPaused = false;
+  bool pauseUpdateSucceeded = false;
+  QString pauseUpdateError;
+  connect(workspaces, &LocalWorkspaces::workspaceScanStarted, &model,
+          [workspaces, id, cachedId, syncDirectory = root.path(),
+           &startupScanStartCount, &pauseAttempted, &bothScansActiveWhenPaused,
+           &pauseUpdateSucceeded,
+           &pauseUpdateError](const QString &workspaceId, quint64) {
+            ++startupScanStartCount;
+            if (startupScanStartCount != 2)
+              return;
+
+            pauseAttempted = true;
+            bothScansActiveWhenPaused =
+                workspaceId == cachedId &&
+                workspaces->workspaceScanGeneration(id) > 0 &&
+                workspaces->workspaceScanGeneration(cachedId) > 0;
+            if (!bothScansActiveWhenPaused)
+              return;
+
+            LocalWorkspace paused = *workspaces->workspace(id);
+            paused.name = "Paused Deferred";
+            paused.syncEnabled = false;
+            paused.syncDirectory = syncDirectory;
+            pauseUpdateSucceeded =
+                workspaces->update(paused, &pauseUpdateError);
+          });
+
+  QStringList pathsAtDiscovery;
+  QList<quint64> generationsAtDiscovery;
+  QList<int> childCountsAtDiscovery;
+  QList<QStringList> modelPathsAtDiscovery;
+  QList<bool> scanningAtDiscovery;
+  connect(workspaces, &LocalWorkspaces::workspaceRepositoryDiscovered, &model,
+          [&pathsAtDiscovery, &generationsAtDiscovery, &childCountsAtDiscovery,
+           &modelPathsAtDiscovery, &scanningAtDiscovery, &modelWorkspaceIndex,
+           &model, id](const QString &workspaceId, quint64 generation,
+                       const QString &path) {
+            if (workspaceId != id)
+              return;
+            pathsAtDiscovery.append(path);
+            generationsAtDiscovery.append(generation);
+            const QModelIndex workspaceIndex = modelWorkspaceIndex(id);
+            const int childCount = model.rowCount(workspaceIndex);
+            childCountsAtDiscovery.append(childCount);
+            QStringList modelPaths;
+            for (int row = 0; row < childCount; ++row) {
+              modelPaths.append(model.index(row, 0, workspaceIndex)
+                                    .data(LocalWorkspaceModel::PathRole)
+                                    .toString());
+            }
+            modelPathsAtDiscovery.append(modelPaths);
+            scanningAtDiscovery.append(
+                workspaceIndex.data(LocalWorkspaceModel::WorkspaceScanningRole)
+                    .toBool());
+          });
+
+  QHash<QString, bool> scanningAtFinished;
+  connect(workspaces, &LocalWorkspaces::workspaceScanFinished, &model,
+          [&scanningAtFinished, &modelWorkspaceIndex](
+              const QString &workspaceId, quint64, bool, const QString &) {
+            scanningAtFinished.insert(
+                workspaceId,
+                modelWorkspaceIndex(workspaceId)
+                    .data(LocalWorkspaceModel::WorkspaceScanningRole)
+                    .toBool());
+          });
+
+  QTRY_VERIFY_WITH_TIMEOUT(workspaces->workspace(id)->repositories.size() ==
+                               expectedPaths.size(),
+                           5000);
+  QTRY_COMPARE_WITH_TIMEOUT(scanFinished.count(), 2, 5000);
+  QCOMPARE(startupScanStartCount, 2);
+  QVERIFY(pauseAttempted);
+  QVERIFY(bothScansActiveWhenPaused);
+  QVERIFY2(pauseUpdateSucceeded, qPrintable(pauseUpdateError));
+  QCOMPARE(scanStarted.count(), 2);
+  QCOMPARE(discovered.count(), 3);
+  QCOMPARE(changed.count(), 2);
+  QCOMPARE(generationsAtStart.size(), 2);
+  for (const QString &workspaceId : {id, cachedId}) {
+    QVERIFY(generationsAtStart.value(workspaceId) > 0);
+    QVERIFY(generationActiveAtStart.value(workspaceId));
+    bool matchingStartSeen = false;
+    for (const QList<QVariant> &event : scanStarted) {
+      if (event.at(0).toString() != workspaceId)
+        continue;
+      matchingStartSeen = true;
+      QCOMPARE(event.at(1).toULongLong(),
+               generationsAtStart.value(workspaceId));
+    }
+    QVERIFY(matchingStartSeen);
+  }
+
+  QStringList sortedExpectedPaths = expectedPaths;
+  sortedExpectedPaths.sort();
+  QStringList sortedDiscoveredPaths = pathsAtDiscovery;
+  sortedDiscoveredPaths.sort();
+  QCOMPARE(sortedDiscoveredPaths, sortedExpectedPaths);
+  QCOMPARE(pathsAtDiscovery.size(), expectedPaths.size());
+  for (int i = 0; i < pathsAtDiscovery.size(); ++i) {
+    QCOMPARE(generationsAtDiscovery.at(i), generationsAtStart.value(id));
+    QCOMPARE(childCountsAtDiscovery.at(i), i + 1);
+    QCOMPARE(modelPathsAtDiscovery.at(i).size(), i + 1);
+    QVERIFY(modelPathsAtDiscovery.at(i).contains(pathsAtDiscovery.at(i)));
+    QVERIFY(scanningAtDiscovery.at(i));
+  }
+
+  for (const QString &workspaceId : {id, cachedId}) {
+    bool matchingFinishSeen = false;
+    for (const QList<QVariant> &event : scanFinished) {
+      if (event.at(0).toString() != workspaceId)
+        continue;
+      matchingFinishSeen = true;
+      QCOMPARE(event.at(1).toULongLong(),
+               generationsAtStart.value(workspaceId));
+      QCOMPARE(event.at(2).toBool(), true);
+      QVERIFY(event.at(3).toString().isEmpty());
+    }
+    QVERIFY(matchingFinishSeen);
+    QVERIFY(!scanningAtFinished.value(workspaceId));
+    QVERIFY(!modelWorkspaceIndex(workspaceId)
+                 .data(LocalWorkspaceModel::WorkspaceScanningRole)
+                 .toBool());
+    QCOMPARE(workspaces->workspaceScanGeneration(workspaceId), quint64(0));
+  }
+
+  const LocalWorkspace *synchronized = workspaces->workspace(id);
+  QVERIFY(synchronized);
+  QCOMPARE(synchronized->name, QString("Paused Deferred"));
+  QVERIFY(!synchronized->syncEnabled);
+  QCOMPARE(synchronized->syncDirectory, root.path());
+  QStringList actualPaths = synchronized->repositories;
+  actualPaths.sort();
+  QCOMPARE(actualPaths, sortedExpectedPaths);
+  QCOMPARE(workspaces->workspace(id)->synchronizedRepositories, expectedPaths);
+  QCOMPARE(synchronized->manualRepositories, QStringList());
+  const QModelIndex pausedWorkspaceIndex = modelWorkspaceIndex(id);
+  QCOMPARE(model.rowCount(pausedWorkspaceIndex), expectedPaths.size());
+  QStringList pausedModelPaths;
+  for (int row = 0; row < model.rowCount(pausedWorkspaceIndex); ++row) {
+    pausedModelPaths.append(model.index(row, 0, pausedWorkspaceIndex)
+                                .data(LocalWorkspaceModel::PathRole)
+                                .toString());
+  }
+  pausedModelPaths.sort();
+  QCOMPARE(pausedModelPaths, sortedExpectedPaths);
+
+  const LocalWorkspace *cachedSynchronized = workspaces->workspace(cachedId);
+  QVERIFY(cachedSynchronized);
+  QVERIFY(cachedSynchronized->syncEnabled);
+  QCOMPARE(cachedSynchronized->syncDirectory, root.path());
+  actualPaths = cachedSynchronized->repositories;
+  actualPaths.sort();
+  QCOMPARE(actualPaths, sortedExpectedPaths);
+  QCOMPARE(cachedSynchronized->synchronizedRepositories, expectedPaths);
+
+  settings.sync();
+  const QVariantList persisted = settings.value("localWorkspaces").toList();
+  auto persistedWorkspace = [&persisted](const QString &workspaceId) {
+    for (const QVariant &value : persisted) {
+      const QVariantMap map = value.toMap();
+      if (map.value("id").toString() == workspaceId)
+        return map;
+    }
+    return QVariantMap();
+  };
+  const QVariantMap persistedPaused = persistedWorkspace(id);
+  QCOMPARE(persistedPaused.value("name").toString(),
+           QString("Paused Deferred"));
+  QCOMPARE(persistedPaused.value("syncEnabled").toBool(), false);
+  QCOMPARE(persistedPaused.value("syncDirectory").toString(), root.path());
+  QCOMPARE(persistedPaused.value("repositories").toStringList(), expectedPaths);
+  QCOMPARE(persistedPaused.value("synchronizedRepositories").toStringList(),
+           expectedPaths);
+  QCOMPARE(persistedPaused.value("manualRepositories").toStringList(),
+           QStringList());
+  const QVariantMap persistedCached = persistedWorkspace(cachedId);
+  QCOMPARE(persistedCached.value("syncEnabled").toBool(), true);
+  QCOMPARE(persistedCached.value("syncDirectory").toString(), root.path());
+  QCOMPARE(persistedCached.value("repositories").toStringList(), expectedPaths);
+  QCOMPARE(persistedCached.value("synchronizedRepositories").toStringList(),
+           expectedPaths);
+  QCOMPARE(persistedCached.value("manualRepositories").toStringList(),
+           QStringList());
 }
 
 void TestLocalWorkspaces::persistenceAndModel() {
@@ -195,9 +440,9 @@ void TestLocalWorkspaces::persistenceAndModel() {
   QAbstractItemModelTester tester(
       &model, QAbstractItemModelTester::FailureReportingMode::QtTest);
   QCOMPARE(model.columnCount(), LocalWorkspaceModel::ColumnCount);
-  QCOMPARE(model.headerData(LocalWorkspaceModel::RepositoryColumn,
-                            Qt::Horizontal),
-           QString("Repository"));
+  QCOMPARE(
+      model.headerData(LocalWorkspaceModel::RepositoryColumn, Qt::Horizontal),
+      QString("Repository"));
   QCOMPARE(model.headerData(LocalWorkspaceModel::BranchColumn, Qt::Horizontal),
            QString("Branch"));
   QCOMPARE(model.rowCount(), 1);
@@ -209,6 +454,7 @@ void TestLocalWorkspaces::persistenceAndModel() {
            repo.dir(false).path());
   const QModelIndex branchIndex =
       model.index(0, LocalWorkspaceModel::BranchColumn, workspaceIndex);
+  QTRY_VERIFY_WITH_TIMEOUT(!branchIndex.data().toString().isEmpty(), 5000);
   QCOMPARE(branchIndex.data().toString(), repo.unbornHeadName());
   QCOMPARE(branchIndex.data(Qt::TextAlignmentRole).toInt(),
            int(Qt::AlignLeft | Qt::AlignVCenter));
@@ -217,6 +463,343 @@ void TestLocalWorkspaces::persistenceAndModel() {
       model.index(0, LocalWorkspaceModel::DetailsColumn, workspaceIndex);
   QCOMPARE(detailsIndex.data(Qt::ToolTipRole).toString(),
            QString("show details"));
+}
+
+void TestLocalWorkspaces::asyncCreationPublishesWorkspaceShell() {
+  clearWorkspaces();
+  QTemporaryDir root;
+  QVERIFY(root.isValid());
+
+  LocalWorkspace workspace;
+  workspace.id = "async-workspace-shell";
+  workspace.name = "Async workspace";
+  workspace.syncDirectory = root.path();
+  workspace.syncEnabled = true;
+
+  LocalWorkspaces *workspaces = LocalWorkspaces::instance();
+  LocalWorkspaceModel model;
+  QSignalSpy scanStarted(workspaces, &LocalWorkspaces::workspaceScanStarted);
+  QSignalSpy scanFinished(workspaces, &LocalWorkspaces::workspaceScanFinished);
+  QSignalSpy added(workspaces, &LocalWorkspaces::workspaceAdded);
+
+  workspaces->addAsync(workspace);
+
+  const LocalWorkspace *shell = workspaces->workspace(workspace.id);
+  QVERIFY(shell);
+  QCOMPARE(shell->name, workspace.name);
+  QVERIFY(shell->repositories.isEmpty());
+  QCOMPARE(workspaces->workspaceScanGeneration(workspace.id) > 0, true);
+  QCOMPARE(scanStarted.count(), 1);
+  QCOMPARE(scanStarted.first().at(0).toString(), workspace.id);
+  QCOMPARE(scanStarted.first().at(1).toULongLong(),
+           workspaces->workspaceScanGeneration(workspace.id));
+  QCOMPARE(added.count(), 0);
+
+  QCOMPARE(model.rowCount(), 1);
+  const QModelIndex workspaceIndex = model.index(0, 0);
+  QCOMPARE(workspaceIndex.data(LocalWorkspaceModel::WorkspaceIdRole).toString(),
+           workspace.id);
+  QVERIFY(
+      workspaceIndex.data(LocalWorkspaceModel::WorkspaceScanningRole).toBool());
+
+  const QVariantList persisted = QSettings().value("localWorkspaces").toList();
+  QCOMPARE(persisted.size(), 1);
+  QCOMPARE(persisted.first().toMap().value("id").toString(), workspace.id);
+  QVERIFY(
+      persisted.first().toMap().value("repositories").toStringList().isEmpty());
+
+  QTRY_COMPARE_WITH_TIMEOUT(scanFinished.count(), 1, 5000);
+  QCOMPARE(scanFinished.first().at(0).toString(), workspace.id);
+  QCOMPARE(scanFinished.first().at(1).toULongLong(),
+           scanStarted.first().at(1).toULongLong());
+  QCOMPARE(scanFinished.first().at(2).toBool(), true);
+  QVERIFY(scanFinished.first().at(3).toString().isEmpty());
+  QCOMPARE(added.count(), 1);
+}
+
+void TestLocalWorkspaces::synchronizedRepositoriesAreDiscoveredIncrementally() {
+  clearWorkspaces();
+  QTemporaryDir root;
+  QVERIFY(root.isValid());
+  QTemporaryDir manualRoot;
+  QVERIFY(manualRoot.isValid());
+  QDir directory(root.path());
+  QVERIFY(directory.mkdir("alpha"));
+  QVERIFY(directory.mkdir("zeta"));
+  const git::Repository alpha =
+      git::Repository::init(directory.filePath("alpha"));
+  const git::Repository zeta =
+      git::Repository::init(directory.filePath("zeta"));
+  const git::Repository manualRepository =
+      git::Repository::init(manualRoot.path());
+  QVERIFY(alpha.isValid());
+  QVERIFY(zeta.isValid());
+  QVERIFY(manualRepository.isValid());
+
+  QStringList expectedSynchronizedPaths = {alpha.dir(false).path(),
+                                           zeta.dir(false).path()};
+  expectedSynchronizedPaths.sort();
+  const QString manualPath = manualRepository.dir(false).path();
+  LocalWorkspace workspace;
+  workspace.id = "incremental-workspace-scan";
+  workspace.name = "Incremental scan";
+  workspace.repositories = {manualPath};
+  workspace.syncDirectory = root.path();
+  workspace.syncEnabled = true;
+
+  LocalWorkspaces *workspaces = LocalWorkspaces::instance();
+  LocalWorkspaceModel model;
+  QSignalSpy scanStarted(workspaces, &LocalWorkspaces::workspaceScanStarted);
+  QSignalSpy discovered(workspaces,
+                        &LocalWorkspaces::workspaceRepositoryDiscovered);
+  QSignalSpy scanFinished(workspaces, &LocalWorkspaces::workspaceScanFinished);
+  QSignalSpy added(workspaces, &LocalWorkspaces::workspaceAdded);
+  QStringList pathsAtDiscovery;
+  QList<int> childCountsAtDiscovery;
+  QList<QStringList> modelPathsAtDiscovery;
+  QList<bool> scanningAtDiscovery;
+  connect(workspaces, &LocalWorkspaces::workspaceRepositoryDiscovered, &model,
+          [&pathsAtDiscovery, &childCountsAtDiscovery, &modelPathsAtDiscovery,
+           &scanningAtDiscovery,
+           &model](const QString &, quint64, const QString &path) {
+            pathsAtDiscovery.append(path);
+            const QModelIndex workspaceIndex = model.index(0, 0);
+            const int childCount = model.rowCount(workspaceIndex);
+            childCountsAtDiscovery.append(childCount);
+            QStringList modelPaths;
+            for (int row = 0; row < childCount; ++row) {
+              modelPaths.append(model.index(row, 0, workspaceIndex)
+                                    .data(LocalWorkspaceModel::PathRole)
+                                    .toString());
+            }
+            modelPathsAtDiscovery.append(modelPaths);
+            scanningAtDiscovery.append(
+                workspaceIndex.data(LocalWorkspaceModel::WorkspaceScanningRole)
+                    .toBool());
+          });
+
+  workspaces->addAsync(workspace);
+
+  QCOMPARE(scanStarted.count(), 1);
+  const quint64 generation = scanStarted.first().at(1).toULongLong();
+  QVERIFY(generation > 0);
+  QCOMPARE(model.rowCount(), 1);
+  const QModelIndex workspaceIndex = model.index(0, 0);
+  QVERIFY(
+      workspaceIndex.data(LocalWorkspaceModel::WorkspaceScanningRole).toBool());
+  QCOMPARE(model.rowCount(workspaceIndex), 0);
+
+  QTRY_COMPARE_WITH_TIMEOUT(scanFinished.count(), 1, 5000);
+  QCOMPARE(scanFinished.first().at(0).toString(), workspace.id);
+  QCOMPARE(scanFinished.first().at(1).toULongLong(), generation);
+  QCOMPARE(scanFinished.first().at(2).toBool(), true);
+  QVERIFY(scanFinished.first().at(3).toString().isEmpty());
+  QCOMPARE(discovered.count(), expectedSynchronizedPaths.size());
+  QCOMPARE(pathsAtDiscovery.size(), expectedSynchronizedPaths.size());
+
+  QStringList sortedDiscoveredPaths = pathsAtDiscovery;
+  sortedDiscoveredPaths.sort();
+  QCOMPARE(sortedDiscoveredPaths, expectedSynchronizedPaths);
+  for (int i = 0; i < discovered.count(); ++i) {
+    const QList<QVariant> event = discovered.at(i);
+    QCOMPARE(event.at(0).toString(), workspace.id);
+    QCOMPARE(event.at(1).toULongLong(), generation);
+    QCOMPARE(event.at(2).toString(), pathsAtDiscovery.at(i));
+    QCOMPARE(childCountsAtDiscovery.at(i), i + 1);
+    QCOMPARE(modelPathsAtDiscovery.at(i).size(), i + 1);
+    QVERIFY(scanningAtDiscovery.at(i));
+    for (int delivered = 0; delivered <= i; ++delivered)
+      QVERIFY(
+          modelPathsAtDiscovery.at(i).contains(pathsAtDiscovery.at(delivered)));
+  }
+
+  const LocalWorkspace *stored = workspaces->workspace(workspace.id);
+  QVERIFY(stored);
+  QCOMPARE(stored->synchronizedRepositories, expectedSynchronizedPaths);
+  QCOMPARE(stored->manualRepositories, QStringList({manualPath}));
+  QStringList expectedRepositories = {manualPath};
+  expectedRepositories.append(expectedSynchronizedPaths);
+  QCOMPARE(stored->repositories, expectedRepositories);
+  QCOMPARE(model.rowCount(workspaceIndex), expectedRepositories.size());
+  QStringList modelPaths;
+  for (int row = 0; row < model.rowCount(workspaceIndex); ++row) {
+    modelPaths.append(model.index(row, 0, workspaceIndex)
+                          .data(LocalWorkspaceModel::PathRole)
+                          .toString());
+  }
+  modelPaths.sort();
+  QStringList sortedExpectedRepositories = expectedRepositories;
+  sortedExpectedRepositories.sort();
+  QCOMPARE(modelPaths, sortedExpectedRepositories);
+  QVERIFY(!workspaceIndex.data(LocalWorkspaceModel::WorkspaceScanningRole)
+               .toBool());
+  QCOMPARE(workspaces->workspaceScanGeneration(workspace.id), quint64(0));
+  QCOMPARE(added.count(), 1);
+  QCOMPARE(added.first().at(0).toString(), workspace.id);
+  QCOMPARE(added.first().at(1).toBool(), true);
+
+  QSettings settings;
+  settings.sync();
+  const QVariantList persisted = settings.value("localWorkspaces").toList();
+  QCOMPARE(persisted.size(), 1);
+  const QVariantMap persistedWorkspace = persisted.first().toMap();
+  QCOMPARE(persistedWorkspace.value("id").toString(), workspace.id);
+  QCOMPARE(persistedWorkspace.value("repositories").toStringList(),
+           expectedRepositories);
+  QCOMPARE(persistedWorkspace.value("synchronizedRepositories").toStringList(),
+           expectedSynchronizedPaths);
+  QCOMPARE(persistedWorkspace.value("manualRepositories").toStringList(),
+           QStringList({manualPath}));
+}
+
+void TestLocalWorkspaces::unavailableSynchronizedDirectoryFailsAsync() {
+  clearWorkspaces();
+  QTemporaryDir root;
+  QVERIFY(root.isValid());
+
+  LocalWorkspace workspace;
+  workspace.id = "missing-sync-directory";
+  workspace.name = "Missing synchronized directory";
+  workspace.syncDirectory = QDir(root.path()).filePath("not-created");
+  workspace.syncEnabled = true;
+
+  LocalWorkspaces *workspaces = LocalWorkspaces::instance();
+  LocalWorkspaceModel model;
+  QSignalSpy scanStarted(workspaces, &LocalWorkspaces::workspaceScanStarted);
+  QSignalSpy discovered(workspaces,
+                        &LocalWorkspaces::workspaceRepositoryDiscovered);
+  QSignalSpy scanFinished(workspaces, &LocalWorkspaces::workspaceScanFinished);
+  QSignalSpy added(workspaces, &LocalWorkspaces::workspaceAdded);
+
+  workspaces->addAsync(workspace);
+
+  const LocalWorkspace *shell = workspaces->workspace(workspace.id);
+  QVERIFY(shell);
+  QVERIFY(shell->repositories.isEmpty());
+  QCOMPARE(scanStarted.count(), 1);
+  const quint64 generation = scanStarted.first().at(1).toULongLong();
+  QVERIFY(generation > 0);
+  const QModelIndex workspaceIndex = model.index(0, 0);
+  QCOMPARE(model.rowCount(), 1);
+  QVERIFY(
+      workspaceIndex.data(LocalWorkspaceModel::WorkspaceScanningRole).toBool());
+
+  QTRY_COMPARE_WITH_TIMEOUT(scanFinished.count(), 1, 5000);
+  QCOMPARE(scanFinished.first().at(0).toString(), workspace.id);
+  QCOMPARE(scanFinished.first().at(1).toULongLong(), generation);
+  QCOMPARE(scanFinished.first().at(2).toBool(), false);
+  const QString scanError = scanFinished.first().at(3).toString();
+  QVERIFY(!scanError.isEmpty());
+  QVERIFY(scanError.contains(workspace.syncDirectory));
+  QCOMPARE(discovered.count(), 0);
+  QCOMPARE(workspaces->workspaceScanGeneration(workspace.id), quint64(0));
+
+  const LocalWorkspace *stored = workspaces->workspace(workspace.id);
+  QVERIFY(stored);
+  QVERIFY(stored->repositories.isEmpty());
+  QVERIFY(stored->manualRepositories.isEmpty());
+  QVERIFY(stored->synchronizedRepositories.isEmpty());
+  QCOMPARE(model.rowCount(), 1);
+  QCOMPARE(model.rowCount(workspaceIndex), 0);
+  QVERIFY(!workspaceIndex.data(LocalWorkspaceModel::WorkspaceScanningRole)
+               .toBool());
+
+  const QVariantList persisted = QSettings().value("localWorkspaces").toList();
+  QCOMPARE(persisted.size(), 1);
+  const QVariantMap persistedWorkspace = persisted.first().toMap();
+  QCOMPARE(persistedWorkspace.value("id").toString(), workspace.id);
+  QCOMPARE(persistedWorkspace.value("syncDirectory").toString(),
+           workspace.syncDirectory);
+  QCOMPARE(added.count(), 1);
+  QCOMPARE(added.first().at(0).toString(), workspace.id);
+  QCOMPARE(added.first().at(1).toBool(), false);
+  QCOMPARE(added.first().at(2).toString(), scanError);
+}
+
+void TestLocalWorkspaces::asyncAddRetainsRepositoriesOnManualError() {
+  clearWorkspaces();
+  QTemporaryDir root;
+  QVERIFY(root.isValid());
+  QDir directory(root.path());
+  QVERIFY(directory.mkdir("manual"));
+  QVERIFY(directory.mkdir("invalid"));
+  QVERIFY(directory.mkdir("synchronized"));
+  QVERIFY(directory.mkdir("synchronized/repository"));
+
+  const git::Repository manualRepository =
+      git::Repository::init(directory.filePath("manual"));
+  const git::Repository synchronizedRepository =
+      git::Repository::init(directory.filePath("synchronized/repository"));
+  QVERIFY(manualRepository.isValid());
+  QVERIFY(synchronizedRepository.isValid());
+  const QString manualPath = manualRepository.dir(false).path();
+  const QString invalidPath = directory.filePath("invalid");
+  const QString synchronizedPath = synchronizedRepository.dir(false).path();
+
+  LocalWorkspace workspace;
+  workspace.id = "async-add-manual-error";
+  workspace.name = "Manual error with synchronized results";
+  workspace.repositories = {manualPath, invalidPath};
+  workspace.syncDirectory = directory.filePath("synchronized");
+  workspace.syncEnabled = true;
+
+  LocalWorkspaces *workspaces = LocalWorkspaces::instance();
+  LocalWorkspaceModel model;
+  QSignalSpy scanStarted(workspaces, &LocalWorkspaces::workspaceScanStarted);
+  QSignalSpy discovered(workspaces,
+                        &LocalWorkspaces::workspaceRepositoryDiscovered);
+  QSignalSpy scanFinished(workspaces, &LocalWorkspaces::workspaceScanFinished);
+  QSignalSpy added(workspaces, &LocalWorkspaces::workspaceAdded);
+
+  workspaces->addAsync(workspace);
+
+  QVERIFY(workspaces->workspace(workspace.id));
+  QCOMPARE(scanStarted.count(), 1);
+  const quint64 generation = scanStarted.first().at(1).toULongLong();
+  QVERIFY(generation > 0);
+
+  QTRY_COMPARE_WITH_TIMEOUT(scanFinished.count(), 1, 5000);
+  QTRY_COMPARE_WITH_TIMEOUT(added.count(), 1, 5000);
+  QCOMPARE(scanFinished.first().at(0).toString(), workspace.id);
+  QCOMPARE(scanFinished.first().at(1).toULongLong(), generation);
+  QCOMPARE(scanFinished.first().at(2).toBool(), false);
+  const QString expectedError =
+      QString("Not a valid Git repository: %1").arg(invalidPath);
+  QCOMPARE(scanFinished.first().at(3).toString(), expectedError);
+  QCOMPARE(added.first().at(0).toString(), workspace.id);
+  QCOMPARE(added.first().at(1).toBool(), false);
+  QCOMPARE(added.first().at(2).toString(), expectedError);
+
+  QCOMPARE(discovered.count(), 1);
+  QCOMPARE(discovered.first().at(0).toString(), workspace.id);
+  QCOMPARE(discovered.first().at(1).toULongLong(), generation);
+  QCOMPARE(discovered.first().at(2).toString(), synchronizedPath);
+
+  const LocalWorkspace *stored = workspaces->workspace(workspace.id);
+  QVERIFY(stored);
+  QCOMPARE(stored->manualRepositories, QStringList({manualPath}));
+  QCOMPARE(stored->synchronizedRepositories, QStringList({synchronizedPath}));
+  QCOMPARE(stored->repositories, QStringList({manualPath, synchronizedPath}));
+
+  QTRY_COMPARE_WITH_TIMEOUT(model.rowCount(model.index(0, 0)), 2, 5000);
+  const QModelIndex workspaceIndex = model.index(0, 0);
+  QStringList displayedPaths;
+  for (int row = 0; row < model.rowCount(workspaceIndex); ++row) {
+    displayedPaths.append(model.index(row, 0, workspaceIndex)
+                              .data(LocalWorkspaceModel::PathRole)
+                              .toString());
+  }
+  displayedPaths.sort();
+  QStringList expectedPaths = {manualPath, synchronizedPath};
+  expectedPaths.sort();
+  QCOMPARE(displayedPaths, expectedPaths);
+
+  const QVariantList persisted = QSettings().value("localWorkspaces").toList();
+  QCOMPARE(persisted.size(), 1);
+  const QVariantMap persistedWorkspace = persisted.first().toMap();
+  QCOMPARE(persistedWorkspace.value("id").toString(), workspace.id);
+  QCOMPARE(persistedWorkspace.value("repositories").toStringList(),
+           QStringList({manualPath, synchronizedPath}));
 }
 
 void TestLocalWorkspaces::synchronizedDirectory() {
@@ -238,14 +821,14 @@ void TestLocalWorkspaces::synchronizedDirectory() {
 
   Test::initRepo(project);
   Test::ScratchRepository submodule;
-  QVERIFY(writeFile(submodule->workdir().filePath("submodule.txt"),
-                    "submodule\n"));
+  QVERIFY(
+      writeFile(submodule->workdir().filePath("submodule.txt"), "submodule\n"));
   QVERIFY(runGit(submodule->workdir().path(), {"add", "submodule.txt"}));
   QVERIFY(runGit(submodule->workdir().path(), {"commit", "-m", "submodule"}));
   const QString projectPath = project.dir(false).path();
-  QVERIFY(runGit(projectPath,
-                 {"-c", "protocol.file.allow=always", "submodule", "add",
-                  submodule->workdir().path(), "submodule"}));
+  QVERIFY(
+      runGit(projectPath, {"-c", "protocol.file.allow=always", "submodule",
+                           "add", submodule->workdir().path(), "submodule"}));
   QVERIFY(runGit(projectPath, {"commit", "-m", "add submodule"}));
   QCOMPARE(project.submodules().size(), 1);
   const QString submodulePath = QDir(projectPath).filePath("submodule");
@@ -289,8 +872,8 @@ void TestLocalWorkspaces::synchronizedDirectory() {
   LocalRepositoryManagement management;
   management.resize(1000, 600);
   management.show();
-  QTreeView *tree = management.findChild<QTreeView *>(
-      "LocalRepositoryManagementTree");
+  QTreeView *tree =
+      management.findChild<QTreeView *>("LocalRepositoryManagementTree");
   QVERIFY(tree);
   const QModelIndex proxyWorkspace = tree->model()->index(0, 0);
   tree->setExpanded(proxyWorkspace, true);
@@ -305,10 +888,9 @@ void TestLocalWorkspaces::synchronizedDirectory() {
       directory.filePath("created-later/group/repository"));
   QVERIFY(createdLater.isValid());
   const QString createdLaterPath = createdLater.dir(false).path();
-  QTRY_VERIFY_WITH_TIMEOUT(
-      workspaces->workspace(workspace.id)->repositories.contains(
-          createdLaterPath),
-      3000);
+  QTRY_VERIFY_WITH_TIMEOUT(workspaces->workspace(workspace.id)
+                               ->repositories.contains(createdLaterPath),
+                           3000);
 }
 
 void TestLocalWorkspaces::manualRepositorySurvivesSynchronization() {
@@ -339,8 +921,7 @@ void TestLocalWorkspaces::manualRepositorySurvivesSynchronization() {
   LocalWorkspaceDialog dialog(*stored);
   QCOMPARE(dialog.workspace().manualRepositories,
            QStringList({repositoryPath}));
-  QCheckBox *sync = dialog.findChild<QCheckBox *>(
-      "LocalWorkspaceSyncEnabled");
+  QCheckBox *sync = dialog.findChild<QCheckBox *>("LocalWorkspaceSyncEnabled");
   QVERIFY(sync);
   QVERIFY(sync->isChecked());
   sync->setChecked(false);
@@ -369,8 +950,8 @@ void TestLocalWorkspaces::manualRepositorySurvivesSynchronization() {
       git::Repository::init(directory.filePath("created-while-paused"));
   QVERIFY(createdWhilePaused.isValid());
   QTest::qWait(700);
-  QVERIFY(!workspaces->workspace(workspace.id)->repositories.contains(
-      createdWhilePaused.dir(false).path()));
+  QVERIFY(!workspaces->workspace(workspace.id)
+               ->repositories.contains(createdWhilePaused.dir(false).path()));
 
   updated = *workspaces->workspace(workspace.id);
   updated.syncEnabled = true;
@@ -440,10 +1021,10 @@ void TestLocalWorkspaces::directorySelectionDialog() {
   const QModelIndex second = model->index(directory.filePath("second"));
   QVERIFY(first.isValid());
   QVERIFY(second.isValid());
-  tree->selectionModel()->select(
-      first, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-  tree->selectionModel()->select(
-      second, QItemSelectionModel::Select | QItemSelectionModel::Rows);
+  tree->selectionModel()->select(first, QItemSelectionModel::ClearAndSelect |
+                                            QItemSelectionModel::Rows);
+  tree->selectionModel()->select(second, QItemSelectionModel::Select |
+                                             QItemSelectionModel::Rows);
   QStringList selected = dialog.selectedDirectories();
   selected.sort();
   QStringList expected = {directory.filePath("first"),
@@ -451,11 +1032,11 @@ void TestLocalWorkspaces::directorySelectionDialog() {
   expected.sort();
   QCOMPARE(selected, expected);
 
-  QLineEdit *location = dialog.findChild<QLineEdit *>(
-      "DirectorySelectionLocation");
+  QLineEdit *location =
+      dialog.findChild<QLineEdit *>("DirectorySelectionLocation");
   QPushButton *go = dialog.findChild<QPushButton *>("DirectorySelectionGo");
-  QPushButton *select = dialog.findChild<QPushButton *>(
-      "DirectorySelectionAccept");
+  QPushButton *select =
+      dialog.findChild<QPushButton *>("DirectorySelectionAccept");
   QVERIFY(location);
   QVERIFY(go);
   QVERIFY(select);
@@ -490,24 +1071,24 @@ void TestLocalWorkspaces::readmeDetails() {
   LocalRepositoryManagement management;
   management.resize(1000, 600);
   management.show();
-  QTreeView *tree = management.findChild<QTreeView *>(
-      "LocalRepositoryManagementTree");
-  QTextBrowser *browser = management.findChild<QTextBrowser *>(
-      "LocalRepositoryManagementReadme");
-  QSplitter *splitter = management.findChild<QSplitter *>(
-      "LocalRepositoryManagementSplitter");
-  QWidget *details = management.findChild<QWidget *>(
-      "LocalRepositoryManagementDetails");
+  QTreeView *tree =
+      management.findChild<QTreeView *>("LocalRepositoryManagementTree");
+  QTextBrowser *browser =
+      management.findChild<QTextBrowser *>("LocalRepositoryManagementReadme");
+  QSplitter *splitter =
+      management.findChild<QSplitter *>("LocalRepositoryManagementSplitter");
+  QWidget *details =
+      management.findChild<QWidget *>("LocalRepositoryManagementDetails");
   QVERIFY(tree);
   QVERIFY(browser);
   QVERIFY(splitter);
   QVERIFY(details);
   QVERIFY(!details->isVisible());
-  QCOMPARE(tree->header()->sectionResizeMode(
-               LocalWorkspaceModel::RepositoryColumn),
-            QHeaderView::Stretch);
+  QCOMPARE(
+      tree->header()->sectionResizeMode(LocalWorkspaceModel::RepositoryColumn),
+      QHeaderView::Stretch);
   QCOMPARE(tree->header()->sectionResizeMode(LocalWorkspaceModel::BranchColumn),
-            QHeaderView::ResizeToContents);
+           QHeaderView::ResizeToContents);
 
   const QModelIndex workspaceIndex = tree->model()->index(0, 0);
   tree->setExpanded(workspaceIndex, true);
@@ -553,9 +1134,8 @@ void TestLocalWorkspaces::managementInteraction() {
   const QString branch = repo.head().name();
   const QString upstream = QString("origin/%1").arg(branch);
   QVERIFY(runGit(root, {"remote", "add", "origin", root}));
-  QVERIFY(runGit(root,
-                 {"update-ref", QString("refs/remotes/%1").arg(upstream),
-                  "HEAD"}));
+  QVERIFY(runGit(
+      root, {"update-ref", QString("refs/remotes/%1").arg(upstream), "HEAD"}));
   QVERIFY(runGit(root, {"branch", "--set-upstream-to", upstream, branch}));
 
   LocalWorkspace workspace;
@@ -568,8 +1148,8 @@ void TestLocalWorkspaces::managementInteraction() {
   LocalRepositoryManagement management;
   management.resize(1000, 600);
   management.show();
-  QTreeView *tree = management.findChild<QTreeView *>(
-      "LocalRepositoryManagementTree");
+  QTreeView *tree =
+      management.findChild<QTreeView *>("LocalRepositoryManagementTree");
   QPushButton *check = management.findChild<QPushButton *>(
       "LocalRepositoryManagementCheckOrigin");
   QPushButton *expansion = management.findChild<QPushButton *>(
@@ -584,8 +1164,7 @@ void TestLocalWorkspaces::managementInteraction() {
   QTRY_VERIFY(!tree->visualRect(workspaceIndex).isEmpty());
   QVERIFY(!tree->isExpanded(workspaceIndex));
   QCOMPARE(expansion->text(), QString("Expand"));
-  const QPoint workspacePosition =
-      tree->visualRect(workspaceIndex).center();
+  const QPoint workspacePosition = tree->visualRect(workspaceIndex).center();
   QTest::mouseClick(tree->viewport(), Qt::LeftButton, Qt::NoModifier,
                     workspacePosition);
   QVERIFY(tree->isExpanded(workspaceIndex));
@@ -611,9 +1190,8 @@ void TestLocalWorkspaces::managementInteraction() {
   bool editOpened = false;
   bool editCheckComplete = false;
   QTimer::singleShot(50, [&] {
-    if (LocalWorkspaceDialog *dialog =
-            qobject_cast<LocalWorkspaceDialog *>(
-                QApplication::activeModalWidget())) {
+    if (LocalWorkspaceDialog *dialog = qobject_cast<LocalWorkspaceDialog *>(
+            QApplication::activeModalWidget())) {
       editOpened = true;
       dialog->reject();
     }
@@ -634,9 +1212,8 @@ void TestLocalWorkspaces::managementInteraction() {
   editOpened = false;
   editCheckComplete = false;
   QTimer::singleShot(50, [&] {
-    if (LocalWorkspaceDialog *dialog =
-            qobject_cast<LocalWorkspaceDialog *>(
-                QApplication::activeModalWidget())) {
+    if (LocalWorkspaceDialog *dialog = qobject_cast<LocalWorkspaceDialog *>(
+            QApplication::activeModalWidget())) {
       editOpened = true;
       dialog->reject();
     }
@@ -661,9 +1238,8 @@ void TestLocalWorkspaces::managementInteraction() {
         continue;
       editActionFound = true;
       QTimer::singleShot(0, [&] {
-        if (LocalWorkspaceDialog *dialog =
-                qobject_cast<LocalWorkspaceDialog *>(
-                    QApplication::activeModalWidget())) {
+        if (LocalWorkspaceDialog *dialog = qobject_cast<LocalWorkspaceDialog *>(
+                QApplication::activeModalWidget())) {
           editOpenedFromContextMenu = true;
           dialog->reject();
         }
@@ -699,7 +1275,8 @@ void TestLocalWorkspaces::managementInteraction() {
   QCOMPARE(management.selectedRepositoryPath(), root);
   QTRY_VERIFY(
       remoteIndex.data(LocalWorkspaceModel::OriginCheckEligibleRole).toBool());
-  QVERIFY(!remoteIndex.data(LocalWorkspaceModel::OriginCheckFreshRole).toBool());
+  QVERIFY(
+      !remoteIndex.data(LocalWorkspaceModel::OriginCheckFreshRole).toBool());
   QCOMPARE(remoteIndex.data(Qt::ToolTipRole).toString(),
            QString("Waiting for origin check."));
 
@@ -713,28 +1290,21 @@ void TestLocalWorkspaces::managementInteraction() {
                            &LocalRepositoryManagement::originFetchFinished);
   bool activeStateObserved = false;
   bool inactiveStateObserved = false;
-  connect(&management, &LocalRepositoryManagement::originFetchStarted,
-          [&] {
-            activeStateObserved =
-                remoteIndex
-                    .data(LocalWorkspaceModel::OriginFetchActiveRole)
-                    .toBool() &&
-                remoteIndex.data(Qt::ToolTipRole).toString() ==
-                    QString("Synchronization is running.") &&
-                animation->isActive();
-          });
-  connect(&management, &LocalRepositoryManagement::originFetchFinished,
-          [&] {
-            inactiveStateObserved =
-                !remoteIndex
-                     .data(LocalWorkspaceModel::OriginFetchActiveRole)
-                     .toBool();
-          });
+  connect(&management, &LocalRepositoryManagement::originFetchStarted, [&] {
+    activeStateObserved =
+        remoteIndex.data(LocalWorkspaceModel::OriginFetchActiveRole).toBool() &&
+        remoteIndex.data(Qt::ToolTipRole).toString() ==
+            QString("Synchronization is running.") &&
+        animation->isActive();
+  });
+  connect(&management, &LocalRepositoryManagement::originFetchFinished, [&] {
+    inactiveStateObserved =
+        !remoteIndex.data(LocalWorkspaceModel::OriginFetchActiveRole).toBool();
+  });
   QVERIFY(runGit(root, {"remote", "set-url", "origin",
                         QDir(root).filePath("missing-origin")}));
   bool eventLoopAdvanced = false;
-  QTimer::singleShot(0, &management,
-                     [&] { eventLoopAdvanced = true; });
+  QTimer::singleShot(0, &management, [&] { eventLoopAdvanced = true; });
   QTest::mouseClick(check, Qt::LeftButton);
   QCOMPARE(started.count(), 1);
   QVERIFY(!eventLoopAdvanced);
@@ -745,8 +1315,10 @@ void TestLocalWorkspaces::managementInteraction() {
   QVERIFY(activeStateObserved);
   QVERIFY(inactiveStateObserved);
   QVERIFY(!animation->isActive());
-  QVERIFY(!remoteIndex.data(LocalWorkspaceModel::OriginCheckFreshRole).toBool());
-  QVERIFY(remoteIndex.data(LocalWorkspaceModel::OriginCheckFailedRole).toBool());
+  QVERIFY(
+      !remoteIndex.data(LocalWorkspaceModel::OriginCheckFreshRole).toBool());
+  QVERIFY(
+      remoteIndex.data(LocalWorkspaceModel::OriginCheckFailedRole).toBool());
   QCOMPARE(remoteIndex.data(Qt::ToolTipRole).toString(),
            QString("The last origin check failed."));
   QCOMPARE(finished.first().at(0).toInt(), 0);
@@ -764,7 +1336,8 @@ void TestLocalWorkspaces::managementInteraction() {
   const QModelIndex failedWorkspace = failedTree->model()->index(0, 0);
   const QModelIndex failedRemote = failedTree->model()->index(
       0, LocalWorkspaceModel::RemoteColumn, failedWorkspace);
-  QVERIFY(failedRemote.data(LocalWorkspaceModel::OriginCheckFailedRole).toBool());
+  QVERIFY(
+      failedRemote.data(LocalWorkspaceModel::OriginCheckFailedRole).toBool());
 
   QVERIFY(runGit(root, {"remote", "set-url", "origin", root}));
   QSettings settings;
@@ -773,39 +1346,39 @@ void TestLocalWorkspaces::managementInteraction() {
   LocalRepositoryManagement successManagement;
   QPushButton *successCheck = successManagement.findChild<QPushButton *>(
       "LocalRepositoryManagementCheckOrigin");
-  QTreeView *successTree = successManagement.findChild<QTreeView *>(
-      "LocalRepositoryManagementTree");
+  QTreeView *successTree =
+      successManagement.findChild<QTreeView *>("LocalRepositoryManagementTree");
   QVERIFY(successCheck);
   QVERIFY(successTree);
   const QModelIndex successWorkspace = successTree->model()->index(0, 0);
   const QModelIndex successRemote = successTree->model()->index(
       0, LocalWorkspaceModel::RemoteColumn, successWorkspace);
-  QSignalSpy successFinished(
-      &successManagement, &LocalRepositoryManagement::originCheckFinished);
+  QSignalSpy successFinished(&successManagement,
+                             &LocalRepositoryManagement::originCheckFinished);
   QTest::mouseClick(successCheck, Qt::LeftButton);
   QTRY_COMPARE(successFinished.count(), 1);
   QCOMPARE(successFinished.first().at(0).toInt(), 1);
   QCOMPARE(successFinished.first().at(1).toInt(), 0);
   QVERIFY(
       successRemote.data(LocalWorkspaceModel::OriginCheckFreshRole).toBool());
-  QVERIFY(!successRemote.data(LocalWorkspaceModel::OriginCheckFailedRole)
-               .toBool());
+  QVERIFY(
+      !successRemote.data(LocalWorkspaceModel::OriginCheckFailedRole).toBool());
   QVERIFY(!settings.contains(originFailureKey(root)));
 
   settings.setValue("localRepositoryManagement/originLastAttempt",
                     QDateTime::currentDateTimeUtc().addSecs(-121));
   LocalRepositoryManagement freshManagement;
-  QTreeView *freshTree = freshManagement.findChild<QTreeView *>(
-      "LocalRepositoryManagementTree");
+  QTreeView *freshTree =
+      freshManagement.findChild<QTreeView *>("LocalRepositoryManagementTree");
   QVERIFY(freshTree);
   const QModelIndex freshWorkspace = freshTree->model()->index(0, 0);
   const QModelIndex freshRemote = freshTree->model()->index(
       0, LocalWorkspaceModel::RemoteColumn, freshWorkspace);
-  QSignalSpy freshStarted(
-      &freshManagement, &LocalRepositoryManagement::originCheckStarted);
+  QSignalSpy freshStarted(&freshManagement,
+                          &LocalRepositoryManagement::originCheckStarted);
   freshManagement.checkOriginsIfStale();
-  QVERIFY(freshRemote.data(LocalWorkspaceModel::OriginInitialPendingRole)
-              .toBool());
+  QVERIFY(
+      freshRemote.data(LocalWorkspaceModel::OriginInitialPendingRole).toBool());
   QCOMPARE(freshRemote.data(Qt::ToolTipRole).toString(),
            QString("Waiting for origin check."));
   freshManagement.show();
@@ -818,25 +1391,26 @@ void TestLocalWorkspaces::managementInteraction() {
   settings.setValue(originCacheKey(root),
                     QDateTime::currentDateTimeUtc().addSecs(-301));
   LocalRepositoryManagement staleManagement;
-  QTreeView *staleTree = staleManagement.findChild<QTreeView *>(
-      "LocalRepositoryManagementTree");
+  QTreeView *staleTree =
+      staleManagement.findChild<QTreeView *>("LocalRepositoryManagementTree");
   QVERIFY(staleTree);
   const QModelIndex staleWorkspace = staleTree->model()->index(0, 0);
   const QModelIndex staleRemote = staleTree->model()->index(
       0, LocalWorkspaceModel::RemoteColumn, staleWorkspace);
-  QVERIFY(!staleRemote.data(LocalWorkspaceModel::OriginCheckFreshRole).toBool());
+  QVERIFY(
+      !staleRemote.data(LocalWorkspaceModel::OriginCheckFreshRole).toBool());
   QTRY_VERIFY(
       staleRemote.data(LocalWorkspaceModel::OriginCheckEligibleRole).toBool());
   QCOMPARE(staleRemote.data(Qt::ToolTipRole).toString(),
            QString("Waiting for origin check."));
   staleManagement.show();
-  QSignalSpy staleStarted(
-      &staleManagement, &LocalRepositoryManagement::originCheckStarted);
-  QSignalSpy staleFinished(
-      &staleManagement, &LocalRepositoryManagement::originCheckFinished);
+  QSignalSpy staleStarted(&staleManagement,
+                          &LocalRepositoryManagement::originCheckStarted);
+  QSignalSpy staleFinished(&staleManagement,
+                           &LocalRepositoryManagement::originCheckFinished);
   staleManagement.checkOriginsIfStale();
-  QVERIFY(staleRemote.data(LocalWorkspaceModel::OriginInitialPendingRole)
-              .toBool());
+  QVERIFY(
+      staleRemote.data(LocalWorkspaceModel::OriginInitialPendingRole).toBool());
   QTRY_COMPARE(staleStarted.count(), 1);
   QTRY_COMPARE(staleFinished.count(), 1);
 }
@@ -852,9 +1426,8 @@ void TestLocalWorkspaces::managementRefreshesStaleOriginsWhileOpen() {
   const QString branch = repo.head().name();
   const QString upstream = QString("origin/%1").arg(branch);
   QVERIFY(runGit(root, {"remote", "add", "origin", root}));
-  QVERIFY(runGit(root,
-                 {"update-ref", QString("refs/remotes/%1").arg(upstream),
-                  "HEAD"}));
+  QVERIFY(runGit(
+      root, {"update-ref", QString("refs/remotes/%1").arg(upstream), "HEAD"}));
   QVERIFY(runGit(root, {"branch", "--set-upstream-to", upstream, branch}));
 
   LocalWorkspace workspace;
@@ -870,10 +1443,10 @@ void TestLocalWorkspaces::managementRefreshesStaleOriginsWhileOpen() {
                     QDateTime::currentDateTimeUtc().addSecs(-121));
 
   LocalRepositoryManagement management;
-  QTreeView *tree = management.findChild<QTreeView *>(
-      "LocalRepositoryManagementTree");
-  QTimer *refresh = management.findChild<QTimer *>(
-      "LocalRepositoryManagementRefreshTimer");
+  QTreeView *tree =
+      management.findChild<QTreeView *>("LocalRepositoryManagementTree");
+  QTimer *refresh =
+      management.findChild<QTimer *>("LocalRepositoryManagementRefreshTimer");
   QVERIFY(tree);
   QVERIFY(refresh);
   refresh->stop();
@@ -888,8 +1461,8 @@ void TestLocalWorkspaces::managementRefreshesStaleOriginsWhileOpen() {
   management.checkOriginsIfStale();
   QVERIFY(remote.data(LocalWorkspaceModel::OriginInitialPendingRole).toBool());
   management.show();
-  QTRY_VERIFY(!remote.data(LocalWorkspaceModel::OriginInitialPendingRole)
-                   .toBool());
+  QTRY_VERIFY(
+      !remote.data(LocalWorkspaceModel::OriginInitialPendingRole).toBool());
   QVERIFY(remote.data(LocalWorkspaceModel::OriginCheckFreshRole).toBool());
   QCOMPARE(started.count(), 0);
 
@@ -929,9 +1502,8 @@ void TestLocalWorkspaces::managementChecksIndividualOriginFromContextMenu() {
   const QString branch = repo.head().name();
   const QString upstream = QString("origin/%1").arg(branch);
   QVERIFY(runGit(root, {"remote", "add", "origin", root}));
-  QVERIFY(runGit(root,
-                 {"update-ref", QString("refs/remotes/%1").arg(upstream),
-                  "HEAD"}));
+  QVERIFY(runGit(
+      root, {"update-ref", QString("refs/remotes/%1").arg(upstream), "HEAD"}));
   QVERIFY(runGit(root, {"branch", "--set-upstream-to", upstream, branch}));
 
   LocalWorkspace workspace;
@@ -949,16 +1521,16 @@ void TestLocalWorkspaces::managementChecksIndividualOriginFromContextMenu() {
   LocalRepositoryManagement management;
   management.resize(1000, 600);
   management.show();
-  QTreeView *tree = management.findChild<QTreeView *>(
-      "LocalRepositoryManagementTree");
+  QTreeView *tree =
+      management.findChild<QTreeView *>("LocalRepositoryManagementTree");
   QVERIFY(tree);
   const QModelIndex workspaceIndex = tree->model()->index(0, 0);
   tree->setExpanded(workspaceIndex, true);
   const QModelIndex remote = tree->model()->index(
       0, LocalWorkspaceModel::RemoteColumn, workspaceIndex);
   QTRY_VERIFY(!tree->visualRect(remote).isEmpty());
-  QTRY_VERIFY(remote.data(LocalWorkspaceModel::OriginCheckEligibleRole)
-                  .toBool());
+  QTRY_VERIFY(
+      remote.data(LocalWorkspaceModel::OriginCheckEligibleRole).toBool());
 
   bool workspaceCheckFound = false;
   const QPoint workspacePosition = tree->visualRect(workspaceIndex).center();
@@ -966,7 +1538,8 @@ void TestLocalWorkspaces::managementChecksIndividualOriginFromContextMenu() {
     QMenu *menu = qobject_cast<QMenu *>(QApplication::activePopupWidget());
     QVERIFY(menu);
     for (QAction *action : menu->actions())
-      workspaceCheckFound = workspaceCheckFound || action->text() == "Check origin";
+      workspaceCheckFound =
+          workspaceCheckFound || action->text() == "Check origin";
     menu->close();
   });
   QMetaObject::invokeMethod(tree, "customContextMenuRequested",
@@ -1020,7 +1593,8 @@ void TestLocalWorkspaces::managementChecksIndividualOriginFromContextMenu() {
            cooldownStart);
 }
 
-void TestLocalWorkspaces::managementStartsOriginBatchForAllEligibleRepositories() {
+void TestLocalWorkspaces::
+    managementStartsOriginBatchForAllEligibleRepositories() {
   clearWorkspaces();
   Test::ScratchRepository first;
   Test::ScratchRepository second;
@@ -1034,9 +1608,8 @@ void TestLocalWorkspaces::managementStartsOriginBatchForAllEligibleRepositories(
     const QString branch = repository.head().name();
     const QString upstream = QString("origin/%1").arg(branch);
     QVERIFY(runGit(path, {"remote", "add", "origin", path}));
-    QVERIFY(runGit(path,
-                   {"update-ref", QString("refs/remotes/%1").arg(upstream),
-                    "HEAD"}));
+    QVERIFY(runGit(path, {"update-ref",
+                          QString("refs/remotes/%1").arg(upstream), "HEAD"}));
     QVERIFY(runGit(path, {"branch", "--set-upstream-to", upstream, branch}));
     paths.append(path);
   }
@@ -1055,8 +1628,8 @@ void TestLocalWorkspaces::managementStartsOriginBatchForAllEligibleRepositories(
   LocalRepositoryManagement management;
   management.resize(1000, 600);
   management.show();
-  QTreeView *tree = management.findChild<QTreeView *>(
-      "LocalRepositoryManagementTree");
+  QTreeView *tree =
+      management.findChild<QTreeView *>("LocalRepositoryManagementTree");
   QPushButton *check = management.findChild<QPushButton *>(
       "LocalRepositoryManagementCheckOrigin");
   QTimer *animation = management.findChild<QTimer *>(
@@ -1075,8 +1648,8 @@ void TestLocalWorkspaces::managementStartsOriginBatchForAllEligibleRepositories(
     const QModelIndex remote = tree->model()->index(
         row, LocalWorkspaceModel::RemoteColumn, workspaceIndex);
     remoteIndexes.append(remote);
-    QTRY_VERIFY(remote.data(LocalWorkspaceModel::OriginCheckEligibleRole)
-                    .toBool());
+    QTRY_VERIFY(
+        remote.data(LocalWorkspaceModel::OriginCheckEligibleRole).toBool());
   }
 
   QSignalSpy started(&management,
@@ -1142,10 +1715,10 @@ void TestLocalWorkspaces::managementPreservesWorkspaceExpansion() {
   LocalRepositoryManagement management;
   management.resize(1000, 600);
   management.show();
-  QTreeView *tree = management.findChild<QTreeView *>(
-      "LocalRepositoryManagementTree");
-  QLineEdit *search = management.findChild<QLineEdit *>(
-      "LocalRepositoryManagementSearch");
+  QTreeView *tree =
+      management.findChild<QTreeView *>("LocalRepositoryManagementTree");
+  QLineEdit *search =
+      management.findChild<QLineEdit *>("LocalRepositoryManagementSearch");
   QPushButton *expansion = management.findChild<QPushButton *>(
       "LocalRepositoryManagementExpansionToggle");
   QVERIFY(tree);
@@ -1220,8 +1793,8 @@ void TestLocalWorkspaces::openWorkspaceConfirmation() {
   LocalRepositoryManagement management;
   management.resize(1000, 600);
   management.show();
-  QTreeView *tree = management.findChild<QTreeView *>(
-      "LocalRepositoryManagementTree");
+  QTreeView *tree =
+      management.findChild<QTreeView *>("LocalRepositoryManagementTree");
   QVERIFY(tree);
   QSignalSpy opened(&management,
                     &LocalRepositoryManagement::openWorkspaceRequested);
@@ -1292,8 +1865,7 @@ void TestLocalWorkspaces::openWorkspaceConfirmation() {
     menu->close();
   });
   QMetaObject::invokeMethod(tree, "customContextMenuRequested",
-                            Qt::DirectConnection,
-                            Q_ARG(QPoint, emptyPosition));
+                            Qt::DirectConnection, Q_ARG(QPoint, emptyPosition));
   QVERIFY(openFound);
   QVERIFY(!openEnabled);
 }
@@ -1334,12 +1906,12 @@ void TestLocalWorkspaces::repositoryStatus() {
       false);
 
   QVERIFY(runGit(root, {"remote", "add", "origin", root}));
-  QVERIFY(runGit(root,
-                 {"update-ref", QString("refs/remotes/%1").arg(upstream),
-                  "HEAD"}));
+  QVERIFY(runGit(
+      root, {"update-ref", QString("refs/remotes/%1").arg(upstream), "HEAD"}));
   QVERIFY(runGit(root, {"branch", "--set-upstream-to", upstream, branch}));
   model.refreshRepositories();
-  QTRY_VERIFY(remoteIndex.data(LocalWorkspaceModel::TrackingReadyRole).toBool());
+  QTRY_VERIFY(
+      remoteIndex.data(LocalWorkspaceModel::TrackingReadyRole).toBool());
   QVERIFY(
       remoteIndex.data(LocalWorkspaceModel::OriginCheckEligibleRole).toBool());
   QCOMPARE(remoteIndex.data(LocalWorkspaceModel::AheadRole).toInt(), 0);
@@ -1358,9 +1930,8 @@ void TestLocalWorkspaces::repositoryStatus() {
   QVERIFY(writeFile(QDir(root).filePath("remote.txt"), "remote\n"));
   QVERIFY(runGit(root, {"add", "remote.txt"}));
   QVERIFY(runGit(root, {"commit", "-m", "remote"}));
-  QVERIFY(runGit(root,
-                 {"update-ref", QString("refs/remotes/%1").arg(upstream),
-                  "HEAD"}));
+  QVERIFY(runGit(
+      root, {"update-ref", QString("refs/remotes/%1").arg(upstream), "HEAD"}));
   QVERIFY(runGit(root, {"checkout", branch}));
   model.refreshRepositories();
   QTRY_COMPARE(remoteIndex.data(LocalWorkspaceModel::BehindRole).toInt(), 1);
@@ -1383,7 +1954,8 @@ void TestLocalWorkspaces::repositoryStatus() {
   QVERIFY(runGit(root, {"checkout", branch}));
   QVERIFY(!runGit(root, {"merge", "remote-future"}));
   model.refreshRepositories();
-  QTRY_COMPARE(changesIndex.data(LocalWorkspaceModel::ConflictedRole).toInt(), 1);
+  QTRY_COMPARE(changesIndex.data(LocalWorkspaceModel::ConflictedRole).toInt(),
+               1);
   QVERIFY(runGit(root, {"merge", "--abort"}));
 
   QVERIFY(writeFile(QDir(root).filePath("modified.txt"), "changed\n"));
@@ -1392,7 +1964,8 @@ void TestLocalWorkspaces::repositoryStatus() {
   QVERIFY(QFile::remove(QDir(root).filePath("removed.txt")));
   QVERIFY(runGit(root, {"mv", "rename.txt", "renamed.txt"}));
   QVERIFY(writeFile(QDir(root).filePath("untracked.txt"), "untracked\n"));
-  QVERIFY(writeFile(QDir(root).filePath("staged-then-removed.txt"), "staged\n"));
+  QVERIFY(
+      writeFile(QDir(root).filePath("staged-then-removed.txt"), "staged\n"));
   QVERIFY(runGit(root, {"add", "staged-then-removed.txt"}));
   QVERIFY(QFile::remove(QDir(root).filePath("staged-then-removed.txt")));
   model.refreshRepositories();
@@ -1405,8 +1978,8 @@ void TestLocalWorkspaces::repositoryStatus() {
   LocalRepositoryManagement management;
   management.resize(1000, 600);
   management.show();
-  QTreeView *tree = management.findChild<QTreeView *>(
-      "LocalRepositoryManagementTree");
+  QTreeView *tree =
+      management.findChild<QTreeView *>("LocalRepositoryManagementTree");
   QVERIFY(tree);
   const QModelIndex proxyWorkspace = tree->model()->index(0, 0);
   tree->setExpanded(proxyWorkspace, true);

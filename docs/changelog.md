@@ -57,6 +57,8 @@ Bug Fix and Feature release
 
 #### Changed
 
+* Display cached repositories immediately on startup; show a scan indicator and add repositories incrementally when synchronizing local workspaces
+
 * Keep startup responsive by discovering synchronized local-workspace
   repositories outside the GUI thread
 

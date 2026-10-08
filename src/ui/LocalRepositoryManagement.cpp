@@ -124,8 +124,10 @@ public:
       return;
 
     const bool enabled = index.flags().testFlag(Qt::ItemIsEnabled);
-    const bool hovered = enabled && option.state.testFlag(QStyle::State_MouseOver);
-    const int extent = qMin(16, qMin(option.rect.width(), option.rect.height()) - 6);
+    const bool hovered =
+        enabled && option.state.testFlag(QStyle::State_MouseOver);
+    const int extent =
+        qMin(16, qMin(option.rect.width(), option.rect.height()) - 6);
     if (extent <= 0)
       return;
     const QRect iconRect(option.rect.center().x() - extent / 2,
@@ -157,9 +159,10 @@ public:
   bool editorEvent(QEvent *event, QAbstractItemModel *,
                    const QStyleOptionViewItem &option,
                    const QModelIndex &index) override {
-    const bool enabled = index.flags().testFlag(Qt::ItemIsEnabled) &&
-                         index.data(LocalWorkspaceModel::ItemKindRole).toInt() ==
-                             LocalWorkspaceModel::RepositoryItem;
+    const bool enabled =
+        index.flags().testFlag(Qt::ItemIsEnabled) &&
+        index.data(LocalWorkspaceModel::ItemKindRole).toInt() ==
+            LocalWorkspaceModel::RepositoryItem;
     if (event->type() == QEvent::MouseButtonPress) {
       const auto *mouse = static_cast<QMouseEvent *>(event);
       mPressedIndex = enabled && mouse->button() == Qt::LeftButton
@@ -195,8 +198,7 @@ private:
   QPersistentModelIndex mPressedIndex;
 };
 
-void paintItemBackground(QPainter *painter,
-                         const QStyleOptionViewItem &option,
+void paintItemBackground(QPainter *painter, const QStyleOptionViewItem &option,
                          const QModelIndex &index) {
   QStyleOptionViewItem background = option;
   background.text.clear();
@@ -220,7 +222,8 @@ public:
     const QColor green(QStringLiteral("#36c96b"));
     const QColor blue(QStringLiteral("#4aa3ff"));
     const QColor amber(QStringLiteral("#f0a020"));
-    const QColor gray = option.palette.color(QPalette::Disabled, QPalette::Text);
+    const QColor gray =
+        option.palette.color(QPalette::Disabled, QPalette::Text);
     const bool ready =
         index.data(LocalWorkspaceModel::TrackingReadyRole).toBool();
     const QVariant aheadValue = index.data(LocalWorkspaceModel::AheadRole);
@@ -254,8 +257,7 @@ public:
     };
 
     if (fetching) {
-      const bool alternate =
-          (QDateTime::currentMSecsSinceEpoch() / 250) % 2;
+      const bool alternate = (QDateTime::currentMSecsSinceEpoch() / 250) % 2;
       draw(alternate ? QString::fromUtf8("⌛") : QString::fromUtf8("⏳"),
            amber);
     } else if (initialPending) {
@@ -274,6 +276,58 @@ public:
       if (behind)
         draw(LocalRepositoryManagement::tr("%1↓").arg(behind), amber);
     }
+    painter->restore();
+  }
+};
+
+class WorkspaceScanDelegate : public QStyledItemDelegate {
+public:
+  using QStyledItemDelegate::QStyledItemDelegate;
+
+  void paint(QPainter *painter, const QStyleOptionViewItem &option,
+             const QModelIndex &index) const override {
+    const bool workspace =
+        index.data(LocalWorkspaceModel::ItemKindRole).toInt() ==
+        LocalWorkspaceModel::WorkspaceItem;
+    if (!workspace ||
+        !index.data(LocalWorkspaceModel::WorkspaceScanningRole).toBool()) {
+      QStyledItemDelegate::paint(painter, option, index);
+      return;
+    }
+
+    const int extent =
+        qMin(16, qMin(option.rect.width(), option.rect.height()) - 6);
+    if (extent <= 0) {
+      QStyledItemDelegate::paint(painter, option, index);
+      return;
+    }
+
+    QStyleOptionViewItem styledOption(option);
+    initStyleOption(&styledOption, index);
+    QStyle *style = styledOption.widget ? styledOption.widget->style()
+                                        : QApplication::style();
+    const QRect textRect = style->subElementRect(
+        QStyle::SE_ItemViewItemText, &styledOption, styledOption.widget);
+    const int gap =
+        styledOption.fontMetrics.horizontalAdvance(QStringLiteral("    "));
+    const int availableTextWidth = qMax(0, textRect.width() - extent - gap);
+    styledOption.text = styledOption.fontMetrics.elidedText(
+        styledOption.text, Qt::ElideRight, availableTextWidth);
+    style->drawControl(QStyle::CE_ItemViewItem, &styledOption, painter,
+                       styledOption.widget);
+
+    const int textWidth =
+        styledOption.fontMetrics.horizontalAdvance(styledOption.text);
+    const QRect spinner(textRect.left() + textWidth + gap,
+                        option.rect.center().y() - extent / 2, extent, extent);
+    const int angle = int((QDateTime::currentMSecsSinceEpoch() / 8) % 360);
+    painter->save();
+    painter->setRenderHint(QPainter::Antialiasing);
+    QPen pen(option.palette.color(QPalette::Text));
+    pen.setWidthF(2.0);
+    pen.setCapStyle(Qt::RoundCap);
+    painter->setPen(pen);
+    painter->drawArc(spinner, angle * 16, 250 * 16);
     painter->restore();
   }
 };
@@ -299,16 +353,17 @@ public:
 
     const QList<Part> values = parts(option, index);
     if (values.isEmpty()) {
-      const bool ready = index.data(LocalWorkspaceModel::StatusReadyRole).toBool();
-      const bool error = index.data(LocalWorkspaceModel::StatusErrorRole).toBool();
-      painter->setPen(error ? QColor(QStringLiteral("#e25555"))
-                            : option.palette.color(QPalette::Disabled,
-                                                   QPalette::Text));
-      painter->drawText(option.rect.adjusted(5, 0, 0, 0),
-                        Qt::AlignLeft | Qt::AlignVCenter,
-                        ready ? QString::fromUtf8("✓")
-                              : (error ? QStringLiteral("?")
-                                       : QString::fromUtf8("…")));
+      const bool ready =
+          index.data(LocalWorkspaceModel::StatusReadyRole).toBool();
+      const bool error =
+          index.data(LocalWorkspaceModel::StatusErrorRole).toBool();
+      painter->setPen(
+          error ? QColor(QStringLiteral("#e25555"))
+                : option.palette.color(QPalette::Disabled, QPalette::Text));
+      painter->drawText(
+          option.rect.adjusted(5, 0, 0, 0), Qt::AlignLeft | Qt::AlignVCenter,
+          ready ? QString::fromUtf8("✓")
+                : (error ? QStringLiteral("?") : QString::fromUtf8("…")));
       return;
     }
 
@@ -343,8 +398,8 @@ private:
     for (const auto &[kind, count] : counts) {
       if (!count)
         continue;
-      const int width = 15 + metrics.horizontalAdvance(QString::number(count)) +
-                        9;
+      const int width =
+          15 + metrics.horizontalAdvance(QString::number(count)) + 9;
       result.append({kind, count,
                      QRect(x, option.rect.y(), width, option.rect.height())});
       x += width;
@@ -404,11 +459,10 @@ private:
     }
 
     painter->setPen(option.palette.color(QPalette::Text));
-    painter->drawText(QRect(icon.right() + 3, part.rect.y(),
-                            part.rect.right() - icon.right() - 3,
-                            part.rect.height()),
-                      Qt::AlignLeft | Qt::AlignVCenter,
-                      QString::number(part.count));
+    painter->drawText(
+        QRect(icon.right() + 3, part.rect.y(),
+              part.rect.right() - icon.right() - 3, part.rect.height()),
+        Qt::AlignLeft | Qt::AlignVCenter, QString::number(part.count));
     painter->restore();
   }
 
@@ -420,16 +474,14 @@ private:
                        .arg(part.count);
     }
     if (part.kind == Added) {
-      return part.count == 1
-                 ? LocalRepositoryManagement::tr("1 added file")
-                 : LocalRepositoryManagement::tr("%1 added files")
-                       .arg(part.count);
+      return part.count == 1 ? LocalRepositoryManagement::tr("1 added file")
+                             : LocalRepositoryManagement::tr("%1 added files")
+                                   .arg(part.count);
     }
     if (part.kind == Removed) {
-      return part.count == 1
-                 ? LocalRepositoryManagement::tr("1 removed file")
-                 : LocalRepositoryManagement::tr("%1 removed files")
-                       .arg(part.count);
+      return part.count == 1 ? LocalRepositoryManagement::tr("1 removed file")
+                             : LocalRepositoryManagement::tr("%1 removed files")
+                                   .arg(part.count);
     }
     if (part.kind == Untracked) {
       return part.count == 1
@@ -452,8 +504,7 @@ public:
     mRoot = QDir(path).canonicalPath();
     if (mRoot.isEmpty())
       mRoot = QDir(path).absolutePath();
-    document()->setBaseUrl(
-        QUrl::fromLocalFile(mRoot + QDir::separator()));
+    document()->setBaseUrl(QUrl::fromLocalFile(mRoot + QDir::separator()));
   }
 
 protected:
@@ -476,9 +527,8 @@ protected:
 
     QImageReader reader(path);
     const QSize size = reader.size();
-    if (!size.isValid() ||
-        qint64(size.width()) * qint64(size.height()) >
-            kMaximumReadmeImagePixels)
+    if (!size.isValid() || qint64(size.width()) * qint64(size.height()) >
+                               kMaximumReadmeImagePixels)
       return {};
     return QTextBrowser::loadResource(type, name);
   }
@@ -494,14 +544,14 @@ LocalRepositoryManagement::LocalRepositoryManagement(QWidget *parent)
       mModel(new LocalWorkspaceModel(this)),
       mProxy(new WorkspaceFilterProxy(this)), mSearch(new QLineEdit(this)),
       mExpansionToggle(new QPushButton(this)),
-      mOriginCheck(new QPushButton(this)),
-      mTree(new QTreeView(this)),
+      mOriginCheck(new QPushButton(this)), mTree(new QTreeView(this)),
       mSplitter(new QSplitter(Qt::Horizontal, this)),
       mDetailsPane(new QWidget(mSplitter)),
       mDetailsTitle(new QLabel(mDetailsPane)),
       mReadme(new ReadmeBrowser(mDetailsPane)),
       mOriginCooldownTimer(new QTimer(this)),
       mOriginAnimationTimer(new QTimer(this)),
+      mWorkspaceAnimationTimer(new QTimer(this)),
       mWorkspaceClickTimer(new QTimer(this)) {
   setObjectName(QStringLiteral("LocalRepositoryManagement"));
   mOriginCheckPool = new QThreadPool(this);
@@ -529,33 +579,32 @@ LocalRepositoryManagement::LocalRepositoryManagement(QWidget *parent)
             if (!success)
               showError(error);
           });
-  connect(mWorkspaces, &LocalWorkspaces::repositoriesAdded, this,
-          [this](const QString &id, bool success, const QStringList &invalid,
-                 const QStringList &duplicates, const QString &error) {
-            if (mPendingWorkspaceOperation !=
-                    WorkspaceOperation::AddRepositories ||
-                id != mPendingWorkspaceOperationId)
-              return;
-            mPendingWorkspaceOperation = WorkspaceOperation::None;
-            mPendingWorkspaceOperationId.clear();
-            if (!success) {
-              showError(error);
-              return;
-            }
+  connect(
+      mWorkspaces, &LocalWorkspaces::repositoriesAdded, this,
+      [this](const QString &id, bool success, const QStringList &invalid,
+             const QStringList &duplicates, const QString &error) {
+        if (mPendingWorkspaceOperation != WorkspaceOperation::AddRepositories ||
+            id != mPendingWorkspaceOperationId)
+          return;
+        mPendingWorkspaceOperation = WorkspaceOperation::None;
+        mPendingWorkspaceOperationId.clear();
+        if (!success) {
+          showError(error);
+          return;
+        }
 
-            QStringList skipped;
-            if (!invalid.isEmpty())
-              skipped.append(tr("Not Git repositories:\n%1")
-                                 .arg(invalid.join('\n')));
-            if (!duplicates.isEmpty())
-              skipped.append(tr("Already in the workspace:\n%1")
-                                 .arg(duplicates.join('\n')));
-            if (!skipped.isEmpty())
-              QMessageBox::warning(
-                  this, tr("Some Folders Were Skipped"),
-                  tr("Some selected folders were skipped.\n\n%1")
-                      .arg(skipped.join(QStringLiteral("\n\n"))));
-          });
+        QStringList skipped;
+        if (!invalid.isEmpty())
+          skipped.append(
+              tr("Not Git repositories:\n%1").arg(invalid.join('\n')));
+        if (!duplicates.isEmpty())
+          skipped.append(
+              tr("Already in the workspace:\n%1").arg(duplicates.join('\n')));
+        if (!skipped.isEmpty())
+          QMessageBox::warning(this, tr("Some Folders Were Skipped"),
+                               tr("Some selected folders were skipped.\n\n%1")
+                                   .arg(skipped.join(QStringLiteral("\n\n"))));
+      });
   connect(mWorkspaces, &LocalWorkspaces::synchronizedDirectoryRescanned, this,
           [this](const QString &id, bool success, const QString &error) {
             if (mPendingWorkspaceOperation != WorkspaceOperation::Rescan ||
@@ -565,6 +614,25 @@ LocalRepositoryManagement::LocalRepositoryManagement(QWidget *parent)
             mPendingWorkspaceOperationId.clear();
             if (!success)
               showError(error);
+          });
+  connect(mWorkspaces, &LocalWorkspaces::workspaceScanStarted, this,
+          [this](const QString &id, quint64) {
+            mActiveWorkspaceScans.insert(id);
+            mWorkspaceAnimationTimer->start();
+          });
+  connect(mWorkspaces, &LocalWorkspaces::workspaceScanFinished, this,
+          [this](const QString &id, quint64, bool, const QString &) {
+            mActiveWorkspaceScans.remove(id);
+            if (mActiveWorkspaceScans.isEmpty())
+              mWorkspaceAnimationTimer->stop();
+          });
+  connect(mWorkspaces, &LocalWorkspaces::workspaceScanPersistenceFailed, this,
+          [this](quint64 generation, const QString &error) {
+            static QSet<quint64> reportedGenerations;
+            if (reportedGenerations.contains(generation))
+              return;
+            reportedGenerations.insert(generation);
+            showError(error);
           });
 
   QLabel *title = new QLabel(tr("Local Repository Management"), this);
@@ -608,9 +676,9 @@ LocalRepositoryManagement::LocalRepositoryManagement(QWidget *parent)
   QHeaderView *header = mTree->header();
   header->setStretchLastSection(false);
   header->setSectionResizeMode(LocalWorkspaceModel::RepositoryColumn,
-                                QHeaderView::Stretch);
+                               QHeaderView::Stretch);
   header->setSectionResizeMode(LocalWorkspaceModel::BranchColumn,
-                                QHeaderView::ResizeToContents);
+                               QHeaderView::ResizeToContents);
   header->setSectionResizeMode(LocalWorkspaceModel::RemoteColumn,
                                QHeaderView::Fixed);
   header->setSectionResizeMode(LocalWorkspaceModel::ChangesColumn,
@@ -630,12 +698,12 @@ LocalRepositoryManagement::LocalRepositoryManagement(QWidget *parent)
   mTree->installEventFilter(this);
   mTree->viewport()->installEventFilter(this);
 
-  mTree->setItemDelegateForColumn(
-      LocalWorkspaceModel::RemoteColumn,
-      new RemoteStatusDelegate(mTree));
-  mTree->setItemDelegateForColumn(
-      LocalWorkspaceModel::ChangesColumn,
-      new WorkingTreeStatusDelegate(mTree));
+  mTree->setItemDelegateForColumn(LocalWorkspaceModel::RemoteColumn,
+                                  new RemoteStatusDelegate(mTree));
+  mTree->setItemDelegateForColumn(LocalWorkspaceModel::RepositoryColumn,
+                                  new WorkspaceScanDelegate(mTree));
+  mTree->setItemDelegateForColumn(LocalWorkspaceModel::ChangesColumn,
+                                  new WorkingTreeStatusDelegate(mTree));
   mTree->setItemDelegateForColumn(
       LocalWorkspaceModel::DetailsColumn,
       new RepositoryActionDelegate(
@@ -665,8 +733,7 @@ LocalRepositoryManagement::LocalRepositoryManagement(QWidget *parent)
   QToolButton *closeDetails = new QToolButton(mDetailsPane);
   closeDetails->setObjectName(
       QStringLiteral("LocalRepositoryManagementCloseDetails"));
-  closeDetails->setIcon(
-      style()->standardIcon(QStyle::SP_TitleBarCloseButton));
+  closeDetails->setIcon(style()->standardIcon(QStyle::SP_TitleBarCloseButton));
   closeDetails->setToolTip(tr("Close details"));
   closeDetails->setAutoRaise(true);
 
@@ -674,8 +741,7 @@ LocalRepositoryManagement::LocalRepositoryManagement(QWidget *parent)
   detailsHeader->addWidget(mDetailsTitle, 1);
   detailsHeader->addWidget(closeDetails);
 
-  mReadme->setObjectName(
-      QStringLiteral("LocalRepositoryManagementReadme"));
+  mReadme->setObjectName(QStringLiteral("LocalRepositoryManagementReadme"));
   mReadme->setOpenLinks(false);
   mReadme->document()->setDocumentMargin(16);
   QVBoxLayout *detailsLayout = new QVBoxLayout(mDetailsPane);
@@ -683,8 +749,7 @@ LocalRepositoryManagement::LocalRepositoryManagement(QWidget *parent)
   detailsLayout->addLayout(detailsHeader);
   detailsLayout->addWidget(mReadme, 1);
 
-  mSplitter->setObjectName(
-      QStringLiteral("LocalRepositoryManagementSplitter"));
+  mSplitter->setObjectName(QStringLiteral("LocalRepositoryManagementSplitter"));
   mSplitter->addWidget(mTree);
   mSplitter->addWidget(mDetailsPane);
   mSplitter->setStretchFactor(0, 1);
@@ -706,32 +771,29 @@ LocalRepositoryManagement::LocalRepositoryManagement(QWidget *parent)
           [this] { checkOrigins(true); });
   connect(mExpansionToggle, &QPushButton::clicked, this,
           &LocalRepositoryManagement::toggleWorkspaceExpansion);
-  connect(mSearch, &QLineEdit::textChanged, this,
-           [this](const QString &text) {
-             clearPendingWorkspaceClick();
-             mRestoringWorkspaceExpansion = true;
-             mProxy->setFilterFixedString(text);
-             restoreWorkspaceExpansion();
-             updateSelectedRepository();
-           });
-  connect(mTree, &QTreeView::expanded, this,
-          [this](const QModelIndex &index) {
-            if (!mRestoringWorkspaceExpansion) {
-              const QString id =
-                  index.data(LocalWorkspaceModel::WorkspaceIdRole).toString();
-              const LocalWorkspace *workspace = mWorkspaces->workspace(id);
-              if (workspace && !workspace->repositories.isEmpty())
-                mExpandedWorkspaceIds.insert(id);
-            }
-            updateExpansionButton();
-          });
-  connect(mTree, &QTreeView::collapsed, this,
-          [this](const QModelIndex &index) {
-            if (!mRestoringWorkspaceExpansion)
-              mExpandedWorkspaceIds.remove(
-                  index.data(LocalWorkspaceModel::WorkspaceIdRole).toString());
-            updateExpansionButton();
-          });
+  connect(mSearch, &QLineEdit::textChanged, this, [this](const QString &text) {
+    clearPendingWorkspaceClick();
+    mRestoringWorkspaceExpansion = true;
+    mProxy->setFilterFixedString(text);
+    restoreWorkspaceExpansion();
+    updateSelectedRepository();
+  });
+  connect(mTree, &QTreeView::expanded, this, [this](const QModelIndex &index) {
+    if (!mRestoringWorkspaceExpansion) {
+      const QString id =
+          index.data(LocalWorkspaceModel::WorkspaceIdRole).toString();
+      const LocalWorkspace *workspace = mWorkspaces->workspace(id);
+      if (workspace && !workspace->repositories.isEmpty())
+        mExpandedWorkspaceIds.insert(id);
+    }
+    updateExpansionButton();
+  });
+  connect(mTree, &QTreeView::collapsed, this, [this](const QModelIndex &index) {
+    if (!mRestoringWorkspaceExpansion)
+      mExpandedWorkspaceIds.remove(
+          index.data(LocalWorkspaceModel::WorkspaceIdRole).toString());
+    updateExpansionButton();
+  });
   connect(mTree->selectionModel(), &QItemSelectionModel::currentChanged, this,
           [this] { updateSelectedRepository(); });
   connect(mModel, &QAbstractItemModel::dataChanged, this,
@@ -750,13 +812,12 @@ LocalRepositoryManagement::LocalRepositoryManagement(QWidget *parent)
               mTree->viewport()->unsetCursor();
           });
   connect(mTree, &QWidget::customContextMenuRequested, this,
-           &LocalRepositoryManagement::showContextMenu);
+          &LocalRepositoryManagement::showContextMenu);
   connect(closeDetails, &QToolButton::clicked, mDetailsPane, &QWidget::hide);
-  connect(mProxy, &QAbstractItemModel::modelAboutToBeReset, this,
-          [this] {
-            clearPendingWorkspaceClick();
-            mRestoringWorkspaceExpansion = true;
-          });
+  connect(mProxy, &QAbstractItemModel::modelAboutToBeReset, this, [this] {
+    clearPendingWorkspaceClick();
+    mRestoringWorkspaceExpansion = true;
+  });
   connect(mProxy, &QAbstractItemModel::modelReset, this, [this] {
     restoreWorkspaceExpansion();
     updateOriginCheckStates();
@@ -786,11 +847,24 @@ LocalRepositoryManagement::LocalRepositoryManagement(QWidget *parent)
   mOriginAnimationTimer->setInterval(250);
   connect(mOriginAnimationTimer, &QTimer::timeout, mTree->viewport(),
           QOverload<>::of(&QWidget::update));
+  mWorkspaceAnimationTimer->setObjectName(
+      QStringLiteral("LocalRepositoryManagementWorkspaceAnimation"));
+  mWorkspaceAnimationTimer->setInterval(80);
+  connect(mWorkspaceAnimationTimer, &QTimer::timeout, mTree->viewport(),
+          QOverload<>::of(&QWidget::update));
   const QDateTime lastAttempt =
       QSettings().value(QLatin1String(kOriginLastAttemptKey)).toDateTime();
   if (lastAttempt.isValid())
     mOriginCooldownDeadline = lastAttempt.addSecs(kOriginCooldownSeconds);
   updateOriginCheckButton();
+  for (int row = 0; row < mModel->rowCount(); ++row) {
+    const QModelIndex workspace = mModel->index(row, 0);
+    if (workspace.data(LocalWorkspaceModel::WorkspaceScanningRole).toBool())
+      mActiveWorkspaceScans.insert(
+          workspace.data(LocalWorkspaceModel::WorkspaceIdRole).toString());
+  }
+  if (!mActiveWorkspaceScans.isEmpty())
+    mWorkspaceAnimationTimer->start();
   updateWorkspaceSpans();
   updateExpansionButton();
   updateOriginCheckStates();
@@ -822,12 +896,10 @@ void LocalRepositoryManagement::checkOrigins(bool force) {
       QSettings().value(QLatin1String(kOriginLastAttemptKey)).toDateTime();
   if (storedAttempt.isValid() &&
       (!mOriginCooldownDeadline.isValid() ||
-       storedAttempt.addSecs(kOriginCooldownSeconds) >
-           mOriginCooldownDeadline))
+       storedAttempt.addSecs(kOriginCooldownSeconds) > mOriginCooldownDeadline))
     mOriginCooldownDeadline = storedAttempt.addSecs(kOriginCooldownSeconds);
   if ((mOriginCheckWatcher && mOriginCheckWatcher->isRunning()) ||
-      (mOriginCooldownDeadline.isValid() &&
-       now < mOriginCooldownDeadline))
+      (mOriginCooldownDeadline.isValid() && now < mOriginCooldownDeadline))
     return;
 
   QStringList paths = mModel->repositoryPaths();
@@ -893,7 +965,8 @@ void LocalRepositoryManagement::startOriginCheck(const QStringList &paths,
   mOriginCooldownTimer->start();
   emit originCheckStarted(paths.size());
   watcher->setFuture(QtConcurrent::mapped(
-      mOriginCheckPool, requests, [callbacks](const OriginCheckRequest &request) {
+      mOriginCheckPool, requests,
+      [callbacks](const OriginCheckRequest &request) {
         OriginCheckEvent event = {request.path, request.callbackIndex};
         const git::Repository repository =
             git::Repository::open(request.path, true);
@@ -915,7 +988,8 @@ void LocalRepositoryManagement::startOriginCheck(const QStringList &paths,
           return event;
         callbacksForRequest->setRepositoryForOperation(repository);
         event.attempted = true;
-        event.successful = bool(origin.fetch(callbacksForRequest, false, false));
+        event.successful =
+            bool(origin.fetch(callbacksForRequest, false, false));
         callbacksForRequest->setRepositoryForOperation(git::Repository());
         return event;
       }));
@@ -927,7 +1001,7 @@ void LocalRepositoryManagement::handleOriginCheckEvent(int index) {
   if (event.attempted && event.successful) {
     QSettings settings;
     settings.setValue(originCacheKey(event.path),
-                       QDateTime::currentDateTimeUtc());
+                      QDateTime::currentDateTimeUtc());
     settings.remove(originFailureKey(event.path));
     mModel->setOriginCheckFailed(event.path, false);
     mModel->setOriginCheckFresh(event.path, true);
@@ -983,16 +1057,14 @@ void LocalRepositoryManagement::updateOriginCheckButton() {
       QSettings().value(QLatin1String(kOriginLastAttemptKey)).toDateTime();
   if (storedAttempt.isValid() &&
       (!mOriginCooldownDeadline.isValid() ||
-       storedAttempt.addSecs(kOriginCooldownSeconds) >
-           mOriginCooldownDeadline))
+       storedAttempt.addSecs(kOriginCooldownSeconds) > mOriginCooldownDeadline))
     mOriginCooldownDeadline = storedAttempt.addSecs(kOriginCooldownSeconds);
   const qint64 remaining =
       QDateTime::currentDateTimeUtc().secsTo(mOriginCooldownDeadline);
   if (remaining > 0) {
-    mOriginCheck->setText(
-        tr("Check origin (%1:%2)")
-            .arg(remaining / 60)
-            .arg(remaining % 60, 2, 10, QLatin1Char('0')));
+    mOriginCheck->setText(tr("Check origin (%1:%2)")
+                              .arg(remaining / 60)
+                              .arg(remaining % 60, 2, 10, QLatin1Char('0')));
     mOriginCheck->setEnabled(false);
     mOriginCooldownTimer->start();
     return;
@@ -1077,11 +1149,12 @@ bool LocalRepositoryManagement::eventFilter(QObject *watched, QEvent *event) {
     if (event->type() == QEvent::MouseMove) {
       const auto *mouse = static_cast<QMouseEvent *>(event);
       const QModelIndex index = mTree->indexAt(mouse->position().toPoint());
-      const bool action = index.isValid() &&
-                          index.column() >= LocalWorkspaceModel::DetailsColumn &&
-                          index.data(LocalWorkspaceModel::ItemKindRole).toInt() ==
-                              LocalWorkspaceModel::RepositoryItem &&
-                          index.flags().testFlag(Qt::ItemIsEnabled);
+      const bool action =
+          index.isValid() &&
+          index.column() >= LocalWorkspaceModel::DetailsColumn &&
+          index.data(LocalWorkspaceModel::ItemKindRole).toInt() ==
+              LocalWorkspaceModel::RepositoryItem &&
+          index.flags().testFlag(Qt::ItemIsEnabled);
       QWidget *viewport = mTree->viewport();
       QTimer::singleShot(0, viewport, [viewport, action] {
         if (action)
@@ -1101,8 +1174,7 @@ QModelIndex LocalRepositoryManagement::currentSourceIndex() const {
 }
 
 void LocalRepositoryManagement::activate(const QModelIndex &index) {
-  if (!index.isValid() ||
-      index.column() >= LocalWorkspaceModel::DetailsColumn)
+  if (!index.isValid() || index.column() >= LocalWorkspaceModel::DetailsColumn)
     return;
   if (index.data(LocalWorkspaceModel::ItemKindRole).toInt() ==
       LocalWorkspaceModel::RepositoryItem) {
@@ -1186,14 +1258,11 @@ void LocalRepositoryManagement::showContextMenu(const QPoint &position) {
     menu.addSeparator();
     QAction *edit = menu.addAction(tr("Edit Workspace"));
     QAction *remove = menu.addAction(tr("Delete Workspace"));
-    connect(open, &QAction::triggered, this,
-            [this, id] { openWorkspace(id); });
-    connect(add, &QAction::triggered, this,
-            [this, id] { addRepository(id); });
+    connect(open, &QAction::triggered, this, [this, id] { openWorkspace(id); });
+    connect(add, &QAction::triggered, this, [this, id] { addRepository(id); });
     connect(rescan, &QAction::triggered, this,
             [this, id] { rescanWorkspace(id); });
-    connect(edit, &QAction::triggered, this,
-            [this, id] { editWorkspace(id); });
+    connect(edit, &QAction::triggered, this, [this, id] { editWorkspace(id); });
     connect(remove, &QAction::triggered, this,
             [this, id] { deleteWorkspace(id); });
   }
@@ -1231,9 +1300,9 @@ void LocalRepositoryManagement::deleteWorkspace(const QString &id) {
   if (!workspace)
     return;
   const QString name = workspace->name;
-  if (QMessageBox::question(
-          this, tr("Delete Workspace"),
-          tr("Delete workspace \"%1\"?").arg(name)) != QMessageBox::Yes)
+  if (QMessageBox::question(this, tr("Delete Workspace"),
+                            tr("Delete workspace \"%1\"?").arg(name)) !=
+      QMessageBox::Yes)
     return;
 
   QString error;
@@ -1309,9 +1378,8 @@ void LocalRepositoryManagement::deleteCurrentItem() {
 
 void LocalRepositoryManagement::showDetails(const QString &path) {
   const QFileInfo repository(path);
-  mDetailsTitle->setText(repository.fileName().isEmpty()
-                             ? path
-                             : repository.fileName());
+  mDetailsTitle->setText(
+      repository.fileName().isEmpty() ? path : repository.fileName());
 
   const QString readmePath = QDir(path).filePath(QStringLiteral("README.md"));
   QFile readme(readmePath);
@@ -1397,11 +1465,10 @@ bool LocalRepositoryManagement::isWorkspaceDisclosure(
     const QModelIndex &index, const QPoint &position) const {
   const QRect item = mTree->visualRect(index);
   const int width = mTree->indentation();
-  const QRect disclosure = mTree->layoutDirection() == Qt::RightToLeft
-                               ? QRect(item.right() + 1, item.top(), width,
-                                       item.height())
-                               : QRect(item.left() - width, item.top(), width,
-                                       item.height());
+  const QRect disclosure =
+      mTree->layoutDirection() == Qt::RightToLeft
+          ? QRect(item.right() + 1, item.top(), width, item.height())
+          : QRect(item.left() - width, item.top(), width, item.height());
   return disclosure.contains(position);
 }
 
@@ -1409,12 +1476,11 @@ void LocalRepositoryManagement::updateOriginCheckStates() {
   QSettings settings;
   const QDateTime now = QDateTime::currentDateTimeUtc();
   for (const QString &path : mModel->repositoryPaths()) {
-    const QDateTime success =
-        settings.value(originCacheKey(path)).toDateTime();
+    const QDateTime success = settings.value(originCacheKey(path)).toDateTime();
     const QDateTime failure =
         settings.value(originFailureKey(path)).toDateTime();
-    const bool failed = failure.isValid() &&
-                        (!success.isValid() || failure > success);
+    const bool failed =
+        failure.isValid() && (!success.isValid() || failure > success);
     const bool fresh = !failed && success.isValid() &&
                        success.secsTo(now) < kOriginCacheSeconds;
     mModel->setOriginCheckFresh(path, fresh);
