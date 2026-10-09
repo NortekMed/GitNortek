@@ -104,6 +104,7 @@ private slots:
   void unavailableSynchronizedDirectoryFailsAsync();
   void asyncAddRetainsRepositoriesOnManualError();
   void synchronizedDirectory();
+  void synchronizedBuildDirectoryIsSkippedAtRoot();
   void manualRepositorySurvivesSynchronization();
   void addMultipleRepositories();
   void directorySelectionDialog();
@@ -526,18 +527,33 @@ void TestLocalWorkspaces::synchronizedRepositoriesAreDiscoveredIncrementally() {
   QDir directory(root.path());
   QVERIFY(directory.mkdir("alpha"));
   QVERIFY(directory.mkdir("zeta"));
+  QVERIFY(directory.mkpath("build-output/keptRepository"));
+  QVERIFY(directory.mkpath(".hidden/ignoredRepository"));
+  QVERIFY(
+      directory.mkpath("build/tmp/work/all-tdx-linux/update-rc.d/0.8+git/git"));
   const git::Repository alpha =
       git::Repository::init(directory.filePath("alpha"));
   const git::Repository zeta =
       git::Repository::init(directory.filePath("zeta"));
+  const git::Repository buildOutputRepository =
+      git::Repository::init(directory.filePath("build-output/keptRepository"));
+  const git::Repository hiddenRepository =
+      git::Repository::init(directory.filePath(".hidden/ignoredRepository"));
+  const git::Repository buildRepository =
+      git::Repository::init(directory.filePath(
+          "build/tmp/work/all-tdx-linux/update-rc.d/0.8+git/git"));
   const git::Repository manualRepository =
       git::Repository::init(manualRoot.path());
   QVERIFY(alpha.isValid());
   QVERIFY(zeta.isValid());
+  QVERIFY(buildOutputRepository.isValid());
+  QVERIFY(hiddenRepository.isValid());
+  QVERIFY(buildRepository.isValid());
   QVERIFY(manualRepository.isValid());
 
-  QStringList expectedSynchronizedPaths = {alpha.dir(false).path(),
-                                           zeta.dir(false).path()};
+  QStringList expectedSynchronizedPaths = {
+      alpha.dir(false).path(), zeta.dir(false).path(),
+      buildOutputRepository.dir(false).path()};
   expectedSynchronizedPaths.sort();
   const QString manualPath = manualRepository.dir(false).path();
   LocalWorkspace workspace;
@@ -807,16 +823,26 @@ void TestLocalWorkspaces::synchronizedDirectory() {
   QTemporaryDir root;
   QVERIFY(root.isValid());
   QDir directory(root.path());
+  QVERIFY(directory.mkdir(".sync"));
+  QVERIFY(directory.cd(".sync"));
   QVERIFY(directory.mkdir("direct"));
   QVERIFY(directory.mkpath("outer/nested"));
+  QVERIFY(directory.mkpath(".hidden/ignoredRepository"));
+  QVERIFY(directory.mkpath("Build/nestedRepository"));
   git::Repository direct = git::Repository::init(directory.filePath("direct"));
   git::Repository nested =
       git::Repository::init(directory.filePath("outer/nested"));
+  git::Repository hiddenRepository =
+      git::Repository::init(directory.filePath(".hidden/ignoredRepository"));
+  git::Repository buildRepository =
+      git::Repository::init(directory.filePath("Build/nestedRepository"));
   QVERIFY(directory.mkdir("project"));
   git::Repository project =
       git::Repository::init(directory.filePath("project"));
   QVERIFY(direct.isValid());
   QVERIFY(nested.isValid());
+  QVERIFY(hiddenRepository.isValid());
+  QVERIFY(buildRepository.isValid());
   QVERIFY(project.isValid());
 
   Test::initRepo(project);
@@ -835,7 +861,7 @@ void TestLocalWorkspaces::synchronizedDirectory() {
 
   LocalWorkspace workspace;
   workspace.name = "Synchronized";
-  workspace.syncDirectory = root.path();
+  workspace.syncDirectory = directory.path();
   workspace.syncEnabled = true;
   LocalWorkspaces *workspaces = LocalWorkspaces::instance();
   QString error;
@@ -850,6 +876,8 @@ void TestLocalWorkspaces::synchronizedDirectory() {
                         projectPath}));
   QCOMPARE(stored->synchronizedRepositories, stored->repositories);
   QVERIFY(stored->manualRepositories.isEmpty());
+  QVERIFY(!stored->repositories.contains(hiddenRepository.dir(false).path()));
+  QVERIFY(!stored->repositories.contains(buildRepository.dir(false).path()));
   QVERIFY(!stored->repositories.contains(submodulePath));
 
   QStringList invalid;
@@ -891,6 +919,55 @@ void TestLocalWorkspaces::synchronizedDirectory() {
   QTRY_VERIFY_WITH_TIMEOUT(workspaces->workspace(workspace.id)
                                ->repositories.contains(createdLaterPath),
                            3000);
+}
+
+void TestLocalWorkspaces::synchronizedBuildDirectoryIsSkippedAtRoot() {
+  clearWorkspaces();
+  QTemporaryDir root;
+  QVERIFY(root.isValid());
+  QDir directory(root.path());
+  QVERIFY(directory.mkpath("Build/nestedRepository"));
+  QVERIFY(directory.mkpath(
+      "build/tmp/work/all-tdx-linux/ca-certificates/20211016/git"));
+  const git::Repository repository =
+      git::Repository::init(directory.filePath("Build/nestedRepository"));
+  const git::Repository yoctoRepository =
+      git::Repository::init(directory.filePath(
+          "build/tmp/work/all-tdx-linux/ca-certificates/20211016/git"));
+  QVERIFY(repository.isValid());
+  QVERIFY(yoctoRepository.isValid());
+
+  LocalWorkspace workspace;
+  workspace.id = "build-directory-sync-root";
+  workspace.name = "Build directory sync root";
+  workspace.syncDirectory = directory.filePath("Build");
+  workspace.syncEnabled = true;
+
+  LocalWorkspaces *workspaces = LocalWorkspaces::instance();
+  QString error;
+  QVERIFY2(workspaces->add(workspace, &error), qPrintable(error));
+  QVERIFY2(workspaces->rescanSynchronizedDirectory(workspace.id, &error),
+           qPrintable(error));
+
+  const LocalWorkspace *stored = workspaces->workspace(workspace.id);
+  QVERIFY(stored);
+  QVERIFY(stored->repositories.isEmpty());
+  QVERIFY(stored->synchronizedRepositories.isEmpty());
+
+  LocalWorkspace workspaceInsideBuild;
+  workspaceInsideBuild.id = "workspace-inside-build-directory";
+  workspaceInsideBuild.name = "Workspace inside build directory";
+  workspaceInsideBuild.syncDirectory = directory.filePath("build/tmp/work");
+  workspaceInsideBuild.syncEnabled = true;
+  QVERIFY2(workspaces->add(workspaceInsideBuild, &error), qPrintable(error));
+  QVERIFY2(
+      workspaces->rescanSynchronizedDirectory(workspaceInsideBuild.id, &error),
+      qPrintable(error));
+
+  stored = workspaces->workspace(workspaceInsideBuild.id);
+  QVERIFY(stored);
+  QVERIFY(stored->repositories.isEmpty());
+  QVERIFY(stored->synchronizedRepositories.isEmpty());
 }
 
 void TestLocalWorkspaces::manualRepositorySurvivesSynchronization() {

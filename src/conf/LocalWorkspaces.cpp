@@ -86,6 +86,16 @@ QString normalizedDirectoryPath(const QString &path) {
   return QDir::cleanPath(normalized);
 }
 
+bool containsBuildDirectory(const QString &path) {
+  const QString normalized = QDir::fromNativeSeparators(QDir::cleanPath(path));
+  const QStringList components = normalized.split('/', Qt::SkipEmptyParts);
+  for (const QString &component : components) {
+    if (component.compare(QStringLiteral("build"), Qt::CaseInsensitive) == 0)
+      return true;
+  }
+  return false;
+}
+
 QStringList normalizedRepositories(const QStringList &repositories) {
   QStringList result;
   for (const QString &path : repositories) {
@@ -119,7 +129,8 @@ void walkSynchronizedDirectory(
     return;
 
   const QString normalized = normalizedDirectoryPath(path);
-  if (normalized.isEmpty())
+  if (normalized.isEmpty() || containsBuildDirectory(path) ||
+      containsBuildDirectory(normalized))
     return;
 
   const QString key = util::pathCompareKey(normalized);
@@ -152,13 +163,16 @@ void walkSynchronizedDirectory(
   if (cancelled && cancelled->load())
     return;
 
-  const QFileInfoList children =
-      QDir(path).entryInfoList(QDir::Dirs | QDir::Hidden | QDir::NoDotAndDotDot,
-                               QDir::Name | QDir::IgnoreCase);
-  for (const QFileInfo &child : children)
+  // Hidden directories may contain large generated or metadata trees.
+  const QFileInfoList children = QDir(path).entryInfoList(
+      QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name | QDir::IgnoreCase);
+  for (const QFileInfo &child : children) {
+    if (child.fileName().startsWith(QLatin1Char('.')))
+      continue;
     walkSynchronizedDirectory(child.absoluteFilePath(), false, repositories,
                               watchedDirectories, visited, cancelled,
                               repositoryDiscovered, directoryDiscovered);
+  }
 }
 
 bool scanSynchronizedDirectory(
