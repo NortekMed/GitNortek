@@ -10,13 +10,11 @@
 #include "Test.h"
 #include "dialogs/AmendDialog.h"
 #include "dialogs/CloneDialog.h"
-#include "dialogs/StartDialog.h"
 #include "qnamespace.h"
 #include "ui/CommitList.h"
 #include "ui/DetailView.h"
 #include "ui/DiffView/DiffView.h"
 #include "ui/DoubleTreeWidget.h"
-#include "ui/Footer.h"
 #include "ui/MainWindow.h"
 #include "ui/MenuBar.h"
 #include "ui/RepoView.h"
@@ -54,34 +52,18 @@ void TestInitRepo::initTestCase() {
   if (dir.cd("test_init_repo"))
     QVERIFY(dir.removeRecursively());
 
-  StartDialog *dialog = StartDialog::openSharedInstance();
-  QVERIFY(qWaitForWindowActive(dialog));
-
-  // Find the first button in the first footer.
-  Footer *footer = dialog->findChild<Footer *>();
-  QToolButton *plus = footer->findChild<QToolButton *>();
-
-  // Set up timer to dismiss the popup.
-  QTimer::singleShot(500, [] {
-    QMenu *menu = qobject_cast<QMenu *>(QApplication::activePopupWidget());
-    QVERIFY(menu);
-
-    keyClick(menu, Qt::Key_Down);
-    keyClick(menu, Qt::Key_Down);
-    keyClick(menu, Qt::Key_Down);
-    keyClick(menu, Qt::Key_Return);
+  auto *cloneDialog = new CloneDialog(CloneDialog::Init);
+  connect(cloneDialog, &QDialog::accepted, this, [this, cloneDialog] {
+    if (MainWindow *window = MainWindow::open(
+            cloneDialog->path(), true, MainWindow::OpenSource::Other,
+            cloneDialog->updateSubmodules())) {
+      mWindow = window;
+      window->currentView()->addLogEntry(cloneDialog->message(),
+                                         cloneDialog->messageTitle());
+    }
   });
-
-  {
-    auto timeout = Timeout(1000, "Start dialog didn't close in time");
-
-    // Show popup menu.
-    mouseClick(plus, Qt::LeftButton);
-  }
-
-  CloneDialog *cloneDialog =
-      qobject_cast<CloneDialog *>(QApplication::activeModalWidget());
-  QVERIFY(cloneDialog);
+  cloneDialog->open();
+  QVERIFY(qWaitForWindowActive(cloneDialog));
 
   // Set fields.
   cloneDialog->setField("name", "test_init_repo");
@@ -138,10 +120,8 @@ void TestInitRepo::addFile() {
 
   QStackedWidget *primaryView =
       view->findChild<QStackedWidget *>("RepositoryPrimaryView");
-  QWidget *fileInspection =
-      view->findChild<QWidget *>("FileInspectionView");
-  QToolButton *close =
-      view->findChild<QToolButton *>("CloseFileInspection");
+  QWidget *fileInspection = view->findChild<QWidget *>("FileInspectionView");
+  QToolButton *close = view->findChild<QToolButton *>("CloseFileInspection");
   QVERIFY(primaryView);
   QVERIFY(fileInspection);
   QVERIFY(close);
@@ -197,8 +177,7 @@ void TestInitRepo::addFile() {
   QModelIndex stagedFile = stagedFiles->model()->index(0, 0);
   stagedFiles->selectionModel()->select(stagedFile,
                                         QItemSelectionModel::Select);
-  QVERIFY(
-      QMetaObject::invokeMethod(stagedFiles, "fileSelectionRequested"));
+  QVERIFY(QMetaObject::invokeMethod(stagedFiles, "fileSelectionRequested"));
   QCOMPARE(primaryView->currentWidget(), fileInspection);
   close->click();
 }

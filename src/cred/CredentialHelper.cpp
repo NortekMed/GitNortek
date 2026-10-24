@@ -83,24 +83,32 @@ QVector<CredentialHelper::HelperInformation>
 CredentialHelper::getAvailableHelperInformation() {
   QVector<HelperInformation> list;
   list.append(HelperInformation(
-      cacheStoreName, tr("Caching the credentials in the RAM. Required to "
-                         "enter credentials on every startup")));
+      cacheStoreName,
+      tr("Credentials are cached in memory and are not saved to disk."),
+      tr("Memory only; temporary")));
   list.append(HelperInformation(
-      storeStoreName, tr("Storing the credentials unencrypted on disk, "
-                         "protected only by filesystem permissions <a "
-                         "href=\"https://git-scm.com/docs/"
-                         "git-credential-store\">git-credential-store</a>")));
+      storeStoreName,
+      tr("Credentials are stored unencrypted in ~/.git-credentials and are "
+         "protected only by filesystem permissions. See <a "
+         "href=\"https://git-scm.com/docs/git-credential-store\">"
+         "git-credential-store</a>."),
+      tr("Credential file; unencrypted")));
 #if defined(Q_OS_MAC)
-  list.append(
-      HelperInformation(osxKeyChainStoreName, tr("MacOS credential manager")));
+  list.append(HelperInformation(osxKeyChainStoreName,
+                                tr("macOS Keychain credential manager."),
+                                tr("macOS Keychain")));
 #elif defined(Q_OS_WIN)
-  list.append(
-      HelperInformation(winCredStoreName, tr("Windows credential manager")));
+  list.append(HelperInformation(winCredStoreName,
+                                tr("Windows Credential Manager."),
+                                tr("Windows Credential Manager")));
 #else
   QLibrary lib("secret-1", 0);
   if (lib.load()) {
-    list.append(HelperInformation(libSecretStoreName,
-                                  tr("Secret Service D-Bus client library")));
+    list.append(HelperInformation(
+        libSecretStoreName,
+        tr("Uses the Linux Secret Service desktop keyring. Git's "
+           "git-credential-libsecret helper must also be installed."),
+        tr("Linux desktop keyring")));
   }
   // libsecret replaces libgnome-keyring.
   QLibrary lib2(gnomeKeyringStoreName, 0);
@@ -109,7 +117,8 @@ CredentialHelper::getAvailableHelperInformation() {
         gnomeKeyringStoreName,
         tr("Prefer <a "
            "href=\"https://wiki.gnome.org/Projects/Libsecret\">libsecret</a> "
-           "over gnome-keyring if available")));
+           "over gnome-keyring if available."),
+        tr("GNOME Keyring")));
   }
 #endif
   return list;

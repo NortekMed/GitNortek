@@ -18,6 +18,7 @@ add_library(
   ExternalToolsDialog.cpp
   ExternalToolsModel.cpp
   FastIssueDialog.cpp
+  GlobalGitConfigChange.cpp
   HotkeysPanel.cpp
   IconLabel.cpp
   LocalWorkspaceDialog.cpp

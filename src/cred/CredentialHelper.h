@@ -34,10 +34,12 @@ public:
   static void setLoggingEnabled(bool enabled);
 
   struct HelperInformation {
-    HelperInformation(const QString &name, const QString &description)
-        : name(name), description(description) {}
+    HelperInformation(const QString &name, const QString &description,
+                      const QString &summary)
+        : name(name), description(description), summary(summary) {}
     QString name;
     QString description;
+    QString summary;
   };
 
   static QVector<HelperInformation> getAvailableHelperInformation();

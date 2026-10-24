@@ -31,8 +31,6 @@
 
 namespace {
 
-const QString kPathKey = "repo/path";
-
 class RemotePage : public QWizardPage {
   Q_OBJECT
 
@@ -48,8 +46,10 @@ public:
 
     if (repo) {
       mProtocol = new QComboBox(this);
+      mProtocol->setObjectName("RepositoryProtocol");
       mProtocol->addItem("HTTPS", Repository::Https);
       mProtocol->addItem("SSH", Repository::Ssh);
+      mProtocol->setCurrentIndex(mProtocol->findData(Repository::Ssh));
 
       // Reset URL when the protocol changes.
       using Signal = void (QComboBox::*)(int);
@@ -62,13 +62,14 @@ public:
 
     QFrame *url = new QFrame(this);
     mUrl = new QLineEdit(url);
+    mUrl->setObjectName("RemoteUrl");
     mUrl->setMinimumWidth(mUrl->sizeHint().width() * 2);
     connect(mUrl, &QLineEdit::textChanged, this, &RemotePage::completeChanged);
 
     QPushButton *browse = nullptr;
     if (repo) {
       mUrl->setReadOnly(true);
-      mUrl->setText(repo->url(Repository::Https));
+      mUrl->setText(repo->url(Repository::Ssh));
     } else {
       browse = new QPushButton(tr("..."), url);
       connect(browse, &QPushButton::clicked, [this]() {
@@ -142,6 +143,7 @@ public:
 
     QFrame *path = new QFrame(this);
     mPath = new QLineEdit(path);
+    mPath->setObjectName("RepositoryDirectory");
     mPath->setMinimumWidth(mPath->sizeHint().width() * 2);
     connect(mPath, &QLineEdit::textChanged, this, &LocationPage::updateLabel);
 
@@ -226,7 +228,7 @@ public:
     QUrl url(field("url").toString());
     QString name = QFileInfo(url.path()).fileName();
     mName->setText(name.endsWith(".git") ? name.chopped(4) : name);
-    mPath->setText(QSettings().value(kPathKey, QDir::homePath()).toString());
+    mPath->setText(QDir::homePath());
   }
 
 private:
@@ -358,7 +360,6 @@ void CloneDialog::accept() {
   bool bare = field("bare").toBool();
   if (git::Repository::open(path).isValid() ||
       git::Repository::init(path, bare).isValid()) {
-    QSettings().setValue(kPathKey, field("path"));
     QDialog::accept();
   }
 

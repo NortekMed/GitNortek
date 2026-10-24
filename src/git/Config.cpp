@@ -74,10 +74,8 @@ bool Config::value<bool>(const QString &key, const bool &defaultValue) const {
   return value;
 }
 
-template <> void Config::setValue<bool>(const QString &key, const bool &value) {
-  if (isValid()) {
-    git_config_set_bool(d.data(), key.toUtf8(), value);
-  }
+template <> bool Config::setValue<bool>(const QString &key, const bool &value) {
+  return isValid() && git_config_set_bool(d.data(), key.toUtf8(), value) == 0;
 }
 
 template <>
@@ -89,10 +87,8 @@ int Config::value<int>(const QString &key, const int &defaultValue) const {
   return value;
 }
 
-template <> void Config::setValue<int>(const QString &key, const int &value) {
-  if (isValid()) {
-    git_config_set_int32(d.data(), key.toUtf8(), value);
-  }
+template <> bool Config::setValue<int>(const QString &key, const int &value) {
+  return isValid() && git_config_set_int32(d.data(), key.toUtf8(), value) == 0;
 }
 
 template <>
@@ -110,10 +106,9 @@ QString Config::value<QString>(const QString &key,
 }
 
 template <>
-void Config::setValue<QString>(const QString &key, const QString &value) {
-  if (isValid()) {
-    git_config_set_string(d.data(), key.toUtf8(), value.toUtf8());
-  }
+bool Config::setValue<QString>(const QString &key, const QString &value) {
+  return isValid() &&
+         git_config_set_string(d.data(), key.toUtf8(), value.toUtf8()) == 0;
 }
 
 bool Config::remove(const QString &key) {

@@ -20,7 +20,6 @@ class MainWindow;
 class QDialogButtonBox;
 class QListView;
 class QPushButton;
-class QTreeView;
 
 class StartDialog : public QDialog {
   Q_OBJECT
@@ -41,21 +40,18 @@ private:
 
   void edit(const QModelIndex &index = QModelIndex());
   void remove();
+  void removeRepositoryAssociation();
 
-  MainWindow *openWindow(
-      const QString &repo,
-      std::optional<bool> updateSubmodules = std::nullopt);
+  MainWindow *openWindow(const QString &repo,
+                         std::optional<bool> updateSubmodules = std::nullopt);
 
   QHash<QString, bool> mSubmoduleUpdateOverrides;
 
-  QListView *mRepoList;
-  Footer *mRepoFooter;
-  QAction *mClone;
-  QAction *mOpen;
-  QAction *mInit;
+  QListView *mAccountList;
+  Footer *mAccountFooter;
 
-  QTreeView *mHostTree;
-  Footer *mHostFooter;
+  QListView *mRemoteRepoList;
+  Footer *mRemoteRepoFooter;
 
   QDialogButtonBox *mButtonBox;
 };

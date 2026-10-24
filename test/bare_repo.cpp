@@ -10,12 +10,8 @@
 #include "Test.h"
 #include "Debug.h"
 #include "dialogs/CloneDialog.h"
-#include "dialogs/StartDialog.h"
-#include "ui/Footer.h"
 #include "ui/MainWindow.h"
 #include "ui/RepoView.h"
-#include <QMenu>
-#include <QToolButton>
 
 using namespace Test;
 using namespace QTest;
@@ -33,34 +29,14 @@ private:
 };
 
 void TestBareRepo::initTestCase() {
-  StartDialog *dialog = StartDialog::openSharedInstance();
-  QVERIFY(qWaitForWindowExposed(dialog));
-
-  // Find the first button in the first footer.
-  Footer *footer = dialog->findChild<Footer *>();
-  QToolButton *plus = footer->findChild<QToolButton *>();
-
-  // Set up timer to dismiss the popup.
-  QTimer::singleShot(500, [] {
-    QMenu *menu = qobject_cast<QMenu *>(QApplication::activePopupWidget());
-    QVERIFY(menu);
-
-    keyClick(menu, Qt::Key_Down);
-    keyClick(menu, Qt::Key_Down);
-    keyClick(menu, Qt::Key_Down);
-    keyClick(menu, Qt::Key_Return);
+  auto *cloneDialog = new CloneDialog(CloneDialog::Init);
+  connect(cloneDialog, &QDialog::accepted, this, [this, cloneDialog] {
+    mWindow = MainWindow::open(cloneDialog->path(), true,
+                               MainWindow::OpenSource::Other,
+                               cloneDialog->updateSubmodules());
   });
-
-  {
-    auto timeout = Timeout(1000, "Start dialog hasn't been dismissed in time");
-
-    // Show popup menu.
-    mouseClick(plus, Qt::LeftButton);
-  }
-
-  CloneDialog *cloneDialog =
-      qobject_cast<CloneDialog *>(QApplication::activeModalWidget());
-  QVERIFY(cloneDialog);
+  cloneDialog->open();
+  QVERIFY(qWaitForWindowActive(cloneDialog));
 
   // Set fields.
   cloneDialog->setField("name", "test_bare_repo");

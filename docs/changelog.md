@@ -57,6 +57,10 @@ Bug Fix and Feature release
 
 #### Changed
 
+* Clarify the global Git credential helper choices and require confirmation before changing global Git settings from the General, Diff, and Tools settings pages
+
+* Simplify the repository chooser into separate remote-account and account-repository panels, with a single Clone other repository button; default clone protocol to SSH and the destination directory to the home folder
+
 * Display cached repositories immediately on startup; show a scan indicator and add repositories incrementally when synchronizing local workspaces
 
 * Skip hidden directories and directories named `build` during recursive repository discovery in synchronized local workspaces

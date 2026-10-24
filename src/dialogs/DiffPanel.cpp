@@ -10,6 +10,7 @@
 #include "DiffPanel.h"
 #include "ConfigDialog.h"
 #include "conf/Settings.h"
+#include "dialogs/GlobalGitConfigChange.h"
 #include "git/Config.h"
 #include "ui/MainWindow.h"
 #include "ui/RepoView.h"
@@ -21,12 +22,16 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QSpinBox>
+#include <QSignalBlocker>
 
 DiffPanel::DiffPanel(const git::Repository &repo, QWidget *parent)
     : QWidget(parent),
       mConfig(repo ? repo.gitConfig() : git::Config::global()) {
+  const bool globalConfig = !repo.isValid();
+
   // diff context
   QSpinBox *context = new QSpinBox(this);
+  context->setObjectName("GlobalGitDiffContext");
   QLabel *contextLabel = new QLabel(tr("lines"), this);
   QHBoxLayout *contextLayout = new QHBoxLayout;
   contextLayout->addWidget(context);
@@ -34,14 +39,44 @@ DiffPanel::DiffPanel(const git::Repository &repo, QWidget *parent)
   contextLayout->addStretch();
   context->setValue(mConfig.value<int>("diff.context", 3));
 
-  auto contextSignal = QOverload<int>::of(&QSpinBox::valueChanged);
-  connect(context, contextSignal, [this](int value) {
-    mConfig.setValue("diff.context", value);
+  auto refreshViews = [] {
     foreach (MainWindow *window, MainWindow::windows()) {
       for (int i = 0; i < window->count(); ++i)
         window->view(i)->refresh();
     }
-  });
+  };
+  if (globalConfig) {
+    connect(context, &QSpinBox::editingFinished, this,
+            [this, context, refreshViews] {
+              const int oldValue = mConfig.value<int>("diff.context", 3);
+              const int newValue = context->value();
+              if (oldValue == newValue)
+                return;
+
+              bool applied = applyGlobalGitConfigChange(
+                  this, "diff.context", QString::number(oldValue),
+                  QString::number(newValue), [newValue](git::Config &global) {
+                    return global.setValue("diff.context", newValue);
+                  });
+              if (!applied) {
+                QSignalBlocker blocker(context);
+                context->setValue(oldValue);
+                return;
+              }
+              refreshViews();
+            });
+  } else {
+    auto contextSignal = QOverload<int>::of(&QSpinBox::valueChanged);
+    connect(context, contextSignal, this,
+            [this, context, refreshViews](int value) {
+              if (!mConfig.setValue("diff.context", value)) {
+                QSignalBlocker blocker(context);
+                context->setValue(mConfig.value<int>("diff.context", 3));
+                return;
+              }
+              refreshViews();
+            });
+  }
 
   // encoding
 
@@ -51,6 +86,7 @@ DiffPanel::DiffPanel(const git::Repository &repo, QWidget *parent)
   };
 
   QComboBox *encoding = new QComboBox(this);
+  encoding->setObjectName("GlobalGitEncoding");
   encoding->addItem(tr("System Locale"), -1);
   encoding->insertSeparator(encoding->count());
   for (int i = 0; i < encodings.size(); i++) {
@@ -61,18 +97,41 @@ DiffPanel::DiffPanel(const git::Repository &repo, QWidget *parent)
     encoding->setCurrentIndex(encoding->findText(name));
 
   auto encodingSignal = QOverload<int>::of(&QComboBox::currentIndexChanged);
-  connect(encoding, encodingSignal, [this, encoding](int index) {
-    if (encoding->itemData(index).toInt() < 0) {
-      mConfig.remove("gui.encoding");
-    } else {
-      mConfig.setValue("gui.encoding", encoding->itemText(index));
-    }
+  connect(encoding, encodingSignal, this,
+          [this, encoding, globalConfig, refreshViews](int index) {
+            const QString oldValue = mConfig.value<QString>("gui.encoding");
+            const QString newValue = encoding->itemData(index).toInt() < 0
+                                         ? QString()
+                                         : encoding->itemText(index);
+            if (oldValue == newValue)
+              return;
 
-    foreach (MainWindow *window, MainWindow::windows()) {
-      for (int i = 0; i < window->count(); ++i)
-        window->view(i)->refresh();
-    }
-  });
+            bool applied = true;
+            if (globalConfig) {
+              applied = applyGlobalGitConfigChange(
+                  this, "gui.encoding", oldValue, newValue,
+                  [newValue](git::Config &global) {
+                    return newValue.isEmpty()
+                               ? global.remove("gui.encoding")
+                               : global.setValue("gui.encoding", newValue);
+                  });
+            } else if (newValue.isEmpty()) {
+              applied = mConfig.remove("gui.encoding");
+            } else {
+              applied = mConfig.setValue("gui.encoding", newValue);
+            }
+            if (!applied) {
+              QSignalBlocker blocker(encoding);
+              encoding->setCurrentIndex(
+                  oldValue.isEmpty() ? 0 : encoding->findText(oldValue));
+              return;
+            }
+
+            foreach (MainWindow *window, MainWindow::windows()) {
+              for (int i = 0; i < window->count(); ++i)
+                window->view(i)->refresh();
+            }
+          });
 
   // Wrap lines
   QCheckBox *wrapLines = new QCheckBox(tr("Wrap lines"), this);

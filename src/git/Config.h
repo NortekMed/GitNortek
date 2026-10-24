@@ -60,7 +60,7 @@ public:
   template <typename T>
   T value(const QString &key, const T &defaultValue = T()) const;
 
-  template <typename T> void setValue(const QString &key, const T &value);
+  template <typename T> bool setValue(const QString &key, const T &value);
 
   bool remove(const QString &key);
 
@@ -100,14 +100,14 @@ template <typename T> T Config::Entry::value() const {
 
 // config specializations
 template <> bool Config::value<bool>(const QString &, const bool &) const;
-template <> void Config::setValue<bool>(const QString &, const bool &);
+template <> bool Config::setValue<bool>(const QString &, const bool &);
 
 template <> int Config::value<int>(const QString &, const int &) const;
-template <> void Config::setValue<int>(const QString &, const int &);
+template <> bool Config::setValue<int>(const QString &, const int &);
 
 template <>
 QString Config::value<QString>(const QString &, const QString &) const;
-template <> void Config::setValue<QString>(const QString &, const QString &);
+template <> bool Config::setValue<QString>(const QString &, const QString &);
 
 template <typename T>
 T Config::value(const QString &key, const T &defaultValue) const {
@@ -117,9 +117,10 @@ T Config::value(const QString &key, const T &defaultValue) const {
 }
 
 template <typename T>
-void Config::setValue(const QString &key, const T &value) {
+bool Config::setValue(const QString &key, const T &value) {
   static_assert(sizeof(T) == 0, "no specialization found. Please implement "
                                 "specialization for this type!");
+  return false;
 }
 
 } // namespace git

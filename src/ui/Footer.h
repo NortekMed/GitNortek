@@ -27,6 +27,7 @@ public:
 
   void setPlusEnabled(bool enabled);
   void setMinusEnabled(bool enabled);
+  void setPlusVisible(bool visible);
   void setMinusVisible(bool visible);
 
 signals:

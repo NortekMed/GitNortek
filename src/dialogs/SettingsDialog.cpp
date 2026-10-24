@@ -17,6 +17,7 @@
 #include "app/CustomTheme.h"
 #include "conf/Settings.h"
 #include "cred/CredentialHelper.h"
+#include "dialogs/GlobalGitConfigChange.h"
 #include "git/Config.h"
 #include "log/LogEntry.h"
 #include "tools/ExternalTool.h"
@@ -44,6 +45,7 @@
 #include <QPushButton>
 #include <QSaveFile>
 #include <QShortcut>
+#include <QSignalBlocker>
 #include <QSpinBox>
 #include <QStackedWidget>
 #include <QStandardItemModel>
@@ -71,6 +73,23 @@ void populateExternalTools(QComboBox *comboBox, const QString &type) {
   std::sort(names.begin(), names.end());
   foreach (const QString &tool, names)
     comboBox->addItem(tool);
+}
+
+QString credentialHelperValue(const QComboBox *comboBox) {
+  int index = comboBox->currentIndex();
+  if (index >= 0 && comboBox->currentText() == comboBox->itemText(index))
+    return comboBox->itemData(index).toString();
+  return comboBox->currentText().trimmed();
+}
+
+void setCredentialHelperValue(QComboBox *comboBox, const QString &helper) {
+  int index = helper.isEmpty() ? -1 : comboBox->findData(helper);
+  if (index >= 0)
+    comboBox->setCurrentIndex(index);
+  else if (!helper.isEmpty())
+    comboBox->setEditText(helper);
+  else
+    comboBox->setCurrentIndex(comboBox->findData(QStringLiteral("cache")));
 }
 
 class StackedWidget : public QStackedWidget {
@@ -118,10 +137,23 @@ public:
       mLanguages->addItem(tr(i.key()), QVariant(i.value()));
     }
 
+    mName->setObjectName("GlobalGitUserName");
+    mEmail->setObjectName("GlobalGitUserEmail");
+
     mStoreCredentials =
-        new QCheckBox(tr("Store credentials in secure storage"), this);
+        new QCheckBox(tr("Set Git's global credential helper"), this);
+    mStoreCredentials->setObjectName("GlobalCredentialHelperEnabled");
+    const QString credentialHelperNote =
+        tr("This changes Git's global configuration and affects GitNortek and "
+           "other Git clients. Repository-specific settings may override it.");
+    mStoreCredentials->setToolTip(credentialHelperNote);
+    mStoreCredentials->setAccessibleDescription(credentialHelperNote);
+    QLabel *credentialHelperNoteLabel = new QLabel(credentialHelperNote, this);
+    credentialHelperNoteLabel->setWordWrap(true);
+    credentialHelperNoteLabel->setObjectName("GlobalCredentialHelperNote");
 
     mAvailableStores = new QComboBox(this);
+    mAvailableStores->setObjectName("GlobalCredentialHelperStore");
 
     QLabel *privacy = new QLabel(tr("<a href='view'>View privacy policy</a>"));
     connect(privacy, &QLabel::linkActivated,
@@ -140,6 +172,7 @@ public:
     form->addRow(tr("Language:"), mNoTranslation);
     form->addRow(tr("Language:"), mLanguages);
     form->addRow(tr("Credentials:"), mStoreCredentials);
+    form->addRow(QString(), credentialHelperNoteLabel);
     form->addRow(tr("Credential store type:"), mAvailableStores);
     form->addRow(tr("Available Credential stores:"),
                  mCredentialStoresDescription);
@@ -161,15 +194,26 @@ public:
     init();
 
     // Connect signals after initializing fields.
-    connect(mName, &QLineEdit::textChanged, [](const QString &text) {
-      git::Config config = git::Config::global();
-      config.setValue("user.name", text);
-    });
+    auto connectGlobalText = [this](QLineEdit *field, const QString &key) {
+      connect(field, &QLineEdit::editingFinished, this, [this, field, key] {
+        git::Config config = git::Config::global();
+        const QString oldValue = config.value<QString>(key);
+        const QString newValue = field->text();
+        if (oldValue == newValue)
+          return;
 
-    connect(mEmail, &QLineEdit::textChanged, [](const QString &text) {
-      git::Config config = git::Config::global();
-      config.setValue("user.email", text);
-    });
+        bool applied = applyGlobalGitConfigChange(
+            this, key, oldValue, newValue,
+            [key, newValue](git::Config &global) {
+              return newValue.isEmpty() ? global.remove(key)
+                                        : global.setValue(key, newValue);
+            });
+        if (!applied)
+          field->setText(oldValue);
+      });
+    };
+    connectGlobalText(mName, "user.name");
+    connectGlobalText(mEmail, "user.email");
 
     connect(mFetch, &QCheckBox::toggled, this, [](bool checked) {
       Settings::instance()->setValue(Setting::Id::FetchAutomatically, checked);
@@ -214,26 +258,63 @@ public:
               Settings::instance()->setValue(Setting::Id::Language, language);
             });
 
-    connect(mStoreCredentials, &QCheckBox::toggled, [this](bool checked) {
+    connect(mStoreCredentials, &QCheckBox::toggled, this, [this](bool checked) {
       git::Config config = git::Config::global();
+      const QString oldValue = config.value<QString>("credential.helper");
+      const QString helper = credentialHelperValue(mAvailableStores);
+      const QString newValue = checked ? helper : QString();
+      bool applied = applyGlobalGitConfigChange(
+          this, "credential.helper", oldValue, newValue,
+          [checked, newValue](git::Config &global) {
+            return checked ? global.setValue("credential.helper", newValue)
+                           : global.remove("credential.helper");
+          });
+
+      if (!applied) {
+        QSignalBlocker checkboxBlocker(mStoreCredentials);
+        QSignalBlocker comboBlocker(mAvailableStores);
+        mStoreCredentials->setChecked(!checked);
+        mAvailableStores->setEnabled(!checked);
+        setCredentialHelperValue(mAvailableStores, oldValue);
+        return;
+      }
+
       mAvailableStores->setEnabled(checked);
-      if (checked) {
-        auto store = mAvailableStores->currentText();
-        config.setValue("credential.helper", store);
-      } else {
-        config.remove("credential.helper");
+      if (!checked) {
+        QSignalBlocker comboBlocker(mAvailableStores);
+        setCredentialHelperValue(mAvailableStores, QString());
       }
 
       delete CredentialHelper::instance();
     });
 
-    connect(mAvailableStores, &QComboBox::currentTextChanged,
-            [](const QString &text) {
-              git::Config config = git::Config::global();
-              config.setValue("credential.helper", text);
+    auto storeSelected = [this] {
+      if (!mStoreCredentials->isChecked())
+        return;
 
-              delete CredentialHelper::instance();
-            });
+      git::Config config = git::Config::global();
+      const QString oldValue = config.value<QString>("credential.helper");
+      const QString newValue = credentialHelperValue(mAvailableStores);
+      if (newValue.isEmpty() || newValue == oldValue)
+        return;
+
+      bool applied = applyGlobalGitConfigChange(
+          this, "credential.helper", oldValue, newValue,
+          [newValue](git::Config &global) {
+            return global.setValue("credential.helper", newValue);
+          });
+      if (!applied) {
+        QSignalBlocker comboBlocker(mAvailableStores);
+        setCredentialHelperValue(mAvailableStores, oldValue);
+        return;
+      }
+
+      delete CredentialHelper::instance();
+    };
+    connect(mAvailableStores, QOverload<int>::of(&QComboBox::activated), this,
+            [storeSelected](int) { storeSelected(); });
+    connect(mAvailableStores->lineEdit(), &QLineEdit::editingFinished, this,
+            storeSelected);
 
     connect(mSingleInstance, &QCheckBox::toggled, [](bool checked) {
       Settings::instance()->setValue(Setting::Id::AllowSingleInstanceOnly,
@@ -277,12 +358,6 @@ public:
 
     auto currentHelper = config.value<QString>("credential.helper");
     auto checked = CredentialHelper::isHelperValid(currentHelper);
-    if (!checked) {
-      QMessageBox msg(QMessageBox::Information, tr("No credential store set"),
-                      tr("No credential store is set. Go to the application "
-                         "settings to set the desired credential store"));
-      msg.exec();
-    }
     mStoreCredentials->setChecked(checked);
 
     QString info = tr("") + "<table>";
@@ -290,14 +365,19 @@ public:
          CredentialHelper::getAvailableHelperInformation()) {
       info += QStringLiteral("<tr><td><b>%1</b></td><td>%2</td><td>")
                   .arg(helper.name, helper.description);
-      mAvailableStores->addItem(helper.name);
+      mAvailableStores->addItem(
+          QStringLiteral("%1 — %2").arg(helper.name, helper.summary),
+          helper.name);
+      mAvailableStores->setItemData(mAvailableStores->count() - 1,
+                                    helper.description, Qt::ToolTipRole);
     }
     info += "</table>";
     mCredentialStoresDescription->setText(info);
     mAvailableStores->setToolTip(tr("Available Credential stores"));
     mAvailableStores->setWhatsThis(info);
     mAvailableStores->setEditable(true);
-    mAvailableStores->setCurrentText(currentHelper);
+    setCredentialHelperValue(mAvailableStores, currentHelper);
+    mAvailableStores->setEnabled(checked);
 
     mSingleInstance->setChecked(
         settings->value(Setting::Id::AllowSingleInstanceOnly).toBool());
@@ -329,15 +409,23 @@ public:
       : QWidget(parent), mConfig(git::Config::global()) {
     // external editor
     QLineEdit *editTool = new QLineEdit(this);
+    editTool->setObjectName("GlobalGitEditor");
     editTool->setText(mConfig.value<QString>("gui.editor"));
-    connect(editTool, &QLineEdit::textChanged, this,
-            [this](const QString &text) {
-              if (text.isEmpty()) {
-                mConfig.remove("gui.editor");
-              } else {
-                mConfig.setValue("gui.editor", text);
-              }
-            });
+    connect(editTool, &QLineEdit::editingFinished, this, [this, editTool] {
+      const QString oldValue = mConfig.value<QString>("gui.editor");
+      const QString newValue = editTool->text();
+      if (oldValue == newValue)
+        return;
+
+      bool applied = applyGlobalGitConfigChange(
+          this, "gui.editor", oldValue, newValue,
+          [newValue](git::Config &global) {
+            return newValue.isEmpty() ? global.remove("gui.editor")
+                                      : global.setValue("gui.editor", newValue);
+          });
+      if (!applied)
+        editTool->setText(oldValue);
+    });
 
     // external diff/merge
     QHBoxLayout *diffTool = externalTools("diff");
@@ -346,9 +434,19 @@ public:
     // backup files
     QCheckBox *backup =
         new QCheckBox(tr("Keep backup of merge files (.orig)"), this);
+    backup->setObjectName("GlobalGitMergeKeepBackup");
     backup->setChecked(mConfig.value<bool>("mergetool.keepBackup"));
-    connect(backup, &QCheckBox::toggled, this, [this](bool checked) {
-      mConfig.setValue("mergetool.keepBackup", checked);
+    connect(backup, &QCheckBox::toggled, this, [this, backup](bool checked) {
+      const bool oldValue = mConfig.value<bool>("mergetool.keepBackup");
+      bool applied = applyGlobalGitConfigChange(
+          this, "mergetool.keepBackup", oldValue ? "true" : "false",
+          checked ? "true" : "false", [checked](git::Config &global) {
+            return global.setValue("mergetool.keepBackup", checked);
+          });
+      if (!applied) {
+        QSignalBlocker blocker(backup);
+        backup->setChecked(oldValue);
+      }
     });
 
     QFormLayout *layout = new QFormLayout(this);
@@ -391,11 +489,26 @@ private:
     QString key = QString("%1.tool").arg(type);
     QString name = mConfig.value<QString>(key);
     comboBox->setCurrentIndex(comboBox->findText(name));
+    comboBox->setObjectName(type == "diff" ? "GlobalGitDiffTool"
+                                           : "GlobalGitMergeTool");
 
     // React to combo box selections.
     auto signal = QOverload<int>::of(&QComboBox::currentIndexChanged);
     connect(comboBox, signal, this, [this, key, comboBox](int index) {
-      mConfig.setValue(key, comboBox->currentText());
+      const QString oldValue = mConfig.value<QString>(key);
+      const QString newValue = comboBox->currentText();
+      if (oldValue == newValue)
+        return;
+
+      bool applied = applyGlobalGitConfigChange(
+          this, key, oldValue, newValue, [key, newValue](git::Config &global) {
+            return newValue.isEmpty() ? global.remove(key)
+                                      : global.setValue(key, newValue);
+          });
+      if (!applied) {
+        QSignalBlocker blocker(comboBox);
+        comboBox->setCurrentIndex(comboBox->findText(oldValue));
+      }
     });
 
     QPushButton *configure = new QPushButton(tr("Configure"), this);
@@ -405,6 +518,7 @@ private:
       // Update combo box when external tools dialog closes.
       connect(dialog, &QDialog::finished, this, [comboBox, type] {
         QString name = comboBox->currentText();
+        QSignalBlocker blocker(comboBox);
         populateExternalTools(comboBox, type);
         comboBox->setCurrentIndex(comboBox->findText(name));
       });

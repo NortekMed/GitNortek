@@ -9,9 +9,11 @@
 
 #include "ExternalToolsModel.h"
 #include "conf/Settings.h"
+#include "dialogs/GlobalGitConfigChange.h"
 #include "git/Config.h"
 #include <QDirIterator>
 #include <QSet>
+#include <QWidget>
 
 ExternalToolsModel::ExternalToolsModel(const QString &type, bool detected,
                                        QObject *parent)
@@ -79,13 +81,13 @@ bool ExternalToolsModel::setData(const QModelIndex &index,
     return false;
 
   const ExternalTool::Info &tool = mEntries[index.row()];
+  const QString oldName = tool.name;
   QString name = tool.name;
   QString cmd = tool.command;
   QString args = tool.arguments;
 
   switch (index.column()) {
     case Name:
-      remove(name);
       name = value.toString();
       break;
 
@@ -98,8 +100,30 @@ bool ExternalToolsModel::setData(const QModelIndex &index,
       break;
   }
 
-  QString key = QString("%1tool.%2.cmd").arg(mType, name);
-  git::Config::global().setValue(key, QString("%1 %2").arg(cmd, args));
+  const QString oldKey = QString("%1tool.%2.cmd").arg(mType, oldName);
+  const QString newKey = QString("%1tool.%2.cmd").arg(mType, name);
+  const QString oldValue = git::Config::global().value<QString>(oldKey);
+  const QString newValue = QString("%1 %2").arg(cmd, args);
+  const QString displayKey =
+      oldKey == newKey ? oldKey : QString("%1 → %2").arg(oldKey, newKey);
+  const QString displayOld =
+      oldKey == newKey ? oldValue
+                       : QString("%1 = %2\n%3 = %4")
+                             .arg(oldKey, oldValue, newKey,
+                                  git::Config::global().value<QString>(newKey));
+  bool applied = applyGlobalGitConfigChange(
+      qobject_cast<QWidget *>(parent()), displayKey, displayOld, newValue,
+      [oldKey, newKey, oldValue, newValue](git::Config &global) {
+        if (oldKey != newKey && !global.remove(oldKey))
+          return false;
+        if (global.setValue(newKey, newValue))
+          return true;
+        if (oldKey != newKey)
+          global.setValue(oldKey, oldValue);
+        return false;
+      });
+  if (!applied)
+    return false;
 
   refresh();
   return true;
@@ -124,13 +148,25 @@ void ExternalToolsModel::add(const QString &path) {
   QString name = QFileInfo(path).baseName();
   QString key = QString("%1tool.%2.cmd").arg(mType, name);
   QString cmd = QString("\"%1\" \"$LOCAL\" \"$REMOTE\"").arg(path);
-  git::Config::global().setValue(key, cmd);
+  QString oldValue = git::Config::global().value<QString>(key);
+  if (!applyGlobalGitConfigChange(qobject_cast<QWidget *>(parent()), key,
+                                  oldValue, cmd,
+                                  [key, cmd](git::Config &global) {
+                                    return global.setValue(key, cmd);
+                                  }))
+    return;
 }
 
 void ExternalToolsModel::remove(const QString &name) {
   QString regex = QString("%1tool\\.%2\\.cmd").arg(mType, name);
   git::Config config = git::Config::global();
   git::Config::Iterator it = config.glob(regex);
-  while (git::Config::Entry entry = it.next())
-    config.remove(entry.name());
+  while (git::Config::Entry entry = it.next()) {
+    const QString key = entry.name();
+    const QString oldValue = entry.value<QString>();
+    if (!applyGlobalGitConfigChange(
+            qobject_cast<QWidget *>(parent()), key, oldValue, QString(),
+            [key](git::Config &global) { return global.remove(key); }))
+      return;
+  }
 }
