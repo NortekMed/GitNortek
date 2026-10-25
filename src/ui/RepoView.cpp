@@ -3347,9 +3347,36 @@ void RepoView::populateRemoteContextMenu(QMenu *menu) {
   if (!menu)
     return;
 
+  QAction *configureRemotes =
+      menu->addAction(tr("Configure Remotes..."), this,
+                      [this] { configureSettings(ConfigDialog::Remotes); });
+  configureRemotes->setMenuRole(QAction::NoRole);
+
+  menu->addSeparator();
+
+  menu->addAction(tr("Fetch"), this, [this] { fetch(); });
+  menu->addAction(tr("Fetch All"), this, [this] { fetchAll(); });
+  menu->addAction(tr("Fetch From..."), this, [this] {
+    auto *dialog = new RemoteDialog(RemoteDialog::Fetch, this);
+    dialog->open();
+  });
+
+  menu->addSeparator();
+
   menu->addAction(tr("Pull"), this, [this] { pull(); });
+  menu->addAction(tr("Pull From..."), this, [this] {
+    auto *dialog = new RemoteDialog(RemoteDialog::Pull, this);
+    dialog->open();
+  });
+
+  menu->addSeparator();
+
   menu->addAction(tr("Push"), this, [this] { push(); });
   menu->addAction(tr("Force Push..."), this, [this] { promptToForcePush(); });
+  menu->addAction(tr("Push To..."), this, [this] {
+    auto *dialog = new RemoteDialog(RemoteDialog::Push, this);
+    dialog->open();
+  });
 }
 
 void RepoView::populateReferenceContextMenu(QMenu *menu,

@@ -58,6 +58,8 @@ Bug Fix and Feature release
 
 #### Changed
 
+* Mirror Remote menu actions in the current-branch context menus
+
 * Clarify the global Git credential helper choices and require confirmation before changing global Git settings from the General, Diff, and Tools settings pages
 
 * Simplify the repository chooser into separate remote-account and account-repository panels, with a single Clone other repository button; default clone protocol to SSH and the destination directory to the home folder

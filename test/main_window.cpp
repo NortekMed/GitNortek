@@ -14,6 +14,7 @@
 #include "conf/LocalWorkspaces.h"
 #include "conf/Settings.h"
 #include "dialogs/FastIssueDialog.h"
+#include "dialogs/RemoteDialog.h"
 #include "dialogs/RenameBranchDialog.h"
 #include "editor/TextEditor.h"
 #include "git/Config.h"
@@ -66,6 +67,7 @@ private slots:
   void focusUpdatesOnlyEditorActions();
   void fastIssueAccess();
   void localRepositoryManagement();
+  void remoteContextMenuMirrorsRemoteMenu();
   void initialRefreshOnce();
   void navigatorRefreshCoalesced();
   void diffPresentationControls();
@@ -386,6 +388,48 @@ void TestMainWindow::localRepositoryManagement() {
   QCOMPARE(mWindow->externalToolRepositoryPath(), mRepo->workdir().path());
   QVERIFY2(LocalWorkspaces::instance()->remove(workspace.id, &error),
            qPrintable(error));
+}
+
+void TestMainWindow::remoteContextMenuMirrorsRemoteMenu() {
+  RepoView *view = mWindow->currentView();
+  QVERIFY(view);
+
+  MenuBar *menuBar = MenuBar::instance(mWindow);
+  QVERIFY(menuBar);
+  QMenu *remoteMenu = nullptr;
+  for (QAction *action : menuBar->actions()) {
+    if (action->text() == QStringLiteral("Remote")) {
+      remoteMenu = action->menu();
+      break;
+    }
+  }
+  QVERIFY(remoteMenu);
+
+  QMenu contextMenu;
+  view->populateRemoteContextMenu(&contextMenu);
+  auto entries = [](const QMenu *menu) {
+    QStringList result;
+    for (QAction *action : menu->actions()) {
+      result.append(action->isSeparator() ? QStringLiteral("<separator>")
+                                          : action->text());
+    }
+    return result;
+  };
+  QCOMPARE(entries(&contextMenu), entries(remoteMenu));
+
+  QAction *pushTo = nullptr;
+  for (QAction *action : contextMenu.actions()) {
+    if (action->text() == QStringLiteral("Push To...")) {
+      pushTo = action;
+      break;
+    }
+  }
+  QVERIFY(pushTo);
+  QVERIFY(!view->findChild<RemoteDialog *>());
+  pushTo->trigger();
+  RemoteDialog *dialog = view->findChild<RemoteDialog *>();
+  QVERIFY(dialog);
+  dialog->reject();
 }
 
 void TestMainWindow::initialRefreshOnce() {
