@@ -46,6 +46,7 @@ Bug Fix and Feature release
 * Commit checked-out submodule revisions directly from the repository navigator
 * Open the amend dialog by clicking the current HEAD commit message
 * Warn before pushing a parent commit whose initialized submodule pins cannot be proven available from their clone URLs
+* Publish a local repository to a connected hosting account when pushing without a default remote, then add the selected SSH or HTTPS remote and push the current branch
 * Add a green Stage All Changes button above the working-directory file tree
 * Show a dual-column diff overview bar in complete-file views, with left and right change markers using the editor's addition and deletion colors, alongside previous/next modified-block controls
 * Checkout the latest fetched configured branch from behind-origin submodule context menus

@@ -38,6 +38,7 @@
 #include "dialogs/MergeDialog.h"
 #include "dialogs/ModifySubmoduleDialog.h"
 #include "dialogs/NewBranchDialog.h"
+#include "dialogs/PublishRepositoryDialog.h"
 #include "dialogs/RebaseConflictDialog.h"
 #include "dialogs/RemoteDialog.h"
 #include "dialogs/RenameBranchDialog.h"
@@ -78,6 +79,7 @@
 #include <QMenu>
 #include <QtNetwork>
 #include <QPaintEvent>
+#include <QPointer>
 #include <QPushButton>
 #include <QProcess>
 #include <QStandardPaths>
@@ -1265,6 +1267,11 @@ void RepoView::visitLink(const QString &link) {
     dialog->open();
   }
 
+  if (action == "publish") {
+    promptToPublishRepository(ref);
+    return;
+  }
+
   if (action == "add-remote") {
     ConfigDialog *dialog = configureSettings(ConfigDialog::Remotes);
     dialog->addRemote(query.queryItemValue("name"));
@@ -2428,6 +2435,84 @@ void RepoView::promptToForcePush(const git::Remote &remote,
   dialog->open();
 }
 
+void RepoView::promptToPublishRepository(const git::Reference &src) {
+  if (PublishRepositoryDialog *existing =
+          findChild<PublishRepositoryDialog *>()) {
+    existing->raise();
+    existing->activateWindow();
+    return;
+  }
+
+  auto *dialog = new PublishRepositoryDialog(mRepo, this);
+  connect(dialog, &PublishRepositoryDialog::addRemoteRequested, this,
+          [this, dialog] {
+            dialog->reject();
+            ConfigDialog *settings = configureSettings(ConfigDialog::Remotes);
+            settings->addRemote(QStringLiteral("origin"));
+          });
+  connect(dialog, &PublishRepositoryDialog::publishRequested, this,
+          [this, dialog, src] {
+            Account *account = dialog->account();
+            if (!account) {
+              dialog->showError(tr("Select or add a hosting account."));
+              return;
+            }
+
+            const git::Reference reference = src.isValid() ? src : mRepo.head();
+            if (!reference.isValid()) {
+              dialog->showError(
+                  tr("Create a commit before publishing this repository."));
+              return;
+            }
+
+            const QString namespaceId = dialog->namespaceId();
+            const QString repositoryName = dialog->repositoryName();
+            const QString remoteName = dialog->remoteName();
+            const QString description = dialog->description();
+            const bool isPublic = dialog->isPublic();
+            const Repository::Protocol protocol = dialog->protocol();
+            QPointer<PublishRepositoryDialog> dialogGuard(dialog);
+            QPointer<RepoView> viewGuard(this);
+            QPointer<Account> accountGuard(account);
+
+            account->createRepository(
+                namespaceId, repositoryName, description, isPublic,
+                [dialogGuard, viewGuard, accountGuard, reference, remoteName,
+                 protocol](bool success, Repository *hostedRepository,
+                           const QString &error) {
+                  if (!dialogGuard || !viewGuard || !accountGuard)
+                    return;
+                  if (!success || !hostedRepository) {
+                    dialogGuard->showError(
+                        error.isEmpty()
+                            ? tr("The hosting service could not create the repository.")
+                            : error);
+                    return;
+                  }
+
+                  const QString url = hostedRepository->url(protocol);
+                  if (url.isEmpty()) {
+                    dialogGuard->showError(
+                        tr("The repository was created, but the hosting service did not return a clone URL."));
+                    return;
+                  }
+
+                  git::Remote remote =
+                      viewGuard->mRepo.addRemote(remoteName, url);
+                  if (!remote.isValid()) {
+                    dialogGuard->showError(
+                        tr("The hosted repository was created, but GitNortek could not add remote '%1'. Add this URL manually: %2")
+                            .arg(remoteName, url));
+                    return;
+                  }
+
+                  dialogGuard->complete();
+                  viewGuard->push(remote, reference, QString(), true);
+                });
+          });
+  dialog->open();
+}
+
 void RepoView::push(const git::Remote &rmt, const git::Reference &src,
                     const QString &dst, bool setUpstream, bool force, bool tags,
                     bool checkSubmodules) {
@@ -2497,10 +2582,9 @@ void RepoView::push(const git::Remote &rmt, const git::Reference &src,
   }
 
   QString title = !force ? tr("Push") : tr("Push (Force)");
-  QString text = tr("%1 to %2").arg(refName, name);
-  LogEntry *entry = addLogEntry(text, title);
 
   if (!ref.isValid()) {
+    LogEntry *entry = addLogEntry(tr("%1 to %2").arg(refName, name), title);
     QString text = tr("You are not currently on a branch.");
     LogEntry *err = entry->addEntry(LogEntry::Error, text);
     if (mRepo.isHeadUnborn()) {
@@ -2518,22 +2602,12 @@ void RepoView::push(const git::Remote &rmt, const git::Reference &src,
   }
 
   if (!remote.isValid()) {
-    QString text = tr("The current branch '%1' has no default remote.");
-    LogEntry *err = entry->addEntry(LogEntry::Error, text.arg(refName));
-    QString hint1 =
-        tr("You may want to <a href='action:add-remote?name=origin'>add a "
-           "remote "
-           "named 'origin'</a>. Then <a href='action:push?set-upstream=true'>"
-           "push and set the current branch's upstream</a> to begin tracking a "
-           "remote branch called 'origin/%1'.")
-            .arg(refName);
-    QString hint2 =
-        tr("You can also <a href='action:push-to'>push to an explicit URL</a> "
-           "if you don't want to track a remote branch.");
-    err->addEntry(LogEntry::Hint, hint1);
-    err->addEntry(LogEntry::Hint, hint2);
+    promptToPublishRepository(ref);
     return;
   }
+
+  QString text = tr("%1 to %2").arg(refName, name);
+  LogEntry *entry = addLogEntry(text, title);
 
   QString unqualifiedName = !dst.isEmpty() ? dst : refName;
   QString remoteBranchName = QString("%1/%2").arg(name, unqualifiedName);

@@ -272,6 +272,8 @@ public:
             const git::Reference &src = git::Reference(),
             const QString &dst = QString(), bool setUpstream = false,
             bool force = false, bool tags = false, bool checkSubmodules = true);
+  void promptToPublishRepository(
+      const git::Reference &src = git::Reference());
 
   // commit
   bool commit(const git::Signature &author, const git::Signature &commiter,

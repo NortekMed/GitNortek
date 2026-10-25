@@ -35,6 +35,31 @@ const QString kAccessUrl =
     QStringLiteral("https://try.gitea.io/login/oauth/access_token");
 const QString kGraphQlUrl = QStringLiteral("https://try.gitea.io/graphql");
 
+QUrl apiUrl(const Account &account, const QString &path) {
+  QString base = account.url();
+  while (base.endsWith('/'))
+    base.chop(1);
+  if (account.hasCustomUrl())
+    base += QStringLiteral("/api/v1");
+  return QUrl(base + path);
+}
+
+QNetworkRequest apiRequest(const QUrl &endpoint, const QString &username,
+                           const QString &password, bool isToken) {
+  QNetworkRequest request(endpoint);
+  request.setHeader(QNetworkRequest::ContentTypeHeader,
+                    QStringLiteral("application/json"));
+  if (isToken) {
+    request.setRawHeader("Authorization",
+                         QString("token %1").arg(password).toUtf8());
+  } else {
+    const QString credentials = QString("%1:%2").arg(username, password);
+    request.setRawHeader("Authorization",
+                         "Basic " + credentials.toUtf8().toBase64());
+  }
+  return request;
+}
+
 } // namespace
 
 Gitea::Gitea(const QString &username) : Account(username) {
@@ -118,6 +143,119 @@ void Gitea::connect(const QString &password) {
                        !password.isEmpty() ? password : this->password());
     startProgress();
   }
+}
+
+void Gitea::requestRepositoryNamespaces(
+    const RepositoryNamespacesCallback &callback) {
+  RepositoryNamespaces namespaces{
+      {QString(), username(), username(), true}};
+  const QString token = !mAccessToken.isEmpty() ? mAccessToken : password();
+  if (token.isEmpty()) {
+    callback(false, namespaces,
+             tr("Gitea authentication is required to list organizations."));
+    return;
+  }
+
+  QUrl endpoint = apiUrl(*this, QStringLiteral("/user/orgs"));
+  QUrlQuery query;
+  query.addQueryItem("limit", "50");
+  endpoint.setQuery(query);
+  if (endpoint.scheme() != "https") {
+    callback(false, namespaces, tr("Gitea authentication requires HTTPS."));
+    return;
+  }
+
+  const bool isToken = !mAccessToken.isEmpty();
+  const QNetworkRequest request =
+      apiRequest(endpoint, username(), token, isToken);
+  sendJsonRequest(request, "GET", {},
+                  [callback, namespaces](bool success,
+                                          const QJsonDocument &document,
+                                          const QString &error) mutable {
+                    if (!success || !document.isArray()) {
+                      callback(false, namespaces,
+                               error.isEmpty()
+                                   ? tr("Gitea returned an invalid organization list.")
+                                   : error);
+                      return;
+                    }
+
+                    for (const QJsonValue &value : document.array()) {
+                      const QJsonObject object = value.toObject();
+                      QString login = object.value("username").toString();
+                      if (login.isEmpty())
+                        login = object.value("name").toString();
+                      if (login.isEmpty())
+                        continue;
+                      QString name = object.value("full_name").toString();
+                      if (name.isEmpty())
+                        name = object.value("name").toString();
+                      if (name.isEmpty())
+                        name = login;
+                      namespaces.append({login, name, login, false});
+                    }
+                    callback(true, namespaces, QString());
+                  });
+}
+
+void Gitea::createRepository(const QString &namespaceId, const QString &name,
+                             const QString &description, bool isPublic,
+                             const CreateRepositoryCallback &callback) {
+  const QString token = !mAccessToken.isEmpty() ? mAccessToken : password();
+  if (token.isEmpty()) {
+    callback(false, nullptr,
+             tr("Gitea authentication is required to create a repository."));
+    return;
+  }
+
+  const QString path = namespaceId.isEmpty()
+                           ? QStringLiteral("/user/repos")
+                           : QStringLiteral("/org/%1/repos")
+                                 .arg(QString::fromLatin1(
+                                     QUrl::toPercentEncoding(namespaceId)));
+  const QUrl endpoint = apiUrl(*this, path);
+  if (endpoint.scheme() != "https") {
+    callback(false, nullptr, tr("Gitea authentication requires HTTPS."));
+    return;
+  }
+
+  QJsonDocument document;
+  document.setObject({{"name", name},
+                      {"description", description},
+                      {"private", !isPublic},
+                      {"auto_init", false}});
+  const bool isToken = !mAccessToken.isEmpty();
+  const QNetworkRequest request =
+      apiRequest(endpoint, username(), token, isToken);
+  sendJsonRequest(request, "POST", document,
+                  [this, callback, namespaceId, name](
+                      bool success, const QJsonDocument &response,
+                      const QString &error) {
+                    const QJsonObject object = response.object();
+                    QString fullName = object.value("full_name").toString();
+                    const QString httpsUrl =
+                        object.value("clone_url").toString();
+                    const QString sshUrl = object.value("ssh_url").toString();
+                    if (!success || fullName.isEmpty() || httpsUrl.isEmpty() ||
+                        sshUrl.isEmpty()) {
+                      callback(false, nullptr,
+                               error.isEmpty()
+                                   ? tr("Gitea did not return clone URLs for the created repository.")
+                                   : error);
+                      return;
+                    }
+
+                    Repository *repository = addRepository(
+                        object.value("name").toString().isEmpty()
+                            ? name
+                            : object.value("name").toString(),
+                        fullName.isEmpty()
+                            ? QString("%1/%2").arg(namespaceId, name)
+                            : fullName);
+                    repository->setUrl(Repository::Https, httpsUrl);
+                    repository->setUrl(Repository::Ssh, sshUrl);
+                    callback(true, repository, QString());
+                  });
 }
 
 void Gitea::requestForkParents(Repository *repo) {

@@ -31,6 +31,11 @@ public:
                                  bool canModify) override;
 
   void requestComments(Repository *repo, const QString &oid) override;
+  void requestRepositoryNamespaces(
+      const RepositoryNamespacesCallback &callback) override;
+  void createRepository(const QString &namespaceId, const QString &name,
+                        const QString &description, bool isPublic,
+                        const CreateRepositoryCallback &callback) override;
 
   void authorize() override;
   bool isAuthorizeSupported() override;

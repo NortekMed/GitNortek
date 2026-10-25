@@ -66,6 +66,75 @@ void Beanstalk::connect(const QString &password) {
   }
 }
 
+void Beanstalk::requestRepositoryNamespaces(
+    const RepositoryNamespacesCallback &callback) {
+  if (callback)
+    callback(true, {{QString(), username(), username(), true}}, QString());
+}
+
+void Beanstalk::createRepository(const QString &, const QString &name,
+                                 const QString &description, bool,
+                                 const CreateRepositoryCallback &callback) {
+  const QString password = this->password();
+  if (password.isEmpty()) {
+    callback(false, nullptr,
+             tr("Beanstalk authentication is required to create a repository."));
+    return;
+  }
+
+  const QUrl endpoint(url() + QStringLiteral("/api/repositories.json"));
+  if (endpoint.scheme() != "https") {
+    callback(false, nullptr, tr("Beanstalk authentication requires HTTPS."));
+    return;
+  }
+
+  QJsonDocument document;
+  document.setObject(
+      {{"repository", QJsonObject{{"type_id", "git"},
+                                  {"name", name},
+                                  {"title", name},
+                                  {"description", description}}}});
+  QNetworkRequest request(endpoint);
+  if (!setHeaders(request, password)) {
+    callback(false, nullptr, error()->text());
+    return;
+  }
+  sendJsonRequest(request, "POST", document,
+                  [this, callback, name](bool success,
+                                         const QJsonDocument &response,
+                                         const QString &error) {
+                    const QJsonObject object =
+                        response.object().value("repository").toObject();
+                    const QString repositoryName =
+                        object.value("name").toString().isEmpty()
+                            ? name
+                            : object.value("name").toString();
+                    const QString sshUrl =
+                        object.value("repository_url").toString();
+                    QString httpsUrl =
+                        object.value("repository_url_https").toString();
+                    if (httpsUrl.isEmpty()) {
+                      httpsUrl = QString("https://%1.git.beanstalkapp.com/%2.git")
+                                     .arg(username(), repositoryName);
+                    }
+                    if (!success || sshUrl.isEmpty()) {
+                      callback(false, nullptr,
+                               error.isEmpty()
+                                   ? tr("Beanstalk did not return a clone URL for the created repository.")
+                                   : error);
+                      return;
+                    }
+
+                    Repository *repository =
+                        addRepository(repositoryName, repositoryName);
+                    repository->setUrl(Repository::Https, httpsUrl);
+                    repository->setUrl(Repository::Ssh, sshUrl);
+                    callback(true, repository, QString());
+                  });
+}
+
+bool Beanstalk::supportsPublicRepositories() const { return false; }
+
 QString Beanstalk::defaultUrl() {
   return QStringLiteral("https://<username>.beanstalkapp.com");
 }

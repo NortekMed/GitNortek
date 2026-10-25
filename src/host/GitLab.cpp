@@ -17,6 +17,7 @@
 #include <QNetworkRequest>
 #include <QRegularExpression>
 #include <QUrl>
+#include <QUrlQuery>
 
 namespace {
 
@@ -102,6 +103,123 @@ void GitLab::connect(const QString &defaultPassword) {
   request.setHeader(QNetworkRequest::ContentTypeHeader, kContentType);
   mMgr->get(request);
   startProgress();
+}
+
+void GitLab::requestRepositoryNamespaces(
+    const RepositoryNamespacesCallback &callback) {
+  RepositoryNamespaces namespaces{
+      {QString(), username(), username(), true}};
+  const QString token = !mAccessToken.isEmpty() ? mAccessToken : password();
+  if (token.isEmpty()) {
+    callback(false, namespaces,
+             tr("GitLab authentication is required to list namespaces."));
+    return;
+  }
+
+  QUrl endpoint(url() + QStringLiteral("/namespaces"));
+  QUrlQuery query;
+  query.addQueryItem("per_page", "100");
+  endpoint.setQuery(query);
+  if (endpoint.scheme() != "https") {
+    callback(false, namespaces, tr("GitLab authentication requires HTTPS."));
+    return;
+  }
+
+  QNetworkRequest request(endpoint);
+  request.setRawHeader("PRIVATE-TOKEN", token.toUtf8());
+  request.setHeader(QNetworkRequest::ContentTypeHeader, kContentType);
+  sendJsonRequest(request, "GET", {},
+                  [callback, namespaces](bool success,
+                                         const QJsonDocument &document,
+                                         const QString &error) mutable {
+                    if (!success || !document.isArray()) {
+                      callback(false, namespaces,
+                               error.isEmpty()
+                                   ? tr("GitLab returned an invalid namespace list.")
+                                   : error);
+                      return;
+                    }
+
+                    for (const QJsonValue &value : document.array()) {
+                      const QJsonObject object = value.toObject();
+                      const QString kind = object.value("kind").toString();
+                      const QString fullPath =
+                          object.value("full_path").toString();
+                      if (kind == "user") {
+                        namespaces[0].id = object.value("id").toVariant().toString();
+                        if (!fullPath.isEmpty()) {
+                          namespaces[0].name = fullPath;
+                          namespaces[0].fullName = fullPath;
+                        }
+                        continue;
+                      }
+                      if (kind != "group" || fullPath.isEmpty())
+                        continue;
+                      namespaces.append(
+                          {object.value("id").toVariant().toString(),
+                           object.value("name").toString(), fullPath, false});
+                    }
+
+                    callback(true, namespaces, QString());
+                  });
+}
+
+void GitLab::createRepository(const QString &namespaceId, const QString &name,
+                              const QString &description, bool isPublic,
+                              const CreateRepositoryCallback &callback) {
+  const QString token = !mAccessToken.isEmpty() ? mAccessToken : password();
+  if (token.isEmpty()) {
+    callback(false, nullptr,
+             tr("GitLab authentication is required to create a project."));
+    return;
+  }
+
+  const QUrl endpoint(url() + QStringLiteral("/projects"));
+  if (endpoint.scheme() != "https") {
+    callback(false, nullptr, tr("GitLab authentication requires HTTPS."));
+    return;
+  }
+
+  QJsonObject object{{"name", name},
+                     {"description", description},
+                     {"visibility", isPublic ? "public" : "private"},
+                     {"initialize_with_readme", false}};
+  if (!namespaceId.isEmpty())
+    object.insert("namespace_id", namespaceId.toInt());
+  QJsonDocument document(object);
+
+  QNetworkRequest request(endpoint);
+  request.setRawHeader("PRIVATE-TOKEN", token.toUtf8());
+  request.setHeader(QNetworkRequest::ContentTypeHeader, kContentType);
+  sendJsonRequest(request, "POST", document,
+                  [this, callback, name](bool success,
+                                         const QJsonDocument &response,
+                                         const QString &error) {
+                    const QJsonObject result = response.object();
+                    const QString fullName =
+                        result.value("path_with_namespace").toString();
+                    const QString httpsUrl =
+                        result.value("http_url_to_repo").toString();
+                    const QString sshUrl =
+                        result.value("ssh_url_to_repo").toString();
+                    if (!success || fullName.isEmpty() || httpsUrl.isEmpty() ||
+                        sshUrl.isEmpty()) {
+                      callback(false, nullptr,
+                               error.isEmpty()
+                                   ? tr("GitLab did not return clone URLs for the created project.")
+                                   : error);
+                      return;
+                    }
+
+                    Repository *repository = addRepository(
+                        result.value("path").toString().isEmpty()
+                            ? name
+                            : result.value("path").toString(),
+                        fullName);
+                    repository->setUrl(Repository::Https, httpsUrl);
+                    repository->setUrl(Repository::Ssh, sshUrl);
+                    callback(true, repository, QString());
+                  });
 }
 
 QString GitLab::defaultUrl() {

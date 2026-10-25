@@ -29,7 +29,7 @@ namespace {
 
 const char *kPasswordProperty = "password";
 
-const QString kScope = "repo";
+const QString kScope = "repo read:org";
 
 const QString kAuthUrl =
     QStringLiteral("https://github.com/login/oauth/authorize");
@@ -51,6 +51,15 @@ bool isValidPathComponent(const QString &value) {
 
 QString encodedPathComponent(const QString &value) {
   return QString::fromLatin1(QUrl::toPercentEncoding(value));
+}
+
+QNetworkRequest apiRequest(const QUrl &endpoint, const QString &token) {
+  QNetworkRequest request(endpoint);
+  request.setRawHeader("Accept", "application/vnd.github+json");
+  request.setRawHeader("X-GitHub-Api-Version", "2022-11-28");
+  request.setRawHeader("User-Agent", "GitNortek");
+  request.setRawHeader("Authorization", "Bearer " + token.toUtf8());
+  return request;
 }
 
 } // namespace
@@ -266,6 +275,108 @@ void GitHub::requestComments(Repository *repo, const QString &oid) {
 
     emit commentsReady(repo, oid, comments);
   });
+}
+
+void GitHub::requestRepositoryNamespaces(
+    const RepositoryNamespacesCallback &callback) {
+  const RepositoryNamespace personal{QString(), username(), username(), true};
+  QString token = !mAccessToken.isEmpty() ? mAccessToken : password();
+  if (token.isEmpty()) {
+    callback(false, {personal},
+             tr("GitHub authentication is required to list organizations."));
+    return;
+  }
+
+  QUrl endpoint = apiEndpoint("/user/orgs");
+  QUrlQuery query;
+  query.addQueryItem("per_page", "100");
+  endpoint.setQuery(query);
+  if (endpoint.scheme() != "https") {
+    callback(false, {personal}, tr("GitHub authentication requires HTTPS."));
+    return;
+  }
+
+  sendJsonRequest(apiRequest(endpoint, token), "GET", {},
+                  [this, callback, personal](bool success,
+                                             const QJsonDocument &document,
+                                             const QString &error) {
+                    RepositoryNamespaces namespaces{personal};
+                    if (!success || !document.isArray()) {
+                      callback(false, namespaces,
+                               error.isEmpty()
+                                   ? tr("GitHub returned an invalid organization list.")
+                                   : error);
+                      return;
+                    }
+
+                    for (const QJsonValue &value : document.array()) {
+                      QJsonObject object = value.toObject();
+                      QString login = object.value("login").toString();
+                      if (login.isEmpty())
+                        continue;
+                      namespaces.append(
+                          {login, object.value("name").toString().isEmpty()
+                                      ? login
+                                      : object.value("name").toString(),
+                           login, false});
+                    }
+                    callback(true, namespaces, QString());
+                  });
+}
+
+void GitHub::createRepository(const QString &namespaceId, const QString &name,
+                              const QString &description, bool isPublic,
+                              const CreateRepositoryCallback &callback) {
+  QString token = !mAccessToken.isEmpty() ? mAccessToken : password();
+  if (token.isEmpty()) {
+    callback(false, nullptr,
+             tr("GitHub authentication is required to create a repository."));
+    return;
+  }
+
+  QString path = namespaceId.isEmpty()
+                     ? QStringLiteral("/user/repos")
+                     : QStringLiteral("/orgs/%1/repos")
+                           .arg(encodedPathComponent(namespaceId));
+  QUrl endpoint = apiEndpoint(path);
+  if (endpoint.scheme() != "https") {
+    callback(false, nullptr, tr("GitHub authentication requires HTTPS."));
+    return;
+  }
+
+  QJsonDocument document;
+  document.setObject({{"name", name},
+                      {"description", description},
+                      {"private", !isPublic},
+                      {"auto_init", false}});
+  sendJsonRequest(apiRequest(endpoint, token), "POST", document,
+                  [this, callback, namespaceId, name](
+                      bool success, const QJsonDocument &response,
+                      const QString &error) {
+                    QJsonObject object = response.object();
+                    QString fullName = object.value("full_name").toString();
+                    QString cloneUrl = object.value("clone_url").toString();
+                    QString sshUrl = object.value("ssh_url").toString();
+                    if (!success || fullName.isEmpty() || cloneUrl.isEmpty() ||
+                        sshUrl.isEmpty()) {
+                      callback(false, nullptr,
+                               error.isEmpty()
+                                   ? tr("GitHub did not return clone URLs for the created repository.")
+                                   : error);
+                      return;
+                    }
+
+                    Repository *repository = addRepository(
+                        object.value("name").toString().isEmpty()
+                            ? name
+                            : object.value("name").toString(),
+                        fullName.isEmpty()
+                            ? QString("%1/%2").arg(namespaceId, name)
+                            : fullName);
+                    repository->setUrl(Repository::Https, cloneUrl);
+                    repository->setUrl(Repository::Ssh, sshUrl);
+                    callback(true, repository, QString());
+                  });
 }
 
 void GitHub::requestCommitAvatars(const QString &owner, const QString &name,

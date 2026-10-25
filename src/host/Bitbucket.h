@@ -22,6 +22,11 @@ public:
   QString name() const override;
   QString host() const override;
   void connect(const QString &password = QString()) override;
+  void requestRepositoryNamespaces(
+      const RepositoryNamespacesCallback &callback) override;
+  void createRepository(const QString &namespaceId, const QString &name,
+                        const QString &description, bool isPublic,
+                        const CreateRepositoryCallback &callback) override;
 
   static QString defaultUrl();
 };

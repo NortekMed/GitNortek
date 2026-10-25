@@ -27,6 +27,7 @@ add_library(
   NewBranchDialog.cpp
   PluginsPanel.cpp
   PullRequestDialog.cpp
+  PublishRepositoryDialog.cpp
   RebaseConflictDialog.cpp
   RemoteDialog.cpp
   RemoteTableModel.cpp

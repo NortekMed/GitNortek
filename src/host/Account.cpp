@@ -17,16 +17,47 @@
 #include <QFileInfo>
 #include <QGuiApplication>
 #include <QIcon>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonParseError>
 #include <QNetworkRequest>
 #include <QPalette>
 #include <QSettings>
+#include <QUrl>
 #include <qnetworkaccessmanager.h>
+#include <qnetworkreply.h>
 #include <stdexcept>
 
 namespace {
 
 const QString kIconFmt = ":/%1.png";
 const QString kThemeIconFmt = ":/%1_%2.png";
+
+QString responseError(const QJsonDocument &document) {
+  if (!document.isObject())
+    return QString();
+
+  QJsonObject object = document.object();
+  QString error = object.value("message").toString();
+  if (!error.isEmpty())
+    return error;
+
+  QJsonValue errors = object.value("errors");
+  if (errors.isString())
+    return errors.toString();
+  if (errors.isArray()) {
+    QStringList messages;
+    for (const QJsonValue &value : errors.toArray()) {
+      if (value.isString())
+        messages.append(value.toString());
+      else if (value.isObject())
+        messages.append(value.toObject().value("message").toString());
+    }
+    return messages.join(QLatin1Char('\n'));
+  }
+
+  return QString();
+}
 
 } // namespace
 
@@ -76,6 +107,90 @@ Repository *Account::addRepository(const QString &name,
   mRepos.append(repo);
   emit repositoryAdded();
   return repo;
+}
+
+void Account::requestRepositoryNamespaces(
+    const RepositoryNamespacesCallback &callback) {
+  if (callback) {
+    callback(true, {{QString(), username(), username(), true}}, QString());
+  }
+}
+
+void Account::createRepository(const QString &, const QString &, const QString &,
+                               bool, const CreateRepositoryCallback &callback) {
+  if (callback)
+    callback(false, nullptr, tr("Repository creation is not supported."));
+}
+
+bool Account::supportsPublicRepositories() const { return true; }
+
+void Account::sendJsonRequest(const QNetworkRequest &request,
+                              const QByteArray &method,
+                              const QJsonDocument &document,
+                              const JsonRequestCallback &callback) {
+  auto *manager = new QNetworkAccessManager(this);
+  QNetworkRequest requestCopy(request);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+  requestCopy.setTransferTimeout(15000);
+#endif
+
+  QNetworkReply *reply = nullptr;
+  if (method == "GET") {
+    reply = manager->get(requestCopy);
+  } else if (method == "POST") {
+    requestCopy.setHeader(QNetworkRequest::ContentTypeHeader,
+                          QStringLiteral("application/json"));
+    reply = manager->post(requestCopy,
+                          document.toJson(QJsonDocument::Compact));
+  } else {
+    requestCopy.setHeader(QNetworkRequest::ContentTypeHeader,
+                          QStringLiteral("application/json"));
+    reply = manager->sendCustomRequest(
+        requestCopy, method, document.toJson(QJsonDocument::Compact));
+  }
+
+  QObject::connect(reply, &QNetworkReply::finished, this,
+                   [this, manager, reply, callback] {
+                     const QByteArray body = reply->readAll();
+                     const int status = reply
+                                            ->attribute(QNetworkRequest::
+                                                            HttpStatusCodeAttribute)
+                                            .toInt();
+                     QJsonParseError parseError;
+                     const QJsonDocument response =
+                         QJsonDocument::fromJson(body, &parseError);
+
+                     QString error;
+                     bool success = status >= 200 && status < 300 &&
+                                    reply->error() == QNetworkReply::NoError;
+                     if (!success) {
+                       if (status == 0 &&
+                           reply->error() != QNetworkReply::NoError) {
+                         error = reply->errorString();
+                       } else {
+                         error = responseError(response);
+                         if (error.isEmpty())
+                           error = tr("The hosting service returned HTTP %1.")
+                                       .arg(status);
+                       }
+                     } else if (!body.isEmpty() &&
+                                parseError.error != QJsonParseError::NoError) {
+                       success = false;
+                       error = tr("The hosting service returned invalid JSON: %1")
+                                   .arg(parseError.errorString());
+                     }
+
+                     for (const QString &secret : {password(), mAccessToken}) {
+                       if (!secret.isEmpty())
+                         error.replace(secret, QStringLiteral("[redacted]"),
+                                       Qt::CaseSensitive);
+                     }
+
+                     if (callback)
+                       callback(success, response, error);
+                     reply->deleteLater();
+                     manager->deleteLater();
+                   });
 }
 
 QString Account::repositoryPath(int index) const {

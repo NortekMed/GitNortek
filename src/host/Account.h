@@ -12,10 +12,13 @@
 
 #include "Repository.h"
 #include <QNetworkAccessManager>
+#include <QJsonDocument>
+#include <QList>
 #include <QObject>
 #include <QSharedPointer>
 #include <QString>
 #include <QTimer>
+#include <functional>
 #include <qnetworkreply.h>
 
 class AccountError;
@@ -27,6 +30,24 @@ class Account : public QObject {
 public:
   enum Kind { GitHub, Bitbucket, Beanstalk, GitLab, Gitea };
   static const int NUM_KINDS = 5;
+
+  struct RepositoryNamespace {
+    QString id;
+    QString name;
+    QString fullName;
+    bool personal = false;
+  };
+
+  using RepositoryNamespaces = QList<RepositoryNamespace>;
+  using RepositoryNamespacesCallback = std::function<void(
+      bool success, const RepositoryNamespaces &namespaces,
+      const QString &error)>;
+  using CreateRepositoryCallback =
+      std::function<void(bool success, Repository *repository,
+                         const QString &error)>;
+  using JsonRequestCallback =
+      std::function<void(bool success, const QJsonDocument &document,
+                         const QString &error)>;
 
   struct Comment {
     QString body;
@@ -48,7 +69,7 @@ public:
   AccountProgress *progress() const { return mProgress; }
 
   QString username() const { return mUsername; }
-  QString password() const;
+  virtual QString password() const;
 
   bool hasCustomUrl() const;
   QString url() const;
@@ -77,6 +98,14 @@ public:
 
   virtual void requestComments(Repository *repo, const QString &oid) {}
 
+  virtual void requestRepositoryNamespaces(
+      const RepositoryNamespacesCallback &callback);
+  virtual void createRepository(const QString &namespaceId,
+                                const QString &name,
+                                const QString &description, bool isPublic,
+                                const CreateRepositoryCallback &callback);
+  virtual bool supportsPublicRepositories() const;
+
   virtual void authorize();
   virtual bool isAuthorizeSupported();
 
@@ -104,6 +133,10 @@ protected:
   void clearRepos();
   void startProgress();
   bool setHeaders(QNetworkRequest &request, const QString &defaultPassword);
+  virtual void sendJsonRequest(const QNetworkRequest &request,
+                               const QByteArray &method,
+                               const QJsonDocument &document,
+                               const JsonRequestCallback &callback);
 
   QString mUrl;
   QString mUsername;
