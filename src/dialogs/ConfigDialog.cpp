@@ -185,7 +185,14 @@ public:
     table->setModel(new RemoteTableModel(this, repo));
 
     Footer *footer = new Footer(table);
-    connect(footer, &Footer::plusClicked, this, [this] { addRemote(); });
+    connect(footer, &Footer::plusClicked, this, [this] {
+      if (mRepo.remotes().isEmpty()) {
+        if (RepoView *view = RepoView::parentView(this))
+          view->promptToPublishRepository();
+      } else {
+        addRemote();
+      }
+    });
 
     connect(footer, &Footer::minusClicked, this, [this, table] {
       QModelIndexList indexes = table->selectionModel()->selectedRows();

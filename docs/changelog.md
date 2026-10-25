@@ -58,6 +58,8 @@ Bug Fix and Feature release
 
 #### Changed
 
+* Open Publish Repository when adding the first remote, while keeping the manual URL editor available
+
 * Mirror Remote menu actions in the current-branch context menus
 
 * Clarify the global Git credential helper choices and require confirmation before changing global Git settings from the General, Diff, and Tools settings pages

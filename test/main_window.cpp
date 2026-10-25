@@ -13,8 +13,11 @@
 #include "conf/LocalWorkspace.h"
 #include "conf/LocalWorkspaces.h"
 #include "conf/Settings.h"
+#include "dialogs/ConfigDialog.h"
 #include "dialogs/FastIssueDialog.h"
+#include "dialogs/PublishRepositoryDialog.h"
 #include "dialogs/RemoteDialog.h"
+#include "dialogs/RemoteConfigDialog.h"
 #include "dialogs/RenameBranchDialog.h"
 #include "editor/TextEditor.h"
 #include "git/Config.h"
@@ -22,6 +25,7 @@
 #include "host/GitHub.h"
 #include "ui/CommitList.h"
 #include "ui/DetailView.h"
+#include "ui/Footer.h"
 #include "ui/FontUtils.h"
 #include "ui/MainWindow.h"
 #include "ui/LocalRepositoryManagement.h"
@@ -44,6 +48,7 @@
 #include <QPushButton>
 #include <QSettings>
 #include <QSignalSpy>
+#include <QStackedWidget>
 #include <QTimer>
 #include <QToolButton>
 #include <QTreeView>
@@ -430,6 +435,71 @@ void TestMainWindow::remoteContextMenuMirrorsRemoteMenu() {
   RemoteDialog *dialog = view->findChild<RemoteDialog *>();
   QVERIFY(dialog);
   dialog->reject();
+
+  ScratchRepository emptyRepository;
+  MainWindow emptyWindow(emptyRepository);
+  RepoView *emptyView = emptyWindow.currentView();
+  QVERIFY(emptyView);
+  QVERIFY(emptyRepository->remotes().isEmpty());
+
+  ConfigDialog *emptySettings =
+      emptyView->configureSettings(ConfigDialog::Remotes);
+  QVERIFY(emptySettings);
+  QStackedWidget *emptyStack = emptySettings->findChild<QStackedWidget *>();
+  QVERIFY(emptyStack);
+  QCOMPARE(emptyStack->currentIndex(), int(ConfigDialog::Remotes));
+  Footer *emptyFooter = emptyStack->currentWidget()->findChild<Footer *>();
+  QVERIFY(emptyFooter);
+  QToolButton *emptyAddButton =
+      emptyFooter->findChild<QToolButton *>(QStringLiteral("Add"));
+  QVERIFY(emptyAddButton);
+  emptyAddButton->click();
+
+  PublishRepositoryDialog *publishDialog =
+      emptyView->findChild<PublishRepositoryDialog *>();
+  QVERIFY(publishDialog);
+  QVERIFY(!emptyView->findChild<RemoteConfigDialog *>());
+
+  QPushButton *manualRemote = publishDialog->findChild<QPushButton *>(
+      QStringLiteral("AddExistingRemote"));
+  QVERIFY(manualRemote);
+  manualRemote->click();
+  QTRY_VERIFY(emptyView->findChild<RemoteConfigDialog *>());
+  RemoteConfigDialog *manualRemoteDialog =
+      emptyView->findChild<RemoteConfigDialog *>();
+  QLineEdit *manualRemoteName =
+      manualRemoteDialog->findChild<QLineEdit *>(QStringLiteral("RemoteName"));
+  QVERIFY(manualRemoteName);
+  QCOMPARE(manualRemoteName->text(), QStringLiteral("origin"));
+  manualRemoteDialog->reject();
+
+  ScratchRepository configuredRepository;
+  QVERIFY(configuredRepository
+              ->addRemote(QStringLiteral("origin"),
+                          QStringLiteral("https://example.com/repository.git"))
+              .isValid());
+  MainWindow configuredWindow(configuredRepository);
+  RepoView *configuredView = configuredWindow.currentView();
+  QVERIFY(configuredView);
+
+  ConfigDialog *configuredSettings =
+      configuredView->configureSettings(ConfigDialog::Remotes);
+  QVERIFY(configuredSettings);
+  QStackedWidget *configuredStack =
+      configuredSettings->findChild<QStackedWidget *>();
+  QVERIFY(configuredStack);
+  QCOMPARE(configuredStack->currentIndex(), int(ConfigDialog::Remotes));
+  Footer *configuredFooter =
+      configuredStack->currentWidget()->findChild<Footer *>();
+  QVERIFY(configuredFooter);
+  QToolButton *configuredAddButton =
+      configuredFooter->findChild<QToolButton *>(QStringLiteral("Add"));
+  QVERIFY(configuredAddButton);
+  configuredAddButton->click();
+
+  QVERIFY(configuredView->findChild<RemoteConfigDialog *>());
+  QVERIFY(!configuredView->findChild<PublishRepositoryDialog *>());
+  configuredView->findChild<RemoteConfigDialog *>()->reject();
 }
 
 void TestMainWindow::initialRefreshOnce() {
