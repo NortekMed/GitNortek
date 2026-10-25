@@ -21,13 +21,17 @@ RemoteTableModel::RemoteTableModel(QObject *parent, const git::Repository &repo)
           &RemoteTableModel::beginResetModel);
   connect(notifier, &git::RepositoryNotifier::remoteRemoved, this,
           &RemoteTableModel::endResetModel);
+  connect(notifier, &git::RepositoryNotifier::remoteUpdated, this, [this] {
+    beginResetModel();
+    endResetModel();
+  });
 }
 
 int RemoteTableModel::rowCount(const QModelIndex &parent) const {
   return mRepo.remotes().count();
 }
 
-int RemoteTableModel::columnCount(const QModelIndex &parent) const { return 2; }
+int RemoteTableModel::columnCount(const QModelIndex &parent) const { return 3; }
 
 QVariant RemoteTableModel::data(const QModelIndex &index, int role) const {
   git::Remote remote = mRepo.remotes().at(index.row());
@@ -37,8 +41,11 @@ QVariant RemoteTableModel::data(const QModelIndex &index, int role) const {
       switch (index.column()) {
         case Name:
           return remote.name();
-        case Url:
+        case FetchUrl:
           return remote.url();
+        case PushUrl:
+          return remote.pushUrl().isEmpty() ? tr("Same as fetch")
+                                            : remote.pushUrl();
         default:
           return QVariant();
       }
@@ -55,33 +62,11 @@ QVariant RemoteTableModel::headerData(int section, Qt::Orientation orientation,
   switch (section) {
     case Name:
       return tr("Name");
-    case Url:
-      return tr("URL");
+    case FetchUrl:
+      return tr("Fetch URL");
+    case PushUrl:
+      return tr("Push URL");
     default:
       return QVariant();
   }
-}
-
-Qt::ItemFlags RemoteTableModel::flags(const QModelIndex &index) const {
-  return QAbstractTableModel::flags(index) | Qt::ItemIsEditable;
-}
-
-bool RemoteTableModel::setData(const QModelIndex &index, const QVariant &value,
-                               int role) {
-  if (!index.isValid() || role != Qt::EditRole || value.isNull())
-    return false;
-
-  git::Remote remote = mRepo.remotes().at(index.row());
-  switch (index.column()) {
-    case Name:
-      remote.setName(value.toString());
-      break;
-
-    case Url:
-      remote.setUrl(value.toString());
-      break;
-  }
-
-  emit dataChanged(index, index);
-  return true;
 }

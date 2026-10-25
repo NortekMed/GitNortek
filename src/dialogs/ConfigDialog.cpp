@@ -8,7 +8,6 @@
 //
 
 #include "ConfigDialog.h"
-#include "AddRemoteDialog.h"
 #include "AddSubmoduleDialog.h"
 #include "BranchDelegate.h"
 #include "BranchTableModel.h"
@@ -16,6 +15,7 @@
 #include "DiffPanel.h"
 #include "NewBranchDialog.h"
 #include "PluginsPanel.h"
+#include "RemoteConfigDialog.h"
 #include "RemoteTableModel.h"
 #include "SubmoduleDelegate.h"
 #include "SubmoduleTableModel.h"
@@ -177,12 +177,27 @@ public:
     QTableView *table = new QTableView(this);
     table->verticalHeader()->setVisible(false);
     table->horizontalHeader()->setStretchLastSection(true);
-    table->setEditTriggers(QAbstractItemView::SelectedClicked);
+    table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     table->setSelectionBehavior(QAbstractItemView::SelectRows);
     table->setSelectionMode(QAbstractItemView::ExtendedSelection);
     table->setShowGrid(false);
 
     table->setModel(new RemoteTableModel(this, repo));
+    table->horizontalHeader()->setSectionResizeMode(
+        RemoteTableModel::Name, QHeaderView::ResizeToContents);
+    table->horizontalHeader()->setSectionResizeMode(RemoteTableModel::FetchUrl,
+                                                    QHeaderView::Stretch);
+
+    connect(table, &QTableView::doubleClicked, this,
+            [this, table](const QModelIndex &index) {
+              if (!index.isValid())
+                return;
+              QString name = table->model()
+                                 ->index(index.row(), RemoteTableModel::Name)
+                                 .data()
+                                 .toString();
+              editRemote(mRepo.lookupRemote(name));
+            });
 
     Footer *footer = new Footer(table);
     connect(footer, &Footer::plusClicked, this, [this] {
@@ -226,10 +241,15 @@ public:
   }
 
   void addRemote(const QString &name = QString()) {
-    AddRemoteDialog *dialog = new AddRemoteDialog(name, this);
-    connect(dialog, &QDialog::accepted, this,
-            [this, dialog] { mRepo.addRemote(dialog->name(), dialog->url()); });
+    RemoteConfigDialog *dialog =
+        new RemoteConfigDialog(mRepo, git::Remote(), name, this);
+    dialog->open();
+  }
 
+  void editRemote(const git::Remote &remote) {
+    if (!remote)
+      return;
+    auto *dialog = new RemoteConfigDialog(mRepo, remote, QString(), this);
     dialog->open();
   }
 

@@ -26,6 +26,7 @@
 #include "qmap.h"
 #include <QApplication>
 #include <QCloseEvent>
+#include <QEvent>
 #include <QGuiApplication>
 #include <QScreen>
 #include <QCryptographicHash>
@@ -247,6 +248,10 @@ MainWindow::MainWindow(const git::Repository &repo, QWidget *parent,
 
   if (repo)
     addTab(repo, QString(), updateSubmodules, submoduleTab);
+
+  // Actions are enabled by default. Initialize their state even when the
+  // window starts without a repository tab.
+  mMenuBar->update();
 
   // Set search completer.
   searchField->setCompleter(new IndexCompleter(this, searchField));
@@ -733,6 +738,13 @@ void MainWindow::paintEvent(QPaintEvent *event) {
 
 void MainWindow::setSaveWindowSettings(bool enabled) {
   sSaveWindowSettings = enabled;
+}
+
+bool MainWindow::event(QEvent *event) {
+  const bool result = QMainWindow::event(event);
+  if (event->type() == QEvent::WindowActivate)
+    mMenuBar->update();
+  return result;
 }
 
 void MainWindow::showEvent(QShowEvent *event) {

@@ -17,6 +17,7 @@
 #include <QMutex>
 #include <QSet>
 #include <QString>
+#include <QStringList>
 #include <QSharedPointer>
 
 struct git_cred;
@@ -154,11 +155,19 @@ public:
   QString url() const;
   void setUrl(const QString &url);
 
+  QString pushUrl() const;
+  QString effectivePushUrl() const;
+  QStringList fetchRefspecs() const;
+  QStringList pushRefspecs() const;
+  Result configure(const QString &name, const QString &url,
+                   const QString &pushUrl, const QStringList &fetchRefspecs,
+                   const QStringList &pushRefspecs);
+
   Result fetch(Callbacks *callbacks, bool tags = false, bool prune = false);
   Result push(Callbacks *callbacks, const QStringList &refspecs);
   Result push(Callbacks *callbacks, const Reference &src,
               const QString &dst = QString(), bool force = false,
-              bool tags = false);
+              bool tags = false, bool useConfiguredPushRefspecs = false);
 
   // Inspect the remote advertisement without creating local tracking refs.
   TagStatusResult tagStatus(Callbacks *callbacks, const Reference &tag) const;

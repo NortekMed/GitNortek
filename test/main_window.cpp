@@ -72,6 +72,7 @@ private slots:
   void focusUpdatesOnlyEditorActions();
   void fastIssueAccess();
   void localRepositoryManagement();
+  void projectActionsRequireRepository();
   void remoteContextMenuMirrorsRemoteMenu();
   void initialRefreshOnce();
   void navigatorRefreshCoalesced();
@@ -85,6 +86,7 @@ private slots:
   void createAndTrackRemoteBranch();
   void trackExistingRemoteBranch();
   void pushTrackedBranchWithoutPrompt();
+  void pushHonorsConfiguredPushRefspecs();
   void renameRemoteBranch();
   void deleteRemoteBranch();
   void deleteCheckedOutBranch();
@@ -393,6 +395,78 @@ void TestMainWindow::localRepositoryManagement() {
   QCOMPARE(mWindow->externalToolRepositoryPath(), mRepo->workdir().path());
   QVERIFY2(LocalWorkspaces::instance()->remove(workspace.id, &error),
            qPrintable(error));
+}
+
+void TestMainWindow::projectActionsRequireRepository() {
+  git::Repository noRepository;
+  MainWindow window(noRepository);
+  MenuBar *menuBar = MenuBar::instance(&window);
+  QVERIFY(menuBar);
+
+  auto findAction = [menuBar](const QString &menuName,
+                              const QString &actionName) -> QAction * {
+    for (QAction *menuAction : menuBar->actions()) {
+      if (menuAction->text() != menuName || !menuAction->menu())
+        continue;
+      for (QAction *action : menuAction->menu()->actions()) {
+        if (action->text() == actionName)
+          return action;
+      }
+    }
+    return nullptr;
+  };
+
+  window.show();
+  QVERIFY(qWaitForWindowExposed(&window));
+  window.activateWindow();
+  QVERIFY(qWaitForWindowActive(&window));
+
+  const QStringList projectActions = {
+      "View|Refresh Local State",
+      "View|Report Repository Diagnostics",
+      "View|Show Log",
+      "Repository|Configure Repository...",
+      "Repository|Stage All",
+      "Repository|Commit",
+      "Remote|Configure Remotes...",
+      "Remote|Fetch",
+      "Remote|Pull",
+      "Remote|Push",
+      "Branch|Configure Branches...",
+      "Branch|Checkout...",
+      "Branch|New Branch...",
+      "Submodule|Configure Submodules...",
+      "Submodule|Check for Updates",
+      "Submodule|Update All",
+      "Submodule|Open",
+      "Stash|Show Stashes",
+      "Stash|Stash...",
+      "Stash|Pop Stash",
+  };
+  for (const QString &entry : projectActions) {
+    const QString menuName = entry.section('|', 0, 0);
+    const QString actionName = entry.section('|', 1, 1);
+    QAction *action = findAction(menuName, actionName);
+    QVERIFY2(action, qPrintable(entry));
+    QVERIFY2(!action->isEnabled(), qPrintable(entry));
+    action->trigger();
+  }
+
+  QAction *hideMenuBar = findAction("View", "Hide Menu Bar");
+  QVERIFY(hideMenuBar);
+  QVERIFY(hideMenuBar->isEnabled());
+
+  QVERIFY(window.addTab(mSecondRepo));
+  QVERIFY(findAction("Repository", "Configure Repository...")->isEnabled());
+  QVERIFY(findAction("Remote", "Configure Remotes...")->isEnabled());
+  QVERIFY(findAction("Branch", "Configure Branches...")->isEnabled());
+  QVERIFY(findAction("Submodule", "Configure Submodules...")->isEnabled());
+
+  QVERIFY(window.tabWidget()->closeTab(0));
+  QVERIFY(!findAction("Repository", "Configure Repository...")->isEnabled());
+  QVERIFY(!findAction("Remote", "Configure Remotes...")->isEnabled());
+  QVERIFY(!findAction("Branch", "Configure Branches...")->isEnabled());
+  QVERIFY(!findAction("Submodule", "Configure Submodules...")->isEnabled());
 }
 
 void TestMainWindow::remoteContextMenuMirrorsRemoteMenu() {
@@ -791,6 +865,49 @@ void TestMainWindow::pushTrackedBranchWithoutPrompt() {
   view->push();
   QTest::qWait(100);
   QVERIFY(!view->findChild<QMessageBox *>());
+}
+
+void TestMainWindow::pushHonorsConfiguredPushRefspecs() {
+  git::Remote remote = mRepo->lookupRemote(QStringLiteral("origin"));
+  QVERIFY(remote.isValid());
+  git::Branch branch = mRepo->head();
+  git::Branch upstream = branch.upstream();
+  QVERIFY(upstream.isValid());
+  const QString upstreamName = upstream.name();
+
+  const QString targetName =
+      QStringLiteral("refs/heads/configured-push-target");
+  const QStringList originalPushRefspecs = remote.pushRefspecs();
+  struct RestorePushRefspecs {
+    git::Repository repo;
+    QString name;
+    QStringList refspecs;
+
+    ~RestorePushRefspecs() {
+      git::Remote remote = repo.lookupRemote(name);
+      if (remote)
+        remote.configure(name, remote.url(), remote.pushUrl(),
+                         remote.fetchRefspecs(), refspecs);
+    }
+  } restore{mRepo, remote.name(), originalPushRefspecs};
+  const QStringList pushRefspecs{branch.qualifiedName() + QLatin1Char(':') +
+                                 targetName};
+  git::Result configured =
+      remote.configure(remote.name(), remote.url(), remote.pushUrl(),
+                       remote.fetchRefspecs(), pushRefspecs);
+  QVERIFY2(!configured.error(), qPrintable(configured.errorString()));
+
+  RepoView *view = mWindow->currentView();
+  QSignalSpy pushed(view, &RepoView::pushSucceeded);
+  QVERIFY(pushed.isValid());
+  view->push();
+  QTRY_COMPARE_WITH_TIMEOUT(pushed.count(), 1, 10000);
+
+  git::Repository published = git::Repository::open(mRemoteDir.path());
+  QVERIFY(published.isValid());
+  QVERIFY(published.lookupRef(targetName).isValid());
+  QCOMPARE(published.lookupRef(targetName).target().id(), branch.target().id());
+  QCOMPARE(git::Branch(mRepo->head()).upstream().name(), upstreamName);
 }
 
 void TestMainWindow::renameRemoteBranch() {

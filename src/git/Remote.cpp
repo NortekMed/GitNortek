@@ -469,10 +469,12 @@ int Remote::Callbacks::update(const char *name, const git_oid *a,
 
 int Remote::Callbacks::remoteReady(git_remote *remote, int direction,
                                    void *payload) {
-  Q_UNUSED(direction)
-
   Remote::Callbacks *cbs = reinterpret_cast<Remote::Callbacks *>(payload);
-  QString resolved(git_remote_url(remote));
+  const char *remoteUrl =
+      direction == GIT_DIRECTION_PUSH && git_remote_pushurl(remote)
+          ? git_remote_pushurl(remote)
+          : git_remote_url(remote);
+  QString resolved(remoteUrl);
   if (!cbs->url(resolved))
     return -1;
 
@@ -504,7 +506,14 @@ int Remote::Callbacks::remoteReady(git_remote *remote, int direction,
   }
 
   resolved = resolvedUrl.toString();
-  git_remote_set_instance_url(remote, resolved.toUtf8());
+  if (direction == GIT_DIRECTION_PUSH && git_remote_pushurl(remote)) {
+    // The local transport reads the instance URL when opening its target.
+    // Keep both URLs aligned on the push-only remote copy.
+    git_remote_set_instance_url(remote, resolved.toUtf8());
+    git_remote_set_instance_pushurl(remote, resolved.toUtf8());
+  } else {
+    git_remote_set_instance_url(remote, resolved.toUtf8());
+  }
   return 0;
 }
 
@@ -553,6 +562,178 @@ void Remote::setUrl(const QString &url) {
   }
 }
 
+QString Remote::pushUrl() const {
+  const char *url = isValid() ? git_remote_pushurl(d.data()) : nullptr;
+  return url ? QString::fromUtf8(url) : QString();
+}
+
+QString Remote::effectivePushUrl() const {
+  QString configuredUrl = pushUrl();
+  return configuredUrl.isEmpty() ? url() : configuredUrl;
+}
+
+namespace {
+
+QStringList remoteRefspecs(const git_remote *remote, bool fetch) {
+  if (!remote)
+    return QStringList();
+
+  git_strarray array = {nullptr, 0};
+  int error = fetch ? git_remote_get_fetch_refspecs(&array, remote)
+                    : git_remote_get_push_refspecs(&array, remote);
+  if (error)
+    return QStringList();
+
+  QStringList result;
+  for (size_t i = 0; i < array.count; ++i)
+    result.append(QString::fromUtf8(array.strings[i]));
+  git_strarray_dispose(&array);
+  return result;
+}
+
+Result validateRefspecs(const QStringList &refspecs, bool fetch) {
+  foreach (const QString &refspec, refspecs) {
+    QByteArray value = refspec.toUtf8();
+    git_refspec *parsed = nullptr;
+    int error = git_refspec_parse(&parsed, value.constData(), fetch);
+    if (error)
+      return Result(error);
+    git_refspec_free(parsed);
+  }
+
+  return Result(0);
+}
+
+} // namespace
+
+QStringList Remote::fetchRefspecs() const {
+  return remoteRefspecs(d.data(), true);
+}
+
+QStringList Remote::pushRefspecs() const {
+  return remoteRefspecs(d.data(), false);
+}
+
+Result Remote::configure(const QString &newName, const QString &newUrl,
+                         const QString &newPushUrl,
+                         const QStringList &newFetchRefspecs,
+                         const QStringList &newPushRefspecs) {
+  if (!isValid())
+    return Result(GIT_EINVALID);
+
+  if (newUrl.trimmed().isEmpty()) {
+    git_error_set_str(GIT_ERROR_INVALID, "The fetch URL cannot be empty");
+    return Result(GIT_EINVALIDSPEC);
+  }
+
+  int validName = 0;
+  QByteArray nameBytes = newName.toUtf8();
+  if (int error = git_remote_name_is_valid(&validName, nameBytes.constData()))
+    return Result(error);
+  if (!validName) {
+    git_error_set_str(GIT_ERROR_INVALID, "Invalid remote name");
+    return Result(GIT_EINVALIDSPEC);
+  }
+
+  Repository repository(git_remote_owner(d.data()));
+  const QString oldName = name();
+  const QString oldUrl = url();
+  const QString oldPushUrl = pushUrl();
+  QStringList oldFetchRefspecs = fetchRefspecs();
+  const QStringList oldPushRefspecs = pushRefspecs();
+
+  if (newName != oldName && repository.lookupRemote(newName)) {
+    git_error_set_str(GIT_ERROR_INVALID,
+                      "A remote with that name already exists");
+    return Result(GIT_EEXISTS);
+  }
+
+  Result validation = validateRefspecs(newFetchRefspecs, true);
+  if (validation.error())
+    return validation;
+  validation = validateRefspecs(newPushRefspecs, false);
+  if (validation.error())
+    return validation;
+
+  QStringList fetchRefspecsToSave = newFetchRefspecs;
+  if (newName != oldName) {
+    const QString oldDefault =
+        QStringLiteral("+refs/heads/*:refs/remotes/%1/*").arg(oldName);
+    const QString newDefault =
+        QStringLiteral("+refs/heads/*:refs/remotes/%1/*").arg(newName);
+    for (QString &refspec : fetchRefspecsToSave) {
+      if (refspec == oldDefault)
+        refspec = newDefault;
+    }
+
+    git_strarray problems = {nullptr, 0};
+    QByteArray oldNameBytes = oldName.toUtf8();
+    int error =
+        git_remote_rename(&problems, git_remote_owner(d.data()),
+                          oldNameBytes.constData(), nameBytes.constData());
+    if (error)
+      return Result(error);
+    git_strarray_dispose(&problems);
+  }
+
+  QByteArray urlBytes = newUrl.toUtf8();
+  if (newUrl != oldUrl) {
+    if (int error =
+            git_remote_set_url(git_remote_owner(d.data()),
+                               nameBytes.constData(), urlBytes.constData()))
+      return Result(error);
+  }
+
+  if (newPushUrl != oldPushUrl) {
+    QByteArray pushUrlBytes = newPushUrl.toUtf8();
+    const char *pushUrl =
+        newPushUrl.isEmpty() ? nullptr : pushUrlBytes.constData();
+    if (int error = git_remote_set_pushurl(git_remote_owner(d.data()),
+                                           nameBytes.constData(), pushUrl))
+      return Result(error);
+  }
+
+  git_repository *repo = git_remote_owner(d.data());
+  auto replaceRefspecs = [repo, &nameBytes](const QStringList &oldRefspecs,
+                                            const QStringList &newRefspecs,
+                                            bool fetch) {
+    if (oldRefspecs == newRefspecs)
+      return 0;
+
+    QString key =
+        QStringLiteral("remote.%1.%2")
+            .arg(QString::fromUtf8(nameBytes),
+                 fetch ? QStringLiteral("fetch") : QStringLiteral("push"));
+    Config config = Repository(repo).gitConfig();
+    if (!oldRefspecs.isEmpty() && !config.remove(key, QStringLiteral(".*")))
+      return -1;
+
+    foreach (const QString &refspec, newRefspecs) {
+      QByteArray refspecBytes = refspec.toUtf8();
+      int error = fetch ? git_remote_add_fetch(repo, nameBytes.constData(),
+                                               refspecBytes.constData())
+                        : git_remote_add_push(repo, nameBytes.constData(),
+                                              refspecBytes.constData());
+      if (error)
+        return error;
+    }
+    return 0;
+  };
+
+  if (int error = replaceRefspecs(oldFetchRefspecs, fetchRefspecsToSave, true))
+    return Result(error);
+  if (int error = replaceRefspecs(oldPushRefspecs, newPushRefspecs, false))
+    return Result(error);
+
+  Remote updated = repository.lookupRemote(newName);
+  if (!updated)
+    return Result(GIT_ENOTFOUND);
+
+  d = updated.d;
+  emit repository.notifier()->remoteUpdated(updated);
+  return Result(0);
+}
+
 Result Remote::fetch(Callbacks *callbacks, bool tags, bool prune) {
   git_fetch_options opts = GIT_FETCH_OPTIONS_INIT;
 #ifndef USE_SYSTEM_LIBGIT2
@@ -583,6 +764,11 @@ Result Remote::fetch(Callbacks *callbacks, bool tags, bool prune) {
 }
 
 Result Remote::push(Callbacks *callbacks, const QStringList &refspecs) {
+  git_remote *rawRemote = nullptr;
+  if (int error = git_remote_dup(&rawRemote, d.data()))
+    return Result(error);
+  QSharedPointer<git_remote> remote(rawRemote, git_remote_free);
+
   git_push_options opts = GIT_PUSH_OPTIONS_INIT;
 #ifndef USE_SYSTEM_LIBGIT2
   opts.callbacks.connected = &Remote::Callbacks::connected;
@@ -600,7 +786,7 @@ Result Remote::push(Callbacks *callbacks, const QStringList &refspecs) {
   opts.callbacks.push_negotiation = &push_negotiation;
   opts.callbacks.payload = callbacks;
 
-  QByteArray proxy = proxyUrl(url(), opts.proxy_opts.type);
+  QByteArray proxy = proxyUrl(effectivePushUrl(), opts.proxy_opts.type);
   opts.proxy_opts.url = proxy;
 
   QVector<char *> raw;
@@ -613,11 +799,52 @@ Result Remote::push(Callbacks *callbacks, const QStringList &refspecs) {
   git_strarray array;
   array.strings = raw.data();
   array.count = raw.size();
-  return git_remote_push(d.data(), &array, &opts);
+  return git_remote_push(remote.data(), &array, &opts);
 }
 
 Result Remote::push(Callbacks *callbacks, const Reference &src,
-                    const QString &dst, bool force, bool tags) {
+                    const QString &dst, bool force, bool tags,
+                    bool useConfiguredPushRefspecs) {
+  if (useConfiguredPushRefspecs && dst.isEmpty()) {
+    QStringList configuredRefspecs = pushRefspecs();
+    if (!configuredRefspecs.isEmpty()) {
+      if (force) {
+        for (QString &refspec : configuredRefspecs) {
+          if (!refspec.startsWith(QLatin1Char('+')))
+            refspec.prepend(QLatin1Char('+'));
+        }
+      }
+
+      if (tags) {
+        Repository repo(git_remote_owner(d.data()));
+        foreach (const TagRef &tag, repo.tags()) {
+          QByteArray tagName = tag.qualifiedName().toUtf8();
+          bool included = false;
+          foreach (const QString &refspec, configuredRefspecs) {
+            QByteArray specBytes = refspec.toUtf8();
+            git_refspec *parsed = nullptr;
+            if (!git_refspec_parse(&parsed, specBytes.constData(), false)) {
+              included |=
+                  git_refspec_src_matches(parsed, tagName.constData()) != 0;
+              git_refspec_free(parsed);
+            }
+            if (included)
+              break;
+          }
+
+          if (!included) {
+            QString refspec = tag.qualifiedName();
+            if (force)
+              refspec.prepend(QLatin1Char('+'));
+            configuredRefspecs.append(refspec);
+          }
+        }
+      }
+
+      return push(callbacks, configuredRefspecs);
+    }
+  }
+
   Repository repo(git_remote_owner(d.data()));
   QString prefix = force ? "+" : QString();
   QString refspec = prefix + src.qualifiedName();

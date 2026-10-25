@@ -207,7 +207,8 @@ public:
   int submoduleStatus(const QString &name) const;
 
   // remote
-  Remote addRemote(const QString &name, const QString &url);
+  Remote addRemote(const QString &name, const QString &url,
+                   Result *result = nullptr);
   void deleteRemote(const QString &name);
   Remote defaultRemote() const;
   QList<Remote> remotes() const;

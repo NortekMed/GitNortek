@@ -33,6 +33,7 @@
 #include <QPointer>
 #include <QSettings>
 #include <QStyledItemDelegate>
+#include <QTimer>
 #include <QVBoxLayout>
 
 namespace {
@@ -402,10 +403,12 @@ StartDialog::StartDialog(QWidget *parent) : QDialog(parent) {
   connect(cloneOtherRepository, &QPushButton::clicked, this, [this] {
     CloneDialog *dialog = new CloneDialog(CloneDialog::Clone, this);
     connect(dialog, &CloneDialog::accepted, this, [this, dialog] {
-      if (MainWindow *window =
-              openWindow(dialog->path(), dialog->updateSubmodules()))
-        window->currentView()->addLogEntry(dialog->message(),
-                                           dialog->messageTitle());
+      const QString path = dialog->path();
+      const std::optional<bool> updateSubmodules = dialog->updateSubmodules();
+      const QString message = dialog->message();
+      const QString messageTitle = dialog->messageTitle();
+      if (MainWindow *window = openWindow(path, updateSubmodules))
+        window->currentView()->addLogEntry(message, messageTitle);
     });
     dialog->open();
   });
@@ -580,8 +583,7 @@ void StartDialog::edit(const QModelIndex &index) {
         if (std::optional<bool> updateSubmodules = dialog->updateSubmodules())
           mSubmoduleUpdateOverrides.insert(dialog->path(), *updateSubmodules);
 
-        QCoreApplication::processEvents();
-        accept();
+        QTimer::singleShot(0, this, &StartDialog::accept);
       });
   dialog->open();
 }

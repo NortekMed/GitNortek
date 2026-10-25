@@ -2,7 +2,6 @@ add_library(
   dialogs
   AboutDialog.cpp
   AccountDialog.cpp
-  AddRemoteDialog.cpp
   AddSubmoduleDialog.cpp
   AmendDialog.cpp
   BranchDelegate.cpp
@@ -30,6 +29,7 @@ add_library(
   PublishRepositoryDialog.cpp
   RebaseConflictDialog.cpp
   RemoteDialog.cpp
+  RemoteConfigDialog.cpp
   RemoteTableModel.cpp
   RenameBranchDialog.cpp
   SettingsDialog.cpp

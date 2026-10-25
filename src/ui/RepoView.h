@@ -482,7 +482,8 @@ private:
   void pushRemote(const git::Remote &remote, const git::Reference &src,
                   const git::Reference &ref, const QString &dst,
                   bool setUpstream, bool force, bool tags, LogEntry *entry,
-                  const QString &remoteBranchName);
+                  const QString &remoteBranchName,
+                  bool useConfiguredPushRefspecs);
   void submodulePushSucceeded(const QString &repositoryPath);
 
   struct SubmoduleInfo {
