@@ -33,7 +33,7 @@
 
 ## Formatting
 - Project formatting command: `./cl-fmt.sh`.
-- `cl-fmt.sh` requires clang-format 13 and formats `src`, `test`, `l10n`, plus CMake files with `cmake-format==0.6.13`.
+- `cl-fmt.sh` requires clang-format 22 and formats `src`, `test`, `l10n`, plus CMake files with `cmake-format==0.6.13`.
 - Pre-commit only runs clang-format from `.pre-commit-config.yaml`; install it with `./setup-env.sh install-pre-commit` if needed.
 - CI also checks CMake formatting with `cmake-format --check` while pruning nested dependency directories.
 

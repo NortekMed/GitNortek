@@ -24,11 +24,13 @@
 #include <QVBoxLayout>
 #include <git2/remote.h>
 
-PublishRepositoryDialog::PublishRepositoryDialog(const git::Repository &repo,
-                                                 QWidget *parent)
-    : QDialog(parent), mRepo(repo) {
+PublishRepositoryDialog::PublishRepositoryDialog(
+    const git::Repository &repo, QWidget *parent, Mode mode,
+    Account::Kind preferredKind, Repository::Protocol preferredProtocol)
+    : QDialog(parent), mRepo(repo), mMode(mode), mPreferredKind(preferredKind) {
   setAttribute(Qt::WA_DeleteOnClose);
-  setWindowTitle(tr("Publish Repository"));
+  setWindowTitle(mMode == CreateOnly ? tr("Create Repository")
+                                     : tr("Publish Repository"));
 
   mAccounts = new QComboBox(this);
   mAccounts->setObjectName("PublishAccount");
@@ -52,7 +54,7 @@ PublishRepositoryDialog::PublishRepositoryDialog(const git::Repository &repo,
   mProtocol->setObjectName("PublishProtocol");
   mProtocol->addItem(tr("HTTPS"), Repository::Https);
   mProtocol->addItem(tr("SSH"), Repository::Ssh);
-  mProtocol->setCurrentIndex(mProtocol->findData(Repository::Ssh));
+  mProtocol->setCurrentIndex(mProtocol->findData(preferredProtocol));
 
   mNamespaceStatus = new QLabel(this);
   mNamespaceStatus->setWordWrap(true);
@@ -69,16 +71,22 @@ PublishRepositoryDialog::PublishRepositoryDialog(const git::Repository &repo,
   form->addRow(tr("Destination:"), mNamespaces);
   form->addRow(QString(), mNamespaceStatus);
   form->addRow(tr("Repository name:"), mRepositoryName);
-  form->addRow(tr("Remote name:"), mRemoteName);
+  if (mMode == PublishAndPush)
+    form->addRow(tr("Remote name:"), mRemoteName);
+  else
+    mRemoteName->hide();
   form->addRow(tr("Description:"), mDescription);
   form->addRow(tr("Access:"), mVisibility);
   form->addRow(QString(), mVisibilityStatus);
-  form->addRow(tr("Push protocol:"), mProtocol);
+  form->addRow(mMode == CreateOnly ? tr("Clone protocol:")
+                                   : tr("Push protocol:"),
+               mProtocol);
 
   mAddAccount = new QPushButton(tr("Add Account…"), this);
   mAddAccount->setObjectName("AddPublishAccount");
   mAddRemote = new QPushButton(tr("Add Existing Remote by URL…"), this);
   mAddRemote->setObjectName("AddExistingRemote");
+  mAddRemote->setVisible(mMode == PublishAndPush);
   auto *alternatives = new QHBoxLayout;
   alternatives->addWidget(mAddAccount);
   alternatives->addWidget(mAddRemote);
@@ -87,9 +95,12 @@ PublishRepositoryDialog::PublishRepositoryDialog(const git::Repository &repo,
   mButtons = new QDialogButtonBox(QDialogButtonBox::Cancel, this);
   connect(mButtons, &QDialogButtonBox::rejected, this,
           &PublishRepositoryDialog::reject);
-  mPublish = mButtons->addButton(tr("Create Repository and Push"),
-                                 QDialogButtonBox::AcceptRole);
-  mPublish->setObjectName("CreateRepositoryAndPush");
+  const QString submitText = mMode == CreateOnly
+                                 ? tr("Create Repository")
+                                 : tr("Create Repository and Push");
+  mPublish = mButtons->addButton(submitText, QDialogButtonBox::AcceptRole);
+  mPublish->setObjectName(mMode == CreateOnly ? "CreateRepository"
+                                              : "CreateRepositoryAndPush");
 
   auto *layout = new QVBoxLayout(this);
   layout->addLayout(form);
@@ -117,12 +128,17 @@ PublishRepositoryDialog::PublishRepositoryDialog(const git::Repository &repo,
     }
     mError->hide();
     setBusy(true);
-    emit publishRequested();
+    if (mMode == CreateOnly)
+      emit createRepositoryRequested();
+    else
+      emit publishRequested();
   });
   connect(mAddRemote, &QPushButton::clicked, this,
           &PublishRepositoryDialog::addRemoteRequested);
   connect(mAddAccount, &QPushButton::clicked, this, [this] {
     auto *dialog = new AccountDialog(nullptr, this);
+    if (mMode == CreateOnly)
+      dialog->setKind(mPreferredKind);
     connect(dialog, &QDialog::accepted, this, [this] {
       populateAccounts();
       refreshNamespaces();
@@ -171,11 +187,12 @@ void PublishRepositoryDialog::populateAccounts() {
   Accounts *accounts = Accounts::instance();
   for (int i = 0; i < accounts->count(); ++i) {
     Account *current = accounts->account(i);
-    const QString label = QString("%1 (%2)")
-                              .arg(Account::name(current->kind()),
-                                   current->username());
-    mAccounts->addItem(label, QVariant::fromValue(
-                                  static_cast<QObject *>(current)));
+    if (mMode == CreateOnly && current->kind() != mPreferredKind)
+      continue;
+    const QString label = QString("%1 (%2)").arg(Account::name(current->kind()),
+                                                 current->username());
+    mAccounts->addItem(label,
+                       QVariant::fromValue(static_cast<QObject *>(current)));
     if (current == selected)
       mAccounts->setCurrentIndex(mAccounts->count() - 1);
   }
@@ -197,7 +214,11 @@ void PublishRepositoryDialog::refreshNamespaces() {
 
   if (!selected) {
     mNamespaceStatus->setText(
-        tr("Connect a hosting account or add an existing remote by URL."));
+        mMode == CreateOnly
+            ? tr("Connect a %1 account to create this repository.")
+                  .arg(Account::name(mPreferredKind))
+            : tr("Connect a hosting account or add an existing remote by "
+                 "URL."));
     updateButtons();
     return;
   }
@@ -215,9 +236,9 @@ void PublishRepositoryDialog::refreshNamespaces() {
   QPointer<PublishRepositoryDialog> dialog(this);
   QPointer<Account> accountGuard(selected);
   selected->requestRepositoryNamespaces(
-      [dialog, accountGuard, request](
-          bool success, const Account::RepositoryNamespaces &namespaces,
-          const QString &error) {
+      [dialog, accountGuard,
+       request](bool success, const Account::RepositoryNamespaces &namespaces,
+                const QString &error) {
         if (!dialog || !accountGuard || request != dialog->mNamespaceRequest ||
             dialog->account() != accountGuard)
           return;
@@ -225,7 +246,8 @@ void PublishRepositoryDialog::refreshNamespaces() {
         dialog->mNamespaces->clear();
         int personalIndex = -1;
         for (const Account::RepositoryNamespace &space : namespaces) {
-          QString label = space.fullName.isEmpty() ? space.name : space.fullName;
+          QString label =
+              space.fullName.isEmpty() ? space.name : space.fullName;
           if (space.personal)
             label = tr("Personal (%1)").arg(label);
           dialog->mNamespaces->addItem(label, space.id);
@@ -266,15 +288,17 @@ bool PublishRepositoryDialog::validate(QString *error) const {
   if (repositoryName().isEmpty())
     return fail(tr("Enter a repository name."));
 
-  const QByteArray remoteNameBytes = remoteName().toUtf8();
-  int validRemoteName = 0;
-  if (remoteNameBytes.isEmpty() ||
-      git_remote_name_is_valid(&validRemoteName, remoteNameBytes.constData()) <
-          0 ||
-      !validRemoteName)
-    return fail(tr("Enter a valid Git remote name."));
-  if (mRepo.lookupRemote(remoteName()).isValid())
-    return fail(tr("A remote named '%1' already exists.").arg(remoteName()));
+  if (mMode == PublishAndPush) {
+    const QByteArray remoteNameBytes = remoteName().toUtf8();
+    int validRemoteName = 0;
+    if (remoteNameBytes.isEmpty() ||
+        git_remote_name_is_valid(&validRemoteName,
+                                 remoteNameBytes.constData()) < 0 ||
+        !validRemoteName)
+      return fail(tr("Enter a valid Git remote name."));
+    if (mRepo.lookupRemote(remoteName()).isValid())
+      return fail(tr("A remote named '%1' already exists.").arg(remoteName()));
+  }
 
   return true;
 }
@@ -284,15 +308,16 @@ void PublishRepositoryDialog::setBusy(bool busy) {
   mAccounts->setEnabled(!busy);
   mNamespaces->setEnabled(!busy && mNamespaces->count() > 0);
   mRepositoryName->setEnabled(!busy);
-  mRemoteName->setEnabled(!busy);
+  mRemoteName->setEnabled(!busy && mMode == PublishAndPush);
   mDescription->setEnabled(!busy);
   mVisibility->setEnabled(!busy && mVisibility->count() > 1);
   mProtocol->setEnabled(!busy);
   mAddAccount->setEnabled(!busy);
-  mAddRemote->setEnabled(!busy);
+  mAddRemote->setEnabled(!busy && mMode == PublishAndPush);
   mButtons->button(QDialogButtonBox::Cancel)->setEnabled(!busy);
-  mPublish->setText(busy ? tr("Creating Repository…")
-                         : tr("Create Repository and Push"));
+  mPublish->setText(busy                  ? tr("Creating Repository…")
+                    : mMode == CreateOnly ? tr("Create Repository")
+                                          : tr("Create Repository and Push"));
   updateButtons();
 }
 

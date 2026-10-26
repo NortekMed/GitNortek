@@ -10,10 +10,15 @@
 #include "git/Config.h"
 #include "git/Reference.h"
 #include "git/Remote.h"
+#include "host/Accounts.h"
+#include <QAction>
+#include <QComboBox>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMenu>
 #include <QPlainTextEdit>
 #include <QProcess>
+#include <QSignalSpy>
 #include <QToolButton>
 
 using namespace Test;
@@ -31,6 +36,26 @@ public:
   }
 
   QStringList resolvedUrls;
+};
+
+class AccountCleanup {
+public:
+  ~AccountCleanup() {
+    Accounts *accounts = Accounts::instance();
+    for (Account *account : mAccounts) {
+      if (accounts->indexOf(account) >= 0)
+        accounts->removeAccount(account);
+    }
+  }
+
+  Account *create(Account::Kind kind, const QString &username) {
+    Account *account = Accounts::instance()->createAccount(kind, username);
+    mAccounts.append(account);
+    return account;
+  }
+
+private:
+  QList<Account *> mAccounts;
 };
 
 bool runGit(const QString &workingDirectory, const QStringList &arguments,
@@ -53,6 +78,7 @@ class TestRemotes : public QObject {
 
 private slots:
   void dialogAddsAndEditsRemote();
+  void dialogSelectsProviderAndPrefillsUrls();
   void validatesAndRenamesRemote();
   void configuredPushRefspecsAndExplicitOverride();
 };
@@ -63,6 +89,7 @@ void TestRemotes::dialogAddsAndEditsRemote() {
   QVERIFY(remoteDir.isValid());
 
   RemoteConfigDialog blankAdd(repository);
+  QVERIFY(blankAdd.width() >= blankAdd.sizeHint().width() * 2);
   auto *blankName =
       blankAdd.findChild<QLineEdit *>(QStringLiteral("RemoteName"));
   auto *blankFetchUrl =
@@ -85,11 +112,24 @@ void TestRemotes::dialogAddsAndEditsRemote() {
   QVERIFY(blankName->placeholderText().contains(QStringLiteral("origin")));
   QVERIFY(blankFetchUrl->text().isEmpty());
   QVERIFY(
-      blankFetchUrl->placeholderText().contains(QStringLiteral("github.com")));
+      !blankFetchUrl->placeholderText().contains(QStringLiteral("github.com")));
   QVERIFY(blankPushUrl->text().isEmpty());
   QVERIFY(
-      blankPushUrl->placeholderText().contains(QStringLiteral("github.com")));
+      !blankPushUrl->placeholderText().contains(QStringLiteral("github.com")));
   QVERIFY(pushUrlHint->text().contains(QStringLiteral("fetch URL")));
+  QCOMPARE(blankAdd.service(), -1);
+  QCOMPARE(blankAdd.protocol(), Repository::Ssh);
+  auto *protocol =
+      blankAdd.findChild<QComboBox *>(QStringLiteral("RemoteProtocol"));
+  auto *fetchExample =
+      blankAdd.findChild<QLabel *>(QStringLiteral("RemoteFetchUrlExample"));
+  auto *pushExample =
+      blankAdd.findChild<QLabel *>(QStringLiteral("RemotePushUrlExample"));
+  QVERIFY(protocol);
+  QVERIFY(fetchExample);
+  QVERIFY(pushExample);
+  QVERIFY(fetchExample->text().contains(QStringLiteral("<host>")));
+  QVERIFY(pushExample->text().contains(QStringLiteral("<host>")));
   QVERIFY(!refspecToggle->isChecked());
   QVERIFY(advanced->isHidden());
 
@@ -154,6 +194,117 @@ void TestRemotes::dialogAddsAndEditsRemote() {
   QVERIFY(remote.pushUrl().isEmpty());
   QVERIFY(remote.effectivePushUrl() == remote.url());
   QVERIFY(remote.pushRefspecs().isEmpty());
+}
+
+void TestRemotes::dialogSelectsProviderAndPrefillsUrls() {
+  ScratchRepository repository;
+  AccountCleanup accountCleanup;
+  Account *github = accountCleanup.create(Account::GitHub, "alice");
+  Repository *hosted = github->addRepository(QStringLiteral("project"),
+                                             QStringLiteral("alice/project"));
+  hosted->setUrl(Repository::Https,
+                 QStringLiteral("https://github.com/alice/project.git"));
+  hosted->setUrl(Repository::Ssh,
+                 QStringLiteral("git@github.com:alice/project.git"));
+  Account *gitlab = accountCleanup.create(Account::GitLab, "bob");
+  Repository *other = gitlab->addRepository(QStringLiteral("other"),
+                                            QStringLiteral("bob/other"));
+  other->setUrl(Repository::Https,
+                QStringLiteral("https://gitlab.com/bob/other.git"));
+  other->setUrl(Repository::Ssh,
+                QStringLiteral("git@gitlab.com:bob/other.git"));
+
+  RemoteConfigDialog dialog(repository, git::Remote(),
+                            QStringLiteral("origin"));
+  auto *githubButton =
+      dialog.findChild<QToolButton *>(QStringLiteral("RemoteServiceGitHub"));
+  auto *gitlabButton =
+      dialog.findChild<QToolButton *>(QStringLiteral("RemoteServiceGitLab"));
+  auto *protocol =
+      dialog.findChild<QComboBox *>(QStringLiteral("RemoteProtocol"));
+  auto *fetchUrl =
+      dialog.findChild<QLineEdit *>(QStringLiteral("RemoteFetchUrl"));
+  auto *pushUrl =
+      dialog.findChild<QLineEdit *>(QStringLiteral("RemotePushUrl"));
+  auto *fetchExample =
+      dialog.findChild<QLabel *>(QStringLiteral("RemoteFetchUrlExample"));
+  auto *accountMenu =
+      dialog.findChild<QToolButton *>(QStringLiteral("RemoteAccountMenu"));
+  QVERIFY(githubButton);
+  QVERIFY(gitlabButton);
+  QVERIFY(protocol);
+  QVERIFY(fetchUrl);
+  QVERIFY(pushUrl);
+  QVERIFY(fetchExample);
+  QVERIFY(accountMenu);
+  QVERIFY(!githubButton->icon().isNull());
+  QVERIFY(!gitlabButton->icon().isNull());
+
+  githubButton->click();
+  QCOMPARE(dialog.service(), int(Account::GitHub));
+  QVERIFY(fetchExample->text().contains(QStringLiteral("github.com")));
+  QVERIFY(!accountMenu->isHidden());
+
+  QMenu *menu = accountMenu->menu();
+  QVERIFY(menu);
+  QMetaObject::invokeMethod(menu, "aboutToShow", Qt::DirectConnection);
+  QMenu *githubMenu = nullptr;
+  for (QAction *action : menu->actions()) {
+    if (action->menu() && action->text().contains(QStringLiteral("alice")))
+      githubMenu = action->menu();
+  }
+  QVERIFY(githubMenu);
+  QCOMPARE(githubMenu->actions().size(), 1);
+  githubMenu->actions().first()->trigger();
+  QCOMPARE(fetchUrl->text(),
+           QStringLiteral("git@github.com:alice/project.git"));
+  QCOMPARE(pushUrl->text(), QStringLiteral("git@github.com:alice/project.git"));
+
+  protocol->setCurrentIndex(protocol->findData(Repository::Https));
+  QCOMPARE(fetchUrl->text(),
+           QStringLiteral("https://github.com/alice/project.git"));
+  QCOMPARE(pushUrl->text(),
+           QStringLiteral("https://github.com/alice/project.git"));
+
+  fetchUrl->setText(QStringLiteral("ssh://manual.example/project"));
+  protocol->setCurrentIndex(protocol->findData(Repository::Ssh));
+  QCOMPARE(fetchUrl->text(), QStringLiteral("ssh://manual.example/project"));
+  QCOMPARE(pushUrl->text(), QStringLiteral("git@github.com:alice/project.git"));
+
+  dialog.setCreatedRepositoryUrls(
+      QStringLiteral("https://github.com/alice/new-project.git"),
+      QStringLiteral("git@github.com:alice/new-project.git"),
+      Repository::Https);
+  auto *repositoryStatus =
+      dialog.findChild<QLabel *>(QStringLiteral("RemoteRepositoryStatus"));
+  QVERIFY(repositoryStatus);
+  QVERIFY(repositoryStatus->text().contains(QStringLiteral("not been pushed")));
+  QCOMPARE(protocol->currentData().toInt(), int(Repository::Https));
+  QCOMPARE(fetchUrl->text(),
+           QStringLiteral("https://github.com/alice/new-project.git"));
+  QCOMPARE(pushUrl->text(),
+           QStringLiteral("https://github.com/alice/new-project.git"));
+
+  QSignalSpy createRequested(&dialog,
+                             &RemoteConfigDialog::createRepositoryRequested);
+  QVERIFY(createRequested.isValid());
+  QMetaObject::invokeMethod(menu, "aboutToShow", Qt::DirectConnection);
+  QAction *createAction = nullptr;
+  for (QAction *action : menu->actions()) {
+    if (action->text() == QStringLiteral("Create new repository…"))
+      createAction = action;
+  }
+  QVERIFY(createAction);
+  createAction->trigger();
+  QCOMPARE(createRequested.count(), 1);
+  QCOMPARE(createRequested.first().at(0).toInt(), int(Account::GitHub));
+  QCOMPARE(createRequested.first().at(1).toInt(), int(Repository::Https));
+
+  gitlabButton->click();
+  QCOMPARE(dialog.service(), int(Account::GitLab));
+  QVERIFY(fetchExample->text().contains(QStringLiteral("gitlab.com")));
+  QCOMPARE(fetchUrl->text(),
+           QStringLiteral("https://github.com/alice/new-project.git"));
 }
 
 void TestRemotes::validatesAndRenamesRemote() {

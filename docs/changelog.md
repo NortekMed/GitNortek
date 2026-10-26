@@ -48,6 +48,7 @@ Bug Fix and Feature release
 * Warn before pushing a parent commit whose initialized submodule pins cannot be proven available from their clone URLs
 * Publish a local repository to a connected hosting account when pushing without a default remote, then add the selected SSH or HTTPS remote and push the current branch
 * Configure remotes with separate fetch and optional push URLs plus fetch and push refspecs; normal Push honors configured push refspecs
+* Select a hosting service and SSH or HTTPS when adding remotes, use matching connected-account repositories to prefill URLs, and create a hosted repository through Publish Repository before returning its URLs to the Add Remote form
 * Show example placeholders for remote names and fetch URLs without using them as configured values
 * Add a green Stage All Changes button above the working-directory file tree
 * Show a dual-column diff overview bar in complete-file views, with left and right change markers using the editor's addition and deletion colors, alongside previous/next modified-block controls
@@ -59,6 +60,8 @@ Bug Fix and Feature release
 * Add asynchronous Stop Tracking and Ignore actions for tracked files and folders with protected repository paths and optional deletion
 
 #### Changed
+
+* Use clang-format 22 consistently in the project formatting script and pre-commit hook
 
 * Disable repository menu actions when no repository is open to prevent null-view crashes
 

@@ -37,6 +37,7 @@ private slots:
   void publicVisibilityForGitHub();
   void noAccountOffersManualRemote();
   void existingRemoteNameIsRejected();
+  void createOnlyUsesSelectedHostAndProtocol();
 
 private:
   Test::ScratchRepository mRepo;
@@ -118,6 +119,45 @@ void TestPublishRepository::existingRemoteNameIsRejected() {
   PublishRepositoryDialog dialog(mRepo);
   QVERIFY(publishButton(&dialog));
   QVERIFY(!publishButton(&dialog)->isEnabled());
+}
+
+void TestPublishRepository::createOnlyUsesSelectedHostAndProtocol() {
+  Account *github =
+      Accounts::instance()->createAccount(Account::GitHub, "alice");
+  Accounts::instance()->createAccount(Account::GitLab, "bob");
+
+  PublishRepositoryDialog dialog(mRepo, nullptr,
+                                 PublishRepositoryDialog::CreateOnly,
+                                 Account::GitHub, Repository::Https);
+  auto *accounts = dialog.findChild<QComboBox *>("PublishAccount");
+  auto *protocol = dialog.findChild<QComboBox *>("PublishProtocol");
+  auto *remoteName = dialog.findChild<QLineEdit *>("PublishRemoteName");
+  auto *addRemote = dialog.findChild<QPushButton *>("AddExistingRemote");
+  auto *create = dialog.findChild<QPushButton *>("CreateRepository");
+  QVERIFY(accounts);
+  QVERIFY(protocol);
+  QVERIFY(remoteName);
+  QVERIFY(addRemote);
+  QVERIFY(create);
+
+  QCOMPARE(dialog.windowTitle(), QStringLiteral("Create Repository"));
+  QCOMPARE(accounts->count(), 1);
+  QCOMPARE(dialog.account(), github);
+  QCOMPARE(protocol->currentData().toInt(), int(Repository::Https));
+  QVERIFY(remoteName->isHidden());
+  QVERIFY(addRemote->isHidden());
+  QVERIFY(create->isEnabled());
+
+  QSignalSpy createRequested(
+      &dialog, &PublishRepositoryDialog::createRepositoryRequested);
+  QSignalSpy publishRequested(&dialog,
+                              &PublishRepositoryDialog::publishRequested);
+  QVERIFY(createRequested.isValid());
+  QVERIFY(publishRequested.isValid());
+  create->click();
+  QCOMPARE(createRequested.count(), 1);
+  QCOMPARE(publishRequested.count(), 0);
+  dialog.complete();
 }
 
 int main(int argc, char *argv[]) {

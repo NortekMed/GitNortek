@@ -42,6 +42,7 @@
 #include <QListView>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QPointer>
 #include <QShortcut>
 #include <QSpinBox>
 #include <QStackedWidget>
@@ -241,8 +242,24 @@ public:
   }
 
   void addRemote(const QString &name = QString()) {
-    RemoteConfigDialog *dialog =
-        new RemoteConfigDialog(mRepo, git::Remote(), name, this);
+    auto *dialog = new RemoteConfigDialog(mRepo, git::Remote(), name, this);
+    connect(dialog, &RemoteConfigDialog::createRepositoryRequested, this,
+            [this, dialog](int service, int protocol) {
+              RepoView *view = RepoView::parentView(this);
+              if (!view)
+                return;
+
+              QPointer<RemoteConfigDialog> dialogGuard(dialog);
+              view->promptToCreateRepository(
+                  static_cast<Account::Kind>(service),
+                  static_cast<Repository::Protocol>(protocol),
+                  [dialogGuard](const QString &httpsUrl, const QString &sshUrl,
+                                Repository::Protocol selectedProtocol) {
+                    if (dialogGuard)
+                      dialogGuard->setCreatedRepositoryUrls(httpsUrl, sshUrl,
+                                                            selectedProtocol);
+                  });
+            });
     dialog->open();
   }
 

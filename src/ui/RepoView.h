@@ -272,8 +272,11 @@ public:
             const git::Reference &src = git::Reference(),
             const QString &dst = QString(), bool setUpstream = false,
             bool force = false, bool tags = false, bool checkSubmodules = true);
-  void promptToPublishRepository(
-      const git::Reference &src = git::Reference());
+  void promptToPublishRepository(const git::Reference &src = git::Reference());
+  void promptToCreateRepository(
+      Account::Kind kind, Repository::Protocol protocol,
+      const std::function<void(const QString &, const QString &,
+                               Repository::Protocol)> &callback);
 
   // commit
   bool commit(const git::Signature &author, const git::Signature &commiter,

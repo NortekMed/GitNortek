@@ -2450,64 +2450,118 @@ void RepoView::promptToPublishRepository(const git::Reference &src) {
             ConfigDialog *settings = configureSettings(ConfigDialog::Remotes);
             settings->addRemote(QStringLiteral("origin"));
           });
-  connect(dialog, &PublishRepositoryDialog::publishRequested, this,
-          [this, dialog, src] {
+  connect(
+      dialog, &PublishRepositoryDialog::publishRequested, this,
+      [this, dialog, src] {
+        Account *account = dialog->account();
+        if (!account) {
+          dialog->showError(tr("Select or add a hosting account."));
+          return;
+        }
+
+        const git::Reference reference = src.isValid() ? src : mRepo.head();
+        if (!reference.isValid()) {
+          dialog->showError(
+              tr("Create a commit before publishing this repository."));
+          return;
+        }
+
+        const QString namespaceId = dialog->namespaceId();
+        const QString repositoryName = dialog->repositoryName();
+        const QString remoteName = dialog->remoteName();
+        const QString description = dialog->description();
+        const bool isPublic = dialog->isPublic();
+        const Repository::Protocol protocol = dialog->protocol();
+        QPointer<PublishRepositoryDialog> dialogGuard(dialog);
+        QPointer<RepoView> viewGuard(this);
+        QPointer<Account> accountGuard(account);
+
+        account->createRepository(
+            namespaceId, repositoryName, description, isPublic,
+            [dialogGuard, viewGuard, accountGuard, reference, remoteName,
+             protocol](bool success, Repository *hostedRepository,
+                       const QString &error) {
+              if (!dialogGuard || !viewGuard || !accountGuard)
+                return;
+              if (!success || !hostedRepository) {
+                dialogGuard->showError(error.isEmpty()
+                                           ? tr("The hosting service could not "
+                                                "create the repository.")
+                                           : error);
+                return;
+              }
+
+              const QString url = hostedRepository->url(protocol);
+              if (url.isEmpty()) {
+                dialogGuard->showError(
+                    tr("The repository was created, but the hosting service "
+                       "did not return a clone URL."));
+                return;
+              }
+
+              git::Remote remote = viewGuard->mRepo.addRemote(remoteName, url);
+              if (!remote.isValid()) {
+                dialogGuard->showError(
+                    tr("The hosted repository was created, but GitNortek could "
+                       "not add remote '%1'. Add this URL manually: %2")
+                        .arg(remoteName, url));
+                return;
+              }
+
+              dialogGuard->complete();
+              viewGuard->push(remote, reference, QString(), true);
+            });
+      });
+  dialog->open();
+}
+
+void RepoView::promptToCreateRepository(
+    Account::Kind kind, Repository::Protocol protocol,
+    const std::function<void(const QString &, const QString &,
+                             Repository::Protocol)> &callback) {
+  auto *dialog = new PublishRepositoryDialog(
+      mRepo, this, PublishRepositoryDialog::CreateOnly, kind, protocol);
+  connect(dialog, &PublishRepositoryDialog::createRepositoryRequested, this,
+          [dialog, callback] {
             Account *account = dialog->account();
             if (!account) {
-              dialog->showError(tr("Select or add a hosting account."));
-              return;
-            }
-
-            const git::Reference reference = src.isValid() ? src : mRepo.head();
-            if (!reference.isValid()) {
               dialog->showError(
-                  tr("Create a commit before publishing this repository."));
+                  tr("Connect a hosting account to create this repository."));
               return;
             }
 
-            const QString namespaceId = dialog->namespaceId();
-            const QString repositoryName = dialog->repositoryName();
-            const QString remoteName = dialog->remoteName();
-            const QString description = dialog->description();
-            const bool isPublic = dialog->isPublic();
-            const Repository::Protocol protocol = dialog->protocol();
             QPointer<PublishRepositoryDialog> dialogGuard(dialog);
-            QPointer<RepoView> viewGuard(this);
             QPointer<Account> accountGuard(account);
-
+            const Repository::Protocol selectedProtocol = dialog->protocol();
             account->createRepository(
-                namespaceId, repositoryName, description, isPublic,
-                [dialogGuard, viewGuard, accountGuard, reference, remoteName,
-                 protocol](bool success, Repository *hostedRepository,
-                           const QString &error) {
-                  if (!dialogGuard || !viewGuard || !accountGuard)
+                dialog->namespaceId(), dialog->repositoryName(),
+                dialog->description(), dialog->isPublic(),
+                [dialogGuard, accountGuard, callback,
+                 selectedProtocol](bool success, Repository *hostedRepository,
+                                   const QString &error) {
+                  if (!dialogGuard || !accountGuard)
                     return;
                   if (!success || !hostedRepository) {
                     dialogGuard->showError(
-                        error.isEmpty()
-                            ? tr("The hosting service could not create the repository.")
-                            : error);
+                        error.isEmpty() ? tr("The hosting service could not "
+                                             "create the repository.")
+                                        : error);
                     return;
                   }
 
-                  const QString url = hostedRepository->url(protocol);
-                  if (url.isEmpty()) {
+                  const QString httpsUrl =
+                      hostedRepository->url(Repository::Https);
+                  const QString sshUrl = hostedRepository->url(Repository::Ssh);
+                  if (httpsUrl.isEmpty() && sshUrl.isEmpty()) {
                     dialogGuard->showError(
-                        tr("The repository was created, but the hosting service did not return a clone URL."));
+                        tr("The repository was created, but the hosting "
+                           "service did not return a clone URL."));
                     return;
                   }
 
-                  git::Remote remote =
-                      viewGuard->mRepo.addRemote(remoteName, url);
-                  if (!remote.isValid()) {
-                    dialogGuard->showError(
-                        tr("The hosted repository was created, but GitNortek could not add remote '%1'. Add this URL manually: %2")
-                            .arg(remoteName, url));
-                    return;
-                  }
-
+                  if (callback)
+                    callback(httpsUrl, sshUrl, selectedProtocol);
                   dialogGuard->complete();
-                  viewGuard->push(remote, reference, QString(), true);
                 });
           });
   dialog->open();

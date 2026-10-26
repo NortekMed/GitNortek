@@ -573,7 +573,37 @@ void TestMainWindow::remoteContextMenuMirrorsRemoteMenu() {
 
   QVERIFY(configuredView->findChild<RemoteConfigDialog *>());
   QVERIFY(!configuredView->findChild<PublishRepositoryDialog *>());
-  configuredView->findChild<RemoteConfigDialog *>()->reject();
+  RemoteConfigDialog *addRemoteDialog =
+      configuredView->findChild<RemoteConfigDialog *>();
+  auto *githubService = addRemoteDialog->findChild<QToolButton *>(
+      QStringLiteral("RemoteServiceGitHub"));
+  auto *accountMenu = addRemoteDialog->findChild<QToolButton *>(
+      QStringLiteral("RemoteAccountMenu"));
+  QVERIFY(githubService);
+  QVERIFY(accountMenu);
+  githubService->click();
+  QMetaObject::invokeMethod(accountMenu->menu(), "aboutToShow",
+                            Qt::DirectConnection);
+  QAction *createRepository = nullptr;
+  for (QAction *action : accountMenu->menu()->actions()) {
+    if (action->text() == QStringLiteral("Create new repository…")) {
+      createRepository = action;
+      break;
+    }
+  }
+  QVERIFY(createRepository);
+  createRepository->trigger();
+  QTRY_VERIFY(configuredView->findChild<PublishRepositoryDialog *>());
+  PublishRepositoryDialog *createDialog =
+      configuredView->findChild<PublishRepositoryDialog *>();
+  QCOMPARE(createDialog->windowTitle(), QStringLiteral("Create Repository"));
+  QVERIFY(createDialog->findChild<QPushButton *>("CreateRepository"));
+  auto *createOnlyAddRemote =
+      createDialog->findChild<QPushButton *>("AddExistingRemote");
+  QVERIFY(createOnlyAddRemote);
+  QVERIFY(createOnlyAddRemote->isHidden());
+  createDialog->reject();
+  addRemoteDialog->reject();
 }
 
 void TestMainWindow::initialRefreshOnce() {

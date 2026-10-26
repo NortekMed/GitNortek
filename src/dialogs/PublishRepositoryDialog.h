@@ -24,8 +24,12 @@ class PublishRepositoryDialog : public QDialog {
   Q_OBJECT
 
 public:
-  explicit PublishRepositoryDialog(const git::Repository &repo,
-                                   QWidget *parent = nullptr);
+  enum Mode { PublishAndPush, CreateOnly };
+
+  explicit PublishRepositoryDialog(
+      const git::Repository &repo, QWidget *parent = nullptr,
+      Mode mode = PublishAndPush, Account::Kind preferredKind = Account::GitHub,
+      Repository::Protocol preferredProtocol = Repository::Ssh);
 
   Account *account() const;
   QString namespaceId() const;
@@ -45,6 +49,7 @@ protected:
 
 signals:
   void publishRequested();
+  void createRepositoryRequested();
   void addRemoteRequested();
 
 private:
@@ -54,6 +59,8 @@ private:
   bool validate(QString *error) const;
 
   git::Repository mRepo;
+  Mode mMode;
+  Account::Kind mPreferredKind;
   QComboBox *mAccounts;
   QComboBox *mNamespaces;
   QLineEdit *mRepositoryName;
