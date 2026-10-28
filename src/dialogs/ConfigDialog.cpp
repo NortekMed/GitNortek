@@ -173,8 +173,9 @@ class RemotesPanel : public QWidget {
   Q_OBJECT
 
 public:
-  RemotesPanel(const git::Repository &repo, QWidget *parent = nullptr)
-      : QWidget(parent), mRepo(repo) {
+  RemotesPanel(RepoView *view, QWidget *parent = nullptr)
+      : QWidget(parent), mRepo(view->repo()), mView(view) {
+    const git::Repository repo = mRepo;
     QTableView *table = new QTableView(this);
     table->verticalHeader()->setVisible(false);
     table->horizontalHeader()->setStretchLastSection(true);
@@ -243,6 +244,11 @@ public:
 
   void addRemote(const QString &name = QString()) {
     auto *dialog = new RemoteConfigDialog(mRepo, git::Remote(), name, this);
+    connect(dialog, &QDialog::accepted, this, [this, dialog] {
+      git::Remote remote = mRepo.lookupRemote(dialog->name());
+      if (remote)
+        mView->fetch(remote);
+    });
     connect(dialog, &RemoteConfigDialog::createRepositoryRequested, this,
             [this, dialog](int service, int protocol) {
               RepoView *view = RepoView::parentView(this);
@@ -272,12 +278,13 @@ public:
 
 private:
   git::Repository mRepo;
+  RepoView *mView;
 };
 
 class BranchesPanel : public QWidget {
 public:
-  BranchesPanel(const git::Repository &repo, QWidget *parent = nullptr)
-      : QWidget(parent) {
+  BranchesPanel(RepoView *view, QWidget *parent = nullptr) : QWidget(parent) {
+    const git::Repository repo = view->repo();
     mTable = new QTableView(this);
     mTable->verticalHeader()->setVisible(false);
     mTable->setEditTriggers(QAbstractItemView::SelectedClicked);
@@ -285,7 +292,12 @@ public:
     mTable->setSelectionMode(QAbstractItemView::ExtendedSelection);
     mTable->setShowGrid(false);
 
-    mTable->setModel(new BranchTableModel(repo, this));
+    auto *model = new BranchTableModel(repo, this);
+    mTable->setModel(model);
+    connect(model, &BranchTableModel::upstreamAssigned, view,
+            [view](const git::Branch &branch) {
+              view->fetch(branch.upstream().remote());
+            });
     mTable->setItemDelegate(new BranchDelegate(repo, mTable));
 
     // Set section resize mode after model is set.
@@ -295,16 +307,22 @@ public:
     Footer *footer = new Footer(mTable);
     footer->setPlusEnabled(repo.head().isValid());
 
-    connect(footer, &Footer::plusClicked, this, [this, repo] {
+    connect(footer, &Footer::plusClicked, this, [this, repo, view] {
       NewBranchDialog *dialog = new NewBranchDialog(repo, git::Commit(), this);
-      connect(dialog, &QDialog::accepted, this, [repo, dialog] {
+      connect(dialog, &QDialog::accepted, this, [repo, dialog, view] {
         QString name = dialog->name();
         git::Commit commit = dialog->target();
         git::Branch branch = git::Repository(repo).createBranch(name, commit);
 
         // Start tracking.
-        if (branch.isValid())
-          branch.setUpstream(dialog->upstream());
+        if (branch.isValid()) {
+          const git::Reference requested = dialog->upstream();
+          branch.setUpstream(requested);
+          const git::Branch assigned = branch.upstream();
+          if (requested.isValid() && assigned.isValid() &&
+              assigned.qualifiedName() == requested.qualifiedName())
+            view->fetch(assigned.remote());
+        }
       });
 
       dialog->open();
@@ -864,7 +882,7 @@ ConfigDialog::ConfigDialog(RepoView *view, Index index) : QDialog(view) {
   remotes->setActionGroup(mActions);
   remotes->setCheckable(true);
 
-  mStack->addWidget(new RemotesPanel(view->repo(), this));
+  mStack->addWidget(new RemotesPanel(view, this));
 
   // Add branches panel.
   QAction *branches =
@@ -872,7 +890,7 @@ ConfigDialog::ConfigDialog(RepoView *view, Index index) : QDialog(view) {
   branches->setActionGroup(mActions);
   branches->setCheckable(true);
 
-  mStack->addWidget(new BranchesPanel(view->repo(), this));
+  mStack->addWidget(new BranchesPanel(view, this));
 
   // Add submodules panel.
   QAction *submodules =

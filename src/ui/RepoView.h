@@ -271,7 +271,8 @@ public:
   void push(const git::Remote &remote = git::Remote(),
             const git::Reference &src = git::Reference(),
             const QString &dst = QString(), bool setUpstream = false,
-            bool force = false, bool tags = false, bool checkSubmodules = true);
+            bool force = false, bool tags = false, bool checkSubmodules = true,
+            std::function<void()> afterPush = {});
   void promptToPublishRepository(const git::Reference &src = git::Reference());
   void promptToCreateRepository(
       Account::Kind kind, Repository::Protocol protocol,
@@ -486,7 +487,8 @@ private:
                   const git::Reference &ref, const QString &dst,
                   bool setUpstream, bool force, bool tags, LogEntry *entry,
                   const QString &remoteBranchName,
-                  bool useConfiguredPushRefspecs);
+                  bool useConfiguredPushRefspecs,
+                  std::function<void()> afterPush = {});
   void submodulePushSucceeded(const QString &repositoryPath);
 
   struct SubmoduleInfo {

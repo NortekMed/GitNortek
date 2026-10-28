@@ -1575,6 +1575,8 @@ void RepositoryNavigator::promptToCreateWorktree() {
   connect(dialog, &QDialog::accepted, this, [this, dialog, repositoryPath] {
     const git::Branch selected = dialog->branch();
     const QString selectedName = selected.name();
+    const git::Remote selectedRemote =
+        selected.isRemoteBranch() ? selected.remote() : git::Remote();
     const git_branch_t branchType = selected.isRemoteBranch()
                                         ? GIT_BRANCH_REMOTE
                                         : GIT_BRANCH_LOCAL;
@@ -1595,7 +1597,8 @@ void RepositoryNavigator::promptToCreateWorktree() {
     mWorktreeAdd->setEnabled(false);
     auto *watcher = new QFutureWatcher<WorktreeCreationResult>(this);
     connect(watcher, &QFutureWatcherBase::finished, this,
-            [this, watcher, createdRoot, rootPath, initializeSubmodules] {
+            [this, watcher, createdRoot, rootPath, initializeSubmodules,
+             selectedRemote] {
               WorktreeCreationResult outcome = watcher->result();
               watcher->deleteLater();
               mCreatingWorktree = false;
@@ -1614,6 +1617,9 @@ void RepositoryNavigator::promptToCreateWorktree() {
                     outcome.result.errorString(tr("Unable to create worktree.")));
                 return;
               }
+
+              if (selectedRemote.isValid() && mRepoView)
+                mRepoView->fetch(selectedRemote);
 
               mModel->refresh();
               emit openRepositoryRequested(outcome.path, initializeSubmodules);

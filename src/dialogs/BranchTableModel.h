@@ -30,6 +30,9 @@ public:
   bool setData(const QModelIndex &index, const QVariant &value,
                int role = Qt::EditRole);
 
+signals:
+  void upstreamAssigned(const git::Branch &branch);
+
 private:
   QList<git::Branch> branches() const;
 

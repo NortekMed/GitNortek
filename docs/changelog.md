@@ -4,6 +4,8 @@ Bug Fix and Feature release
 
 #### Added
 
+* Fetch a remote immediately after adding it or assigning it as a branch upstream, independent of automatic fetch settings
+
 * Improve file inspection layout with blame beside the editor and automatic repository sidebar handling
 
 * Keep Diff View blame annotations visible and aligned while scrolling and

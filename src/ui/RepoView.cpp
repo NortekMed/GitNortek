@@ -2509,7 +2509,11 @@ void RepoView::promptToPublishRepository(const git::Reference &src) {
               }
 
               dialogGuard->complete();
-              viewGuard->push(remote, reference, QString(), true);
+              viewGuard->push(remote, reference, QString(), true, false, false,
+                              true, [viewGuard, remote] {
+                                if (viewGuard)
+                                  viewGuard->fetch(remote);
+                              });
             });
       });
   dialog->open();
@@ -2569,15 +2573,22 @@ void RepoView::promptToCreateRepository(
 
 void RepoView::push(const git::Remote &rmt, const git::Reference &src,
                     const QString &dst, bool setUpstream, bool force, bool tags,
-                    bool checkSubmodules) {
-  if (mSubmodulePushCheckWatcher)
+                    bool checkSubmodules, std::function<void()> afterPush) {
+  if (mSubmodulePushCheckWatcher) {
+    if (afterPush) {
+      connect(mSubmodulePushCheckWatcher, &QFutureWatcherBase::finished, this,
+              [this, afterPush] { QTimer::singleShot(0, this, afterPush); });
+    }
     return;
+  }
 
   if (mWatcher) {
     // Queue push.
     connect(mWatcher, &QFutureWatcher<git::Result>::finished, mWatcher,
-            [this, rmt, src, dst, setUpstream, force, tags, checkSubmodules] {
-              push(rmt, src, dst, setUpstream, force, tags, checkSubmodules);
+            [this, rmt, src, dst, setUpstream, force, tags, checkSubmodules,
+             afterPush] {
+              push(rmt, src, dst, setUpstream, force, tags, checkSubmodules,
+                   afterPush);
             });
 
     return;
@@ -2724,8 +2735,8 @@ void RepoView::push(const git::Remote &rmt, const git::Reference &src,
           &QFutureWatcher<QList<git::SubmoduleAvailability::Issue>>::finished,
           watcher,
           [this, watcher, callbacks, remote, src, ref, dst, setUpstream, force,
-           tags, entry, remoteBranchName, checkEntry,
-           useConfiguredPushRefspecs] {
+           tags, entry, remoteBranchName, checkEntry, useConfiguredPushRefspecs,
+           afterPush] {
             checkEntry->setBusy(false);
             QList<git::SubmoduleAvailability::Issue> issues = watcher->result();
             mSubmodulePushCheckWatcher = nullptr;
@@ -2734,13 +2745,16 @@ void RepoView::push(const git::Remote &rmt, const git::Reference &src,
 
             if (callbacks->isCanceled()) {
               entry->addEntry(LogEntry::Error, tr("Push canceled."));
+              if (afterPush)
+                QTimer::singleShot(0, this, afterPush);
               return;
             }
 
             if (issues.isEmpty()) {
               callbacks->storeDeferredCredentials();
               pushRemote(remote, src, ref, dst, setUpstream, force, tags, entry,
-                         remoteBranchName, useConfiguredPushRefspecs);
+                         remoteBranchName, useConfiguredPushRefspecs,
+                         afterPush);
               return;
             }
 
@@ -2771,13 +2785,16 @@ void RepoView::push(const git::Remote &rmt, const git::Reference &src,
             dialog->setEscapeButton(QMessageBox::Cancel);
             connect(accept, &QPushButton::clicked, this,
                     [this, remote, src, ref, dst, setUpstream, force, tags,
-                     entry, remoteBranchName, useConfiguredPushRefspecs] {
+                     entry, remoteBranchName, useConfiguredPushRefspecs,
+                     afterPush] {
                       pushRemote(remote, src, ref, dst, setUpstream, force,
                                  tags, entry, remoteBranchName,
-                                 useConfiguredPushRefspecs);
+                                 useConfiguredPushRefspecs, afterPush);
                     });
-            connect(dialog, &QDialog::rejected, this, [this, entry] {
+            connect(dialog, &QDialog::rejected, this, [this, entry, afterPush] {
               entry->addEntry(LogEntry::Error, tr("Push canceled."));
+              if (afterPush)
+                QTimer::singleShot(0, this, afterPush);
             });
             dialog->open();
           });
@@ -2804,7 +2821,7 @@ void RepoView::push(const git::Remote &rmt, const git::Reference &src,
   }
 
   pushRemote(remote, src, ref, dst, setUpstream, force, tags, entry,
-             remoteBranchName, useConfiguredPushRefspecs);
+             remoteBranchName, useConfiguredPushRefspecs, afterPush);
 }
 
 QString RepoView::originTagKey(const git::Reference &tag) const {
@@ -2901,13 +2918,16 @@ void RepoView::pushRemote(const git::Remote &remote, const git::Reference &src,
                           const git::Reference &ref, const QString &dst,
                           bool setUpstream, bool force, bool tags,
                           LogEntry *entry, const QString &remoteBranchName,
-                          bool useConfiguredPushRefspecs) {
+                          bool useConfiguredPushRefspecs,
+                          std::function<void()> afterPush) {
   mWatcher = new QFutureWatcher<git::Result>(this);
   connect(
       mWatcher, &QFutureWatcher<git::Result>::finished, mWatcher,
-      [this, src, ref, setUpstream, remote, entry, remoteBranchName] {
+      [this, src, ref, setUpstream, remote, entry, remoteBranchName,
+       afterPush] {
         entry->setBusy(false);
 
+        bool upstreamAssigned = false;
         git::Result result = mWatcher->result();
         if (mCallbacks->isCanceled()) {
           entry->addEntry(LogEntry::Error, tr("Push canceled."));
@@ -2960,6 +2980,10 @@ void RepoView::pushRemote(const git::Remote &remote, const git::Reference &src,
             if (upstream.isValid()) {
               git::Branch head = src.isValid() ? src : mRepo.head();
               head.setUpstream(upstream);
+              git::Branch assigned = head.upstream();
+              upstreamAssigned =
+                  assigned.isValid() &&
+                  assigned.qualifiedName() == upstream.qualifiedName();
             }
           }
           if (remote.name() == QStringLiteral("origin") && ref.isTag()) {
@@ -2974,6 +2998,12 @@ void RepoView::pushRemote(const git::Remote &remote, const git::Reference &src,
         mWatcher->deleteLater();
         mWatcher = nullptr;
         mCallbacks = nullptr;
+
+        if (afterPush) {
+          QTimer::singleShot(0, this, afterPush);
+        } else if (upstreamAssigned) {
+          QTimer::singleShot(0, this, [this, remote] { fetch(remote); });
+        }
       });
 
   QString url = remote.effectivePushUrl();
@@ -3388,6 +3418,11 @@ git::Branch RepoView::createBranch(const QString &name,
   // Checkout.
   if (checkout)
     this->checkout(branch);
+
+  git::Branch assignedUpstream = branch.upstream();
+  if (upstream.isValid() && assignedUpstream.isValid() &&
+      assignedUpstream.qualifiedName() == upstream.qualifiedName())
+    fetch(assignedUpstream.remote());
 
   return branch;
 }

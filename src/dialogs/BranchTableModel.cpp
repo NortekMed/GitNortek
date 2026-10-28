@@ -117,9 +117,14 @@ bool BranchTableModel::setData(const QModelIndex &index, const QVariant &value,
       branch.rename(value.toString());
       break;
 
-    case Upstream:
-      branch.setUpstream(value.value<git::Reference>());
-      break;
+    case Upstream: {
+      const git::Reference requested = value.value<git::Reference>();
+      branch.setUpstream(requested);
+      const git::Branch assigned = branch.upstream();
+      if (requested.isValid() && assigned.isValid() &&
+          assigned.qualifiedName() == requested.qualifiedName())
+        emit upstreamAssigned(branch);
+    } break;
 
     case Rebase:
       branch.setRebase(value == Qt::Checked);

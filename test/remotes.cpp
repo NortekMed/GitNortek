@@ -6,11 +6,15 @@
 //
 
 #include "Test.h"
+#include "dialogs/BranchTableModel.h"
+#include "dialogs/ConfigDialog.h"
 #include "dialogs/RemoteConfigDialog.h"
 #include "git/Config.h"
 #include "git/Reference.h"
 #include "git/Remote.h"
 #include "host/Accounts.h"
+#include "ui/MainWindow.h"
+#include "ui/RepoView.h"
 #include <QAction>
 #include <QComboBox>
 #include <QLabel>
@@ -71,6 +75,21 @@ bool runGit(const QString &workingDirectory, const QStringList &arguments,
   return true;
 }
 
+bool createBareRemote(const QString &path) {
+  return runGit(QString(),
+                {QStringLiteral("init"), QStringLiteral("--bare"), path});
+}
+
+bool commitAndPush(const git::Repository &source, const QString &remotePath,
+                   const QString &message) {
+  return runGit(source.workdir().path(),
+                {QStringLiteral("commit"), QStringLiteral("--allow-empty"),
+                 QStringLiteral("-m"), message}) &&
+         runGit(source.workdir().path(),
+                {QStringLiteral("push"), remotePath,
+                 QStringLiteral("HEAD:refs/heads/main")});
+}
+
 } // namespace
 
 class TestRemotes : public QObject {
@@ -78,6 +97,9 @@ class TestRemotes : public QObject {
 
 private slots:
   void dialogAddsAndEditsRemote();
+  void addedRemoteFetchesWithAutomaticFetchDisabled();
+  void assignedUpstreamFetchesWithAutomaticFetchDisabled();
+  void pushedUpstreamFetchesWithAutomaticFetchDisabled();
   void dialogSelectsProviderAndPrefillsUrls();
   void validatesAndRenamesRemote();
   void configuredPushRefspecsAndExplicitOverride();
@@ -194,6 +216,172 @@ void TestRemotes::dialogAddsAndEditsRemote() {
   QVERIFY(remote.pushUrl().isEmpty());
   QVERIFY(remote.effectivePushUrl() == remote.url());
   QVERIFY(remote.pushRefspecs().isEmpty());
+}
+
+void TestRemotes::addedRemoteFetchesWithAutomaticFetchDisabled() {
+  ScratchRepository repository;
+  ScratchRepository source;
+  QTemporaryDir remoteDir;
+  QVERIFY(remoteDir.isValid());
+  QVERIFY(createBareRemote(remoteDir.path()));
+  QVERIFY(runGit(source->workdir().path(),
+                 {QStringLiteral("checkout"), QStringLiteral("-b"),
+                  QStringLiteral("main")}));
+  QVERIFY(commitAndPush(source, remoteDir.path(), QStringLiteral("initial")));
+
+  repository->appConfig().setValue(QStringLiteral("autofetch.enable"), false);
+  MainWindow window(repository);
+  window.show();
+  QVERIFY(qWaitForWindowExposed(&window));
+  RepoView *view = window.currentView();
+  QVERIFY(view);
+  ConfigDialog *settings = view->configureSettings(ConfigDialog::Remotes);
+  QVERIFY(settings);
+  settings->addRemote(QStringLiteral("upstream"));
+
+  RemoteConfigDialog *add = settings->findChild<RemoteConfigDialog *>();
+  QVERIFY(add);
+  auto *name = add->findChild<QLineEdit *>(QStringLiteral("RemoteName"));
+  auto *fetchUrl =
+      add->findChild<QLineEdit *>(QStringLiteral("RemoteFetchUrl"));
+  QVERIFY(name);
+  QVERIFY(fetchUrl);
+  QCOMPARE(name->text(), QStringLiteral("upstream"));
+  fetchUrl->setText(remoteDir.path());
+  add->accept();
+
+  QTRY_VERIFY_WITH_TIMEOUT(
+      repository
+          ->lookupBranch(QStringLiteral("upstream/main"), GIT_BRANCH_REMOTE)
+          .isValid(),
+      5000);
+  QCOMPARE(
+      repository
+          ->lookupBranch(QStringLiteral("upstream/main"), GIT_BRANCH_REMOTE)
+          .target()
+          .id()
+          .toString(),
+      source->head().target().id().toString());
+}
+
+void TestRemotes::assignedUpstreamFetchesWithAutomaticFetchDisabled() {
+  ScratchRepository repository;
+  ScratchRepository source;
+  QTemporaryDir remoteDir;
+  QVERIFY(remoteDir.isValid());
+  QVERIFY(createBareRemote(remoteDir.path()));
+  QVERIFY(runGit(source->workdir().path(),
+                 {QStringLiteral("checkout"), QStringLiteral("-b"),
+                  QStringLiteral("main")}));
+  QVERIFY(commitAndPush(source, remoteDir.path(), QStringLiteral("initial")));
+  QVERIFY(runGit(repository->workdir().path(),
+                 {QStringLiteral("checkout"), QStringLiteral("-b"),
+                  QStringLiteral("local")}));
+  QVERIFY(runGit(repository->workdir().path(),
+                 {QStringLiteral("commit"), QStringLiteral("--allow-empty"),
+                  QStringLiteral("-m"), QStringLiteral("local commit")}));
+
+  repository->appConfig().setValue(QStringLiteral("autofetch.enable"), false);
+  MainWindow window(repository);
+  window.show();
+  QVERIFY(qWaitForWindowExposed(&window));
+  RepoView *view = window.currentView();
+  QVERIFY(view);
+  git::Remote remote =
+      repository->addRemote(QStringLiteral("upstream"), remoteDir.path());
+  QVERIFY(remote.isValid());
+  Test::fetch(view, remote);
+
+  git::Branch remoteBranch = repository->lookupBranch(
+      QStringLiteral("upstream/main"), GIT_BRANCH_REMOTE);
+  QVERIFY(remoteBranch.isValid());
+  const QString oldId = remoteBranch.target().id().toString();
+  QVERIFY(commitAndPush(source, remoteDir.path(), QStringLiteral("advanced")));
+  const QString newId = source->head().target().id().toString();
+  QVERIFY(newId != oldId);
+
+  ConfigDialog *settings = view->configureSettings(ConfigDialog::Branches);
+  QVERIFY(settings);
+  auto *model = settings->findChild<BranchTableModel *>();
+  QVERIFY(model);
+
+  const QString localName = repository->head().name();
+  int localRow = -1;
+  for (int row = 0; row < model->rowCount(); ++row) {
+    if (model->index(row, BranchTableModel::Name).data().toString() ==
+        localName) {
+      localRow = row;
+      break;
+    }
+  }
+  QVERIFY(localRow >= 0);
+  QVERIFY(model->setData(model->index(localRow, BranchTableModel::Upstream),
+                         QVariant::fromValue<git::Reference>(remoteBranch),
+                         Qt::EditRole));
+
+  QTRY_COMPARE_WITH_TIMEOUT(
+      repository
+          ->lookupBranch(QStringLiteral("upstream/main"), GIT_BRANCH_REMOTE)
+          .target()
+          .id()
+          .toString(),
+      newId, 5000);
+}
+
+void TestRemotes::pushedUpstreamFetchesWithAutomaticFetchDisabled() {
+  ScratchRepository repository;
+  QTemporaryDir remoteDir;
+  QVERIFY(remoteDir.isValid());
+  QVERIFY(createBareRemote(remoteDir.path()));
+  QVERIFY(runGit(repository->workdir().path(),
+                 {QStringLiteral("checkout"), QStringLiteral("-b"),
+                  QStringLiteral("main")}));
+  QVERIFY(
+      commitAndPush(repository, remoteDir.path(), QStringLiteral("initial")));
+
+  repository->appConfig().setValue(QStringLiteral("autofetch.enable"), false);
+  MainWindow window(repository);
+  window.show();
+  QVERIFY(qWaitForWindowExposed(&window));
+  RepoView *view = window.currentView();
+  QVERIFY(view);
+  git::Remote remote =
+      repository->addRemote(QStringLiteral("upstream"), remoteDir.path());
+  QVERIFY(remote.isValid());
+  Test::fetch(view, remote);
+
+  QVERIFY(runGit(repository->workdir().path(),
+                 {QStringLiteral("commit"), QStringLiteral("--allow-empty"),
+                  QStringLiteral("-m"), QStringLiteral("advanced")}));
+  view->push(remote, repository->head(), QString(), true, false, false, false);
+
+  QTRY_VERIFY_WITH_TIMEOUT(git::Branch(repository->head()).upstream().isValid(),
+                           5000);
+  QTRY_COMPARE_WITH_TIMEOUT(
+      repository
+          ->lookupBranch(QStringLiteral("upstream/main"), GIT_BRANCH_REMOTE)
+          .target()
+          .id()
+          .toString(),
+      repository->head().target().id().toString(), 5000);
+
+  QVERIFY(runGit(repository->workdir().path(),
+                 {QStringLiteral("commit"), QStringLiteral("--allow-empty"),
+                  QStringLiteral("-m"), QStringLiteral("published commit")}));
+  bool afterPushCalled = false;
+  view->push(remote, repository->head(), QString(), false, false, false, false,
+             [&afterPushCalled, view, remote] {
+               afterPushCalled = true;
+               view->fetch(remote);
+             });
+  QTRY_VERIFY_WITH_TIMEOUT(afterPushCalled, 5000);
+  QTRY_COMPARE_WITH_TIMEOUT(
+      repository
+          ->lookupBranch(QStringLiteral("upstream/main"), GIT_BRANCH_REMOTE)
+          .target()
+          .id()
+          .toString(),
+      repository->head().target().id().toString(), 5000);
 }
 
 void TestRemotes::dialogSelectsProviderAndPrefillsUrls() {
