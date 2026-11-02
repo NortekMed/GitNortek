@@ -70,9 +70,6 @@ void openCloneDialog(CloneDialog::Kind kind) {
 
 bool MenuBar::sDebugMenuVisible = false;
 
-static Hotkey newFileHotkey = HotkeyManager::registerHotkey(
-    QKeySequence::New, "file/new", "File/New File");
-
 static Hotkey newWinHotkey = HotkeyManager::registerHotkey(
     "Ctrl+Meta+N", "file/newWindow", "File/New Window");
 
@@ -240,8 +237,8 @@ static Hotkey prevTabHotkey = HotkeyManager::registerHotkey(
 static Hotkey nextTabHotkey = HotkeyManager::registerHotkey(
     QKeySequence::NextChild, "window/nextTab", "Window/Show Next Tab");
 
-static Hotkey chooserHotkey = HotkeyManager::registerHotkey(
-    "Ctrl+Shift+O", "window/chooser", "Window/Show Repository Chooser");
+static Hotkey accountsHotkey = HotkeyManager::registerHotkey(
+    "Ctrl+Shift+O", "window/chooser", "File/Accounts");
 
 static Hotkey preferencesHotkey = HotkeyManager::registerHotkey(
     nullptr, "tools/preferences", "Tools/Options");
@@ -257,20 +254,6 @@ MenuBar::MenuBar(QWidget *parent) : QMenuBar(parent) {
 
   // File
   QMenu *file = addMenu(tr("File"));
-
-  QAction *newFile = file->addAction(tr("New File"));
-  newFileHotkey.use(newFile);
-  connect(newFile, &QAction::triggered, [] {
-    if (MainWindow *window = MainWindow::activeWindow()) {
-      if (RepoView *view = window->activeView()) {
-        view->newEditor();
-        return;
-      }
-    }
-
-    EditorWindow *window = new EditorWindow;
-    window->show();
-  });
 
   QAction *newWin = file->addAction(tr("New Window"));
   newWinHotkey.use(newWin);
@@ -313,6 +296,10 @@ MenuBar::MenuBar(QWidget *parent) : QMenuBar(parent) {
       });
     }
   });
+
+  QAction *accounts = file->addAction(tr("Accounts..."));
+  accountsHotkey.use(accounts);
+  connect(accounts, &QAction::triggered, &StartDialog::openSharedInstance);
 
   file->addSeparator();
 
@@ -828,12 +815,6 @@ MenuBar::MenuBar(QWidget *parent) : QMenuBar(parent) {
     int index = tabs->currentIndex();
     tabs->setCurrentIndex((index == tabs->count() - 1) ? 0 : index + 1);
   });
-
-  windowMenu->addSeparator();
-
-  QAction *chooser = windowMenu->addAction(tr("Show Repository Chooser..."));
-  chooserHotkey.use(chooser);
-  connect(chooser, &QAction::triggered, &StartDialog::openSharedInstance);
 
   // Tools
   QMenu *tools = addMenu(tr("Tools"));

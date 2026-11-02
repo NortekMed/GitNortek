@@ -273,7 +273,7 @@ protected:
 
 StartDialog::StartDialog(QWidget *parent) : QDialog(parent) {
   setAttribute(Qt::WA_DeleteOnClose);
-  setWindowTitle(tr("Choose Repository"));
+  setWindowTitle(tr("Accounts"));
 
   mAccountList = new QListView(this);
   mAccountList->setObjectName("RemoteAccounts");
