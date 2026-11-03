@@ -63,6 +63,10 @@ Bug Fix and Feature release
 
 #### Changed
 
+* Make local and remote branch choices explicit in the worktree dialog, with
+  content-fitted sizing, stable field alignment, and a fully visible selectable
+  target path
+
 * Use clang-format 22 consistently in the project formatting script and pre-commit hook
 
 * Disable repository menu actions when no repository is open to prevent null-view crashes

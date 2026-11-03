@@ -17,6 +17,8 @@ class QLabel;
 class QCheckBox;
 class QLineEdit;
 class QPushButton;
+class QRadioButton;
+class QStackedWidget;
 class ReferenceList;
 
 class WorktreeDialog : public QDialog {
@@ -33,6 +35,7 @@ public:
 
 private:
   void selectBranch(const git::Reference &ref);
+  void selectBranchSource(bool remote);
   void update();
   QString uniqueLocalBranchName(const git::Branch &branch) const;
   QString safeWorktreeName(const QString &branchName) const;
@@ -42,10 +45,15 @@ private:
   QString mWorktreeRoot;
   QSet<QString> mWorktreeNames;
 
-  ReferenceList *mBranches;
+  QRadioButton *mLocalBranchSource;
+  QRadioButton *mRemoteBranchSource;
+  QStackedWidget *mBranchPicker;
+  QStackedWidget *mLocalBranchField;
+  ReferenceList *mLocalBranches;
+  ReferenceList *mRemoteBranches;
   QLabel *mLocalBranchLabel;
   QLineEdit *mLocalBranchName;
-  QLineEdit *mPath;
+  QLabel *mPath;
   QCheckBox *mInitializeSubmodules;
   QLabel *mReason;
   QPushButton *mCreate;

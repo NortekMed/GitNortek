@@ -12,6 +12,7 @@
 #include "git/Repository.h"
 #include <QAbstractItemModel>
 #include <QAbstractItemView>
+#include <QFontMetrics>
 #include <QPainter>
 #include <QWheelEvent>
 #include <QtMath>
@@ -79,11 +80,11 @@ void ReferenceList::initIndex() {
   // Select index. Priority: Branch --> Tag --> Remote --> Commit ID
   QModelIndex idx;
   if ((idx = mView->firstBranch()).isValid())
-    setRootModelIndex(model()->index(0, 0));
+    setRootModelIndex(idx.parent());
   else if ((idx = mView->firstTag()).isValid())
-    setRootModelIndex(model()->index(2, 0));
+    setRootModelIndex(idx.parent());
   else if ((idx = mView->firstRemote()).isValid())
-    setRootModelIndex(model()->index(1, 0));
+    setRootModelIndex(idx.parent());
   else {
     setRootModelIndex(model()->index(0, 0));
     idx = model()->index(0, 0);
@@ -190,15 +191,39 @@ void ReferenceList::paintEvent(QPaintEvent *event) {
 
 QSize ReferenceList::calculateSizeHint() const {
   const QFontMetrics &fm = fontMetrics();
+  QFont boldFont = font();
+  boldFont.setBold(true);
+  const QFontMetrics boldFm(boldFont);
   int width = 24 * fm.horizontalAdvance(QLatin1Char('x'));
   int height = qMax(qCeil(QFontMetricsF(fm).height()), 14) + 2;
 
-  // Adjust to contents.
-  int rows = model()->rowCount();
-  for (int row = 0; row < rows; ++row) {
-    QModelIndex index = model()->index(row, 0);
-    width = qMax(width, fm.boundingRect(index.data().toString()).width());
-  }
+  // Adjust to the longest rendered reference, not its category heading.
+  auto measureReferences = [this, &fm, &boldFm, &width](
+                               auto &&self, const QModelIndex &parent) -> void {
+    const int rows = model()->rowCount(parent);
+    for (int row = 0; row < rows; ++row) {
+      const QModelIndex index = model()->index(row, 0, parent);
+      if (model()->rowCount(index) > 0) {
+        self(self, index);
+        continue;
+      }
+
+      const git::Reference ref =
+          index.data(Qt::UserRole).value<git::Reference>();
+      if (!ref.isValid())
+        continue;
+
+      const QString kind = ReferenceView::kindString(ref);
+      const int kindWidth =
+          kind.isEmpty() ? 0
+                         : fm.horizontalAdvance(kind + QStringLiteral(": "));
+      const QFontMetrics &nameFm = ref.isHead() ? boldFm : fm;
+      const int referenceWidth =
+          nameFm.horizontalAdvance(index.data(Qt::DisplayRole).toString());
+      width = qMax(width, kindWidth + referenceWidth);
+    }
+  };
+  measureReferences(measureReferences, QModelIndex());
 
   // Add style values.
   QStyleOptionComboBox opt;

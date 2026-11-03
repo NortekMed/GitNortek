@@ -13,6 +13,7 @@
 #include "dialogs/WorktreeDialog.h"
 #include "git/Branch.h"
 #include "git/Config.h"
+#include "git/Remote.h"
 #include "git/Result.h"
 #include "git/TagRef.h"
 #include "git/Tree.h"
@@ -42,14 +43,17 @@
 #include <QImage>
 #include <QLabel>
 #include <QLayout>
+#include <QLineEdit>
 #include <QMenu>
 #include <QMessageBox>
 #include <QProcess>
 #include <QProcessEnvironment>
 #include <QPushButton>
+#include <QRadioButton>
 #include <QScopeGuard>
 #include <QScrollBar>
 #include <QSet>
+#include <QStackedWidget>
 #include <QSettings>
 #include <QSignalSpy>
 #include <QSplitter>
@@ -303,6 +307,7 @@ private slots:
   void submoduleInteraction();
   void submoduleInitialization();
   void worktreeSubmoduleInitialization();
+  void worktreeRemoteSelection();
   void worktreeDeletion();
   void worktreeTabs();
   void cleanupTestCase();
@@ -3262,7 +3267,7 @@ void TestRepositorySideBar::worktreeSubmoduleInitialization() {
   WorktreeDialog *dialog = navigator->findChild<WorktreeDialog *>();
   QTRY_VERIFY(dialog);
   ReferenceList *branches =
-      dialog->findChild<ReferenceList *>("WorktreeBranch");
+      dialog->findChild<ReferenceList *>("WorktreeLocalBranch");
   QCheckBox *initializeSubmodules =
       dialog->findChild<QCheckBox *>("WorktreeInitializeSubmodules");
   QPushButton *create = dialog->findChild<QPushButton *>("WorktreeCreate");
@@ -3281,6 +3286,165 @@ void TestRepositorySideBar::worktreeSubmoduleInitialization() {
   QTRY_VERIFY(QFileInfo::exists(QDir(worktreePath).filePath("child/.git")));
   QTRY_VERIFY(
       QFileInfo::exists(QDir(worktreePath).filePath("child/grandchild/.git")));
+}
+
+void TestRepositorySideBar::worktreeRemoteSelection() {
+  QTemporaryDir sandbox;
+  QVERIFY(sandbox.isValid());
+
+  git::Repository source =
+      git::Repository::init(QDir(sandbox.path()).filePath("source"));
+  QVERIFY(source.isValid());
+  Test::initRepo(source);
+  QVERIFY(source.commit("remote initial").isValid());
+  const QString remoteBranchName = source.head().name();
+  const QString longRemoteBranchName =
+      QStringLiteral("feature-") + QString(40, QLatin1Char('x'));
+  QVERIFY(source.createBranch(longRemoteBranchName, source.head().target())
+              .isValid());
+
+  QString repoDirectory = sandbox.path();
+  for (int index = 0; index < 3; ++index) {
+    repoDirectory = QDir(repoDirectory)
+                        .filePath(QStringLiteral("segment-%1-%2")
+                                      .arg(index)
+                                      .arg(QString(24, QLatin1Char('x'))));
+  }
+  QVERIFY(QDir().mkpath(repoDirectory));
+  git::Repository repo =
+      git::Repository::init(QDir(repoDirectory).filePath("repo"));
+  QVERIFY(repo.isValid());
+  Test::initRepo(repo);
+  QVERIFY(repo.commit("local initial").isValid());
+
+  git::Remote remote = repo.addRemote("origin", source.workdir().path());
+  QVERIFY(remote.isValid());
+  git::Remote::Callbacks callbacks(remote.url(), repo);
+  git::Result fetch = remote.fetch(&callbacks);
+  QVERIFY2(fetch, qPrintable(fetch.errorString()));
+
+  git::Branch remoteBranch = repo.lookupBranch(
+      QString("origin/%1").arg(remoteBranchName), GIT_BRANCH_REMOTE);
+  QVERIFY(remoteBranch.isValid());
+  git::Branch longRemoteBranch = repo.lookupBranch(
+      QString("origin/%1").arg(longRemoteBranchName), GIT_BRANCH_REMOTE);
+  QVERIFY(longRemoteBranch.isValid());
+
+  WorktreeDialog dialog(repo);
+  QRadioButton *localSource =
+      dialog.findChild<QRadioButton *>("WorktreeLocalBranchSource");
+  QRadioButton *remoteSource =
+      dialog.findChild<QRadioButton *>("WorktreeRemoteBranchSource");
+  ReferenceList *localBranches =
+      dialog.findChild<ReferenceList *>("WorktreeLocalBranch");
+  ReferenceList *remoteBranches =
+      dialog.findChild<ReferenceList *>("WorktreeRemoteBranch");
+  QStackedWidget *branchPicker =
+      dialog.findChild<QStackedWidget *>("WorktreeBranchPicker");
+  QStackedWidget *localBranchField =
+      dialog.findChild<QStackedWidget *>("WorktreeLocalBranchField");
+  QLineEdit *localBranchName =
+      dialog.findChild<QLineEdit *>("WorktreeLocalBranchName");
+  QLabel *targetPath = dialog.findChild<QLabel *>("WorktreeTargetPath");
+  QCheckBox *initializeSubmodules =
+      dialog.findChild<QCheckBox *>("WorktreeInitializeSubmodules");
+  QPushButton *create = dialog.findChild<QPushButton *>("WorktreeCreate");
+  QVERIFY(localSource);
+  QVERIFY(remoteSource);
+  QVERIFY(localBranches);
+  QVERIFY(remoteBranches);
+  QVERIFY(branchPicker);
+  QVERIFY(localBranchField);
+  QVERIFY(localBranchName);
+  QVERIFY(targetPath);
+  QVERIFY(initializeSubmodules);
+  QVERIFY(create);
+  QVERIFY(localSource->isChecked());
+  QVERIFY(remoteSource->isEnabled());
+
+  dialog.show();
+  QTRY_VERIFY(dialog.isVisible());
+  const int dialogWidth = dialog.width();
+  const int dialogHeight = dialog.height();
+  QVERIFY(dialog.minimumWidth() < dialog.maximumWidth());
+  const QSize branchPickerSize = branchPicker->size();
+  const QRect localBranchFieldGeometry = localBranchField->geometry();
+  const QRect targetPathGeometry = targetPath->geometry();
+  const QRect submodulesGeometry = initializeSubmodules->geometry();
+  const QRect createGeometry = create->geometry();
+  QCOMPARE(localBranches->minimumSize(), localBranches->maximumSize());
+  QCOMPARE(remoteBranches->minimumSize(), remoteBranches->maximumSize());
+  QCOMPARE(branchPicker->minimumSize(), branchPicker->maximumSize());
+  QCOMPARE(localBranches->size(), remoteBranches->size());
+  QCOMPARE(branchPicker->size(), branchPickerSize);
+  QCOMPARE(targetPath->text(), dialog.path());
+  QVERIFY(targetPath->wordWrap());
+  QVERIFY(
+      targetPath->textInteractionFlags().testFlag(Qt::TextSelectableByMouse));
+  QVERIFY(targetPath->height() > targetPath->fontMetrics().height());
+
+  remoteSource->click();
+  remoteBranches->select(longRemoteBranch);
+
+  QVERIFY(remoteSource->isChecked());
+  QTRY_COMPARE(dialog.width(), dialogWidth);
+  QCOMPARE(dialog.height(), dialogHeight);
+  QCOMPARE(branchPicker->size(), branchPickerSize);
+  QCOMPARE(branchPicker->currentWidget()->size(), branchPickerSize);
+  QCOMPARE(localBranchField->geometry(), localBranchFieldGeometry);
+  QCOMPARE(targetPath->geometry(), targetPathGeometry);
+  QCOMPARE(initializeSubmodules->geometry(), submodulesGeometry);
+  QCOMPARE(create->geometry(), createGeometry);
+  QCOMPARE(targetPath->text(), dialog.path());
+  QCOMPARE(dialog.branch().qualifiedName(), longRemoteBranch.qualifiedName());
+  QVERIFY(dialog.branch().isRemoteBranch());
+  if (targetPath->fontMetrics().horizontalAdvance(targetPath->text()) >
+      targetPath->contentsRect().width()) {
+    QVERIFY(targetPath->height() > targetPath->fontMetrics().height());
+    QCOMPARE(dialog.width(), dialog.maximumWidth());
+  }
+  QVERIFY(!localBranchName->isHidden());
+  QVERIFY(create->isEnabled());
+
+  localSource->click();
+  QTRY_COMPARE(dialog.width(), dialogWidth);
+  QCOMPARE(branchPicker->size(), branchPickerSize);
+  QCOMPARE(branchPicker->currentWidget()->size(), branchPickerSize);
+  QCOMPARE(targetPath->geometry(), targetPathGeometry);
+  QCOMPARE(initializeSubmodules->geometry(), submodulesGeometry);
+  QCOMPARE(create->geometry(), createGeometry);
+  QCOMPARE(targetPath->text(), dialog.path());
+  remoteSource->click();
+  QTRY_COMPARE(dialog.width(), dialogWidth);
+  QCOMPARE(branchPicker->size(), branchPickerSize);
+  QCOMPARE(branchPicker->currentWidget()->size(), branchPickerSize);
+  QCOMPARE(targetPath->geometry(), targetPathGeometry);
+  QCOMPARE(initializeSubmodules->geometry(), submodulesGeometry);
+  QCOMPARE(create->geometry(), createGeometry);
+  QCOMPARE(targetPath->text(), dialog.path());
+
+  remoteBranches->select(remoteBranch);
+  const QString remoteLeaf = remoteBranch.name().section('/', -1);
+  const QString expectedLocalName =
+      repo.lookupBranch(remoteLeaf, GIT_BRANCH_LOCAL).isValid()
+          ? QString("origin-%1").arg(remoteLeaf)
+          : remoteLeaf;
+  QCOMPARE(dialog.localBranchName(), expectedLocalName);
+
+  QVERIFY(QDir().mkpath(QFileInfo(dialog.path()).dir().absolutePath()));
+  git::Result result;
+  git::Repository linked =
+      repo.createWorktree(dialog.worktreeName(), dialog.path(), dialog.branch(),
+                          dialog.localBranchName(), &result);
+  QVERIFY2(result, qPrintable(result.errorString()));
+  QVERIFY(linked.isValid());
+  QCOMPARE(linked.head().name(), expectedLocalName);
+  git::Branch localBranch =
+      repo.lookupBranch(expectedLocalName, GIT_BRANCH_LOCAL);
+  QVERIFY(localBranch.isValid());
+  git::Branch upstream = localBranch.upstream();
+  QVERIFY(upstream.isValid());
+  QCOMPARE(upstream.qualifiedName(), remoteBranch.qualifiedName());
 }
 
 void TestRepositorySideBar::worktreeDeletion() {
@@ -3408,7 +3572,8 @@ void TestRepositorySideBar::worktreeTabs() {
   initializeSubmodules->setChecked(false);
   QVERIFY(!dialog.initializeSubmodules());
   initializeSubmodules->setChecked(true);
-  ReferenceList *branches = dialog.findChild<ReferenceList *>("WorktreeBranch");
+  ReferenceList *branches =
+      dialog.findChild<ReferenceList *>("WorktreeLocalBranch");
   QVERIFY(branches);
   branches->select(reserved);
   QCOMPARE(dialog.worktreeName(), QString("CON-"));
